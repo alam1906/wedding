@@ -107,11 +107,13 @@
 </svelte:head>
 
 <section class="px-4 py-8 sm:px-6 lg:px-10 lg:py-10">
-	<div class="mx-auto max-w-6xl">
-		<article class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-			<div class="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
-				<div class="min-w-0">
-					<div class="flex items-center gap-3">
+	<div class="mx-auto w-full max-w-6xl">
+		<div class="grid w-full min-w-0 gap-5 lg:grid-cols-2">
+			<article
+				class="flex min-w-0 items-center rounded-2xl border border-gray-200 bg-white p-5 shadow-sm"
+			>
+				<div class="flex w-full min-w-0 items-center justify-between gap-4">
+					<div class="flex min-w-0 items-center gap-3">
 						<span
 							class="grid size-10 shrink-0 place-items-center rounded-xl bg-gray-100 text-gray-600"
 						>
@@ -145,18 +147,55 @@
 							{/if}
 						</div>
 					</div>
+					<a
+						href="/user/data"
+						aria-label="Edit link pernikahan"
+						title="Edit link pernikahan"
+						class="grid size-10 shrink-0 place-items-center rounded-xl border border-gray-200 bg-gray-50 text-gray-600 transition hover:border-gray-300 hover:bg-gray-100 hover:text-gray-900"
+					>
+						<svg
+							aria-hidden="true"
+							class="size-4.5"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="1.8"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+						>
+							<path d="M12 20h9"></path>
+							<path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L8 18l-4 1 1-4Z"></path>
+						</svg>
+					</a>
 				</div>
-				<a
-					href="/user/invitation"
-					class="inline-flex shrink-0 items-center justify-center rounded-xl bg-gray-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-gray-700"
-				>
-					Kelola undangan
-				</a>
-			</div>
-		</article>
+			</article>
 
-		<article class="mt-5 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-			<div class="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
+			<article
+				class="flex min-w-0 items-center rounded-2xl border border-gray-200 bg-white p-5 shadow-sm"
+			>
+				<div class="flex w-full flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+					<div>
+						<p class="text-sm font-medium text-gray-500">Paket aktif</p>
+						<h2 class="mt-2 text-2xl font-bold tracking-tight text-gray-900">
+							{weddingPlanTier === 'pro'
+								? 'Paket Pro'
+								: weddingPlanTier === 'free'
+									? 'Free'
+									: 'Paket belum tersedia'}
+						</h2>
+					</div>
+					<a
+						href="/user/setting"
+						class="inline-flex shrink-0 items-center justify-center rounded-xl border border-gray-300 bg-white px-5 py-3 text-sm font-semibold text-gray-700 transition hover:bg-gray-100"
+					>
+						Lihat paket
+					</a>
+				</div>
+			</article>
+		</div>
+
+		<article class="mt-5 w-full rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+			<div class="grid gap-5 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start">
 				<div>
 					<p class="text-sm font-medium text-gray-500">Kelengkapan undangan</p>
 					<h2 class="mt-2 text-2xl font-bold tracking-tight text-gray-900">
@@ -172,66 +211,48 @@
 						</p>
 					{/if}
 				</div>
+				<div
+					class="h-3 overflow-hidden rounded-full bg-gray-100 sm:col-span-2 sm:row-start-2"
+					role="progressbar"
+					aria-label="Kelengkapan data undangan"
+					aria-valuemin="0"
+					aria-valuemax="100"
+					aria-valuenow={progressPercentage}
+				>
+					<div
+						class="h-full rounded-full bg-yellow-400 transition-[width] duration-500"
+						style:width={`${progressPercentage}%`}
+					></div>
+				</div>
 				<a
 					href="/user/data"
-					class="inline-flex shrink-0 items-center justify-center rounded-xl border border-gray-300 bg-white px-5 py-3 text-sm font-semibold text-gray-700 transition hover:bg-gray-100"
+					class="inline-flex w-full shrink-0 items-center justify-center rounded-xl border border-gray-300 bg-white px-5 py-3 text-sm font-semibold text-gray-700 transition hover:bg-gray-100 sm:col-start-2 sm:row-start-1 sm:w-auto"
 				>
 					Lengkapi data
 				</a>
 			</div>
-
-			<div
-				class="mt-6 h-3 overflow-hidden rounded-full bg-gray-100"
-				role="progressbar"
-				aria-label="Kelengkapan data undangan"
-				aria-valuemin="0"
-				aria-valuemax="100"
-				aria-valuenow={progressPercentage}
-			>
-				<div
-					class="h-full rounded-full bg-yellow-400 transition-[width] duration-500"
-					style:width={`${progressPercentage}%`}
-				></div>
-			</div>
 		</article>
 
-		<div class="mt-5 grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
-			{#each stats as stat (stat.label)}
-				<article class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-					<p class="text-sm font-medium text-gray-500">{stat.label}</p>
-					<div class="mt-4 flex items-end justify-between gap-4">
-						<p class="text-4xl font-bold tracking-tight text-gray-900">{stat.value}</p>
-						<span class="rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-500">
-							{stat.badge}
-						</span>
+		<article class="mt-5 w-full rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+			<h2 class="text-lg font-bold text-gray-900">Tamu</h2>
+			<div class="mt-4 grid grid-cols-1 gap-3 min-[420px]:grid-cols-2 lg:grid-cols-4">
+				{#each stats as stat (stat.label)}
+					<div class="min-w-0 rounded-xl border border-gray-200 bg-white p-3.5">
+						<p class="text-sm font-medium text-gray-500">{stat.label}</p>
+						<div class="mt-4 flex items-end justify-between gap-3">
+							<p class="text-4xl font-bold tracking-tight text-gray-900">{stat.value}</p>
+							<span
+								class="rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-500"
+							>
+								{stat.badge}
+							</span>
+						</div>
 					</div>
-				</article>
-			{/each}
-		</div>
-		{#if guestStatsError}
-			<p class="mt-3 text-sm text-red-600">{guestStatsError}</p>
-		{/if}
-
-		<article class="mt-5 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-			<div class="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
-				<div>
-					<p class="text-sm font-medium text-gray-500">Paket aktif</p>
-					<h2 class="mt-2 text-2xl font-bold tracking-tight text-gray-900">
-						{weddingPlanTier === 'pro'
-							? 'Paket Pro'
-							: weddingPlanTier === 'free'
-								? 'Paket Gratis'
-								: 'Paket belum tersedia'}
-					</h2>
-					<p class="mt-2 text-sm text-gray-500">Paket yang sedang digunakan untuk undangan ini.</p>
-				</div>
-				<a
-					href="/user/setting"
-					class="inline-flex shrink-0 items-center justify-center rounded-xl border border-gray-300 bg-white px-5 py-3 text-sm font-semibold text-gray-700 transition hover:bg-gray-100"
-				>
-					Lihat paket
-				</a>
+				{/each}
 			</div>
+			{#if guestStatsError}
+				<p class="mt-4 text-sm text-red-600">{guestStatsError}</p>
+			{/if}
 		</article>
 	</div>
 </section>
