@@ -1,0 +1,7 @@
+interface:
+  display_name: 'Svelte and SvelteKit'
+  short_description: 'Build Svelte 5 and SvelteKit features safely'
+  default_prompt: 'Use $svelte to implement this Svelte or SvelteKit change using current documentation and repository conventions.'
+
+policy:
+  allow_implicit_invocation: true
