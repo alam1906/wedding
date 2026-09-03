@@ -701,7 +701,7 @@
 										/>
 
 										<div
-											class="aspect-[16/7] shrink-0 overflow-hidden border-b-2 {selectedTheme ===
+											class="aspect-16/7 shrink-0 overflow-hidden border-b-2 {selectedTheme ===
 											theme.key
 												? 'border-gray-900'
 												: 'border-gray-200'}"
@@ -778,7 +778,7 @@
 														style:background={theme.colors.accent}
 													></div>
 													<div
-														class="relative mx-auto mt-2 flex h-[78%] w-[72%] rotate-2 flex-col items-center justify-center rounded-[2rem] border-2"
+														class="relative mx-auto mt-2 flex h-[78%] w-[72%] rotate-2 flex-col items-center justify-center rounded-4xl border-2"
 														style:background={theme.colors.surface}
 														style:border-color={theme.colors.text}
 														style:box-shadow={'5px 5px 0 ' + theme.colors.accent}
@@ -1061,7 +1061,7 @@
 										<img
 											src={coverPreview}
 											alt="Preview cover undangan"
-											class="aspect-[16/9] w-full object-cover"
+											class="aspect-video w-full object-cover"
 										/>
 										{#if localSingleImagePreviews.cover}
 											<span
@@ -1186,7 +1186,7 @@
 											<img
 												src={storyImagePreview}
 												alt={`Gambar ${story.title || `cerita ${index + 1}`}`}
-												class="aspect-[16/9] w-full object-cover"
+												class="aspect-video w-full object-cover"
 											/>
 											<button
 												type="button"
@@ -1201,7 +1201,7 @@
 										</div>
 									{:else}
 										<div
-											class="mt-4 grid aspect-[16/9] place-items-center rounded-xl border border-dashed border-gray-300 bg-white px-5 text-center text-gray-400"
+											class="mt-4 grid aspect-video place-items-center rounded-xl border border-dashed border-gray-300 bg-white px-5 text-center text-gray-400"
 										>
 											<div>
 												<svg

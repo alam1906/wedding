@@ -30,7 +30,9 @@
 		href?: string;
 	};
 
-	const invitationOrigin = 'https://wedding.onlytest.my.id';
+	const invitationOrigin = (
+		import.meta.env.PUBLIC_WEDDING_URL || 'https://wedding.onlytest.my.id'
+	).replace(/\/+$/, '');
 
 	function emptyGuestForm(): GuestInput {
 		return {
@@ -556,7 +558,7 @@
 					<div>
 						<p class="text-xs font-bold tracking-[0.16em] text-gray-500 uppercase">Pratinjau</p>
 						<div
-							class="mt-3 overflow-hidden rounded-[1.5rem] border border-[#d5ddd7] bg-[#efeae2] shadow-sm"
+							class="mt-3 overflow-hidden rounded-3xl border border-[#d5ddd7] bg-[#efeae2] shadow-sm"
 						>
 							<div class="flex items-center gap-3 bg-[#075e54] px-4 py-3 text-white">
 								<span

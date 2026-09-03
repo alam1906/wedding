@@ -127,7 +127,12 @@
 	<section class="hero section-shell">
 		<div class="cover-frame">
 			{#if wedding.cover_url}
-				<img src={wedding.cover_url} alt={'Cover pernikahan ' + coupleName} />
+				<img
+					src={wedding.cover_url}
+					alt={'Cover pernikahan ' + coupleName}
+					decoding="async"
+					fetchpriority="high"
+				/>
 			{:else}
 				<div class="cover-placeholder">
 					<span>{groomName.charAt(0)}</span><b>♥</b><span>{brideName.charAt(0)}</span>
@@ -169,9 +174,12 @@
 			<div class="couple-grid">
 				{#each [{ name: groomName, photo: wedding.groom_photo_url, label: 'Putra dari', father: wedding.groom_father_name, mother: wedding.groom_mother_name }, { name: brideName, photo: wedding.bride_photo_url, label: 'Putri dari', father: wedding.bride_father_name, mother: wedding.bride_mother_name }] as person (person.name)}
 					<article class="person-card" data-reveal>
-						{#if person.photo}<img src={person.photo} alt={person.name} />{:else}<div
-								class="person-placeholder"
-							>
+						{#if person.photo}<img
+								src={person.photo}
+								alt={person.name}
+								loading="lazy"
+								decoding="async"
+							/>{:else}<div class="person-placeholder">
 								{person.name.charAt(0)}
 							</div>{/if}
 						<h3>{person.name}</h3>
@@ -240,6 +248,8 @@
 										class="story-image"
 										src={story.image_url}
 										alt={'Gambar ' + (story.title || 'cerita ' + (index + 1))}
+										loading="lazy"
+										decoding="async"
 									/>
 								{/if}
 								<div class="story-copy">
@@ -267,7 +277,12 @@
 				</header>
 				<div class="gallery-grid">
 					{#each wedding.gallery as image, index (image.name)}<figure data-gallery-item>
-							<img src={image.url} alt={'Galeri pernikahan ' + (index + 1)} />
+							<img
+								src={image.url}
+								alt={'Galeri pernikahan ' + (index + 1)}
+								loading="lazy"
+								decoding="async"
+							/>
 						</figure>{/each}
 				</div>
 			</div>

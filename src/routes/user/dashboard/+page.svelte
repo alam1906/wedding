@@ -92,7 +92,10 @@
 	];
 
 	const progressPercentage = weddingProgress?.percentage ?? 0;
-	const weddingURL = weddingSlug ? `https://wedding.onlytest.my.id/${weddingSlug}` : null;
+	const invitationOrigin = (
+		import.meta.env.PUBLIC_WEDDING_URL || 'https://wedding.onlytest.my.id'
+	).replace(/\/+$/, '');
+	const weddingURL = weddingSlug ? `${invitationOrigin}/${weddingSlug}` : null;
 </script>
 
 <svelte:head>

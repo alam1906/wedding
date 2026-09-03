@@ -458,7 +458,7 @@ Collection ID: `pbc_2047001084`
 | `whatsapp`    | Text        | Ya    | 8-20 karakter, wajib format internasional                                                                                    |
 | `rsvp_status` | Select      | Ya    | `pending`, `attending`, atau `not_attending`                                                                                 |
 | `message`     | Text        | Tidak | Maksimum 1000 karakter                                                                                                       |
-| `rsvp_token`  | Text        | Ya    | 12-64 karakter; token baru menggunakan tepat 16 huruf kecil `a-z`, sedangkan format lama tetap diterima untuk kompatibilitas |
+| `rsvp_token`  | Text        | Ya    | 12-64 karakter; token baru menggunakan tepat 32 huruf kecil `a-z`, sedangkan format lama tetap diterima untuk kompatibilitas |
 | `guest_count` | Number      | Ya    | Integer, minimum 1                                                                                                           |
 
 Regex `whatsapp`:
@@ -544,16 +544,17 @@ function normalizeWhatsapp(value: string): string {
 ```ts
 function createRsvpToken(): string {
 	const alphabet = 'abcdefghijklmnopqrstuvwxyz';
+	const tokenLength = 32;
 	let token = '';
 
-	while (token.length < 16) {
-		const bytes = crypto.getRandomValues(new Uint8Array(16));
+	while (token.length < tokenLength) {
+		const bytes = crypto.getRandomValues(new Uint8Array(tokenLength));
 
 		for (const byte of bytes) {
 			if (byte >= 234) continue;
 
 			token += alphabet[byte % alphabet.length];
-			if (token.length === 16) break;
+			if (token.length === tokenLength) break;
 		}
 	}
 

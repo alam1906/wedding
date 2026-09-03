@@ -24,6 +24,7 @@ async function createInitialWedding(userId: string): Promise<void> {
 
 	batch.collection('weddings').create({
 		id: weddingId,
+		owner: userId,
 		slug: '',
 		theme: 'minimalist-1',
 		plan_tier: 'free'

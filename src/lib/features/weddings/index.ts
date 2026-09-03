@@ -1,12 +1,6 @@
 export { WeddingQueryError, getWeddingCompletion } from './api/get-wedding-completion.js';
-export {
-	DEFAULT_WHATSAPP_TEMPLATE,
-	WhatsappTemplateError
-} from './api/whatsapp-template.js';
-export {
-	WeddingDataError,
-	getWeddingBySlug
-} from './api/wedding.js';
+export { DEFAULT_WHATSAPP_TEMPLATE, WhatsappTemplateError } from './api/whatsapp-template.js';
+export { WeddingDataError, getWeddingBySlug } from './api/wedding.js';
 export {
 	getCurrentWedding,
 	getCurrentWeddingSlug,

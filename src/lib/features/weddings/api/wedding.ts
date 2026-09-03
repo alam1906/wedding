@@ -98,8 +98,7 @@ function toWeddingData(record: RecordModel, stories: WeddingStoryItem[]): Weddin
 		slug: typeof record.slug === 'string' ? record.slug : '',
 		theme: typeof record.theme === 'string' && record.theme ? record.theme : 'minimalist-1',
 		plan_tier: record.plan_tier === 'pro' ? 'pro' : 'free',
-		whatsapp_template:
-			typeof record.whatsapp_template === 'string' ? record.whatsapp_template : '',
+		whatsapp_template: typeof record.whatsapp_template === 'string' ? record.whatsapp_template : '',
 		groom_name: typeof record.groom_name === 'string' ? record.groom_name : '',
 		groom_father_name: typeof record.groom_father_name === 'string' ? record.groom_father_name : '',
 		groom_mother_name: typeof record.groom_mother_name === 'string' ? record.groom_mother_name : '',

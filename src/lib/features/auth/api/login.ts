@@ -1,7 +1,7 @@
 import { ClientResponseError } from 'pocketbase';
 
 import { pocketBase } from '#lib/infrastructure/pocketbase/index.js';
-import type { LoginInput } from '../model/login-schema';
+import type { LoginInput } from '../model/login-schema.js';
 
 export class LoginError extends Error {
 	constructor(message: string, options?: ErrorOptions) {

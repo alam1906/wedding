@@ -1,4 +1,4 @@
-export { LoginError, loginWithPassword } from './api/login';
+export { LoginError, loginWithPassword } from './api/login.js';
 export { RegisterError, registerWithPassword } from './api/register.js';
 export {
 	VerificationError,
@@ -20,5 +20,5 @@ export {
 	type RegisterInput,
 	type RegisterValidationResult
 } from './model/register-schema.js';
-export { loginSchema, validateLogin } from './model/login-schema';
-export type { LoginFieldErrors, LoginInput, LoginValidationResult } from './model/login-schema';
+export { loginSchema, validateLogin } from './model/login-schema.js';
+export type { LoginFieldErrors, LoginInput, LoginValidationResult } from './model/login-schema.js';

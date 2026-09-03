@@ -1,87 +1,87 @@
-	import {
-		createGuest as requestCreateGuest,
-		deleteGuest as requestDeleteGuest,
-		getGuests as requestGuests,
-		updateGuest as requestUpdateGuest
-	} from '../api/guest.js';
-	import type { Guest, GuestInput } from '../model/guest.js';
+import {
+	createGuest as requestCreateGuest,
+	deleteGuest as requestDeleteGuest,
+	getGuests as requestGuests,
+	updateGuest as requestUpdateGuest
+} from '../api/guest.js';
+import type { Guest, GuestInput } from '../model/guest.js';
 
-	let cachedGuests = $state.raw<Guest[] | null>(null);
-	let guestsRequest: Promise<Guest[]> | null = null;
-	let cacheGeneration = 0;
+let cachedGuests = $state.raw<Guest[] | null>(null);
+let guestsRequest: Promise<Guest[]> | null = null;
+let cacheGeneration = 0;
 
-	function sortGuests(guests: Guest[]): Guest[] {
-		return [...guests].sort((left, right) => left.name.localeCompare(right.name, 'id'));
+function sortGuests(guests: Guest[]): Guest[] {
+	return [...guests].sort((left, right) => left.name.localeCompare(right.name, 'id'));
+}
+
+function storeGuests(guests: Guest[], generation: number) {
+	if (generation === cacheGeneration) {
+		cachedGuests = sortGuests(guests);
+	}
+}
+
+export function getGuests(): Promise<Guest[]> {
+	if (cachedGuests) {
+		return Promise.resolve(cachedGuests);
 	}
 
-	function storeGuests(guests: Guest[], generation: number) {
-		if (generation === cacheGeneration) {
-			cachedGuests = sortGuests(guests);
-		}
+	if (guestsRequest) {
+		return guestsRequest;
 	}
 
-	export function getGuests(): Promise<Guest[]> {
-		if (cachedGuests) {
-			return Promise.resolve(cachedGuests);
-		}
+	const generation = cacheGeneration;
+	const request = requestGuests()
+		.then((guests) => {
+			storeGuests(guests, generation);
+			return guests;
+		})
+		.finally(() => {
+			if (guestsRequest === request) {
+				guestsRequest = null;
+			}
+		});
 
-		if (guestsRequest) {
-			return guestsRequest;
-		}
+	guestsRequest = request;
+	return request;
+}
 
-		const generation = cacheGeneration;
-		const request = requestGuests()
-			.then((guests) => {
-				storeGuests(guests, generation);
-				return guests;
-			})
-			.finally(() => {
-				if (guestsRequest === request) {
-					guestsRequest = null;
-				}
-			});
+export async function createGuest(input: GuestInput): Promise<Guest> {
+	const generation = cacheGeneration;
+	const guest = await requestCreateGuest(input);
 
-		guestsRequest = request;
-		return request;
+	if (cachedGuests && generation === cacheGeneration) {
+		cachedGuests = sortGuests([...cachedGuests, guest]);
 	}
 
-	export async function createGuest(input: GuestInput): Promise<Guest> {
-		const generation = cacheGeneration;
-		const guest = await requestCreateGuest(input);
+	return guest;
+}
 
-		if (cachedGuests && generation === cacheGeneration) {
-			cachedGuests = sortGuests([...cachedGuests, guest]);
-		}
+export async function updateGuest(id: string, input: GuestInput): Promise<Guest> {
+	const generation = cacheGeneration;
+	const updatedGuest = await requestUpdateGuest(id, input);
 
-		return guest;
+	if (cachedGuests && generation === cacheGeneration) {
+		cachedGuests = sortGuests(
+			cachedGuests.map((guest) => (guest.id === id ? updatedGuest : guest))
+		);
 	}
 
-	export async function updateGuest(id: string, input: GuestInput): Promise<Guest> {
-		const generation = cacheGeneration;
-		const updatedGuest = await requestUpdateGuest(id, input);
+	return updatedGuest;
+}
 
-		if (cachedGuests && generation === cacheGeneration) {
-			cachedGuests = sortGuests(
-				cachedGuests.map((guest) => (guest.id === id ? updatedGuest : guest))
-			);
-		}
+export async function deleteGuest(id: string): Promise<boolean> {
+	const generation = cacheGeneration;
+	const deleted = await requestDeleteGuest(id);
 
-		return updatedGuest;
+	if (deleted && cachedGuests && generation === cacheGeneration) {
+		cachedGuests = cachedGuests.filter((guest) => guest.id !== id);
 	}
 
-	export async function deleteGuest(id: string): Promise<boolean> {
-		const generation = cacheGeneration;
-		const deleted = await requestDeleteGuest(id);
+	return deleted;
+}
 
-		if (deleted && cachedGuests && generation === cacheGeneration) {
-			cachedGuests = cachedGuests.filter((guest) => guest.id !== id);
-		}
-
-		return deleted;
-	}
-
-	export function resetGuestState() {
-		cacheGeneration += 1;
-		cachedGuests = null;
-		guestsRequest = null;
-	}
+export function resetGuestState() {
+	cacheGeneration += 1;
+	cachedGuests = null;
+	guestsRequest = null;
+}

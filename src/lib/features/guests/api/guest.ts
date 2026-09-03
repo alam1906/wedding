@@ -134,16 +134,17 @@ function guestPayload(input: GuestInput): Record<string, unknown> {
 
 function createRsvpToken(): string {
 	const alphabet = 'abcdefghijklmnopqrstuvwxyz';
+	const tokenLength = 32;
 	let token = '';
 
-	while (token.length < 16) {
-		const bytes = crypto.getRandomValues(new Uint8Array(16));
+	while (token.length < tokenLength) {
+		const bytes = crypto.getRandomValues(new Uint8Array(tokenLength));
 
 		for (const byte of bytes) {
 			if (byte >= 234) continue;
 
 			token += alphabet[byte % alphabet.length];
-			if (token.length === 16) break;
+			if (token.length === tokenLength) break;
 		}
 	}
 

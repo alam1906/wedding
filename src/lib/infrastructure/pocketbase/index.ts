@@ -1,4 +1,4 @@
-export { pocketBase } from './client';
-export { pocketBaseUrl } from './config';
+export { pocketBase } from './client.js';
+export { pocketBaseUrl } from './config.js';
 
 export type { AuthRecord, RecordModel } from 'pocketbase';
