@@ -102,25 +102,14 @@
 			name: 'Free',
 			price: 'Rp0',
 			description: 'Mulai merancang undangan dan lihat hasilnya sebelum dipublikasikan.',
-			features: [
-				'Akses editor dasar',
-				'1 pilihan tema',
-				'Pratinjau undangan',
-				'Simpan sebagai draft'
-			],
+			features: ['Tema Terbatas', 'Tamu Terbatas', 'Ada Watermark'],
 			featured: false
 		},
 		{
 			name: 'Pro',
-			price: 'Rp149rb',
+			price: 'Rp50rb',
 			description: 'Semua yang dibutuhkan untuk membagikan dan mengelola undangan kalian.',
-			features: [
-				'Semua tema premium',
-				'Tautan personal tamu',
-				'Kelola tamu dan RSVP',
-				'Galeri foto lengkap',
-				'Aktif selama 12 bulan'
-			],
+			features: ['Semua Tema Premium', 'Unlimited Tamu', 'No Watermark'],
 			featured: true
 		}
 	];
@@ -129,7 +118,7 @@
 		{
 			question: 'Apakah Wedez gratis digunakan?',
 			answer:
-				'Ya, Wedez menyediakan paket gratis yang sudah mencakup semua fitur Pro. Perbedaannya hanya terdapat watermark pada halaman undangan.'
+				'Ya, Wedez menyediakan paket gratis dengan tema dasar dan maksimal 100 tamu. Paket Pro membuka semua tema premium, tamu tanpa batas, dan menghilangkan watermark.'
 		},
 		{
 			question: 'Bagaimana cara membuat undangan di Wedez?',

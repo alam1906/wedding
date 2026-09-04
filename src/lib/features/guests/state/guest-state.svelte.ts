@@ -1,5 +1,6 @@
 import {
 	createGuest as requestCreateGuest,
+	createGuests as requestCreateGuests,
 	deleteGuest as requestDeleteGuest,
 	getGuests as requestGuests,
 	updateGuest as requestUpdateGuest
@@ -54,6 +55,17 @@ export async function createGuest(input: GuestInput): Promise<Guest> {
 	}
 
 	return guest;
+}
+
+export async function createGuests(inputs: GuestInput[]): Promise<Guest[]> {
+	const generation = cacheGeneration;
+	const createdGuests = await requestCreateGuests(inputs);
+
+	if (cachedGuests && generation === cacheGeneration) {
+		cachedGuests = sortGuests([...cachedGuests, ...createdGuests]);
+	}
+
+	return createdGuests;
 }
 
 export async function updateGuest(id: string, input: GuestInput): Promise<Guest> {

@@ -152,22 +152,31 @@ function createRsvpToken(): string {
 	return token;
 }
 
+function containsRsvpTokenConflict(value: unknown): boolean {
+	if (typeof value !== 'object' || value === null) return false;
+
+	for (const [key, nestedValue] of Object.entries(value)) {
+		if (
+			key === 'rsvp_token' &&
+			typeof nestedValue === 'object' &&
+			nestedValue !== null &&
+			'code' in nestedValue &&
+			nestedValue.code === 'validation_not_unique'
+		) {
+			return true;
+		}
+
+		if (containsRsvpTokenConflict(nestedValue)) return true;
+	}
+
+	return false;
+}
+
 function isRsvpTokenConflict(error: unknown): boolean {
-	if (!(error instanceof ClientResponseError) || error.status !== 400) {
-		return false;
-	}
-
-	const responseData = error.response?.data;
-	if (typeof responseData !== 'object' || responseData === null) {
-		return false;
-	}
-
-	const tokenError = responseData.rsvp_token;
 	return (
-		typeof tokenError === 'object' &&
-		tokenError !== null &&
-		'code' in tokenError &&
-		tokenError.code === 'validation_not_unique'
+		error instanceof ClientResponseError &&
+		error.status === 400 &&
+		containsRsvpTokenConflict(error.response)
 	);
 }
 
@@ -207,6 +216,38 @@ export function createGuest(input: GuestInput): Promise<Guest> {
 				if (!isRsvpTokenConflict(error)) {
 					throw error;
 				}
+			}
+		}
+
+		throw new GuestDataError('Token RSVP unik gagal dibuat. Silakan coba lagi.');
+	});
+}
+
+export function createGuests(inputs: GuestInput[]): Promise<Guest[]> {
+	return handleGuestRequest(async () => {
+		if (inputs.length === 0) return [];
+
+		const weddingId = getCurrentWeddingId();
+
+		for (let attempt = 0; attempt < RSVP_TOKEN_GENERATION_ATTEMPTS; attempt += 1) {
+			const batch = pocketBase.createBatch();
+
+			for (const input of inputs) {
+				batch.collection('guests').create(
+					{
+						...guestPayload(input),
+						wedding: weddingId,
+						rsvp_token: createRsvpToken()
+					},
+					{ fields: GUEST_FIELDS.join(',') }
+				);
+			}
+
+			try {
+				const results = await batch.send({ requestKey: null });
+				return results.map((result) => toGuest(result.body as RecordModel));
+			} catch (error) {
+				if (!isRsvpTokenConflict(error)) throw error;
 			}
 		}
 

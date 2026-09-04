@@ -5,9 +5,13 @@
 	import {
 		GuestDataError,
 		createGuest,
+		createGuests,
 		deleteGuest as deleteGuestRecord,
+		GuestCsvError,
+		parseGuestCsv,
 		updateGuest,
 		type Guest,
+		type GuestCsvRow,
 		type GuestInput,
 		type GuestStatus
 	} from '#lib/features/guests/index.js';
@@ -51,6 +55,7 @@
 
 	let search = $state('');
 	let guestDialog: HTMLDialogElement | undefined;
+	let csvDialog: HTMLDialogElement | undefined;
 	let deleteDialog: HTMLDialogElement | undefined;
 	let templateDialog: HTMLDialogElement | undefined;
 	let templateEditor: HTMLDivElement | undefined;
@@ -58,6 +63,11 @@
 	let guestPendingDeletion = $state<Guest | null>(null);
 	let form = $state<GuestInput>(emptyGuestForm());
 	let isSaving = $state(false);
+	let csvRows = $state<GuestCsvRow[]>([]);
+	let csvFileName = $state('');
+	let csvError = $state('');
+	let isReadingCsv = $state(false);
+	let isImportingCsv = $state(false);
 	let deletingIds = $state<string[]>([]);
 	let savedWhatsappTemplate = $derived(data.whatsappTemplate);
 	let whatsappTemplateDraft = $derived(data.whatsappTemplate);
@@ -68,6 +78,14 @@
 
 		return () => {
 			if (guestDialog === dialog) guestDialog = undefined;
+		};
+	};
+
+	const attachCsvDialog: Attachment<HTMLDialogElement> = (dialog) => {
+		csvDialog = dialog;
+
+		return () => {
+			if (csvDialog === dialog) csvDialog = undefined;
 		};
 	};
 
@@ -92,6 +110,8 @@
 			`${guest.name} ${guest.whatsapp}`.toLowerCase().includes(search.trim().toLowerCase())
 		)
 	);
+	let importableCsvRows = $derived(csvRows.filter((row) => !row.issue));
+	let rejectedCsvRows = $derived(csvRows.filter((row) => row.issue));
 	let isDeletingGuest = $derived(
 		guestPendingDeletion !== null && deletingIds.includes(guestPendingDeletion.id)
 	);
@@ -138,6 +158,81 @@
 
 	function closeDialog() {
 		guestDialog?.close();
+	}
+
+	function openCsvDialog() {
+		csvRows = [];
+		csvFileName = '';
+		csvError = '';
+		csvDialog?.showModal();
+	}
+
+	function closeCsvDialog() {
+		if (isReadingCsv || isImportingCsv) return;
+		csvDialog?.close();
+	}
+
+	function markExistingGuests(rows: GuestCsvRow[]): GuestCsvRow[] {
+		const existingNumbers = new Set(guests.map((guest) => guest.whatsapp));
+
+		return rows.map((row) =>
+			!row.issue && existingNumbers.has(row.normalizedWhatsapp)
+				? { ...row, issue: 'Nomor sudah ada di daftar tamu.' }
+				: row
+		);
+	}
+
+	async function readCsvFile(event: Event) {
+		const input = event.currentTarget;
+		if (!(input instanceof HTMLInputElement)) return;
+
+		const file = input.files?.[0];
+		if (!file) return;
+
+		csvRows = [];
+		csvFileName = file.name;
+		csvError = '';
+
+		if (!file.name.toLocaleLowerCase('id-ID').endsWith('.csv')) {
+			csvError = 'Pilih file dengan format .csv.';
+			input.value = '';
+			return;
+		}
+
+		if (file.size > 2 * 1024 * 1024) {
+			csvError = 'Ukuran CSV maksimal 2 MB.';
+			input.value = '';
+			return;
+		}
+
+		isReadingCsv = true;
+
+		try {
+			csvRows = markExistingGuests(parseGuestCsv(await file.text()));
+		} catch (error) {
+			csvError = error instanceof GuestCsvError ? error.message : 'File CSV gagal dibaca.';
+		} finally {
+			isReadingCsv = false;
+			input.value = '';
+		}
+	}
+
+	async function importCsvGuests(event: SubmitEvent) {
+		event.preventDefault();
+		if (isImportingCsv || importableCsvRows.length === 0) return;
+
+		isImportingCsv = true;
+
+		try {
+			const createdGuests = await createGuests(importableCsvRows.map((row) => row.input));
+			guests = sortGuests([...guests, ...createdGuests]);
+			toast.success(`${createdGuests.length} tamu berhasil diimpor.`);
+			csvDialog?.close();
+		} catch (error) {
+			toast.error(error instanceof GuestDataError ? error.message : 'Tamu dari CSV gagal diimpor.');
+		} finally {
+			isImportingCsv = false;
+		}
 	}
 
 	function openDeleteDialog(guest: Guest) {
@@ -405,7 +500,7 @@
 						<input
 							bind:value={form.name}
 							required
-							class="field mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 text-sm"
+							class="field mt-2 w-full rounded-xl border border-gray-600 px-4 py-3 text-sm"
 							placeholder="Nama lengkap"
 						/>
 					</label>
@@ -416,7 +511,7 @@
 							inputmode="tel"
 							autocomplete="tel"
 							required
-							class="field mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 text-sm"
+							class="field mt-2 w-full rounded-xl border border-gray-600 px-4 py-3 text-sm"
 							placeholder="0812 3456 7890"
 						/>
 					</label>
@@ -442,6 +537,117 @@
 							: editingId === null
 								? 'Tambah tamu'
 								: 'Simpan perubahan'}
+					</button>
+				</div>
+			</form>
+		</dialog>
+
+		<dialog
+			{@attach attachCsvDialog}
+			onclick={(event) => event.target === event.currentTarget && closeCsvDialog()}
+			oncancel={(event) => (isReadingCsv || isImportingCsv) && event.preventDefault()}
+			class="guest-dialog m-auto max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-3xl overflow-y-auto rounded-2xl border border-gray-200 bg-white p-0 shadow-xl"
+		>
+			<form onsubmit={importCsvGuests}>
+				<div class="border-b border-gray-200 p-5 sm:p-6">
+					<h2 class="text-lg font-bold text-gray-900">Impor tamu dari CSV</h2>
+					<p class="mt-2 text-sm leading-6 text-gray-500">
+						Gunakan kolom <strong class="font-semibold text-gray-700">name</strong> dan
+						<strong class="font-semibold text-gray-700">whatsapp</strong>. Kolom
+						<strong class="font-semibold text-gray-700">guest_count</strong> bersifat opsional, maksimal
+						50 tamu per impor.
+					</p>
+				</div>
+
+				<div class="space-y-5 p-5 sm:p-6">
+					<div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+						<label class="block min-w-0 flex-1 text-sm font-medium text-gray-700">
+							Pilih file CSV
+							<input
+								type="file"
+								accept=".csv,text/csv"
+								onchange={readCsvFile}
+								disabled={isReadingCsv || isImportingCsv}
+								class="mt-2 block w-full rounded-xl border border-gray-600 bg-white text-sm text-gray-500 file:mr-4 file:border-0 file:border-r file:border-gray-200 file:bg-gray-50 file:px-4 file:py-3 file:font-semibold file:text-gray-700 hover:file:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-60"
+							/>
+						</label>
+						<a
+							href="/examples/tamu-undangan-contoh.csv"
+							download
+							class="mt-auto inline-flex shrink-0 items-center justify-center rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm font-semibold text-gray-700 hover:bg-gray-100"
+							>Unduh CSV contoh</a
+						>
+					</div>
+
+					<div aria-live="polite">
+						{#if isReadingCsv}
+							<p class="rounded-xl bg-gray-50 px-4 py-3 text-sm text-gray-600">
+								Membaca file CSV...
+							</p>
+						{:else if csvError}
+							<p class="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">{csvError}</p>
+						{:else if csvRows.length > 0}
+							<div class="flex flex-wrap items-center justify-between gap-2">
+								<p class="text-sm font-semibold text-gray-900">{csvFileName}</p>
+								<p class="text-xs text-gray-500">
+									{importableCsvRows.length} siap diimpor · {rejectedCsvRows.length} dilewati
+								</p>
+							</div>
+
+							<div class="mt-3 max-h-72 overflow-auto rounded-xl border border-gray-200">
+								<table class="w-full min-w-144 text-left">
+									<thead
+										class="sticky top-0 bg-gray-50 text-xs font-semibold tracking-wide text-gray-500 uppercase"
+									>
+										<tr>
+											<th class="px-4 py-3">Baris</th>
+											<th class="px-4 py-3">Nama</th>
+											<th class="px-4 py-3">WhatsApp</th>
+											<th class="px-4 py-3">Hasil</th>
+										</tr>
+									</thead>
+									<tbody class="divide-y divide-gray-200 text-sm">
+										{#each csvRows as row (row.rowNumber)}
+											<tr class:opacity-60={row.issue}>
+												<td class="px-4 py-3 text-gray-500">{row.rowNumber}</td>
+												<td class="px-4 py-3 font-medium text-gray-900">{row.input.name || '—'}</td>
+												<td class="px-4 py-3 text-gray-600">{row.input.whatsapp || '—'}</td>
+												<td class="px-4 py-3">
+													{#if row.issue}
+														<span class="text-xs font-semibold text-red-600">{row.issue}</span>
+													{:else}
+														<span class="text-xs font-semibold text-green-700">Siap</span>
+													{/if}
+												</td>
+											</tr>
+										{/each}
+									</tbody>
+								</table>
+							</div>
+						{/if}
+					</div>
+				</div>
+
+				<div class="flex justify-end gap-3 border-t border-gray-200 px-5 py-4 sm:px-6">
+					<button
+						type="button"
+						onclick={closeCsvDialog}
+						disabled={isReadingCsv || isImportingCsv}
+						class="rounded-xl border border-gray-300 bg-white px-5 py-3 text-sm font-semibold text-gray-700 hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-60"
+					>
+						Batal
+					</button>
+					<button
+						type="submit"
+						disabled={isReadingCsv || isImportingCsv || importableCsvRows.length === 0}
+						aria-busy={isImportingCsv}
+						class="rounded-xl bg-gray-900 px-5 py-3 text-sm font-semibold text-white hover:bg-gray-700 disabled:cursor-not-allowed disabled:opacity-50"
+					>
+						{isImportingCsv
+							? 'Mengimpor...'
+							: importableCsvRows.length > 0
+								? `Impor ${importableCsvRows.length} tamu`
+								: 'Impor tamu'}
 					</button>
 				</div>
 			</form>
@@ -546,7 +752,7 @@
 							aria-multiline="true"
 							aria-label="Isi template pesan WhatsApp"
 							spellcheck="true"
-							class="field rich-template mt-3 min-h-80 w-full overflow-y-auto rounded-2xl border border-gray-300 bg-white px-4 py-4 text-sm leading-6 text-gray-800"
+							class="field rich-template mt-3 min-h-80 w-full overflow-y-auto rounded-2xl border border-gray-600 bg-white px-4 py-4 text-sm leading-6 text-gray-800"
 						></div>
 						<div class="mt-2 flex items-center justify-between gap-4 text-xs text-gray-400">
 							<span>Variabel <strong class="text-gray-600">{`{link}`}</strong> wajib tersedia.</span
@@ -634,7 +840,7 @@
 					</svg>
 					<input
 						bind:value={search}
-						class="field w-full rounded-xl border border-gray-300 py-3 pr-4 pl-12 text-sm"
+						class="field w-full rounded-xl border border-gray-600 py-3 pr-4 pl-12 text-sm"
 						placeholder="Cari nama atau nomor WhatsApp"
 					/>
 				</label>
@@ -659,6 +865,27 @@
 							<path d="M10 11h4M10 15h4"></path>
 						</svg>
 						<span class="sr-only lg:not-sr-only">Template</span>
+					</button>
+					<button
+						type="button"
+						onclick={openCsvDialog}
+						title="Impor tamu dari CSV"
+						class="inline-flex size-11 items-center justify-center rounded-xl border border-gray-300 bg-white text-sm font-semibold text-gray-700 transition hover:bg-gray-100 lg:h-auto lg:w-auto lg:px-5 lg:py-3"
+					>
+						<svg
+							aria-hidden="true"
+							class="size-5 lg:hidden"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="1.8"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+						>
+							<path d="M12 16V4M8 8l4-4 4 4"></path>
+							<path d="M5 14v5h14v-5"></path>
+						</svg>
+						<span class="sr-only lg:not-sr-only">Impor CSV</span>
 					</button>
 					<button
 						type="button"

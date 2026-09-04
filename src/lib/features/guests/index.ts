@@ -1,11 +1,13 @@
 export { GuestDataError } from './api/guest.js';
 export {
 	createGuest,
+	createGuests,
 	deleteGuest,
 	getGuests,
 	resetGuestState,
 	updateGuest
 } from './state/guest-state.svelte.js';
+export { GuestCsvError, parseGuestCsv, type GuestCsvRow } from './model/guest-csv.js';
 export {
 	PublicRsvpError,
 	getPublicGuestRsvp,

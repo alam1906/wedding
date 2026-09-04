@@ -855,7 +855,7 @@
 						<label class="block text-sm font-medium text-gray-700">
 							Slug domain
 							<div
-								class="mt-2 flex overflow-hidden rounded-xl border border-gray-300 bg-white focus-within:border-yellow-400"
+								class="mt-2 flex overflow-hidden rounded-xl border border-gray-600 bg-white focus-within:border-yellow-400"
 							>
 								<span
 									class="flex items-center border-r border-gray-200 bg-gray-50 px-4 text-sm text-gray-500"
@@ -923,21 +923,21 @@
 										>Nama lengkap<input
 											name="groom_name"
 											value={wedding.groom_name}
-											class="field mt-2 w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm"
+											class="field mt-2 w-full rounded-xl border border-gray-600 bg-white px-4 py-3 text-sm"
 										/></label
 									>
 									<label class="block text-sm font-medium text-gray-700"
 										>Nama ayah<input
 											name="groom_father_name"
 											value={wedding.groom_father_name}
-											class="field mt-2 w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm"
+											class="field mt-2 w-full rounded-xl border border-gray-600 bg-white px-4 py-3 text-sm"
 										/></label
 									>
 									<label class="block text-sm font-medium text-gray-700"
 										>Nama ibu<input
 											name="groom_mother_name"
 											value={wedding.groom_mother_name}
-											class="field mt-2 w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm"
+											class="field mt-2 w-full rounded-xl border border-gray-600 bg-white px-4 py-3 text-sm"
 										/></label
 									>
 								</div>
@@ -991,21 +991,21 @@
 										>Nama lengkap<input
 											name="bride_name"
 											value={wedding.bride_name}
-											class="field mt-2 w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm"
+											class="field mt-2 w-full rounded-xl border border-gray-600 bg-white px-4 py-3 text-sm"
 										/></label
 									>
 									<label class="block text-sm font-medium text-gray-700"
 										>Nama ayah<input
 											name="bride_father_name"
 											value={wedding.bride_father_name}
-											class="field mt-2 w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm"
+											class="field mt-2 w-full rounded-xl border border-gray-600 bg-white px-4 py-3 text-sm"
 										/></label
 									>
 									<label class="block text-sm font-medium text-gray-700"
 										>Nama ibu<input
 											name="bride_mother_name"
 											value={wedding.bride_mother_name}
-											class="field mt-2 w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm"
+											class="field mt-2 w-full rounded-xl border border-gray-600 bg-white px-4 py-3 text-sm"
 										/></label
 									>
 								</div>
@@ -1019,7 +1019,7 @@
 										name="akad"
 										type="datetime-local"
 										bind:value={akadValue}
-										class="field mt-2 w-full rounded-xl border border-gray-300 bg-white! px-4 py-3 text-sm"
+										class="field mt-2 w-full rounded-xl border border-gray-600 bg-white! px-4 py-3 text-sm"
 									/></label
 								>
 								<label class="block text-sm font-medium text-gray-700"
@@ -1027,7 +1027,7 @@
 										name="reception"
 										type="datetime-local"
 										bind:value={receptionValue}
-										class="field mt-2 w-full rounded-xl border border-gray-300 bg-white! px-4 py-3 text-sm"
+										class="field mt-2 w-full rounded-xl border border-gray-600 bg-white! px-4 py-3 text-sm"
 									/></label
 								>
 							</div>
@@ -1035,7 +1035,7 @@
 								>Alamat acara<textarea
 									name="address"
 									bind:value={wedding.address}
-									class="field mt-2 min-h-32 w-full rounded-xl border border-gray-300 bg-white! px-4 py-3 text-sm"
+									class="field mt-2 min-h-32 w-full rounded-xl border border-gray-600 bg-white! px-4 py-3 text-sm"
 									placeholder="Alamat lengkap"></textarea></label
 							>
 							<label class="block text-sm font-medium text-gray-700">
@@ -1044,7 +1044,7 @@
 									name="maps"
 									type="url"
 									value={wedding.maps}
-									class="field mt-2 w-full rounded-xl border border-gray-300 bg-white! px-4 py-3 text-sm"
+									class="field mt-2 w-full rounded-xl border border-gray-600 bg-white! px-4 py-3 text-sm"
 									placeholder="https://maps.app.goo.gl/..."
 								/>
 								<span class="mt-2 block text-xs font-normal text-gray-500"
@@ -1235,14 +1235,14 @@
 												bind:value={story.title}
 												maxlength="200"
 												required
-												class="field mt-2 w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm"
+												class="field mt-2 w-full rounded-xl border border-gray-600 bg-white px-4 py-3 text-sm"
 											/></label
 										>
 										<label class="block text-sm font-medium text-gray-700"
 											>Tanggal<input
 												type="date"
 												bind:value={story.date}
-												class="field mt-2 w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm"
+												class="field mt-2 w-full rounded-xl border border-gray-600 bg-white px-4 py-3 text-sm"
 											/></label
 										>
 									</div>
@@ -1251,7 +1251,7 @@
 											bind:value={story.content}
 											maxlength="5000"
 											required
-											class="field mt-2 min-h-32 w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm"
+											class="field mt-2 min-h-32 w-full rounded-xl border border-gray-600 bg-white px-4 py-3 text-sm"
 										></textarea></label
 									>
 								</section>
@@ -1268,7 +1268,7 @@
 							>Quote pernikahan<textarea
 								name="quote"
 								bind:value={wedding.quote}
-								class="field mt-2 min-h-40 w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm"
+								class="field mt-2 min-h-40 w-full rounded-xl border border-gray-600 bg-white px-4 py-3 text-sm"
 								placeholder="Tuliskan quote yang bermakna"></textarea></label
 						>
 					{:else if activeSection === 'Kado'}
@@ -1282,7 +1282,7 @@
 											type="text"
 											maxlength="100"
 											value={wedding.groom_payment_provider}
-											class="field mt-2 w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm"
+											class="field mt-2 w-full rounded-xl border border-gray-600 bg-white px-4 py-3 text-sm"
 											placeholder="Contoh: BCA atau GoPay"
 										/></label
 									>
@@ -1293,7 +1293,7 @@
 											maxlength="50"
 											value={wedding.groom_payment_number}
 											inputmode="numeric"
-											class="field mt-2 w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm"
+											class="field mt-2 w-full rounded-xl border border-gray-600 bg-white px-4 py-3 text-sm"
 											placeholder="Masukkan nomor tanpa spasi"
 										/></label
 									>
@@ -1308,7 +1308,7 @@
 											type="text"
 											maxlength="100"
 											value={wedding.bride_payment_provider}
-											class="field mt-2 w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm"
+											class="field mt-2 w-full rounded-xl border border-gray-600 bg-white px-4 py-3 text-sm"
 											placeholder="Contoh: Mandiri atau DANA"
 										/></label
 									>
@@ -1319,7 +1319,7 @@
 											maxlength="50"
 											value={wedding.bride_payment_number}
 											inputmode="numeric"
-											class="field mt-2 w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm"
+											class="field mt-2 w-full rounded-xl border border-gray-600 bg-white px-4 py-3 text-sm"
 											placeholder="Masukkan nomor tanpa spasi"
 										/></label
 									>
