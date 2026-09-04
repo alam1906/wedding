@@ -11,7 +11,7 @@ routerAdd(
 		var slug = typeof data.slug === 'string' ? data.slug.trim() : '';
 		var token = typeof data.token === 'string' ? data.token.trim() : '';
 
-		if (!slug || slug.length > 200 || !/^[A-Za-z0-9_-]{12,64}$/.test(token)) {
+		if (!slug || slug.length > 200 || !/^[A-Za-z0-9_-]{6,64}$/.test(token)) {
 			throw new BadRequestError('Tautan RSVP tidak valid atau tidak lengkap.');
 		}
 
@@ -64,7 +64,7 @@ routerAdd(
 		var status = typeof data.rsvp_status === 'string' ? data.rsvp_status.trim() : '';
 		var message = typeof data.message === 'string' ? data.message.trim() : '';
 
-		if (!slug || slug.length > 200 || !/^[A-Za-z0-9_-]{12,64}$/.test(token)) {
+		if (!slug || slug.length > 200 || !/^[A-Za-z0-9_-]{6,64}$/.test(token)) {
 			throw new BadRequestError('Tautan RSVP tidak valid atau tidak lengkap.');
 		}
 

@@ -13,6 +13,9 @@ const GUEST_FIELDS = [
 	'rsvp_token',
 	'guest_count'
 ] as const;
+const RSVP_TOKEN_ALPHABET = 'abcdefghijklmnopqrstuvwxyz';
+const RSVP_TOKEN_LENGTH = 6;
+const RSVP_TOKEN_GENERATION_ATTEMPTS = 10;
 
 export class GuestDataError extends Error {
 	constructor(message: string, options?: ErrorOptions) {
@@ -133,22 +136,39 @@ function guestPayload(input: GuestInput): Record<string, unknown> {
 }
 
 function createRsvpToken(): string {
-	const alphabet = 'abcdefghijklmnopqrstuvwxyz';
-	const tokenLength = 32;
 	let token = '';
 
-	while (token.length < tokenLength) {
-		const bytes = crypto.getRandomValues(new Uint8Array(tokenLength));
+	while (token.length < RSVP_TOKEN_LENGTH) {
+		const bytes = crypto.getRandomValues(new Uint8Array(RSVP_TOKEN_LENGTH));
 
 		for (const byte of bytes) {
 			if (byte >= 234) continue;
 
-			token += alphabet[byte % alphabet.length];
-			if (token.length === tokenLength) break;
+			token += RSVP_TOKEN_ALPHABET[byte % RSVP_TOKEN_ALPHABET.length];
+			if (token.length === RSVP_TOKEN_LENGTH) break;
 		}
 	}
 
 	return token;
+}
+
+function isRsvpTokenConflict(error: unknown): boolean {
+	if (!(error instanceof ClientResponseError) || error.status !== 400) {
+		return false;
+	}
+
+	const responseData = error.response?.data;
+	if (typeof responseData !== 'object' || responseData === null) {
+		return false;
+	}
+
+	const tokenError = responseData.rsvp_token;
+	return (
+		typeof tokenError === 'object' &&
+		tokenError !== null &&
+		'code' in tokenError &&
+		tokenError.code === 'validation_not_unique'
+	);
 }
 
 export function getGuests(): Promise<Guest[]> {
@@ -166,16 +186,31 @@ export function getGuests(): Promise<Guest[]> {
 
 export function createGuest(input: GuestInput): Promise<Guest> {
 	return handleGuestRequest(async () => {
-		const record = await pocketBase.collection('guests').create(
-			{
-				...guestPayload(input),
-				wedding: getCurrentWeddingId(),
-				rsvp_token: createRsvpToken()
-			},
-			{ fields: GUEST_FIELDS.join(',') }
-		);
+		const payload = guestPayload(input);
+		const weddingId = getCurrentWeddingId();
 
-		return toGuest(record);
+		for (let attempt = 0; attempt < RSVP_TOKEN_GENERATION_ATTEMPTS; attempt += 1) {
+			const token = createRsvpToken();
+
+			try {
+				const record = await pocketBase.collection('guests').create(
+					{
+						...payload,
+						wedding: weddingId,
+						rsvp_token: token
+					},
+					{ fields: GUEST_FIELDS.join(','), requestKey: null }
+				);
+
+				return toGuest(record);
+			} catch (error) {
+				if (!isRsvpTokenConflict(error)) {
+					throw error;
+				}
+			}
+		}
+
+		throw new GuestDataError('Token RSVP unik gagal dibuat. Silakan coba lagi.');
 	});
 }
 

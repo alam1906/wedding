@@ -56,9 +56,7 @@
 		delete scrollLock.release;
 		release?.();
 
-		const content =
-			document.querySelector<HTMLElement>('.theme-canvas .countdown-section') ??
-			document.querySelector<HTMLElement>('.theme-canvas > section:nth-of-type(2)');
+		const content = document.querySelector<HTMLElement>('.theme-canvas .couple-section');
 		if (!content) return;
 
 		const behavior = window.matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -103,227 +101,390 @@
 			}
 		};
 	});
+	let galleryDialog = $state<HTMLDialogElement>();
+	let galleryPreviewImage = $state<HTMLImageElement>();
+	let galleryIsClosing = false;
+	let galleryPreviewRequest = 0;
+	let galleryPreviewIndex = 0;
+
+	function showGalleryImage(index: number) {
+		if (galleryIsClosing || wedding.gallery.length === 0) return;
+
+		const normalizedIndex =
+			((index % wedding.gallery.length) + wedding.gallery.length) % wedding.gallery.length;
+		const image = wedding.gallery[normalizedIndex];
+		if (!image) return;
+
+		galleryPreviewIndex = normalizedIndex;
+		void openGalleryPreview(image.url, 'Galeri pernikahan ' + (normalizedIndex + 1));
+	}
+
+	async function openGalleryPreview(imageUrl: string, alt: string) {
+		if (!galleryPreviewImage || !galleryDialog) return;
+
+		const requestId = ++galleryPreviewRequest;
+		const pendingImage = new Image();
+		pendingImage.src = imageUrl;
+
+		try {
+			await pendingImage.decode();
+		} catch {
+			await new Promise<void>((resolve) => {
+				if (pendingImage.complete) {
+					resolve();
+					return;
+				}
+
+				pendingImage.onload = () => resolve();
+				pendingImage.onerror = () => resolve();
+			});
+		}
+
+		if (requestId !== galleryPreviewRequest || !galleryPreviewImage || !galleryDialog) return;
+
+		galleryPreviewImage.getAnimations().forEach((animation) => animation.cancel());
+		galleryPreviewImage.src = imageUrl;
+		galleryPreviewImage.alt = alt;
+		galleryIsClosing = false;
+		if (!galleryDialog.open) galleryDialog.showModal();
+
+		if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+			galleryPreviewImage.animate(
+				[
+					{ opacity: 0, transform: 'translateY(1rem) scale(0.94)' },
+					{ opacity: 1, transform: 'translateY(0) scale(1)' }
+				],
+				{ duration: 280, easing: 'cubic-bezier(0.22, 1, 0.36, 1)', fill: 'both' }
+			);
+		}
+	}
+
+	function closeGalleryPreview() {
+		if (!galleryDialog || !galleryPreviewImage || !galleryDialog.open || galleryIsClosing) return;
+
+		galleryPreviewRequest += 1;
+		if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+			galleryDialog.close();
+			galleryPreviewImage.removeAttribute('src');
+			return;
+		}
+
+		galleryIsClosing = true;
+		const animation = galleryPreviewImage.animate(
+			[
+				{ opacity: 1, transform: 'translateY(0) scale(1)' },
+				{ opacity: 0, transform: 'translateY(0.75rem) scale(0.96)' }
+			],
+			{ duration: 180, easing: 'cubic-bezier(0.4, 0, 1, 1)', fill: 'forwards' }
+		);
+
+		void animation.finished
+			.catch(() => undefined)
+			.then(() => {
+				galleryDialog?.close();
+				galleryPreviewImage?.removeAttribute('src');
+				galleryIsClosing = false;
+			});
+	}
+
+	function closeGalleryPreviewFromKeyboard(event: Event) {
+		event.preventDefault();
+		closeGalleryPreview();
+	}
+
+	function navigateGalleryPreviewFromKeyboard(event: KeyboardEvent) {
+		if (event.key === 'ArrowLeft') {
+			event.preventDefault();
+			showGalleryImage(galleryPreviewIndex - 1);
+		} else if (event.key === 'ArrowRight') {
+			event.preventDefault();
+			showGalleryImage(galleryPreviewIndex + 1);
+		}
+	}
+
+	function closeGalleryPreviewFromBackdrop(event: MouseEvent) {
+		if (event.target === event.currentTarget) {
+			closeGalleryPreview();
+		}
+	}
 </script>
 
-<main
-	class="theme-canvas family-{profile.family} variant-{profile.variant}"
-	style={'--color-background:' +
-		colors.background +
-		';--color-surface:' +
-		colors.surface +
-		';--color-text:' +
-		colors.text +
-		';--color-primary:' +
-		colors.primary +
-		';--color-accent:' +
-		colors.accent}
->
-	{#if wedding.plan_tier !== 'pro'}
-		<div class="unpaid-watermark" aria-hidden="true">
-			<span>BELUM BAYAR</span>
-		</div>
-	{/if}
-
-	<section class="hero section-shell">
-		<div class="cover-frame">
-			{#if wedding.cover_url}
-				<img
-					src={wedding.cover_url}
-					alt={'Cover pernikahan ' + coupleName}
-					decoding="async"
-					fetchpriority="high"
-				/>
-			{:else}
-				<div class="cover-placeholder">
-					<span>{groomName.charAt(0)}</span><b>♥</b><span>{brideName.charAt(0)}</span>
-				</div>
-			{/if}
-		</div>
-		<div class="decoration decoration-one"></div>
-		<div class="decoration decoration-two"></div>
-		<div class="hero-grid">
-			<div class="hero-copy" data-hero-content>
-				<p class="eyebrow">Undangan Pernikahan · {profile.name}</p>
-				<h1>{groomName}<span>&</span>{brideName}</h1>
-				<p class="hero-date">{akad.date}</p>
-				<button type="button" class="primary-button" onclick={openInvitation}>Buka Undangan</button>
+<div class="theme-scroll-wrapper">
+	<main
+		class="theme-canvas family-{profile.family} variant-{profile.variant}"
+		style={'--color-background:' +
+			colors.background +
+			';--color-surface:' +
+			colors.surface +
+			';--color-text:' +
+			colors.text +
+			';--color-primary:' +
+			colors.primary +
+			';--color-accent:' +
+			colors.accent}
+	>
+		{#if wedding.plan_tier !== 'pro'}
+			<div class="unpaid-watermark" aria-hidden="true">
+				<span>BELUM BAYAR</span>
 			</div>
-		</div>
-	</section>
+		{/if}
 
-	{#if countdownTarget}
-		<section class="countdown-section section-shell">
-			<div class="content-width" data-reveal>
-				<div class="countdown-grid">
-					{#each [{ label: 'Hari', value: countdown.days }, { label: 'Jam', value: countdown.hours }, { label: 'Menit', value: countdown.minutes }, { label: 'Detik', value: countdown.seconds }] as item (item.label)}
-						<div class="countdown-card">
-							<strong>{String(item.value).padStart(2, '0')}</strong><span>{item.label}</span>
+		<section class="hero section-shell">
+			<div class="cover-frame">
+				{#if wedding.cover_url}
+					<img
+						src={wedding.cover_url}
+						alt={'Cover pernikahan ' + coupleName}
+						decoding="async"
+						fetchpriority="high"
+					/>
+				{:else}
+					<div class="cover-placeholder">
+						<span>{groomName.charAt(0)}</span><b>♥</b><span>{brideName.charAt(0)}</span>
+					</div>
+				{/if}
+			</div>
+			<div class="decoration decoration-one"></div>
+			<div class="decoration decoration-two"></div>
+			<div class="hero-grid">
+				<div class="hero-copy" data-hero-content>
+					<p class="eyebrow">Kepada Bapak/Ibu/Saudara/i,</p>
+					<h1>{groomName}<span>&</span>{brideName}</h1>
+					<p class="hero-intro">Akan melangsungkan resepsi pernikahan dalam:</p>
+					<p class="hero-date">{akad.date}</p>
+					{#if countdownTarget}
+						<div
+							class="countdown-grid hero-countdown"
+							role="timer"
+							aria-label="Hitung mundur hari pernikahan"
+						>
+							{#each [{ label: 'Hari', value: countdown.days }, { label: 'Jam', value: countdown.hours }, { label: 'Menit', value: countdown.minutes }, { label: 'Detik', value: countdown.seconds }] as item (item.label)}
+								<div class="countdown-card">
+									<strong>{String(item.value).padStart(2, '0')}</strong><span>{item.label}</span>
+								</div>
+							{/each}
 						</div>
-					{/each}
+					{/if}
+					<button type="button" class="primary-button" onclick={openInvitation}
+						>Buka Undangan</button
+					>
 				</div>
 			</div>
 		</section>
-	{/if}
 
-	<section class="couple-section section-shell">
-		<div class="content-width">
-			<header class="section-heading" data-reveal>
-				<p class="eyebrow">Mempelai</p>
-				<h2>Dua insan, satu cerita</h2>
-			</header>
-			<div class="couple-grid">
-				{#each [{ name: groomName, photo: wedding.groom_photo_url, label: 'Putra dari', father: wedding.groom_father_name, mother: wedding.groom_mother_name }, { name: brideName, photo: wedding.bride_photo_url, label: 'Putri dari', father: wedding.bride_father_name, mother: wedding.bride_mother_name }] as person (person.name)}
-					<article class="person-card" data-reveal>
-						{#if person.photo}<img
-								src={person.photo}
-								alt={person.name}
-								loading="lazy"
-								decoding="async"
-							/>{:else}<div class="person-placeholder">
-								{person.name.charAt(0)}
-							</div>{/if}
-						<h3>{person.name}</h3>
-						{#if person.father || person.mother}<p>
-								{person.label}<br /><b>{formatPersonName(person.father) || '-'}</b> &
-								<b>{formatPersonName(person.mother) || '-'}</b>
-							</p>{/if}
-					</article>
-				{/each}
-			</div>
-		</div>
-	</section>
-
-	<section id="acara" class="event-section section-shell">
-		<div class="content-width">
-			<header class="section-heading" data-reveal>
-				<p class="eyebrow">Hari Bahagia</p>
-				<h2>Waktu & tempat</h2>
-			</header>
-			<div class="event-grid">
-				{#each [{ title: 'Akad Nikah', schedule: akad }, { title: 'Resepsi', schedule: reception }] as event (event.title)}
-					<article class="event-card" data-reveal>
-						<p class="eyebrow">{event.title}</p>
-						<h3>{event.schedule.date}</h3>
-						<strong>{event.schedule.time}</strong>{#if wedding.address}<div class="divider"></div>
-							<p>{wedding.address}</p>{/if}
-					</article>
-				{/each}
-			</div>
-			{#if mapsURL}<div class="center-action">
-					<a href={mapsURL} target="_blank" rel="noreferrer" class="primary-button"
-						>Buka Google Maps →</a
-					>
-				</div>{/if}
-		</div>
-	</section>
-
-	<section class="quote-section section-shell">
-		<div class="narrow-content" data-reveal>
-			<span class="quote-mark">“</span>
-			<blockquote>
-				{wedding.quote || 'Dua hati, satu perjalanan, dan satu janji untuk selamanya.'}
-			</blockquote>
-			<p>
-				Dengan penuh sukacita, kami mengundang Anda untuk menjadi bagian dari hari bahagia kami.
-			</p>
-		</div>
-	</section>
-
-	{#if wedding.stories.length > 0}
-		<section class="story-section section-shell">
-			<div class="narrow-content">
+		<section class="couple-section section-shell">
+			<div class="content-width">
 				<header class="section-heading" data-reveal>
-					<p class="eyebrow">Perjalanan Kami</p>
-					<h2>Kisah cinta</h2>
+					<p class="eyebrow">Mempelai</p>
+					<h2>Dua insan, satu cerita</h2>
 				</header>
-				<div class="story-list">
-					{#each wedding.stories as story, index (story.id)}
-						<article class="story-card" data-reveal>
-							<span class="story-marker" aria-hidden="true"
-								>{String(index + 1).padStart(2, '0')}</span
-							>
-							<div class="story-panel">
-								{#if story.image_url}
-									<img
-										class="story-image"
-										src={story.image_url}
-										alt={'Gambar ' + (story.title || 'cerita ' + (index + 1))}
-										loading="lazy"
-										decoding="async"
-									/>
-								{/if}
-								<div class="story-copy">
-									<div class="story-meta">
-										{#if story.date}<time datetime={story.date}>{formatStoryDate(story.date)}</time
-											>{/if}
-									</div>
-									<h3>{story.title || 'Cerita ' + (index + 1)}</h3>
-									{#if story.content}<p>{story.content}</p>{/if}
-								</div>
-							</div>
+				<div class="couple-grid">
+					{#each [{ name: groomName, photo: wedding.groom_photo_url, label: 'Putra dari', father: wedding.groom_father_name, mother: wedding.groom_mother_name }, { name: brideName, photo: wedding.bride_photo_url, label: 'Putri dari', father: wedding.bride_father_name, mother: wedding.bride_mother_name }] as person (person.name)}
+						<article class="person-card" data-reveal>
+							{#if person.photo}<img
+									src={person.photo}
+									alt={person.name}
+									loading="lazy"
+									decoding="async"
+								/>{:else}<div class="person-placeholder">
+									{person.name.charAt(0)}
+								</div>{/if}
+							<h3>{person.name}</h3>
+							{#if person.father || person.mother}<p>
+									{person.label}<br /><b>{formatPersonName(person.father) || '-'}</b> &
+									<b>{formatPersonName(person.mother) || '-'}</b>
+								</p>{/if}
 						</article>
 					{/each}
 				</div>
 			</div>
 		</section>
-	{/if}
 
-	{#if wedding.gallery.length > 0}
-		<section class="gallery-section section-shell">
+		<section id="acara" class="event-section section-shell">
 			<div class="content-width">
 				<header class="section-heading" data-reveal>
-					<p class="eyebrow">Momen Berharga</p>
-					<h2>Galeri kami</h2>
+					<p class="eyebrow">Hari Bahagia</p>
+					<h2>Waktu & tempat</h2>
 				</header>
-				<div class="gallery-grid">
-					{#each wedding.gallery as image, index (image.name)}<figure data-gallery-item>
-							<img
-								src={image.url}
-								alt={'Galeri pernikahan ' + (index + 1)}
-								loading="lazy"
-								decoding="async"
-							/>
-						</figure>{/each}
+				<div class="event-grid">
+					{#each [{ title: 'Akad Nikah', schedule: akad }, { title: 'Resepsi', schedule: reception }] as event (event.title)}
+						<article class="event-card" data-reveal>
+							<p class="eyebrow">{event.title}</p>
+							<h3>{event.schedule.date}</h3>
+							<strong>{event.schedule.time}</strong>{#if wedding.address}<div class="divider"></div>
+								<p>{wedding.address}</p>{/if}
+						</article>
+					{/each}
 				</div>
+				{#if mapsURL}<div class="center-action">
+						<a href={mapsURL} target="_blank" rel="noreferrer" class="primary-button"
+							>Buka Google Maps →</a
+						>
+					</div>{/if}
 			</div>
 		</section>
-	{/if}
 
-	{#if wedding.groom_payment_number || wedding.bride_payment_number}
-		<section class="gift-section section-shell">
+		<section class="quote-section section-shell">
+			<div class="narrow-content" data-reveal>
+				<span class="quote-mark">“</span>
+				<blockquote>
+					{wedding.quote || 'Dua hati, satu perjalanan, dan satu janji untuk selamanya.'}
+				</blockquote>
+				<p>
+					Dengan penuh sukacita, kami mengundang Anda untuk menjadi bagian dari hari bahagia kami.
+				</p>
+			</div>
+		</section>
+
+		{#if wedding.stories.length > 0}
+			<section class="story-section section-shell">
+				<div class="narrow-content">
+					<header class="section-heading" data-reveal>
+						<h2>Our Love Story</h2>
+					</header>
+					<div class="story-list">
+						{#each wedding.stories as story, index (story.id)}
+							<article class="story-card" data-reveal>
+								<span class="story-marker" aria-hidden="true"
+									>{String(index + 1).padStart(2, '0')}</span
+								>
+								<div class="story-panel">
+									{#if story.image_url}
+										<img
+											class="story-image"
+											src={story.image_url}
+											alt={'Gambar ' + (story.title || 'cerita ' + (index + 1))}
+											loading="lazy"
+											decoding="async"
+										/>
+									{/if}
+									<div class="story-copy">
+										<div class="story-meta">
+											{#if story.date}<time datetime={story.date}
+													>{formatStoryDate(story.date)}</time
+												>{/if}
+										</div>
+										<h3>{story.title || 'Cerita ' + (index + 1)}</h3>
+										{#if story.content}<p>{story.content}</p>{/if}
+									</div>
+								</div>
+							</article>
+						{/each}
+					</div>
+				</div>
+			</section>
+		{/if}
+
+		{#if wedding.gallery.length > 0}
+			<section class="gallery-section section-shell">
+				<div class="content-width">
+					<header class="section-heading" data-reveal>
+						<p class="eyebrow">Momen Berharga</p>
+						<h2>Galeri kami</h2>
+					</header>
+					<div class="gallery-grid">
+						{#each wedding.gallery as image, index (image.name)}<figure data-gallery-item>
+								<button
+									type="button"
+									class="gallery-trigger"
+									aria-label={'Perbesar foto galeri ' + (index + 1)}
+									onclick={() => showGalleryImage(index)}
+								>
+									<img
+										src={image.url}
+										alt={'Galeri pernikahan ' + (index + 1)}
+										loading="lazy"
+										decoding="async"
+									/>
+								</button>
+							</figure>{/each}
+					</div>
+				</div>
+			</section>
+			<dialog
+				bind:this={galleryDialog}
+				class="gallery-lightbox"
+				aria-label="Preview foto galeri"
+				onclick={closeGalleryPreviewFromBackdrop}
+				oncancel={closeGalleryPreviewFromKeyboard}
+				onkeydown={navigateGalleryPreviewFromKeyboard}
+			>
+				<button
+					type="button"
+					class="gallery-lightbox-close"
+					aria-label="Tutup preview"
+					onclick={closeGalleryPreview}
+				>
+					<svg viewBox="0 0 24 24" aria-hidden="true">
+						<path d="M6 6l12 12M18 6 6 18" />
+					</svg>
+				</button>
+				<button
+					type="button"
+					class="gallery-lightbox-nav gallery-lightbox-prev"
+					aria-label="Foto sebelumnya"
+					disabled={wedding.gallery.length < 2}
+					onclick={() => showGalleryImage(galleryPreviewIndex - 1)}
+				>
+					<svg viewBox="0 0 24 24" aria-hidden="true">
+						<path d="m15 18-6-6 6-6" />
+					</svg>
+				</button>
+				<img bind:this={galleryPreviewImage} alt="" />
+				<button
+					type="button"
+					class="gallery-lightbox-nav gallery-lightbox-next"
+					aria-label="Foto berikutnya"
+					disabled={wedding.gallery.length < 2}
+					onclick={() => showGalleryImage(galleryPreviewIndex + 1)}
+				>
+					<svg viewBox="0 0 24 24" aria-hidden="true">
+						<path d="m9 18 6-6-6-6" />
+					</svg>
+				</button>
+			</dialog>
+		{/if}
+
+		{#if wedding.groom_payment_number || wedding.bride_payment_number}
+			<section class="gift-section section-shell">
+				<div class="narrow-content">
+					<header class="section-heading" data-reveal>
+						<p class="eyebrow">Tanda Kasih</p>
+						<h2>Kado pernikahan</h2>
+						<p>Kehadiran dan doa Anda adalah hadiah terbaik bagi kami.</p>
+					</header>
+					<div class="gift-grid">
+						{#if wedding.groom_payment_number}<article data-reveal>
+								<small>Untuk {groomName}</small><span class="gift-provider"
+									>{wedding.groom_payment_provider || 'Rekening / e-wallet'}</span
+								><strong>{wedding.groom_payment_number}</strong>
+							</article>{/if}{#if wedding.bride_payment_number}<article data-reveal>
+								<small>Untuk {brideName}</small><span class="gift-provider"
+									>{wedding.bride_payment_provider || 'Rekening / e-wallet'}</span
+								><strong>{wedding.bride_payment_number}</strong>
+							</article>{/if}
+					</div>
+				</div>
+			</section>
+		{/if}
+
+		<PublicRsvpForm slug={wedding.slug} token={rsvpToken} />
+
+		<footer class="closing-section section-shell">
 			<div class="narrow-content">
-				<header class="section-heading" data-reveal>
-					<p class="eyebrow">Tanda Kasih</p>
-					<h2>Kado pernikahan</h2>
-					<p>Kehadiran dan doa Anda adalah hadiah terbaik bagi kami.</p>
-				</header>
-				<div class="gift-grid">
-					{#if wedding.groom_payment_number}<article data-reveal>
-							<small>Untuk {groomName}</small><span class="gift-provider"
-								>{wedding.groom_payment_provider || 'Rekening / e-wallet'}</span
-							><strong>{wedding.groom_payment_number}</strong>
-						</article>{/if}{#if wedding.bride_payment_number}<article data-reveal>
-							<small>Untuk {brideName}</small><span class="gift-provider"
-								>{wedding.bride_payment_provider || 'Rekening / e-wallet'}</span
-							><strong>{wedding.bride_payment_number}</strong>
-						</article>{/if}
-				</div>
+				<p>Terima kasih atas doa dan kehadiran Anda</p>
+				<h2>{coupleName}</h2>
+				<small>Dibuat dengan Wedez</small>
 			</div>
-		</section>
-	{/if}
-
-	<PublicRsvpForm slug={wedding.slug} token={rsvpToken} />
-
-	<footer class="closing-section section-shell">
-		<div class="narrow-content">
-			<p>Terima kasih atas doa dan kehadiran Anda</p>
-			<h2>{coupleName}</h2>
-			<small>Dibuat dengan Wedez</small>
-		</div>
-	</footer>
-</main>
+		</footer>
+	</main>
+</div>
 
 <style>
+	.theme-scroll-wrapper {
+		min-height: 100vh;
+		overflow: hidden;
+	}
 	.theme-canvas {
 		--color-muted: color-mix(in srgb, var(--color-text) 68%, var(--color-background));
 		min-height: 100vh;
@@ -471,14 +632,23 @@
 	.theme-canvas > section:nth-of-type(even) {
 		background: color-mix(in srgb, var(--color-background) 84%, var(--color-accent));
 	}
-	.countdown-section {
-		padding-block: 3rem;
-		text-align: center;
-	}
 	.countdown-grid {
 		display: grid;
 		grid-template-columns: repeat(2, 1fr);
 		gap: 1rem;
+	}
+	.hero-countdown {
+		grid-template-columns: repeat(4, minmax(0, 1fr));
+		width: min(100%, 36rem);
+		margin: clamp(1.25rem, 3vh, 2rem) auto 0;
+		gap: clamp(0.35rem, 1.5vw, 1rem);
+	}
+	.hero-countdown .countdown-card {
+		width: clamp(4rem, 19vw, 8rem);
+		height: clamp(4rem, 19vw, 8rem);
+		border-color: #ff0a84;
+		background: #ff0a84;
+		color: #fff;
 	}
 	.countdown-card,
 	.event-card,
@@ -534,6 +704,31 @@
 		display: grid;
 		gap: 2rem;
 		margin-top: 3.5rem;
+	}
+	.couple-grid {
+		grid-template-columns: minmax(0, 1fr);
+		align-items: center;
+	}
+	.couple-grid::after {
+		display: grid;
+		grid-row: 2;
+		place-items: center;
+		align-self: center;
+		justify-self: center;
+		margin-block: 5px;
+		color: var(--color-text);
+		font-family: 'Iowan Old Style', Georgia, serif;
+		font-size: clamp(4rem, 10vw, 7.5rem);
+		font-weight: 500;
+		line-height: 1;
+		content: '&';
+		filter: drop-shadow(0 0.2rem 0.35rem color-mix(in srgb, var(--color-text) 18%, transparent));
+	}
+	.couple-grid .person-card:first-child {
+		grid-row: 1;
+	}
+	.couple-grid .person-card:last-child {
+		grid-row: 3;
 	}
 	.person-card {
 		text-align: center;
@@ -662,22 +857,150 @@
 		font-weight: 900;
 	}
 	.gallery-grid {
-		display: flex;
-		flex-wrap: wrap;
-		justify-content: center;
-		gap: 1rem;
+		column-width: clamp(9.5rem, 26vw, 17rem);
+		column-gap: 1rem;
 		margin-top: 3.5rem;
 	}
 	.gallery-grid figure {
-		width: calc(50% - 0.5rem);
+		width: 100%;
+		margin: 0 0 1rem;
+		break-inside: avoid;
 		border: 2px solid var(--color-text);
-		background: var(--color-surface);
-		padding: 0.4rem;
+		background: transparent;
+		padding: 0;
 	}
 	.gallery-grid img {
+		display: block;
 		width: 100%;
-		aspect-ratio: 1;
+		height: auto;
 		object-fit: cover;
+	}
+	.gallery-trigger {
+		display: block;
+		width: 100%;
+		border: 0;
+		background: transparent;
+		padding: 0;
+		color: inherit;
+		cursor: zoom-in;
+	}
+	.gallery-trigger:focus-visible {
+		outline: 3px solid var(--color-accent);
+		outline-offset: 4px;
+	}
+	.gallery-lightbox {
+		position: fixed;
+		inset: 0;
+		display: none;
+		place-items: center;
+		width: 100vw;
+		height: 100svh;
+		max-width: none;
+		max-height: none;
+		margin: 0;
+		border: 0;
+		background: transparent;
+		padding: clamp(1rem, 4vw, 3rem);
+		overflow: visible;
+	}
+	.gallery-lightbox[open] {
+		display: grid;
+	}
+	.gallery-lightbox::backdrop {
+		background: color-mix(in srgb, #000 86%, transparent);
+		backdrop-filter: blur(0.45rem);
+	}
+	.gallery-lightbox[open]::backdrop {
+		animation: gallery-backdrop-in 220ms ease-out both;
+	}
+	.gallery-lightbox img {
+		display: block;
+		width: auto;
+		max-width: min(86vw, 64rem);
+		height: auto;
+		max-height: 72svh;
+		border-radius: 0.5rem;
+		object-fit: contain;
+		box-shadow: 0 1.5rem 5rem rgb(0 0 0 / 45%);
+	}
+	.gallery-lightbox-close {
+		position: fixed;
+		z-index: 2;
+		top: max(1rem, env(safe-area-inset-top));
+		right: max(1rem, env(safe-area-inset-right));
+		display: grid;
+		width: 2.75rem;
+		height: 2.75rem;
+		place-items: center;
+		border: 0;
+		background: transparent;
+		padding: 0;
+		color: #fff;
+		cursor: pointer;
+	}
+	.gallery-lightbox-nav {
+		position: fixed;
+		z-index: 2;
+		top: 50%;
+		display: grid;
+		width: 3rem;
+		height: 3rem;
+		place-items: center;
+		translate: 0 -50%;
+		border: 0;
+		background: transparent;
+		padding: 0;
+		color: #fff;
+		cursor: pointer;
+	}
+	.gallery-lightbox-prev {
+		left: max(1rem, env(safe-area-inset-left));
+	}
+	.gallery-lightbox-next {
+		right: max(1rem, env(safe-area-inset-right));
+	}
+	.gallery-lightbox-close svg {
+		width: 2rem;
+		height: 2rem;
+		fill: none;
+		stroke: currentColor;
+		stroke-width: 2.25;
+		stroke-linecap: round;
+		stroke-linejoin: round;
+	}
+	.gallery-lightbox-nav svg {
+		width: 2.5rem;
+		height: 2.5rem;
+		fill: none;
+		stroke: currentColor;
+		stroke-width: 2.25;
+		stroke-linecap: round;
+		stroke-linejoin: round;
+	}
+	.gallery-lightbox-nav:disabled {
+		opacity: 0;
+		pointer-events: none;
+	}
+	.gallery-lightbox-close:focus-visible,
+	.gallery-lightbox-nav:focus-visible {
+		outline: 2px solid #fff;
+		outline-offset: 3px;
+	}
+	@media (min-width: 64rem) {
+		.gallery-lightbox-prev {
+			left: clamp(3rem, 10vw, 8rem);
+		}
+		.gallery-lightbox-next {
+			right: clamp(3rem, 10vw, 8rem);
+		}
+	}
+	@keyframes gallery-backdrop-in {
+		from {
+			opacity: 0;
+		}
+		to {
+			opacity: 1;
+		}
 	}
 	.gift-grid article {
 		text-align: left;
@@ -864,9 +1187,13 @@
 	.family-playful .person-card,
 	.family-playful .event-card,
 	.family-playful .story-panel,
-	.family-playful .gift-grid article,
-	.family-playful .gallery-grid figure {
+	.family-playful .gift-grid article {
 		border-radius: 2rem;
+		box-shadow: 6px 6px 0 var(--color-accent);
+	}
+	.family-playful .gallery-grid figure {
+		border: 0;
+		border-radius: 0.75rem;
 		box-shadow: 6px 6px 0 var(--color-accent);
 	}
 	.family-playful .story-marker {
@@ -876,9 +1203,11 @@
 	}
 	.family-playful .cover-frame img,
 	.family-playful .person-card img,
-	.family-playful .person-placeholder,
-	.family-playful .gallery-grid img {
+	.family-playful .person-placeholder {
 		border-radius: 42% 58% 54% 46%;
+	}
+	.family-playful .gallery-grid img {
+		border-radius: 0.75rem;
 	}
 	.family-playful .person-card img,
 	.family-playful .person-placeholder {
@@ -1052,7 +1381,7 @@
 		perspective: 65rem;
 	}
 	.family-3d-design .gallery-grid figure {
-		border: 0.45rem solid var(--color-surface);
+		border: 0;
 		border-radius: 1.25rem;
 		box-shadow:
 			0.55rem 0.65rem 0 var(--color-primary),
@@ -1084,6 +1413,29 @@
 		box-shadow: none;
 		padding: 0;
 	}
+	.theme-canvas .countdown-card {
+		display: flex;
+		min-width: 0;
+		width: clamp(6rem, 16vw, 8rem);
+		height: clamp(6rem, 16vw, 8rem);
+		aspect-ratio: 1;
+		box-sizing: border-box;
+		flex-direction: column;
+		flex: none;
+		align-items: center;
+		justify-content: center;
+		justify-self: center;
+		border-radius: 50%;
+		padding: 12px;
+	}
+	.theme-canvas .countdown-card strong {
+		font-size: 1.6rem;
+		line-height: 0.9;
+	}
+	.theme-canvas .countdown-card span {
+		font-size: clamp(0.625rem, 1.5vw, 0.8rem);
+		line-height: 1;
+	}
 
 	.theme-canvas .hero {
 		isolation: isolate;
@@ -1105,12 +1457,37 @@
 	}
 	.theme-canvas .hero-copy {
 		max-width: 60rem;
-		color: var(--color-surface);
+		color: #fff;
 		text-align: center;
 		text-shadow: 0 0.15rem 1.25rem color-mix(in srgb, var(--color-text) 45%, transparent);
 	}
+	.theme-canvas .hero .primary-button {
+		border-color: #fff;
+		background: #fff;
+		color: #ff0a84;
+	}
+	.theme-canvas .hero-copy .eyebrow,
+	.theme-canvas .hero-copy h1,
+	.theme-canvas .hero-copy h1 span,
+	.theme-canvas .hero-copy .hero-intro,
 	.theme-canvas .hero .hero-date {
-		color: color-mix(in srgb, var(--color-surface) 86%, transparent);
+		color: #fff;
+	}
+	.theme-canvas .hero-copy h1 {
+		font-size: clamp(2rem, 10vw, 6rem);
+		white-space: nowrap;
+	}
+	.theme-canvas .hero-copy h1 span {
+		display: inline;
+		margin-inline: 0.18em;
+	}
+	.theme-canvas .hero-copy .hero-intro {
+		margin-top: 1rem;
+		font-size: clamp(0.75rem, 2.25vw, 1rem);
+		line-height: 1.5;
+	}
+	.theme-canvas .hero .hero-date {
+		color: #fff;
 	}
 	.theme-canvas .hero > .cover-frame {
 		position: absolute;
@@ -1159,6 +1536,22 @@
 		.gift-grid {
 			grid-template-columns: repeat(2, 1fr);
 		}
+		.couple-grid {
+			grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+			column-gap: clamp(1rem, 3vw, 2.5rem);
+		}
+		.couple-grid::after {
+			grid-column: 2;
+			grid-row: 1;
+		}
+		.couple-grid .person-card:first-child {
+			grid-column: 1;
+			grid-row: 1;
+		}
+		.couple-grid .person-card:last-child {
+			grid-column: 3;
+			grid-row: 1;
+		}
 		.story-list::before {
 			left: 50%;
 		}
@@ -1178,9 +1571,6 @@
 		}
 		.story-card:nth-child(even) .story-panel {
 			grid-column: 3;
-		}
-		.gallery-grid figure {
-			width: calc(25% - 0.75rem);
 		}
 	}
 </style>

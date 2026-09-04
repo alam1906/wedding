@@ -3,7 +3,7 @@ import { ClientResponseError } from 'pocketbase';
 import { pocketBase } from '#lib/infrastructure/pocketbase/index.js';
 import type { PublicRsvpGuest, PublicRsvpInput, PublicRsvpMessagePage } from '../model/guest.js';
 
-const RSVP_TOKEN_PATTERN = /^[A-Za-z0-9_-]{12,64}$/;
+const RSVP_TOKEN_PATTERN = /^(?:[a-z]{6}|[A-Za-z0-9_-]{12,64})$/;
 const MAX_MESSAGE_LENGTH = 1000;
 
 export class PublicRsvpError extends Error {

@@ -450,16 +450,16 @@ Collection ID: `pbc_2047001084`
 
 ### Fields
 
-| Field         | Tipe        | Wajib | Batasan/keterangan                                                                                                           |
-| ------------- | ----------- | ----- | ---------------------------------------------------------------------------------------------------------------------------- |
-| `id`          | Text system | Ya    | Record ID PocketBase                                                                                                         |
-| `wedding`     | Relation    | Ya    | Single relation ke `weddings`, cascade delete aktif                                                                          |
-| `name`        | Text        | Ya    | Minimum 1, maksimum 150 karakter                                                                                             |
-| `whatsapp`    | Text        | Ya    | 8-20 karakter, wajib format internasional                                                                                    |
-| `rsvp_status` | Select      | Ya    | `pending`, `attending`, atau `not_attending`                                                                                 |
-| `message`     | Text        | Tidak | Maksimum 1000 karakter                                                                                                       |
-| `rsvp_token`  | Text        | Ya    | 12-64 karakter; token baru menggunakan tepat 32 huruf kecil `a-z`, sedangkan format lama tetap diterima untuk kompatibilitas |
-| `guest_count` | Number      | Ya    | Integer, minimum 1                                                                                                           |
+| Field         | Tipe        | Wajib | Batasan/keterangan                                                                                  |
+| ------------- | ----------- | ----- | --------------------------------------------------------------------------------------------------- |
+| `id`          | Text system | Ya    | Record ID PocketBase                                                                                |
+| `wedding`     | Relation    | Ya    | Single relation ke `weddings`, cascade delete aktif                                                 |
+| `name`        | Text        | Ya    | Minimum 1, maksimum 150 karakter                                                                    |
+| `whatsapp`    | Text        | Ya    | 8-20 karakter, wajib format internasional                                                           |
+| `rsvp_status` | Select      | Ya    | `pending`, `attending`, atau `not_attending`                                                        |
+| `message`     | Text        | Tidak | Maksimum 1000 karakter                                                                              |
+| `rsvp_token`  | Text        | Ya    | Token baru tepat 6 huruf kecil `a-z`; token lama 12-64 karakter tetap diterima untuk kompatibilitas |
+| `guest_count` | Number      | Ya    | Integer, minimum 1                                                                                  |
 
 Regex `whatsapp`:
 
@@ -470,7 +470,7 @@ Regex `whatsapp`:
 Regex `rsvp_token`:
 
 ```regex
-^[A-Za-z0-9_-]{12,64}$
+^([a-z]{6}|[A-Za-z0-9_-]{12,64})$
 ```
 
 Collection ini belum memiliki field `created` dan `updated`.
@@ -544,7 +544,7 @@ function normalizeWhatsapp(value: string): string {
 ```ts
 function createRsvpToken(): string {
 	const alphabet = 'abcdefghijklmnopqrstuvwxyz';
-	const tokenLength = 32;
+	const tokenLength = 6;
 	let token = '';
 
 	while (token.length < tokenLength) {
@@ -561,6 +561,9 @@ function createRsvpToken(): string {
 	return token;
 }
 ```
+
+Unique index `idx_guests_rsvp_token` memastikan token tidak pernah tersimpan ganda. Bila create
+mengalami collision, aplikasi membuat token baru dan mengulangi request secara otomatis.
 
 Token dipakai sebagai identitas rahasia pada link undangan, misalnya:
 

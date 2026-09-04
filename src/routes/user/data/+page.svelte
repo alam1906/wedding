@@ -27,7 +27,7 @@
 		{ title: 'Pengantin', description: 'Lengkapi informasi dan foto kedua mempelai.' },
 		{ title: 'Acara', description: 'Atur waktu dan alamat rangkaian acara.' },
 		{ title: 'Media', description: 'Kelola cover dan galeri undangan.' },
-		{ title: 'Kisah Cinta', description: 'Ceritakan perjalanan hubungan kalian.' },
+		{ title: 'Story', description: 'Ceritakan perjalanan hubungan kalian.' },
 		{ title: 'Quote', description: 'Tambahkan kutipan yang bermakna.' },
 		{ title: 'Kado', description: 'Atur bank atau e-wallet kedua mempelai.' },
 		{ title: 'Tema', description: 'Pilih tampilan visual untuk undangan pernikahanmu.' }
@@ -570,7 +570,7 @@
 		isSaving = true;
 
 		try {
-			if (activeSection === 'Kisah Cinta') {
+			if (activeSection === 'Story') {
 				const updatedStories = await saveCurrentWeddingStories(
 					stories.map((story) => ({
 						id: story.id,
@@ -1168,7 +1168,7 @@
 								</label>
 							</section>
 						</div>
-					{:else if activeSection === 'Kisah Cinta'}
+					{:else if activeSection === 'Story'}
 						<div class="grid gap-5 lg:grid-cols-2">
 							{#each stories as story, index (story.id)}
 								{@const storyImagePreview = getStoryImagePreview(story)}
