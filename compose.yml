@@ -1,0 +1,49 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+      args:
+        PUBLIC_POCKETBASE_URL: ${PUBLIC_POCKETBASE_URL:-https://api-wedding.onlytest.my.id}
+        PUBLIC_WEDDING_URL: ${PUBLIC_WEDDING_URL:-https://wedding.onlytest.my.id}
+    restart: unless-stopped
+    expose:
+      - '80'
+
+  invitation:
+    build:
+      context: .
+      dockerfile: apps/invitation/Dockerfile
+      args:
+        PUBLIC_POCKETBASE_URL: ${PUBLIC_POCKETBASE_URL:-https://api-wedding.onlytest.my.id}
+        PUBLIC_WEDDING_URL: ${PUBLIC_WEDDING_URL:-https://wedding.onlytest.my.id}
+    restart: unless-stopped
+    environment:
+      HOST: 0.0.0.0
+      PORT: 3000
+      PROTOCOL_HEADER: x-forwarded-proto
+      HOST_HEADER: x-forwarded-host
+    expose:
+      - '3000'
+
+  pocketbase:
+    build:
+      context: ./pocketbase
+      dockerfile: Dockerfile
+      args:
+        PB_VERSION: ${PB_VERSION:-0.40.1}
+    restart: unless-stopped
+    environment:
+      PB_ENCRYPTION_KEY: ${PB_ENCRYPTION_KEY:?Set PB_ENCRYPTION_KEY sepanjang 32 karakter}
+      WEDEZ_APP_URL: ${WEDEZ_APP_URL:-https://wedding.onlytest.my.id}
+      WEDEZ_API_URL: ${WEDEZ_API_URL:-https://api-wedding.onlytest.my.id}
+      WEDEZ_PRO_PRICE: ${WEDEZ_PRO_PRICE:-50000}
+      XENDIT_SECRET_KEY: ${XENDIT_SECRET_KEY:-}
+      XENDIT_WEBHOOK_TOKEN: ${XENDIT_WEBHOOK_TOKEN:-}
+    expose:
+      - '8090'
+    volumes:
+      - pocketbase-data:/pb/pb_data
+
+volumes:
+  pocketbase-data:

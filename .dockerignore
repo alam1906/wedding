@@ -1,0 +1,16 @@
+.git
+.gitignore
+.DS_Store
+.env
+.env.*
+!.env.example
+node_modules
+**/node_modules
+.svelte-kit
+**/.svelte-kit
+build
+**/build
+coverage
+**/coverage
+pocketbase/pb_data
+pocketbase/backups

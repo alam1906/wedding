@@ -34,7 +34,7 @@ export default defineConfig(
 		}
 	},
 	{
-		files: ['pb_migrations/*.js'],
+		files: ['pocketbase/pb_migrations/*.js'],
 		rules: {
 			'@typescript-eslint/triple-slash-reference': 'off'
 		}
