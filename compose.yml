@@ -6,6 +6,7 @@ services:
       args:
         PUBLIC_POCKETBASE_URL: ${PUBLIC_POCKETBASE_URL:-https://api-wedding.onlytest.my.id}
         PUBLIC_WEDDING_URL: ${PUBLIC_WEDDING_URL:-https://wedding.onlytest.my.id}
+        PUBLIC_INVITATION_URL: ${PUBLIC_INVITATION_URL:-https://onlytest.my.id}
     restart: unless-stopped
     expose:
       - '80'
@@ -17,6 +18,7 @@ services:
       args:
         PUBLIC_POCKETBASE_URL: ${PUBLIC_POCKETBASE_URL:-https://api-wedding.onlytest.my.id}
         PUBLIC_WEDDING_URL: ${PUBLIC_WEDDING_URL:-https://wedding.onlytest.my.id}
+        PUBLIC_INVITATION_URL: ${PUBLIC_INVITATION_URL:-https://onlytest.my.id}
     restart: unless-stopped
     environment:
       HOST: 0.0.0.0
@@ -32,12 +34,14 @@ services:
       - 'traefik.docker.network=dokploy-network'
       - 'traefik.http.middlewares.wedez-invitation-https.redirectscheme.scheme=https'
       - 'traefik.http.middlewares.wedez-invitation-https.redirectscheme.permanent=true'
-      - 'traefik.http.routers.wedez-invitation-http.rule=HostRegexp(`[a-z0-9-]+[.]wedding[.]onlytest[.]my[.]id`)'
+      - 'traefik.http.routers.wedez-invitation-http.rule=HostRegexp(`[a-z0-9-]+[.]onlytest[.]my[.]id`)'
       - 'traefik.http.routers.wedez-invitation-http.entrypoints=web'
+      - 'traefik.http.routers.wedez-invitation-http.priority=1'
       - 'traefik.http.routers.wedez-invitation-http.middlewares=wedez-invitation-https'
       - 'traefik.http.routers.wedez-invitation-http.service=wedez-invitation'
-      - 'traefik.http.routers.wedez-invitation-websecure.rule=HostRegexp(`[a-z0-9-]+[.]wedding[.]onlytest[.]my[.]id`)'
+      - 'traefik.http.routers.wedez-invitation-websecure.rule=HostRegexp(`[a-z0-9-]+[.]onlytest[.]my[.]id`)'
       - 'traefik.http.routers.wedez-invitation-websecure.entrypoints=websecure'
+      - 'traefik.http.routers.wedez-invitation-websecure.priority=1'
       - 'traefik.http.routers.wedez-invitation-websecure.tls=true'
       - 'traefik.http.routers.wedez-invitation-websecure.service=wedez-invitation'
       - 'traefik.http.services.wedez-invitation.loadbalancer.server.port=3000'

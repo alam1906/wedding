@@ -1670,7 +1670,7 @@ migrate(
 
 		return app.importCollections(snapshot, false);
 	},
-	(app) => {
+	() => {
 		return null;
 	}
 );

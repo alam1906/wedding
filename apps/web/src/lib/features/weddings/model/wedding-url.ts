@@ -1,12 +1,12 @@
-const DEFAULT_WEDDING_URL = 'https://wedding.onlytest.my.id';
+const DEFAULT_INVITATION_URL = 'https://onlytest.my.id';
 
 function baseWeddingUrl(): URL {
-	const configuredUrl = import.meta.env.PUBLIC_WEDDING_URL?.trim() || DEFAULT_WEDDING_URL;
+	const configuredUrl = import.meta.env.PUBLIC_INVITATION_URL?.trim() || DEFAULT_INVITATION_URL;
 
 	try {
 		return new URL(configuredUrl);
 	} catch {
-		return new URL(DEFAULT_WEDDING_URL);
+		return new URL(DEFAULT_INVITATION_URL);
 	}
 }
 

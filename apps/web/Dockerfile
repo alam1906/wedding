@@ -11,8 +11,10 @@ COPY apps/web apps/web
 
 ARG PUBLIC_POCKETBASE_URL=https://api-wedding.onlytest.my.id
 ARG PUBLIC_WEDDING_URL=https://wedding.onlytest.my.id
+ARG PUBLIC_INVITATION_URL=https://onlytest.my.id
 ENV PUBLIC_POCKETBASE_URL=$PUBLIC_POCKETBASE_URL
 ENV PUBLIC_WEDDING_URL=$PUBLIC_WEDDING_URL
+ENV PUBLIC_INVITATION_URL=$PUBLIC_INVITATION_URL
 
 RUN bun run --cwd apps/web build
 

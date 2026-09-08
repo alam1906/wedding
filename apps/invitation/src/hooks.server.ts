@@ -1,16 +1,27 @@
 import type { Handle } from '@sveltejs/kit/hooks';
 
-const DEFAULT_WEDDING_URL = 'https://wedding.onlytest.my.id';
-const RESERVED_SUBDOMAINS = new Set(['api', 'app', 'admin', 'mail', 'status', 'www']);
+const DEFAULT_INVITATION_URL = 'https://onlytest.my.id';
+const RESERVED_SUBDOMAINS = new Set([
+	'api',
+	'api-wedding',
+	'app',
+	'admin',
+	'dokploy',
+	'mail',
+	'status',
+	'web',
+	'wedding',
+	'www'
+]);
 const SLUG_PATTERN = /^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/;
 
 function configuredBaseHostname(): string {
-	const configuredUrl = import.meta.env.PUBLIC_WEDDING_URL?.trim() || DEFAULT_WEDDING_URL;
+	const configuredUrl = import.meta.env.PUBLIC_INVITATION_URL?.trim() || DEFAULT_INVITATION_URL;
 
 	try {
 		return new URL(configuredUrl).hostname.toLowerCase();
 	} catch {
-		return new URL(DEFAULT_WEDDING_URL).hostname;
+		return new URL(DEFAULT_INVITATION_URL).hostname;
 	}
 }
 
