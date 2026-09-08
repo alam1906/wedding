@@ -25,6 +25,22 @@ services:
       HOST_HEADER: x-forwarded-host
     expose:
       - '3000'
+    networks:
+      - dokploy-network
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.docker.network=dokploy-network'
+      - 'traefik.http.middlewares.wedez-invitation-https.redirectscheme.scheme=https'
+      - 'traefik.http.middlewares.wedez-invitation-https.redirectscheme.permanent=true'
+      - 'traefik.http.routers.wedez-invitation-http.rule=HostRegexp(`[a-z0-9-]+[.]wedding[.]onlytest[.]my[.]id`)'
+      - 'traefik.http.routers.wedez-invitation-http.entrypoints=web'
+      - 'traefik.http.routers.wedez-invitation-http.middlewares=wedez-invitation-https'
+      - 'traefik.http.routers.wedez-invitation-http.service=wedez-invitation'
+      - 'traefik.http.routers.wedez-invitation-websecure.rule=HostRegexp(`[a-z0-9-]+[.]wedding[.]onlytest[.]my[.]id`)'
+      - 'traefik.http.routers.wedez-invitation-websecure.entrypoints=websecure'
+      - 'traefik.http.routers.wedez-invitation-websecure.tls=true'
+      - 'traefik.http.routers.wedez-invitation-websecure.service=wedez-invitation'
+      - 'traefik.http.services.wedez-invitation.loadbalancer.server.port=3000'
 
   pocketbase:
     build:
@@ -52,3 +68,7 @@ services:
 
 volumes:
   pocketbase-data:
+
+networks:
+  dokploy-network:
+    external: true

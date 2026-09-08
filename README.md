@@ -70,8 +70,14 @@ Buat satu Docker Compose application dan pilih `./compose.yml`. Hubungkan domain
 Domains:
 
 - domain utama ke service `web`, port `80`;
-- wildcard domain undangan ke service `invitation`, port `3000`;
 - domain API ke service `pocketbase`, port `8090`.
+
+Routing wildcard undangan tidak dibuat melalui tab Domains karena kolom Host Dokploy tidak
+menerima `*`. Service `invitation` sudah memiliki label Traefik untuk meneruskan seluruh host
+`{slug}.wedding.onlytest.my.id` ke port `3000`. Buat record DNS wildcard `*.wedding` yang mengarah
+ke VPS dan pasang sertifikat yang mencakup `*.wedding.onlytest.my.id` melalui Certificates Dokploy;
+router wildcard akan memilih sertifikat tersebut melalui SNI. Jangan tambahkan cert resolver
+Let's Encrypt pada router wildcard karena penerbitan sertifikat wildcard membutuhkan DNS challenge.
 
 Route lama `/{slug}?rsvp=...` pada aplikasi utama tetap tersedia sebagai redirect kompatibilitas ke
 subdomain baru.
