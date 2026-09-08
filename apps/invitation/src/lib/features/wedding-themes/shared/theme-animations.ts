@@ -4,6 +4,7 @@ export type WeddingThemeAnimation = WeddingThemeKey;
 
 export type WeddingThemeAnimationController = {
 	refresh: () => void;
+	scrollToTop: () => void;
 	destroy: () => void;
 };
 
@@ -14,6 +15,7 @@ export function mountWeddingThemeAnimations(
 	if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
 		return {
 			refresh: () => undefined,
+			scrollToTop: () => undefined,
 			destroy: () => undefined
 		};
 	}
@@ -21,7 +23,9 @@ export function mountWeddingThemeAnimations(
 	let cancelled = false;
 	let revertAnimations: (() => void) | undefined;
 	let refreshAnimations: (() => void) | undefined;
+	let scrollToTopAnimations: (() => void) | undefined;
 	let refreshRequested = false;
+	let scrollToTopRequested = false;
 
 	void (async () => {
 		try {
@@ -45,6 +49,14 @@ export function mountWeddingThemeAnimations(
 				smoothTouch: 0.12,
 				effects: false
 			});
+			scrollToTopAnimations = () => {
+				smoother.scrollTop(0);
+				window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+			};
+			if (scrollToTopRequested) {
+				scrollToTopRequested = false;
+				scrollToTopAnimations();
+			}
 			const context = gsap.context(() => {
 				const isBrutalism = variant.startsWith('neubrutalism');
 				const isPlayful = variant.startsWith('playful');
@@ -156,9 +168,21 @@ export function mountWeddingThemeAnimations(
 				refreshRequested = true;
 			}
 		},
+		scrollToTop: () => {
+			if (cancelled) {
+				return;
+			}
+
+			if (scrollToTopAnimations) {
+				scrollToTopAnimations();
+			} else {
+				scrollToTopRequested = true;
+			}
+		},
 		destroy: () => {
 			cancelled = true;
 			refreshAnimations = undefined;
+			scrollToTopAnimations = undefined;
 			revertAnimations?.();
 		}
 	};

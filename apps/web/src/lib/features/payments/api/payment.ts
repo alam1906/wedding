@@ -78,9 +78,7 @@ async function paymentRequest(
 }
 
 export function createProPaymentSession(): Promise<ProPaymentState> {
-	return paymentRequest('/api/wedez/payments/session', 'POST', {
-		return_origin: window.location.origin
-	});
+	return paymentRequest('/api/wedez/payments/session', 'POST');
 }
 
 export function getProPaymentStatus(): Promise<ProPaymentState> {

@@ -8,8 +8,8 @@
 	],
 	"scripts": {
 		"dev": "bun run dev:web",
-		"dev:web": "bun run --cwd apps/web dev",
-		"dev:invitation": "bun run --cwd apps/invitation dev",
+		"dev:web": "set -a; . ./.env.dev; set +a; bun run --cwd apps/web dev -- --mode dev",
+		"dev:invitation": "set -a; . ./.env.dev; set +a; bun run --cwd apps/invitation dev -- --mode dev",
 		"build": "bun run build:web && bun run build:invitation",
 		"build:web": "bun run --cwd apps/web build",
 		"build:invitation": "bun run --cwd apps/invitation build",

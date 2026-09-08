@@ -177,28 +177,32 @@
 
 	async function initializePlan() {
 		const paymentResult = page.url.searchParams.get('payment');
+		const duitkuResultCode = page.url.searchParams.get('resultCode');
+		const returnedFromPayment = paymentResult !== null || duitkuResultCode !== null;
+		const paymentSucceeded =
+			duitkuResultCode !== null ? duitkuResultCode === '00' : paymentResult === 'success';
 
-		if (paymentResult) {
+		if (returnedFromPayment) {
 			replaceState('/user/setting', page.state);
 		}
 
 		activePlan = await getActivePlan();
 		isPlanLoading = false;
 
-		if (paymentResult === 'cancel') {
+		if (returnedFromPayment && !paymentSucceeded) {
 			toast.info('Pembayaran dibatalkan. Paket Anda belum berubah.');
 			return;
 		}
 
 		if (activePlan === 'pro') {
-			if (paymentResult === 'success') {
+			if (paymentSucceeded) {
 				activatePro();
 			}
 
 			return;
 		}
 
-		const showPaymentProgress = paymentResult === 'success';
+		const showPaymentProgress = paymentSucceeded;
 		isUpgrading = showPaymentProgress;
 
 		try {
@@ -206,11 +210,11 @@
 
 			if (result.plan_tier === 'pro' && result.payment.status === 'paid') {
 				activatePro();
-			} else if (paymentResult === 'success') {
+			} else if (paymentSucceeded) {
 				toast.info('Pembayaran masih diproses. Silakan muat ulang beberapa saat lagi.');
 			}
 		} catch (error) {
-			if (paymentResult === 'success') {
+			if (paymentSucceeded) {
 				paymentError =
 					error instanceof PaymentError ? error.message : 'Status pembayaran gagal diperiksa.';
 				toast.error(paymentError);
@@ -258,7 +262,7 @@
 							Buka semua fitur Wedez
 						</h2>
 						<p class="mt-2 max-w-xl text-sm leading-6 text-gray-300">
-							Bandingkan paketmu sebelum melanjutkan ke pembayaran aman melalui Xendit.
+							Bandingkan paketmu sebelum melanjutkan ke pembayaran aman melalui Duitku.
 						</p>
 					</div>
 					<button

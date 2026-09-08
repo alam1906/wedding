@@ -31,6 +31,12 @@ function createToastStore() {
 	}
 
 	function show(message: string, variant: ToastVariant, options: ToastOptions = {}) {
+		const duplicate = items.find((item) => item.message === message && item.variant === variant);
+
+		if (duplicate) {
+			dismiss(duplicate.id);
+		}
+
 		const id = ++nextId;
 		const duration = options.duration ?? DEFAULT_DURATION;
 

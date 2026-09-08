@@ -4,6 +4,8 @@
 	import { onDestroy, untrack } from 'svelte';
 
 	import {
+		getWeddingInvitationBaseHost,
+		getWeddingInvitationHost,
 		WeddingDataError,
 		saveCurrentWeddingStories,
 		updateCurrentWedding,
@@ -23,7 +25,7 @@
 	import { SvelteSet } from 'svelte/reactivity';
 
 	const sections = [
-		{ title: 'Domain', description: 'Atur alamat unik undangan pernikahanmu.' },
+		{ title: 'Domain', description: 'Atur subdomain unik undangan pernikahanmu.' },
 		{ title: 'Pengantin', description: 'Lengkapi informasi dan foto kedua mempelai.' },
 		{ title: 'Acara', description: 'Atur waktu dan alamat rangkaian acara.' },
 		{ title: 'Media', description: 'Kelola cover dan galeri undangan.' },
@@ -201,6 +203,8 @@
 		localSingleImagePreviews.cover ??
 			(pendingSingleFileDeletions.includes('cover') ? '' : wedding.cover_url)
 	);
+	const invitationBaseHost = getWeddingInvitationBaseHost();
+	let invitationHostPreview = $derived(getWeddingInvitationHost(wedding.slug || 'namapengantin'));
 
 	$effect(() => {
 		if (activeSection === null) {
@@ -867,26 +871,38 @@
 						</fieldset>
 					{:else if activeSection === 'Domain'}
 						<label class="block text-sm font-medium text-gray-700">
-							Slug domain
+							Nama subdomain
 							<div
 								data-form-control
 								class="mt-2 flex overflow-hidden rounded-xl border border-gray-700 bg-white"
 							>
-								<span
-									class="flex items-center border-r border-gray-200 bg-gray-50 px-4 text-sm text-gray-500"
-									>wedez.id/</span
-								>
 								<input
 									name="slug"
 									value={wedding.slug}
 									oninput={normalizeSlug}
+									aria-describedby="domain-preview"
+									autocapitalize="none"
+									autocomplete="off"
+									inputmode="url"
 									minlength="3"
 									maxlength="50"
 									pattern="[a-z0-9]+(?:-[a-z0-9]+)*"
+									placeholder="namapengantin"
+									spellcheck="false"
 									class="field min-w-0 flex-1 border-0 px-4 py-3 text-sm"
 									required
 								/>
+								<span
+									title={'.' + invitationBaseHost}
+									class="flex max-w-[58%] shrink-0 items-center border-l border-gray-200 bg-gray-50 px-3 text-xs text-gray-500 sm:max-w-none sm:px-4 sm:text-sm"
+								>
+									<span class="truncate">.{invitationBaseHost}</span>
+								</span>
 							</div>
+							<p id="domain-preview" class="mt-2 text-xs font-normal text-gray-500">
+								Alamat undangan:
+								<span class="font-semibold break-all text-gray-700">{invitationHostPreview}</span>
+							</p>
 						</label>
 					{:else if activeSection === 'Pengantin'}
 						<div class="grid gap-6 xl:grid-cols-2">

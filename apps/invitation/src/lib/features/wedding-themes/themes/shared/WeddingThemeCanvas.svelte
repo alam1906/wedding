@@ -80,20 +80,28 @@
 	onMount(() => {
 		const root = document.documentElement;
 		const body = document.body;
+		const previousScrollRestoration = window.history.scrollRestoration;
 		const previousRootOverflow = root.style.overflow;
 		const previousBodyOverflow = body.style.overflow;
+		const resetNativeScroll = () => window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
 		const releaseScrollLock = () => {
 			root.style.overflow = previousRootOverflow;
 			body.style.overflow = previousBodyOverflow;
 		};
 
-		window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+		window.history.scrollRestoration = 'manual';
+		resetNativeScroll();
 		root.style.overflow = 'hidden';
 		body.style.overflow = 'hidden';
 		scrollLock.release = releaseScrollLock;
 
 		const animationController = mountWeddingThemeAnimations('.theme-canvas', theme);
 		themeAnimations.controller = animationController;
+		animationController.scrollToTop();
+		const scrollResetFrame = window.requestAnimationFrame(() => {
+			resetNativeScroll();
+			animationController.scrollToTop();
+		});
 		const timer = countdownTarget
 			? window.setInterval(() => {
 					countdown = calculateCountdown(countdownTarget);
@@ -101,6 +109,8 @@
 			: undefined;
 
 		return () => {
+			window.cancelAnimationFrame(scrollResetFrame);
+			window.history.scrollRestoration = previousScrollRestoration;
 			if (timer !== undefined) window.clearInterval(timer);
 			animationController.destroy();
 			if (themeAnimations.controller === animationController) {
@@ -234,12 +244,6 @@
 			';--color-accent:' +
 			colors.accent}
 	>
-		{#if wedding.plan_tier !== 'pro'}
-			<div class="unpaid-watermark" aria-hidden="true">
-				<span>BELUM BAYAR</span>
-			</div>
-		{/if}
-
 		<section class="hero section-shell">
 			<div class="cover-frame">
 				{#if wedding.cover_url}
@@ -503,25 +507,6 @@
 		background: var(--color-background);
 		color: var(--color-text);
 		font-family: 'Avenir Next', Avenir, sans-serif;
-	}
-	.unpaid-watermark {
-		position: fixed;
-		z-index: 50;
-		inset: 0;
-		display: grid;
-		place-items: center;
-		pointer-events: none;
-	}
-	.unpaid-watermark span {
-		rotate: -18deg;
-		color: #b91c1c;
-		font-size: clamp(2rem, 8vw, 6rem);
-		font-weight: 900;
-		letter-spacing: 0.16em;
-		line-height: 1;
-		opacity: 0.14;
-		text-align: center;
-		white-space: nowrap;
 	}
 	.section-shell {
 		position: relative;

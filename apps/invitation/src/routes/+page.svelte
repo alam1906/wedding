@@ -24,6 +24,11 @@
 </svelte:head>
 
 {#if data.wedding}
+	{#if data.wedding.plan_tier === 'free'}
+		<div class="unpaid-watermark" aria-hidden="true">
+			<span>BELUM BAYAR</span>
+		</div>
+	{/if}
 	<WeddingThemeRenderer theme={data.wedding.theme} wedding={data.wedding} />
 {:else}
 	<main class="grid min-h-screen place-items-center bg-gray-100 px-5 py-16 text-gray-900">
@@ -41,3 +46,27 @@
 		</section>
 	</main>
 {/if}
+
+<style>
+	.unpaid-watermark {
+		position: fixed;
+		z-index: 2147483647;
+		inset: 0;
+		display: grid;
+		place-items: center;
+		pointer-events: none;
+		user-select: none;
+	}
+
+	.unpaid-watermark span {
+		transform: rotate(-18deg);
+		color: #b91c1c;
+		font-size: clamp(2rem, 8vw, 6rem);
+		font-weight: 900;
+		letter-spacing: 0.16em;
+		line-height: 1;
+		opacity: 0.14;
+		text-align: center;
+		white-space: nowrap;
+	}
+</style>

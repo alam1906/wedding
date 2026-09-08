@@ -14,11 +14,21 @@ function configuredBaseHostname(): string {
 	}
 }
 
+function normalizeWeddingSlug(value: string): string {
+	const slug = value.trim().toLowerCase();
+	return SLUG_PATTERN.test(slug) && !RESERVED_SUBDOMAINS.has(slug) ? slug : '';
+}
+
 function getWeddingSlug(url: URL): string {
 	const hostname = url.hostname.toLowerCase();
 
 	if (hostname === 'localhost' || hostname === '127.0.0.1') {
-		return url.searchParams.get('slug')?.trim().toLowerCase() ?? '';
+		return normalizeWeddingSlug(url.searchParams.get('slug') ?? '');
+	}
+
+	const localhostSuffix = '.localhost';
+	if (hostname.endsWith(localhostSuffix)) {
+		return normalizeWeddingSlug(hostname.slice(0, -localhostSuffix.length));
 	}
 
 	const baseHostname = configuredBaseHostname();
@@ -26,8 +36,7 @@ function getWeddingSlug(url: URL): string {
 
 	if (!hostname.endsWith(suffix)) return '';
 
-	const slug = hostname.slice(0, -suffix.length);
-	return SLUG_PATTERN.test(slug) && !RESERVED_SUBDOMAINS.has(slug) ? slug : '';
+	return normalizeWeddingSlug(hostname.slice(0, -suffix.length));
 }
 
 export const handle: Handle = async ({ event, resolve }) => {

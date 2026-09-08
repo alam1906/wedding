@@ -25,4 +25,8 @@ export {
 	type WeddingStoryItem,
 	type WeddingStorySaveInput
 } from './model/wedding.js';
-export { getWeddingInvitationHost, getWeddingInvitationUrl } from './model/wedding-url.js';
+export {
+	getWeddingInvitationBaseHost,
+	getWeddingInvitationHost,
+	getWeddingInvitationUrl
+} from './model/wedding-url.js';

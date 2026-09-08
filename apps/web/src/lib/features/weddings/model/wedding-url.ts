@@ -10,6 +10,10 @@ function baseWeddingUrl(): URL {
 	}
 }
 
+export function getWeddingInvitationBaseHost(): string {
+	return baseWeddingUrl().host;
+}
+
 export function getWeddingInvitationUrl(slug: string, rsvpToken?: string): string {
 	const normalizedSlug = slug.trim().toLowerCase();
 	if (!normalizedSlug) return '';
