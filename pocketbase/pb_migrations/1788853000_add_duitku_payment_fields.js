@@ -2,7 +2,8 @@
 
 migrate(
 	(app) => {
-		const payments = app.findCollectionByNameOrId('payments');
+		const payments = app.findAllCollections().find((collection) => collection.name === 'payments');
+		if (!payments) return;
 
 		payments.fields.add(
 			new TextField({
@@ -33,7 +34,8 @@ migrate(
 		return app.save(payments);
 	},
 	(app) => {
-		const payments = app.findCollectionByNameOrId('payments');
+		const payments = app.findAllCollections().find((collection) => collection.name === 'payments');
+		if (!payments) return;
 
 		payments.fields.removeByName('provider_reference');
 		payments.fields.removeByName('checkout_url');
