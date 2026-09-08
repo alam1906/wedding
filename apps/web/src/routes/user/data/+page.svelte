@@ -32,6 +32,7 @@
 		{ title: 'Story', description: 'Ceritakan perjalanan hubungan kalian.' },
 		{ title: 'Quote', description: 'Tambahkan kutipan yang bermakna.' },
 		{ title: 'Kado', description: 'Atur bank atau e-wallet kedua mempelai.' },
+		{ title: 'Musik', description: 'Pilih musik pengiring untuk undangan pernikahanmu.' },
 		{ title: 'Tema', description: 'Pilih tampilan visual untuk undangan pernikahanmu.' }
 	] as const;
 	const singleImageFields = [
@@ -176,6 +177,9 @@
 	let akadValue = $state(toDateTimeLocal(initialWedding.akad));
 	let receptionValue = $state(toDateTimeLocal(initialWedding.reception));
 	let selectedTheme = $state<ThemeKey>(normalizeTheme(initialWedding.theme));
+	let selectedMusic = $state(initialWedding.music);
+	let musicEnabled = $state(initialWedding.music !== '');
+	let lastSelectedMusic = initialWedding.music;
 	let activeSection = $derived(getActiveSection(page.state));
 	let isSaving = $state(false);
 	let localSingleImagePreviews = $state<Partial<Record<WeddingSingleFileField, string>>>({});
@@ -242,6 +246,12 @@
 		stories = toEditableStories(updatedWedding.stories);
 		akadValue = toDateTimeLocal(updatedWedding.akad);
 		receptionValue = toDateTimeLocal(updatedWedding.reception);
+		selectedTheme = normalizeTheme(updatedWedding.theme);
+		selectedMusic = updatedWedding.music;
+		musicEnabled = updatedWedding.music !== '';
+		if (updatedWedding.music) {
+			lastSelectedMusic = updatedWedding.music;
+		}
 	}
 
 	function revokePreview(url: string | undefined) {
@@ -407,6 +417,52 @@
 		clearPendingFileChanges();
 		clearStoryImagePreviews();
 		stories = toEditableStories(wedding.stories);
+		selectedTheme = normalizeTheme(wedding.theme);
+		selectedMusic = wedding.music;
+		musicEnabled = wedding.music !== '';
+		if (wedding.music) {
+			lastSelectedMusic = wedding.music;
+		}
+	}
+
+	function pauseAllMusicPreviews() {
+		document.querySelectorAll<HTMLAudioElement>('[data-music-preview]').forEach((audio) => {
+			audio.pause();
+		});
+	}
+
+	function toggleMusic() {
+		if (musicEnabled) {
+			if (selectedMusic) {
+				lastSelectedMusic = selectedMusic;
+			}
+			selectedMusic = '';
+			musicEnabled = false;
+			pauseAllMusicPreviews();
+			return;
+		}
+
+		const nextMusic = lastSelectedMusic || data.musics[0]?.id || '';
+		if (!nextMusic) {
+			return;
+		}
+
+		selectedMusic = nextMusic;
+		lastSelectedMusic = nextMusic;
+		musicEnabled = true;
+	}
+
+	function pauseOtherMusicPreviews(event: Event) {
+		if (!(event.currentTarget instanceof HTMLAudioElement)) {
+			return;
+		}
+
+		const currentAudio = event.currentTarget;
+		document.querySelectorAll<HTMLAudioElement>('[data-music-preview]').forEach((audio) => {
+			if (audio !== currentAudio) {
+				audio.pause();
+			}
+		});
 	}
 
 	function closeActiveSection() {
@@ -604,6 +660,7 @@
 				stories = toEditableStories(updatedStories);
 			} else {
 				const formData = new FormData(form);
+				formData.delete('music-option');
 				removeEmptyFiles(formData);
 				for (const field of singleImageFields) {
 					const file = localSingleImageFiles[field];
@@ -697,7 +754,97 @@
 				</header>
 
 				<div class="mt-6">
-					{#if activeSection === 'Tema'}
+					{#if activeSection === 'Musik'}
+						<fieldset>
+							<legend class="sr-only">Pilih musik undangan</legend>
+							<input type="hidden" name="music" value={musicEnabled ? selectedMusic : ''} />
+
+							{#if data.musicError}
+								<p
+									class="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+								>
+									{data.musicError}
+								</p>
+							{/if}
+
+							<div class="flex items-center justify-between gap-5 border-b border-gray-200 pb-5">
+								<div>
+									<p class="text-sm font-semibold text-gray-900">Gunakan musik</p>
+									<p class="mt-1 text-sm text-gray-500">Putar musik saat undangan dibuka.</p>
+								</div>
+								<button
+									type="button"
+									role="switch"
+									aria-label="Gunakan musik pada undangan"
+									aria-checked={musicEnabled}
+									disabled={!musicEnabled && data.musics.length === 0}
+									onclick={toggleMusic}
+									class={[
+										'relative h-6 w-11 shrink-0 rounded-full transition disabled:cursor-not-allowed disabled:opacity-50',
+										musicEnabled ? 'bg-gray-900' : 'bg-gray-300'
+									]}
+								>
+									<span
+										aria-hidden="true"
+										class={[
+											'absolute top-1 size-4 rounded-full bg-white transition',
+											musicEnabled ? 'left-6' : 'left-1'
+										]}
+									></span>
+								</button>
+							</div>
+
+							{#if data.musics.length > 0}
+								<div class="mt-5 overflow-hidden rounded-xl border border-gray-200 bg-white">
+									{#each data.musics as music (music.id)}
+										<div
+											class="flex flex-col gap-3 border-b border-gray-200 px-4 py-4 transition last:border-b-0 sm:flex-row sm:items-center {musicEnabled &&
+											selectedMusic === music.id
+												? 'bg-gray-50'
+												: 'bg-white'}"
+										>
+											<label
+												class="flex min-w-0 flex-1 items-center gap-3 {musicEnabled
+													? 'cursor-pointer'
+													: 'cursor-not-allowed'}"
+											>
+												<input
+													type="radio"
+													name="music-option"
+													value={music.id}
+													disabled={!musicEnabled}
+													bind:group={selectedMusic}
+													onchange={() => (lastSelectedMusic = music.id)}
+													class="size-4 shrink-0 border-gray-400 text-gray-900 focus:ring-gray-900 disabled:opacity-40"
+												/>
+												<span
+													class="grid size-10 shrink-0 place-items-center rounded-full bg-gray-100 text-gray-500"
+													aria-hidden="true"
+												>
+													♪
+												</span>
+												<span class="truncate text-sm font-semibold text-gray-900"
+													>{music.title}</span
+												>
+											</label>
+											<audio
+												controls
+												preload="none"
+												src={music.music_url}
+												onplay={pauseOtherMusicPreviews}
+												data-music-preview
+												class="h-10 w-full sm:w-64"
+											></audio>
+										</div>
+									{/each}
+								</div>
+							{/if}
+
+							{#if !data.musicError && data.musics.length === 0}
+								<p class="mt-4 text-sm text-gray-500">Belum ada musik yang dapat dipilih.</p>
+							{/if}
+						</fieldset>
+					{:else if activeSection === 'Tema'}
 						<fieldset>
 							<legend class="sr-only">Pilih tema undangan</legend>
 							<div

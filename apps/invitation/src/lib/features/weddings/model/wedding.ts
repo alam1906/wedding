@@ -41,6 +41,9 @@ export type WeddingData = {
 	maps: string;
 	akad: string;
 	reception: string;
+	music: string;
+	music_title: string;
+	music_url: string;
 	gallery: WeddingGalleryItem[];
 	stories: WeddingStoryItem[];
 };

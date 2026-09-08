@@ -28,6 +28,7 @@ const PUBLIC_WEDDING_FIELDS = [
 	'maps',
 	'akad',
 	'reception',
+	'music',
 	'gallery'
 ] as const;
 
@@ -77,7 +78,8 @@ function toWeddingStory(client: PocketBase, record: RecordModel): WeddingStoryIt
 function toWeddingData(
 	client: PocketBase,
 	record: RecordModel,
-	stories: WeddingStoryItem[]
+	stories: WeddingStoryItem[],
+	music: { id: string; title: string; url: string } | null
 ): WeddingData {
 	const galleryNames = Array.isArray(record.gallery)
 		? record.gallery.filter((filename): filename is string => typeof filename === 'string')
@@ -113,12 +115,39 @@ function toWeddingData(
 		maps: typeof record.maps === 'string' ? record.maps : '',
 		akad: typeof record.akad === 'string' ? record.akad : '',
 		reception: typeof record.reception === 'string' ? record.reception : '',
+		music: music?.id ?? '',
+		music_title: music?.title ?? '',
+		music_url: music?.url ?? '',
 		gallery: galleryNames.map((name) => ({
 			name,
 			url: fileURL(client, record, name, '400x400')
 		})),
 		stories
 	};
+}
+
+async function getWeddingMusic(
+	client: PocketBase,
+	musicId: unknown
+): Promise<{ id: string; title: string; url: string } | null> {
+	if (typeof musicId !== 'string' || musicId.length === 0) return null;
+
+	try {
+		const record = await client.collection('musics').getOne(musicId, {
+			fields: 'id,collectionId,collectionName,title,music'
+		});
+		const filename = typeof record.music === 'string' ? record.music : '';
+		if (!filename) return null;
+
+		return {
+			id: record.id,
+			title: typeof record.title === 'string' ? record.title.trim() : '',
+			url: fileURL(client, record, filename)
+		};
+	} catch {
+		// Musik bersifat pelengkap; undangan tetap dapat dibuka jika rekamannya sudah dihapus.
+		return null;
+	}
 }
 
 function errorMessage(error: ClientResponseError): string {
@@ -135,16 +164,20 @@ export async function getWeddingBySlug(slug: string): Promise<WeddingData> {
 			.getFirstListItem(client.filter('slug = {:slug}', { slug }), {
 				fields: PUBLIC_WEDDING_FIELDS.join(',')
 			});
-		const storyRecords = await client.collection('wedding_stories').getFullList({
-			filter: client.filter('wedding = {:weddingId}', { weddingId: record.id }),
-			fields: WEDDING_STORY_FIELDS.join(','),
-			sort: 'sort_order,date,id'
-		});
+		const [storyRecords, music] = await Promise.all([
+			client.collection('wedding_stories').getFullList({
+				filter: client.filter('wedding = {:weddingId}', { weddingId: record.id }),
+				fields: WEDDING_STORY_FIELDS.join(','),
+				sort: 'sort_order,date,id'
+			}),
+			getWeddingMusic(client, record.music)
+		]);
 
 		return toWeddingData(
 			client,
 			record,
-			storyRecords.map((story) => toWeddingStory(client, story))
+			storyRecords.map((story) => toWeddingStory(client, story)),
+			music
 		);
 	} catch (error) {
 		throw new PublicWeddingError(

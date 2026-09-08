@@ -30,6 +30,7 @@ export type WeddingData = {
 	id: string;
 	slug: string;
 	theme: string;
+	music: string;
 	plan_tier: WeddingPlanTier;
 	whatsapp_template: string;
 	groom_name: string;

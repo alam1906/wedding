@@ -56,8 +56,35 @@
 	let countdown = $state(calculateCountdown(untrack(() => countdownTarget)));
 	const scrollLock: { release?: () => void } = {};
 	const themeAnimations: { controller?: WeddingThemeAnimationController } = {};
+	let musicPlayer = $state<HTMLAudioElement>();
+	let isMusicPlaying = $state(false);
+	let isInvitationOpened = $state(false);
+
+	async function playMusic(): Promise<void> {
+		if (!musicPlayer || !wedding.music_url) return;
+
+		try {
+			await musicPlayer.play();
+		} catch {
+			isMusicPlaying = false;
+		}
+	}
+
+	function toggleMusic(): void {
+		if (!musicPlayer) return;
+
+		if (musicPlayer.paused) {
+			void playMusic();
+			return;
+		}
+
+		musicPlayer.pause();
+	}
 
 	function openInvitation(): void {
+		isInvitationOpened = true;
+		void playMusic();
+
 		const release = scrollLock.release;
 		delete scrollLock.release;
 		release?.();
@@ -109,6 +136,7 @@
 			: undefined;
 
 		return () => {
+			musicPlayer?.pause();
 			window.cancelAnimationFrame(scrollResetFrame);
 			window.history.scrollRestoration = previousScrollRestoration;
 			if (timer !== undefined) window.clearInterval(timer);
@@ -495,6 +523,42 @@
 	</main>
 </div>
 
+{#if wedding.music_url}
+	<audio
+		bind:this={musicPlayer}
+		src={wedding.music_url}
+		loop
+		preload="metadata"
+		onplay={() => (isMusicPlaying = true)}
+		onpause={() => (isMusicPlaying = false)}
+	></audio>
+	{#if isInvitationOpened}
+		<button
+			type="button"
+			class="music-control"
+			style={'--music-control-surface:' +
+				colors.surface +
+				';--music-control-text:' +
+				colors.text +
+				';--music-control-primary:' +
+				colors.primary}
+			aria-label={isMusicPlaying ? 'Jeda musik undangan' : 'Putar musik undangan'}
+			title={isMusicPlaying ? 'Jeda musik' : 'Putar musik'}
+			onclick={toggleMusic}
+		>
+			{#if isMusicPlaying}
+				<svg viewBox="0 0 24 24" aria-hidden="true">
+					<path d="M9 5v14M15 5v14" />
+				</svg>
+			{:else}
+				<svg class="play-icon" viewBox="0 0 24 24" aria-hidden="true">
+					<path d="m8 5 11 7-11 7V5Z" />
+				</svg>
+			{/if}
+		</button>
+	{/if}
+{/if}
+
 <style>
 	.theme-scroll-wrapper {
 		min-height: 100vh;
@@ -507,6 +571,48 @@
 		background: var(--color-background);
 		color: var(--color-text);
 		font-family: 'Avenir Next', Avenir, sans-serif;
+	}
+	.music-control {
+		position: fixed;
+		z-index: 20;
+		right: max(1.5rem, env(safe-area-inset-right));
+		bottom: max(1.5rem, calc(env(safe-area-inset-bottom) + 1rem));
+		display: grid;
+		width: 3.25rem;
+		height: 3.25rem;
+		place-items: center;
+		border: 2px solid var(--music-control-text);
+		border-radius: 999px;
+		background: color-mix(in srgb, var(--music-control-surface) 92%, transparent);
+		box-shadow: 0 0.65rem 1.8rem color-mix(in srgb, var(--music-control-text) 20%, transparent);
+		color: var(--music-control-text);
+		backdrop-filter: blur(0.5rem);
+		cursor: pointer;
+		transition:
+			transform 180ms ease,
+			box-shadow 180ms ease;
+	}
+	.music-control:hover {
+		transform: translateY(-0.15rem);
+		box-shadow: 0 0.85rem 2rem color-mix(in srgb, var(--music-control-text) 26%, transparent);
+	}
+	.music-control:focus-visible {
+		outline: 3px solid var(--music-control-primary);
+		outline-offset: 3px;
+	}
+	.music-control svg {
+		width: 1.25rem;
+		height: 1.25rem;
+		fill: none;
+		stroke: currentColor;
+		stroke-linecap: round;
+		stroke-linejoin: round;
+		stroke-width: 2.25;
+	}
+	.music-control .play-icon {
+		margin-left: 0.12rem;
+		fill: currentColor;
+		stroke: none;
 	}
 	.section-shell {
 		position: relative;
@@ -1696,6 +1802,10 @@
 	}
 
 	@media (min-width: 48rem) {
+		.music-control {
+			right: max(2rem, env(safe-area-inset-right));
+			bottom: max(2rem, calc(env(safe-area-inset-bottom) + 1.25rem));
+		}
 		.hero-grid {
 			grid-template-columns: minmax(0, 1fr);
 		}
