@@ -65,6 +65,23 @@ services:
       - '8090'
     volumes:
       - pocketbase-data:/pb/pb_data
+    networks:
+      - dokploy-network
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.docker.network=dokploy-network'
+      - 'traefik.http.middlewares.wedez-pocketbase-https.redirectscheme.scheme=https'
+      - 'traefik.http.middlewares.wedez-pocketbase-https.redirectscheme.permanent=true'
+      - 'traefik.http.routers.wedez-pocketbase-http.rule=Host(`api-wedding.onlytest.my.id`)'
+      - 'traefik.http.routers.wedez-pocketbase-http.entrypoints=web'
+      - 'traefik.http.routers.wedez-pocketbase-http.middlewares=wedez-pocketbase-https'
+      - 'traefik.http.routers.wedez-pocketbase-http.service=wedez-pocketbase'
+      - 'traefik.http.routers.wedez-pocketbase-websecure.rule=Host(`api-wedding.onlytest.my.id`)'
+      - 'traefik.http.routers.wedez-pocketbase-websecure.entrypoints=websecure'
+      - 'traefik.http.routers.wedez-pocketbase-websecure.tls=true'
+      - 'traefik.http.routers.wedez-pocketbase-websecure.tls.certresolver=letsencrypt'
+      - 'traefik.http.routers.wedez-pocketbase-websecure.service=wedez-pocketbase'
+      - 'traefik.http.services.wedez-pocketbase.loadbalancer.server.port=8090'
 
 volumes:
   pocketbase-data:
