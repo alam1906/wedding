@@ -12,10 +12,11 @@
 		subscribeToEmailVerification,
 		VerificationError
 	} from '#lib/features/auth/index.js';
-	import { toast } from '#lib/features/toast/index.js';
+	import { getToastContext } from '#lib/features/toast/index.js';
 
 	type VerificationStatus = 'waiting' | 'confirming' | 'confirmed' | 'failed';
 
+	const toast = getToastContext();
 	const token = page.url.searchParams.get('token');
 	const email = getAuthenticatedEmail();
 

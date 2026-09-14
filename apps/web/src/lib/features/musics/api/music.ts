@@ -23,7 +23,7 @@ function toMusicOption(record: RecordModel): MusicOption {
 	};
 }
 
-export async function getMusicOptions(): Promise<MusicOption[]> {
+export async function requestMusicOptions(): Promise<MusicOption[]> {
 	try {
 		const records = await pocketBase.collection('musics').getFullList({
 			fields: MUSIC_FIELDS.join(','),

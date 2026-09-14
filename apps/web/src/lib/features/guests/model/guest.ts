@@ -4,6 +4,7 @@ export type GuestStatus = (typeof GUEST_STATUSES)[number];
 
 export type Guest = {
 	id: string;
+	created_at: string;
 	wedding: string;
 	name: string;
 	whatsapp: string;

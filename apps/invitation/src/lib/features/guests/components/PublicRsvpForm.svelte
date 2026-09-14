@@ -161,7 +161,7 @@
 		aria-hidden="true"
 	></div>
 
-	<div class="mx-auto grid w-full max-w-6xl items-stretch gap-6 lg:grid-cols-2">
+	<div class="mx-auto w-full max-w-3xl">
 		<div
 			data-reveal
 			class="rounded-[1.75rem] border border-[#173b2c]/10 bg-white p-5 shadow-[0_24px_70px_rgba(23,59,44,0.10)] sm:rounded-4xl sm:p-8 lg:p-10"
@@ -318,17 +318,15 @@
 					</div>
 				</div>
 			{/if}
-		</div>
 
-		<aside data-reveal class="relative min-h-0">
-			<div
-				class="flex min-h-0 flex-col overflow-hidden rounded-[1.75rem] border border-[#173b2c]/10 bg-white shadow-[0_24px_70px_rgba(23,59,44,0.10)] sm:rounded-[2rem]"
-			>
-				<div
-					class="min-h-72 flex-1 px-4 py-4 sm:px-6 sm:py-5"
-					aria-label="Daftar ucapan tamu"
-					aria-busy={messagesLoading}
-				>
+			<section class="mt-10 border-t border-[#173b2c]/10 pt-8 sm:mt-12 sm:pt-10">
+				<header class="mb-6 text-center">
+					<p class="text-xs font-bold tracking-[0.28em] text-[#8d6b2f] uppercase">Ucapan Tamu</p>
+					<h3 class="mt-3 text-2xl font-semibold tracking-[-0.02em] text-[#173b2c] sm:text-3xl">
+						Doa dari orang terdekat
+					</h3>
+				</header>
+				<div class="min-h-72" aria-label="Daftar ucapan tamu" aria-busy={messagesLoading}>
 					{#if messages.length === 0 && messagesLoading}
 						<div class="space-y-3">
 							{#each [1, 2, 3] as item (item)}
@@ -360,9 +358,15 @@
 							</div>
 						</div>
 					{:else}
-						<div class="space-y-3">
+						<div
+							class={`space-y-3 ${messages.length > 5 ? 'max-h-[33rem] overflow-y-auto overscroll-contain pr-2' : ''}`}
+							role="region"
+							aria-label="Daftar ucapan tamu"
+						>
 							{#each messages as item (item)}
-								<article class="rounded-2xl border border-[#173b2c]/8 bg-[#faf8f3] p-4 sm:p-5">
+								<article
+									class="min-h-24 rounded-2xl border border-[#173b2c]/8 bg-[#faf8f3] p-4 sm:p-5"
+								>
 									<div class="flex items-center justify-between gap-3">
 										<div class="flex min-w-0 items-center gap-3">
 											<span
@@ -404,7 +408,7 @@
 						</div>
 					{/if}
 				</div>
-			</div>
-		</aside>
+			</section>
+		</div>
 	</div>
 </section>

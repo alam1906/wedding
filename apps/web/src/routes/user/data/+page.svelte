@@ -1,14 +1,15 @@
 <script lang="ts">
 	import { pushState } from '$app/navigation';
 	import { page } from '$app/state';
-	import { onDestroy, untrack } from 'svelte';
+	import { error } from '@sveltejs/kit';
+	import { onDestroy, onMount, untrack } from 'svelte';
 
+	import { getMusicOptionsContext } from '#lib/features/musics/index.js';
 	import {
+		getWeddingContext,
 		getWeddingInvitationBaseHost,
 		getWeddingInvitationHost,
 		WeddingDataError,
-		saveCurrentWeddingStories,
-		updateCurrentWedding,
 		type WeddingData,
 		type WeddingSingleFileField,
 		type WeddingStoryItem
@@ -19,9 +20,8 @@
 		optimizeImage,
 		type ImageOptimizationOptions
 	} from '#lib/shared/image/optimize-image.js';
-	import { toast } from '#lib/features/toast/index.js';
+	import { getToastContext } from '#lib/features/toast/index.js';
 	import { WEDDING_THEME_COLORS } from '#lib/features/wedding-themes/index.js';
-	import type { PageProps } from './$types';
 	import { SvelteSet } from 'svelte/reactivity';
 
 	const sections = [
@@ -170,8 +170,10 @@
 		removeImage: boolean;
 	};
 
-	let { data }: PageProps = $props();
-	const initialWedding = untrack(() => data.wedding);
+	const toast = getToastContext();
+	const musicOptions = getMusicOptionsContext();
+	const weddingState = getWeddingContext();
+	const initialWedding = await getInitialWedding();
 	let wedding = $state<WeddingData>({ ...initialWedding });
 	let stories = $state<EditableWeddingStory[]>(toEditableStories(initialWedding.stories));
 	let akadValue = $state(toDateTimeLocal(initialWedding.akad));
@@ -210,6 +212,20 @@
 	const invitationBaseHost = getWeddingInvitationBaseHost();
 	let invitationHostPreview = $derived(getWeddingInvitationHost(wedding.slug || 'namapengantin'));
 
+	async function getInitialWedding(): Promise<WeddingData> {
+		try {
+			return await weddingState.getCurrentWedding();
+		} catch (cause) {
+			throw error(500, {
+				message: cause instanceof WeddingDataError ? cause.message : 'Data wedding gagal dimuat.'
+			});
+		}
+	}
+
+	onMount(() => {
+		void musicOptions.load();
+	});
+
 	$effect(() => {
 		if (activeSection === null) {
 			untrack(resetActiveSectionChanges);
@@ -224,6 +240,50 @@
 
 	function openSection(section: SectionName) {
 		pushState('', { ...page.state, dataSection: section });
+	}
+
+	function hasValues(...values: string[]): boolean {
+		return values.every((value) => value.trim().length > 0);
+	}
+
+	function isSectionComplete(section: SectionName): boolean {
+		switch (section) {
+			case 'Domain':
+				return wedding.slug.trim().length >= 3;
+			case 'Pengantin':
+				return hasValues(
+					wedding.groom_name,
+					wedding.groom_father_name,
+					wedding.groom_mother_name,
+					wedding.groom_photo,
+					wedding.bride_name,
+					wedding.bride_father_name,
+					wedding.bride_mother_name,
+					wedding.bride_photo
+				);
+			case 'Acara':
+				return hasValues(wedding.akad, wedding.reception, wedding.address, wedding.maps);
+			case 'Media':
+				return hasValues(wedding.cover) && wedding.gallery.length > 0;
+			case 'Story':
+				return (
+					stories.length > 0 &&
+					stories.every((story) => hasValues(story.title, story.date, story.content, story.image))
+				);
+			case 'Quote':
+				return hasValues(wedding.quote);
+			case 'Kado':
+				return hasValues(
+					wedding.groom_payment_provider,
+					wedding.groom_payment_number,
+					wedding.bride_payment_provider,
+					wedding.bride_payment_number
+				);
+			case 'Musik':
+				return musicEnabled && selectedMusic.length > 0;
+			case 'Tema':
+				return selectedTheme.length > 0;
+		}
 	}
 
 	function toDateTimeLocal(value: string): string {
@@ -442,7 +502,7 @@
 			return;
 		}
 
-		const nextMusic = lastSelectedMusic || data.musics[0]?.id || '';
+		const nextMusic = lastSelectedMusic || musicOptions.options[0]?.id || '';
 		if (!nextMusic) {
 			return;
 		}
@@ -645,7 +705,7 @@
 
 		try {
 			if (activeSection === 'Story') {
-				const updatedStories = await saveCurrentWeddingStories(
+				const updatedStories = await weddingState.saveCurrentWeddingStories(
 					stories.map((story) => ({
 						id: story.id,
 						title: story.title,
@@ -688,7 +748,7 @@
 					normalizeDateField(formData, 'reception');
 				}
 
-				refreshLocalData(await updateCurrentWedding(formData));
+				refreshLocalData(await weddingState.updateCurrentWedding(formData));
 			}
 
 			clearPendingFileChanges();
@@ -714,6 +774,7 @@
 		{#if activeSection === null}
 			<div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
 				{#each sections as section, index (section.title)}
+					{@const sectionComplete = isSectionComplete(section.title)}
 					<button
 						type="button"
 						onclick={() => openSection(section.title)}
@@ -725,10 +786,20 @@
 							>
 								{String(index + 1).padStart(2, '0')}
 							</span>
-							<span
-								class="text-xl text-gray-300 transition group-hover:translate-x-1 group-hover:text-gray-700"
-								aria-hidden="true">→</span
-							>
+							<span class="flex items-center gap-2">
+								{#if !sectionComplete}
+									<span
+										class="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-2.5 py-1 text-[11px] font-semibold text-amber-700"
+									>
+										<span class="size-1.5 rounded-full bg-amber-500" aria-hidden="true"></span>
+										Belum lengkap
+									</span>
+								{/if}
+								<span
+									class="text-xl text-gray-300 transition group-hover:translate-x-1 group-hover:text-gray-700"
+									aria-hidden="true">→</span
+								>
+							</span>
 						</div>
 						<h2 class="mt-5 text-lg font-bold text-gray-900">{section.title}</h2>
 						<p class="mt-2 text-sm leading-6 text-gray-500">{section.description}</p>
@@ -759,11 +830,11 @@
 							<legend class="sr-only">Pilih musik undangan</legend>
 							<input type="hidden" name="music" value={musicEnabled ? selectedMusic : ''} />
 
-							{#if data.musicError}
+							{#if musicOptions.error}
 								<p
 									class="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
 								>
-									{data.musicError}
+									{musicOptions.error}
 								</p>
 							{/if}
 
@@ -777,7 +848,7 @@
 									role="switch"
 									aria-label="Gunakan musik pada undangan"
 									aria-checked={musicEnabled}
-									disabled={!musicEnabled && data.musics.length === 0}
+									disabled={!musicEnabled && musicOptions.options.length === 0}
 									onclick={toggleMusic}
 									class={[
 										'relative h-6 w-11 shrink-0 rounded-full transition disabled:cursor-not-allowed disabled:opacity-50',
@@ -794,9 +865,11 @@
 								</button>
 							</div>
 
-							{#if data.musics.length > 0}
+							{#if musicOptions.status === 'loading'}
+								<p class="mt-4 text-sm text-gray-500">Memuat daftar musik...</p>
+							{:else if musicOptions.options.length > 0}
 								<div class="mt-5 overflow-hidden rounded-xl border border-gray-200 bg-white">
-									{#each data.musics as music (music.id)}
+									{#each musicOptions.options as music (music.id)}
 										<div
 											class="flex flex-col gap-3 border-b border-gray-200 px-4 py-4 transition last:border-b-0 sm:flex-row sm:items-center {musicEnabled &&
 											selectedMusic === music.id
@@ -840,7 +913,7 @@
 								</div>
 							{/if}
 
-							{#if !data.musicError && data.musics.length === 0}
+							{#if musicOptions.status === 'ready' && musicOptions.options.length === 0}
 								<p class="mt-4 text-sm text-gray-500">Belum ada musik yang dapat dipilih.</p>
 							{/if}
 						</fieldset>

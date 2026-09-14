@@ -5,6 +5,7 @@ import type { Guest, GuestInput } from '../model/guest.js';
 
 const GUEST_FIELDS = [
 	'id',
+	'created_at',
 	'wedding',
 	'name',
 	'whatsapp',
@@ -41,6 +42,7 @@ function getCurrentWeddingId(): string {
 function toGuest(record: RecordModel): Guest {
 	return {
 		id: record.id,
+		created_at: typeof record.created_at === 'string' ? record.created_at : '',
 		wedding: typeof record.wedding === 'string' ? record.wedding : '',
 		name: typeof record.name === 'string' ? record.name : '',
 		whatsapp: typeof record.whatsapp === 'string' ? record.whatsapp : '',

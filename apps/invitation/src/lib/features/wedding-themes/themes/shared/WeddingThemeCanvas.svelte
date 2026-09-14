@@ -369,7 +369,6 @@
 
 		<section class="quote-section section-shell">
 			<div class="narrow-content" data-reveal>
-				<span class="quote-mark">“</span>
 				<blockquote>
 					{wedding.quote || 'Dua hati, satu perjalanan, dan satu janji untuk selamanya.'}
 				</blockquote>
@@ -618,6 +617,22 @@
 		position: relative;
 		padding: 6rem 1.25rem;
 	}
+	.quote-section {
+		display: flex;
+		box-sizing: border-box;
+		align-items: center;
+		justify-content: center;
+		padding-block: 60px;
+		text-align: center;
+	}
+	.quote-section > .narrow-content {
+		display: flex;
+		width: 100%;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		margin-inline: auto;
+	}
 	.content-width {
 		width: 100%;
 		max-width: 70rem;
@@ -771,11 +786,6 @@
 		font-size: 0.7rem;
 		font-weight: 900;
 		text-transform: uppercase;
-	}
-	.quote-mark {
-		color: var(--color-accent);
-		font-size: 5rem;
-		line-height: 0.5;
 	}
 	blockquote {
 		margin-top: 1.5rem;

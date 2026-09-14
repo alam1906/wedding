@@ -2,13 +2,9 @@ export { WeddingQueryError, getWeddingCompletion } from './api/get-wedding-compl
 export { DEFAULT_WHATSAPP_TEMPLATE, WhatsappTemplateError } from './api/whatsapp-template.js';
 export { WeddingDataError, getWeddingBySlug } from './api/wedding.js';
 export {
-	getCurrentWedding,
-	getCurrentWeddingSlug,
-	getWhatsappTemplate,
-	resetWeddingState,
-	saveCurrentWeddingStories,
-	updateCurrentWedding,
-	updateWhatsappTemplate
+	WeddingState,
+	getWeddingContext,
+	setWeddingContext
 } from './state/wedding-state.svelte.js';
 export {
 	WEDDING_COMPLETION_FIELDS,

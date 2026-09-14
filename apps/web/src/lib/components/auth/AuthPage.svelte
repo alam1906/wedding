@@ -16,13 +16,14 @@
 		type RegisterFieldErrors,
 		type RegisterInput
 	} from '#lib/features/auth/index.js';
-	import { toast } from '#lib/features/toast/index.js';
+	import { getToastContext } from '#lib/features/toast/index.js';
 	import AuthField from './AuthField.svelte';
 
 	type Props = {
 		mode: 'login' | 'register';
 	};
 
+	const toast = getToastContext();
 	let { mode }: Props = $props();
 	let isSubmitting = $state(false);
 	let loginFieldErrors = $state<LoginFieldErrors>({});

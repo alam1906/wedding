@@ -3,8 +3,9 @@
 	import { page } from '$app/state';
 	import { onDestroy } from 'svelte';
 	import { logout } from '#lib/features/auth/index.js';
-	import { resetGuestState } from '#lib/features/guests/index.js';
-	import { resetWeddingState } from '#lib/features/weddings/index.js';
+	import { GuestState, setGuestContext } from '#lib/features/guests/index.js';
+	import { MusicOptionsState, setMusicOptionsContext } from '#lib/features/musics/index.js';
+	import { setWeddingContext, WeddingState } from '#lib/features/weddings/index.js';
 	import type { LayoutProps } from './$types';
 
 	type NavigationIcon = 'home' | 'calendar' | 'invitation' | 'settings';
@@ -23,12 +24,16 @@
 	];
 
 	let { children }: LayoutProps = $props();
+	const guests = setGuestContext(new GuestState());
+	const musicOptions = setMusicOptionsContext(new MusicOptionsState());
+	const wedding = setWeddingContext(new WeddingState());
 	let menuOpen = $state(false);
 	let isLoggingOut = $state(false);
 
 	function resetUserState() {
-		resetGuestState();
-		resetWeddingState();
+		guests.reset();
+		musicOptions.reset();
+		wedding.reset();
 	}
 
 	onDestroy(resetUserState);
@@ -77,7 +82,12 @@
 	>
 		<div class="flex h-full flex-col px-5 py-7">
 			<div class="relative flex items-center justify-center px-3">
-				<a href="/user/dashboard" class="text-xl font-bold tracking-tight text-gray-900">Wedez</a>
+				<a
+					href="/user/dashboard"
+					class="bg-linear-to-r from-red-500 to-yellow-500 bg-clip-text text-xl font-bold tracking-tight text-transparent"
+				>
+					WEDEZ
+				</a>
 			</div>
 
 			<nav class="mt-7.5 flex flex-col gap-1" aria-label="Navigasi dashboard">

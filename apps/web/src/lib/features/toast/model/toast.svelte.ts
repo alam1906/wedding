@@ -1,3 +1,4 @@
+import { createContext } from 'svelte';
 import { SvelteMap } from 'svelte/reactivity';
 
 export type ToastVariant = 'error' | 'success' | 'info';
@@ -14,53 +15,67 @@ type ToastOptions = {
 
 const DEFAULT_DURATION = 5_000;
 
-function createToastStore() {
-	let items = $state<ToastItem[]>([]);
-	let nextId = 0;
-	const timers = new SvelteMap<number, ReturnType<typeof setTimeout>>();
+export class ToastState {
+	items = $state<ToastItem[]>([]);
+	#nextId = 0;
+	#timers = new SvelteMap<number, ReturnType<typeof setTimeout>>();
 
-	function dismiss(id: number) {
-		const timer = timers.get(id);
+	dismiss(id: number) {
+		const timer = this.#timers.get(id);
 
 		if (timer) {
 			clearTimeout(timer);
-			timers.delete(id);
+			this.#timers.delete(id);
 		}
 
-		items = items.filter((item) => item.id !== id);
+		this.items = this.items.filter((item) => item.id !== id);
 	}
 
-	function show(message: string, variant: ToastVariant, options: ToastOptions = {}) {
-		const duplicate = items.find((item) => item.message === message && item.variant === variant);
+	show(message: string, variant: ToastVariant, options: ToastOptions = {}) {
+		const duplicate = this.items.find(
+			(item) => item.message === message && item.variant === variant
+		);
 
 		if (duplicate) {
-			dismiss(duplicate.id);
+			this.dismiss(duplicate.id);
 		}
 
-		const id = ++nextId;
+		const id = ++this.#nextId;
 		const duration = options.duration ?? DEFAULT_DURATION;
 
-		items = [...items, { id, message, variant }];
+		this.items = [...this.items, { id, message, variant }];
 
 		if (duration > 0) {
-			timers.set(
+			this.#timers.set(
 				id,
-				setTimeout(() => dismiss(id), duration)
+				setTimeout(() => this.dismiss(id), duration)
 			);
 		}
 
 		return id;
 	}
 
-	return {
-		get items() {
-			return items;
-		},
-		dismiss,
-		error: (message: string, options?: ToastOptions) => show(message, 'error', options),
-		success: (message: string, options?: ToastOptions) => show(message, 'success', options),
-		info: (message: string, options?: ToastOptions) => show(message, 'info', options)
-	};
+	error(message: string, options?: ToastOptions) {
+		return this.show(message, 'error', options);
+	}
+
+	success(message: string, options?: ToastOptions) {
+		return this.show(message, 'success', options);
+	}
+
+	info(message: string, options?: ToastOptions) {
+		return this.show(message, 'info', options);
+	}
+
+	reset() {
+		for (const timer of this.#timers.values()) {
+			clearTimeout(timer);
+		}
+
+		this.#timers.clear();
+		this.items = [];
+		this.#nextId = 0;
+	}
 }
 
-export const toast = createToastStore();
+export const [getToastContext, setToastContext] = createContext<ToastState>();

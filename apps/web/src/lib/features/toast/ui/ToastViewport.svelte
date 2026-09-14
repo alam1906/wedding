@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { fly } from 'svelte/transition';
-	import { toast, type ToastVariant } from '../model/toast.svelte.js';
+	import { getToastContext, type ToastVariant } from '../model/toast.svelte.js';
+
+	const toast = getToastContext();
 
 	const variantClasses: Record<ToastVariant, string> = {
 		error: 'border-red-200 bg-red-50 text-red-950',

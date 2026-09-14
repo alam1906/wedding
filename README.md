@@ -49,7 +49,7 @@ Variabel yang diperlukan:
 - `DUITKU_API_URL`: host API yang sesuai dengan environment;
 - `DUITKU_CALLBACK_URL`: URL HTTPS publik menuju
   `/api/wedez/payments/duitku/callback`;
-- `DUITKU_RETURN_URL`: halaman pengaturan yang dibuka setelah checkout;
+- `DUITKU_RETURN_URL`: halaman `/upgrade` yang dibuka setelah checkout;
 - `DUITKU_EXPIRY_MINUTES`: `5`, `10`, atau `60`.
 
 Paket Pro hanya diaktifkan melalui callback Duitku yang signature, merchant code, order ID, dan

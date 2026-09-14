@@ -1,12 +1,15 @@
 <script lang="ts">
-	import { GuestDataError, getGuests, type Guest } from '#lib/features/guests/index.js';
+	import { getGuestContext, GuestDataError, type Guest } from '#lib/features/guests/index.js';
 	import {
 		WeddingDataError,
 		calculateWeddingCompletion,
-		getCurrentWedding,
+		getWeddingContext,
 		getWeddingInvitationHost,
 		getWeddingInvitationUrl
 	} from '#lib/features/weddings/index.js';
+
+	const guests = getGuestContext();
+	const wedding = getWeddingContext();
 
 	type GuestStats = {
 		total: number;
@@ -41,21 +44,21 @@
 
 	async function getDashboardData() {
 		try {
-			const wedding = await getCurrentWedding();
+			const weddingData = await wedding.getCurrentWedding();
 			let guestStats: GuestStats | null = null;
 			let guestStatsError: string | null = null;
 
 			try {
-				guestStats = calculateGuestStats(await getGuests());
+				guestStats = calculateGuestStats(await guests.getGuests());
 			} catch (error) {
 				guestStatsError =
 					error instanceof GuestDataError ? error.message : 'Statistik tamu gagal dimuat.';
 			}
 
 			return {
-				weddingProgress: calculateWeddingCompletion(wedding),
-				weddingSlug: wedding.slug,
-				weddingPlanTier: wedding.plan_tier,
+				weddingProgress: calculateWeddingCompletion(weddingData),
+				weddingSlug: weddingData.slug,
+				weddingPlanTier: weddingData.plan_tier,
 				weddingProgressError: null,
 				guestStats,
 				guestStatsError
@@ -184,12 +187,14 @@
 									: 'Paket belum tersedia'}
 						</h2>
 					</div>
-					<a
-						href="/user/setting"
-						class="inline-flex shrink-0 items-center justify-center rounded-xl border border-gray-300 bg-white px-5 py-3 text-sm font-semibold text-gray-700 transition hover:bg-gray-100"
-					>
-						Lihat paket
-					</a>
+					{#if weddingPlanTier === 'free'}
+						<a
+							href="/upgrade"
+							class="inline-flex shrink-0 items-center justify-center rounded-xl border border-gray-300 bg-white px-5 py-3 text-sm font-semibold text-gray-700 transition hover:bg-gray-100"
+						>
+							Upgrade
+						</a>
+					{/if}
 				</div>
 			</article>
 		</div>

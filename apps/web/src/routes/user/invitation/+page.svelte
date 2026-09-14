@@ -1,39 +1,36 @@
 <script lang="ts">
-	import { untrack } from 'svelte';
+	import { error } from '@sveltejs/kit';
 	import type { Attachment } from 'svelte/attachments';
 
 	import {
+		getGuestContext,
 		GuestDataError,
-		createGuest,
-		createGuests,
-		deleteGuest as deleteGuestRecord,
 		GuestCsvError,
 		parseGuestCsv,
-		updateGuest,
 		type Guest,
 		type GuestCsvRow,
 		type GuestInput,
 		type GuestStatus
 	} from '#lib/features/guests/index.js';
-	import { toast } from '#lib/features/toast/index.js';
+	import { getToastContext } from '#lib/features/toast/index.js';
 	import {
 		DEFAULT_WHATSAPP_TEMPLATE,
+		getWeddingContext,
 		getWeddingInvitationUrl,
-		updateWhatsappTemplate,
-		WhatsappTemplateError
+		WhatsappTemplateError,
+		WeddingDataError
 	} from '#lib/features/weddings/index.js';
 
-	type Props = {
-		data: {
-			guests: Guest[];
-			weddingSlug: string;
-			whatsappTemplate: string;
-		};
-	};
 	type TemplatePreviewPart = {
 		text: string;
 		href?: string;
 	};
+	type GuestSortField = 'name' | 'created_at';
+	type SortDirection = 'ascending' | 'descending';
+	type GuestStatusFilter = 'all' | GuestStatus;
+	const toast = getToastContext();
+	const guestState = getGuestContext();
+	const weddingState = getWeddingContext();
 
 	function emptyGuestForm(): GuestInput {
 		return {
@@ -45,12 +42,13 @@
 		};
 	}
 
-	let { data }: Props = $props();
-	const initialWhatsappTemplate = untrack(() => data.whatsappTemplate);
-	const initialGuests = untrack(() => data.guests);
-	let guests = $state<Guest[]>([...initialGuests]);
+	const { weddingSlug, whatsappTemplate: initialWhatsappTemplate } = await getInvitationData();
+	let guests = $derived(guestState.guests ?? []);
 
 	let search = $state('');
+	let guestSortField = $state<GuestSortField>('name');
+	let guestSortDirection = $state<SortDirection>('ascending');
+	let guestStatusFilter = $state<GuestStatusFilter>('all');
 	let guestDialog: HTMLDialogElement | undefined;
 	let csvDialog: HTMLDialogElement | undefined;
 	let deleteDialog: HTMLDialogElement | undefined;
@@ -66,9 +64,30 @@
 	let isReadingCsv = $state(false);
 	let isImportingCsv = $state(false);
 	let deletingIds = $state<string[]>([]);
-	let savedWhatsappTemplate = $derived(data.whatsappTemplate);
-	let whatsappTemplateDraft = $derived(data.whatsappTemplate);
+	let savedWhatsappTemplate = $state(initialWhatsappTemplate);
+	let whatsappTemplateDraft = $state(initialWhatsappTemplate);
 	let isSavingTemplate = $state(false);
+
+	async function getInvitationData() {
+		try {
+			const [, loadedWeddingSlug, whatsappTemplate] = await Promise.all([
+				guestState.getGuests(),
+				weddingState.getCurrentWeddingSlug(),
+				weddingState.getWhatsappTemplate()
+			]);
+
+			return { weddingSlug: loadedWeddingSlug, whatsappTemplate };
+		} catch (cause) {
+			throw error(500, {
+				message:
+					cause instanceof GuestDataError ||
+					cause instanceof WeddingDataError ||
+					cause instanceof WhatsappTemplateError
+						? cause.message
+						: 'Data undangan gagal dimuat.'
+			});
+		}
+	}
 
 	const attachGuestDialog: Attachment<HTMLDialogElement> = (dialog) => {
 		guestDialog = dialog;
@@ -102,11 +121,26 @@
 		};
 	};
 
-	let filteredGuests = $derived(
-		guests.filter((guest) =>
-			`${guest.name} ${guest.whatsapp}`.toLowerCase().includes(search.trim().toLowerCase())
-		)
-	);
+	let filteredGuests = $derived.by(() => {
+		const normalizedSearch = search.trim().toLocaleLowerCase('id-ID');
+		const filtered = guests.filter((guest) => {
+			const matchesSearch = `${guest.name} ${guest.whatsapp}`
+				.toLocaleLowerCase('id-ID')
+				.includes(normalizedSearch);
+			const matchesStatus = guestStatusFilter === 'all' || guest.rsvp_status === guestStatusFilter;
+
+			return matchesSearch && matchesStatus;
+		});
+
+		return [...filtered].sort((left, right) => {
+			const comparison =
+				guestSortField === 'created_at'
+					? left.created_at.localeCompare(right.created_at)
+					: left.name.localeCompare(right.name, 'id');
+
+			return guestSortDirection === 'ascending' ? comparison : -comparison;
+		});
+	});
 	let importableCsvRows = $derived(csvRows.filter((row) => !row.issue));
 	let rejectedCsvRows = $derived(csvRows.filter((row) => row.issue));
 	let isDeletingGuest = $derived(
@@ -221,8 +255,9 @@
 		isImportingCsv = true;
 
 		try {
-			const createdGuests = await createGuests(importableCsvRows.map((row) => row.input));
-			guests = sortGuests([...guests, ...createdGuests]);
+			const createdGuests = await guestState.createGuests(
+				importableCsvRows.map((row) => row.input)
+			);
 			toast.success(`${createdGuests.length} tamu berhasil diimpor.`);
 			csvDialog?.close();
 		} catch (error) {
@@ -264,8 +299,33 @@
 			);
 	}
 
-	function sortGuests(items: Guest[]): Guest[] {
-		return [...items].sort((left, right) => left.name.localeCompare(right.name, 'id'));
+	function toggleGuestSort(field: GuestSortField): void {
+		if (guestSortField === field) {
+			guestSortDirection = guestSortDirection === 'ascending' ? 'descending' : 'ascending';
+			return;
+		}
+
+		guestSortField = field;
+		guestSortDirection = field === 'created_at' ? 'descending' : 'ascending';
+	}
+
+	function guestSortAria(field: GuestSortField): SortDirection | 'none' {
+		return guestSortField === field ? guestSortDirection : 'none';
+	}
+
+	function formatGuestDate(value: string): string {
+		if (!value) return '-';
+
+		const date = new Date(value);
+		if (Number.isNaN(date.getTime())) return '-';
+
+		return new Intl.DateTimeFormat('id-ID', {
+			day: '2-digit',
+			month: 'short',
+			year: 'numeric',
+			hour: '2-digit',
+			minute: '2-digit'
+		}).format(date);
 	}
 
 	async function saveGuest(event: SubmitEvent) {
@@ -280,11 +340,10 @@
 
 		try {
 			if (editingId === null) {
-				guests = sortGuests([...guests, await createGuest(guestInput)]);
+				await guestState.createGuest(guestInput);
 				toast.success('Tamu berhasil ditambahkan.');
 			} else {
-				const updatedGuest = await updateGuest(editingId, guestInput);
-				guests = sortGuests(guests.map((guest) => (guest.id === editingId ? updatedGuest : guest)));
+				await guestState.updateGuest(editingId, guestInput);
 				toast.success('Data tamu berhasil diperbarui.');
 			}
 
@@ -307,8 +366,7 @@
 		deletingIds = [...deletingIds, guest.id];
 
 		try {
-			await deleteGuestRecord(guest.id);
-			guests = guests.filter((item) => item.id !== guest.id);
+			await guestState.deleteGuest(guest.id);
 			toast.success('Tamu berhasil dihapus.');
 			deleteDialog?.close();
 			guestPendingDeletion = null;
@@ -389,13 +447,13 @@
 	}
 
 	function guestInvitationUrl(guest: Guest): string {
-		return getWeddingInvitationUrl(data.weddingSlug, guest.rsvp_token);
+		return getWeddingInvitationUrl(weddingSlug, guest.rsvp_token);
 	}
 
 	function renderInvitationTemplate(template: string, guest?: Guest): string {
 		const invitationUrl = guest
 			? guestInvitationUrl(guest)
-			: getWeddingInvitationUrl(data.weddingSlug, 'tokencontohabcde');
+			: getWeddingInvitationUrl(weddingSlug, 'tokencontohabcde');
 
 		return editorHtmlToWhatsapp(template)
 			.replaceAll('{nama}', guest?.name || 'Nama tamu')
@@ -430,7 +488,7 @@
 
 		try {
 			const safeTemplate = sanitizeEditorHtml(whatsappTemplateDraft);
-			const updatedTemplate = await updateWhatsappTemplate(safeTemplate);
+			const updatedTemplate = await weddingState.updateWhatsappTemplate(safeTemplate);
 			savedWhatsappTemplate = updatedTemplate;
 			whatsappTemplateDraft = updatedTemplate;
 			if (templateEditor) templateEditor.innerHTML = updatedTemplate;
@@ -445,7 +503,7 @@
 	}
 
 	function hasGuestInvitationUrl(guest: Guest): boolean {
-		if (!data.weddingSlug) {
+		if (!weddingSlug) {
 			toast.error('Atur domain wedding terlebih dahulu.');
 			return false;
 		}
@@ -829,103 +887,194 @@
 		</dialog>
 
 		<div class="rounded-2xl border border-gray-200 bg-white shadow-sm">
-			<div
-				class="flex flex-col gap-4 border-b border-gray-200 p-5 min-[360px]:flex-row min-[360px]:items-center min-[360px]:justify-between sm:p-6"
-			>
-				<label class="relative block min-w-0 flex-1 sm:max-w-md">
-					<span class="sr-only">Cari tamu</span>
+			<div class="border-b border-gray-200 p-5 sm:p-6">
+				<div class="flex items-center justify-between gap-3">
+					<label class="relative block min-w-0 flex-1 sm:max-w-md">
+						<span class="sr-only">Cari tamu</span>
+						<svg
+							aria-hidden="true"
+							class="absolute top-1/2 left-4 size-5 -translate-y-1/2 text-gray-400"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="1.8"
+						>
+							<circle cx="11" cy="11" r="7"></circle>
+							<path d="m16 16 4 4"></path>
+						</svg>
+						<input
+							bind:value={search}
+							class="field search-field w-full rounded-xl border border-gray-400 py-3 pr-4 pl-12 text-sm placeholder:text-gray-300"
+							placeholder="Cari nama atau nomor WhatsApp"
+						/>
+					</label>
+
+					<div class="flex shrink-0 gap-2">
+						<button
+							type="button"
+							onclick={openTemplateDialog}
+							title="Template pesan"
+							class="inline-flex size-11 cursor-pointer items-center justify-center rounded-xl border border-gray-300 bg-white text-sm font-semibold text-gray-700 transition lg:h-auto lg:w-auto lg:px-5 lg:py-3"
+						>
+							<svg
+								aria-hidden="true"
+								class="size-5 lg:hidden"
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="1.8"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+							>
+								<path d="M7 3h7l3 3v15H7z"></path>
+								<path d="M10 11h4M10 15h4"></path>
+							</svg>
+							<span class="sr-only lg:not-sr-only">Template</span>
+						</button>
+						<button
+							type="button"
+							onclick={openCsvDialog}
+							title="Impor tamu dari CSV"
+							class="inline-flex size-11 cursor-pointer items-center justify-center rounded-xl border border-gray-300 bg-white text-sm font-semibold text-gray-700 transition lg:h-auto lg:w-auto lg:px-5 lg:py-3"
+						>
+							<svg
+								aria-hidden="true"
+								class="size-5 lg:hidden"
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="1.8"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+							>
+								<path d="M12 16V4M8 8l4-4 4 4"></path>
+								<path d="M5 14v5h14v-5"></path>
+							</svg>
+							<span class="sr-only lg:not-sr-only">Impor CSV</span>
+						</button>
+						<button
+							type="button"
+							onclick={openCreateForm}
+							title="Tambah tamu"
+							class="inline-flex size-11 cursor-pointer items-center justify-center rounded-xl bg-gray-900 text-sm font-semibold text-white transition lg:h-auto lg:w-auto lg:px-5 lg:py-3"
+						>
+							<svg
+								aria-hidden="true"
+								class="size-5 lg:hidden"
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="1.8"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+							>
+								<circle cx="10" cy="8" r="3"></circle>
+								<path d="M4.5 20a5.5 5.5 0 0 1 11 0"></path>
+								<path d="M19 8v6M16 11h6"></path>
+							</svg>
+							<span class="sr-only lg:not-sr-only">Tambah tamu</span>
+						</button>
+					</div>
+				</div>
+
+				<label class="relative mt-3 block w-full sm:max-w-56">
+					<span class="sr-only">Filter status tamu</span>
+					<select
+						bind:value={guestStatusFilter}
+						class="field w-full cursor-pointer appearance-none rounded-xl border border-gray-400 bg-white py-3 pr-10 pl-4 text-sm font-medium text-gray-700"
+					>
+						<option value="all">Semua status</option>
+						<option value="pending">Menunggu</option>
+						<option value="attending">Hadir</option>
+						<option value="not_attending">Tidak hadir</option>
+					</select>
 					<svg
 						aria-hidden="true"
-						class="absolute top-1/2 left-4 size-5 -translate-y-1/2 text-gray-400"
+						class="pointer-events-none absolute top-1/2 right-3.5 size-4 -translate-y-1/2 text-gray-500"
 						viewBox="0 0 24 24"
 						fill="none"
 						stroke="currentColor"
-						stroke-width="1.8"
+						stroke-width="2"
+						stroke-linecap="round"
+						stroke-linejoin="round"
 					>
-						<circle cx="11" cy="11" r="7"></circle>
-						<path d="m16 16 4 4"></path>
+						<path d="m7 10 5 5 5-5"></path>
 					</svg>
-					<input
-						bind:value={search}
-						class="field search-field w-full rounded-xl border border-gray-400 py-3 pr-4 pl-12 text-sm placeholder:text-gray-300"
-						placeholder="Cari nama atau nomor WhatsApp"
-					/>
 				</label>
-				<div class="flex gap-2">
-					<button
-						type="button"
-						onclick={openTemplateDialog}
-						title="Template pesan"
-						class="inline-flex size-11 cursor-pointer items-center justify-center rounded-xl border border-gray-300 bg-white text-sm font-semibold text-gray-700 transition lg:h-auto lg:w-auto lg:px-5 lg:py-3"
-					>
-						<svg
-							aria-hidden="true"
-							class="size-5 lg:hidden"
-							viewBox="0 0 24 24"
-							fill="none"
-							stroke="currentColor"
-							stroke-width="1.8"
-							stroke-linecap="round"
-							stroke-linejoin="round"
-						>
-							<path d="M7 3h7l3 3v15H7z"></path>
-							<path d="M10 11h4M10 15h4"></path>
-						</svg>
-						<span class="sr-only lg:not-sr-only">Template</span>
-					</button>
-					<button
-						type="button"
-						onclick={openCsvDialog}
-						title="Impor tamu dari CSV"
-						class="inline-flex size-11 cursor-pointer items-center justify-center rounded-xl border border-gray-300 bg-white text-sm font-semibold text-gray-700 transition lg:h-auto lg:w-auto lg:px-5 lg:py-3"
-					>
-						<svg
-							aria-hidden="true"
-							class="size-5 lg:hidden"
-							viewBox="0 0 24 24"
-							fill="none"
-							stroke="currentColor"
-							stroke-width="1.8"
-							stroke-linecap="round"
-							stroke-linejoin="round"
-						>
-							<path d="M12 16V4M8 8l4-4 4 4"></path>
-							<path d="M5 14v5h14v-5"></path>
-						</svg>
-						<span class="sr-only lg:not-sr-only">Impor CSV</span>
-					</button>
-					<button
-						type="button"
-						onclick={openCreateForm}
-						title="Tambah tamu"
-						class="inline-flex size-11 cursor-pointer items-center justify-center rounded-xl bg-gray-900 text-sm font-semibold text-white transition lg:h-auto lg:w-auto lg:px-5 lg:py-3"
-					>
-						<svg
-							aria-hidden="true"
-							class="size-5 lg:hidden"
-							viewBox="0 0 24 24"
-							fill="none"
-							stroke="currentColor"
-							stroke-width="1.8"
-							stroke-linecap="round"
-							stroke-linejoin="round"
-						>
-							<circle cx="10" cy="8" r="3"></circle>
-							<path d="M4.5 20a5.5 5.5 0 0 1 11 0"></path>
-							<path d="M19 8v6M16 11h6"></path>
-						</svg>
-						<span class="sr-only lg:not-sr-only">Tambah tamu</span>
-					</button>
-				</div>
 			</div>
 
 			<div class="hidden overflow-x-auto sm:block">
-				<table class="w-full min-w-160 text-left">
+				<table class="w-full min-w-200 text-left">
 					<thead class="bg-gray-50 text-xs font-semibold tracking-wide text-gray-500 uppercase">
 						<tr>
-							<th class="px-6 py-4">Tamu</th>
+							<th class="px-6 py-4" aria-sort={guestSortAria('name')}>
+								<button
+									type="button"
+									class="inline-flex cursor-pointer items-center gap-2"
+									onclick={() => toggleGuestSort('name')}
+									title="Urutkan berdasarkan nama tamu"
+								>
+									Tamu
+									<svg
+										aria-hidden="true"
+										class={`size-4 ${guestSortField === 'name' ? 'text-gray-900' : 'text-gray-400'}`}
+										viewBox="0 0 16 16"
+										fill="none"
+										stroke="currentColor"
+										stroke-width="1.8"
+										stroke-linecap="round"
+										stroke-linejoin="round"
+									>
+										<path
+											class={guestSortField === 'name' && guestSortDirection === 'ascending'
+												? ''
+												: 'opacity-30'}
+											d="m5 6 3-3 3 3"
+										></path>
+										<path
+											class={guestSortField === 'name' && guestSortDirection === 'descending'
+												? ''
+												: 'opacity-30'}
+											d="m5 10 3 3 3-3"
+										></path>
+									</svg>
+								</button>
+							</th>
 							<th class="px-6 py-4">WhatsApp</th>
 							<th class="px-6 py-4">Status</th>
+							<th class="px-6 py-4" aria-sort={guestSortAria('created_at')}>
+								<button
+									type="button"
+									class="inline-flex cursor-pointer items-center gap-2"
+									onclick={() => toggleGuestSort('created_at')}
+									title="Urutkan berdasarkan tanggal ditambahkan"
+								>
+									Date
+									<svg
+										aria-hidden="true"
+										class={`size-4 ${guestSortField === 'created_at' ? 'text-gray-900' : 'text-gray-400'}`}
+										viewBox="0 0 16 16"
+										fill="none"
+										stroke="currentColor"
+										stroke-width="1.8"
+										stroke-linecap="round"
+										stroke-linejoin="round"
+									>
+										<path
+											class={guestSortField === 'created_at' && guestSortDirection === 'ascending'
+												? ''
+												: 'opacity-30'}
+											d="m5 6 3-3 3 3"
+										></path>
+										<path
+											class={guestSortField === 'created_at' && guestSortDirection === 'descending'
+												? ''
+												: 'opacity-30'}
+											d="m5 10 3 3 3-3"
+										></path>
+									</svg>
+								</button>
+							</th>
 							<th class="px-6 py-4 text-right">Aksi</th>
 						</tr>
 					</thead>
@@ -942,6 +1091,9 @@
 											guest.rsvp_status
 										)}">{statusLabel(guest.rsvp_status)}</span
 									>
+								</td>
+								<td class="px-6 py-4 text-sm whitespace-nowrap text-gray-500">
+									{formatGuestDate(guest.created_at)}
 								</td>
 								<td class="px-6 py-4">
 									<div class="flex justify-end gap-2">
@@ -1030,7 +1182,7 @@
 							</tr>
 						{:else}
 							<tr
-								><td colspan="4" class="px-6 py-12 text-center text-sm text-gray-500"
+								><td colspan="5" class="px-6 py-12 text-center text-sm text-gray-500"
 									>Tamu tidak ditemukan.</td
 								></tr
 							>
@@ -1046,6 +1198,7 @@
 							<div class="min-w-0">
 								<h2 class="truncate font-semibold text-gray-900">{guest.name}</h2>
 								<p class="mt-1 text-sm text-gray-500">{guest.whatsapp || '-'}</p>
+								<p class="mt-1 text-xs text-gray-400">{formatGuestDate(guest.created_at)}</p>
 							</div>
 							<span
 								class="shrink-0 rounded-full px-3 py-1 text-xs font-semibold {statusClass(
