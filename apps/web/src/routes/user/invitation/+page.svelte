@@ -28,6 +28,12 @@
 	type GuestSortField = 'name' | 'created_at';
 	type SortDirection = 'ascending' | 'descending';
 	type GuestStatusFilter = 'all' | GuestStatus;
+	const guestStatusOptions = [
+		{ value: 'all', label: 'Semua status' },
+		{ value: 'pending', label: 'Menunggu' },
+		{ value: 'attending', label: 'Hadir' },
+		{ value: 'not_attending', label: 'Tidak hadir' }
+	] as const satisfies readonly { value: GuestStatusFilter; label: string }[];
 	const toast = getToastContext();
 	const guestState = getGuestContext();
 	const weddingState = getWeddingContext();
@@ -49,6 +55,8 @@
 	let guestSortField = $state<GuestSortField>('name');
 	let guestSortDirection = $state<SortDirection>('ascending');
 	let guestStatusFilter = $state<GuestStatusFilter>('all');
+	let statusMenuOpen = $state(false);
+	let statusMenuButton: HTMLButtonElement | undefined;
 	let guestDialog: HTMLDialogElement | undefined;
 	let csvDialog: HTMLDialogElement | undefined;
 	let deleteDialog: HTMLDialogElement | undefined;
@@ -67,6 +75,9 @@
 	let savedWhatsappTemplate = $state(initialWhatsappTemplate);
 	let whatsappTemplateDraft = $state(initialWhatsappTemplate);
 	let isSavingTemplate = $state(false);
+	let selectedGuestStatusLabel = $derived(
+		guestStatusOptions.find((option) => option.value === guestStatusFilter)?.label ?? 'Semua status'
+	);
 
 	async function getInvitationData() {
 		try {
@@ -120,6 +131,33 @@
 			if (deleteDialog === dialog) deleteDialog = undefined;
 		};
 	};
+
+	const attachStatusMenu: Attachment<HTMLDivElement> = (element) => {
+		const handlePointerDown = (event: PointerEvent) => {
+			const target = event.target;
+			if (target instanceof Node && !element.contains(target)) statusMenuOpen = false;
+		};
+		const handleKeydown = (event: KeyboardEvent) => {
+			if (event.key !== 'Escape' || !statusMenuOpen) return;
+
+			statusMenuOpen = false;
+			statusMenuButton?.focus();
+		};
+
+		document.addEventListener('pointerdown', handlePointerDown);
+		document.addEventListener('keydown', handleKeydown);
+
+		return () => {
+			document.removeEventListener('pointerdown', handlePointerDown);
+			document.removeEventListener('keydown', handleKeydown);
+		};
+	};
+
+	function selectGuestStatus(status: GuestStatusFilter) {
+		guestStatusFilter = status;
+		statusMenuOpen = false;
+		statusMenuButton?.focus();
+	}
 
 	let filteredGuests = $derived.by(() => {
 		const normalizedSearch = search.trim().toLocaleLowerCase('id-ID');
@@ -624,9 +662,8 @@
 					<h2 class="text-lg font-bold text-gray-900">Impor tamu dari CSV</h2>
 					<p class="mt-2 text-sm leading-6 text-gray-500">
 						Gunakan kolom <strong class="font-semibold text-gray-700">name</strong> dan
-						<strong class="font-semibold text-gray-700">whatsapp</strong>. Kolom
-						<strong class="font-semibold text-gray-700">guest_count</strong> bersifat opsional, maksimal
-						50 tamu per impor.
+						<strong class="font-semibold text-gray-700">whatsapp</strong>. Maksimal 50 tamu per
+						impor.
 					</p>
 				</div>
 
@@ -888,26 +925,96 @@
 
 		<div class="rounded-2xl border border-gray-200 bg-white shadow-sm">
 			<div class="border-b border-gray-200 p-5 sm:p-6">
-				<div class="flex items-center justify-between gap-3">
-					<label class="relative block min-w-0 flex-1 sm:max-w-md">
-						<span class="sr-only">Cari tamu</span>
-						<svg
-							aria-hidden="true"
-							class="absolute top-1/2 left-4 size-5 -translate-y-1/2 text-gray-400"
-							viewBox="0 0 24 24"
-							fill="none"
-							stroke="currentColor"
-							stroke-width="1.8"
-						>
-							<circle cx="11" cy="11" r="7"></circle>
-							<path d="m16 16 4 4"></path>
-						</svg>
-						<input
-							bind:value={search}
-							class="field search-field w-full rounded-xl border border-gray-400 py-3 pr-4 pl-12 text-sm placeholder:text-gray-300"
-							placeholder="Cari nama atau nomor WhatsApp"
-						/>
-					</label>
+				<div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+					<div class="flex min-w-0 items-center gap-3">
+						<label class="relative block min-w-0 flex-1 sm:max-w-56">
+							<span class="sr-only">Cari tamu</span>
+							<svg
+								aria-hidden="true"
+								class="absolute top-1/2 left-4 size-5 -translate-y-1/2 text-gray-400"
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="1.8"
+							>
+								<circle cx="11" cy="11" r="7"></circle>
+								<path d="m16 16 4 4"></path>
+							</svg>
+							<input
+								bind:value={search}
+								class="field search-field w-full rounded-xl border border-gray-400 py-3 pr-4 pl-12 text-sm placeholder:text-gray-300"
+								placeholder="Cari"
+							/>
+						</label>
+
+						<div {@attach attachStatusMenu} class="relative min-w-0 flex-1 sm:max-w-56">
+							<button
+								bind:this={statusMenuButton}
+								type="button"
+								aria-label="Filter status tamu"
+								aria-haspopup="listbox"
+								aria-controls="guest-status-options"
+								aria-expanded={statusMenuOpen}
+								onclick={() => (statusMenuOpen = !statusMenuOpen)}
+								data-form-control
+								class="flex w-full cursor-pointer items-center justify-between rounded-xl border border-gray-400 bg-white py-3 pr-3.5 pl-4 text-left text-sm font-medium text-gray-700"
+							>
+								<span class="truncate">{selectedGuestStatusLabel}</span>
+								<svg
+									aria-hidden="true"
+									class="size-4 shrink-0 transition-transform duration-150 {statusMenuOpen
+										? 'rotate-180'
+										: ''}"
+									viewBox="0 0 24 24"
+									fill="none"
+									stroke="currentColor"
+									stroke-width="1.8"
+									stroke-linecap="round"
+									stroke-linejoin="round"
+								>
+									<path d="m7 9.5 5 5 5-5"></path>
+								</svg>
+							</button>
+
+							{#if statusMenuOpen}
+								<div
+									id="guest-status-options"
+									role="listbox"
+									aria-label="Status tamu"
+									class="absolute top-full left-0 z-30 mt-2 w-full overflow-hidden rounded-xl border border-gray-200 bg-white p-1.5 shadow-lg"
+								>
+									{#each guestStatusOptions as option (option.value)}
+										<button
+											type="button"
+											role="option"
+											aria-selected={guestStatusFilter === option.value}
+											onclick={() => selectGuestStatus(option.value)}
+											class="flex w-full cursor-pointer items-center justify-between rounded-lg px-3 py-2.5 text-left text-sm transition hover:bg-gray-100 {guestStatusFilter ===
+											option.value
+												? 'bg-gray-100 font-semibold text-gray-900'
+												: 'font-medium text-gray-700'}"
+										>
+											<span>{option.label}</span>
+											{#if guestStatusFilter === option.value}
+												<svg
+													aria-hidden="true"
+													class="size-4 text-gray-700"
+													viewBox="0 0 24 24"
+													fill="none"
+													stroke="currentColor"
+													stroke-width="2"
+													stroke-linecap="round"
+													stroke-linejoin="round"
+												>
+													<path d="m5 12 4 4L19 6"></path>
+												</svg>
+											{/if}
+										</button>
+									{/each}
+								</div>
+							{/if}
+						</div>
+					</div>
 
 					<div class="flex shrink-0 gap-2">
 						<button
@@ -976,31 +1083,6 @@
 						</button>
 					</div>
 				</div>
-
-				<label class="relative mt-3 block w-full sm:max-w-56">
-					<span class="sr-only">Filter status tamu</span>
-					<select
-						bind:value={guestStatusFilter}
-						class="field w-full cursor-pointer appearance-none rounded-xl border border-gray-400 bg-white py-3 pr-10 pl-4 text-sm font-medium text-gray-700"
-					>
-						<option value="all">Semua status</option>
-						<option value="pending">Menunggu</option>
-						<option value="attending">Hadir</option>
-						<option value="not_attending">Tidak hadir</option>
-					</select>
-					<svg
-						aria-hidden="true"
-						class="pointer-events-none absolute top-1/2 right-3.5 size-4 -translate-y-1/2 text-gray-500"
-						viewBox="0 0 24 24"
-						fill="none"
-						stroke="currentColor"
-						stroke-width="2"
-						stroke-linecap="round"
-						stroke-linejoin="round"
-					>
-						<path d="m7 10 5 5 5-5"></path>
-					</svg>
-				</label>
 			</div>
 
 			<div class="hidden overflow-x-auto sm:block">

@@ -13,7 +13,7 @@ type ToastOptions = {
 	duration?: number;
 };
 
-const DEFAULT_DURATION = 5_000;
+const DEFAULT_DURATION = 3_000;
 
 export class ToastState {
 	items = $state<ToastItem[]>([]);
