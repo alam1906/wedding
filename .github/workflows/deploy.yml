@@ -19,7 +19,7 @@ jobs:
       PUBLIC_POCKETBASE_URL: https://api-wedding.onlytest.my.id
       PUBLIC_WEDDING_URL: https://wedding.onlytest.my.id
       PUBLIC_INVITATION_URL: https://onlytest.my.id
-      
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
