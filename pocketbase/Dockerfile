@@ -12,8 +12,8 @@ RUN apk add --no-cache ca-certificates unzip wget \
 		"https://github.com/pocketbase/pocketbase/releases/download/v${PB_VERSION}/pocketbase_${PB_VERSION}_linux_${PB_ARCH}.zip" \
 	&& unzip /tmp/pocketbase.zip -d /pb \
 	&& rm /tmp/pocketbase.zip \
-	&& addgroup -S pocketbase \
-	&& adduser -S -G pocketbase pocketbase \
+	&& addgroup -S -g 10001 pocketbase \
+	&& adduser -S -D -H -u 10001 -G pocketbase pocketbase \
 	&& mkdir -p /pb/pb_data \
 	&& chown -R pocketbase:pocketbase /pb
 
