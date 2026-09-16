@@ -5,6 +5,7 @@
 	import { PublicRsvpForm } from '#lib/features/guests/index.js';
 	import type { WeddingThemeKey, WeddingThemeProps } from '../../model/wedding-theme.js';
 	import { WEDDING_THEME_COLORS } from '../../model/wedding-theme-colors.js';
+	import { fitCoupleHeading } from '../../shared/fit-couple-heading.js';
 	import {
 		mountWeddingThemeAnimations,
 		type WeddingThemeAnimationController
@@ -292,18 +293,23 @@
 			<div class="hero-grid">
 				<div class="hero-copy" data-hero-content>
 					<p class="eyebrow">Kepada Bapak/Ibu/Saudara/i,</p>
-					<h1>{groomName}<span>&</span>{brideName}</h1>
+					<h1 data-name-layout="stacked" aria-label={coupleName} {@attach fitCoupleHeading}>
+						<span class="hero-name">{groomName}</span><span class="hero-ampersand">&</span><span
+							class="hero-name">{brideName}</span
+						>
+					</h1>
 					<p class="hero-intro">Akan melangsungkan resepsi pernikahan dalam:</p>
 					<p class="hero-date">{akad.date}</p>
 					{#if countdownTarget}
-						<div
-							class="countdown-grid hero-countdown"
-							role="timer"
-							aria-label="Hitung mundur hari pernikahan"
-						>
-							{#each [{ label: 'Hari', value: countdown.days }, { label: 'Jam', value: countdown.hours }, { label: 'Menit', value: countdown.minutes }, { label: 'Detik', value: countdown.seconds }] as item (item.label)}
-								<div class="countdown-card">
-									<strong>{String(item.value).padStart(2, '0')}</strong><span>{item.label}</span>
+						<div class="hero-countdown" role="timer" aria-label="Hitung mundur hari pernikahan">
+							{#each [[{ label: 'Hari', value: countdown.days }, { label: 'Jam', value: countdown.hours }], [{ label: 'Menit', value: countdown.minutes }, { label: 'Detik', value: countdown.seconds }]] as pair (pair[0].label)}
+								<div class="countdown-pair">
+									{#each pair as item (item.label)}
+										<div class="countdown-card">
+											<strong>{String(item.value).padStart(2, '0')}</strong><span>{item.label}</span
+											>
+										</div>
+									{/each}
 								</div>
 							{/each}
 						</div>
@@ -372,9 +378,6 @@
 				<blockquote>
 					{wedding.quote || 'Dua hati, satu perjalanan, dan satu janji untuk selamanya.'}
 				</blockquote>
-				<p>
-					Dengan penuh sukacita, kami mengundang Anda untuk menjadi bagian dari hari bahagia kami.
-				</p>
 			</div>
 		</section>
 
@@ -675,7 +678,7 @@
 		font-weight: 900;
 		letter-spacing: -0.065em;
 	}
-	.hero-copy h1 span {
+	.hero-copy h1 .hero-ampersand {
 		display: block;
 		margin-block: 0.5rem;
 		color: var(--color-primary);
@@ -749,20 +752,24 @@
 	.theme-canvas > section:nth-of-type(even) {
 		background: color-mix(in srgb, var(--color-background) 84%, var(--color-accent));
 	}
-	.countdown-grid {
-		display: grid;
-		grid-template-columns: repeat(2, 1fr);
-		gap: 1rem;
-	}
 	.hero-countdown {
-		grid-template-columns: repeat(4, minmax(0, 1fr));
+		--countdown-size: clamp(6rem, 16vw, 8rem);
+		--countdown-gap: clamp(0.75rem, 1.5vw, 1rem);
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: center;
 		width: min(100%, 36rem);
 		margin: clamp(1.25rem, 3vh, 2rem) auto 0;
-		gap: clamp(0.35rem, 1.5vw, 1rem);
+		gap: max(1rem, var(--countdown-gap)) var(--countdown-gap);
+	}
+	.countdown-pair {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		flex: 0 1 calc(2 * var(--countdown-size) + var(--countdown-gap));
+		min-width: 0;
+		gap: var(--countdown-gap);
 	}
 	.hero-countdown .countdown-card {
-		width: clamp(4rem, 19vw, 8rem);
-		height: clamp(4rem, 19vw, 8rem);
 		border-color: #ff0a84;
 		background: #ff0a84;
 		color: #fff;
@@ -1392,7 +1399,7 @@
 			0.025em 0.025em 0 var(--color-surface),
 			0.07em 0.07em 0 color-mix(in srgb, var(--color-primary) 20%, transparent);
 	}
-	.family-3d-design .hero-copy h1 span {
+	.family-3d-design .hero-copy h1 .hero-ampersand {
 		text-shadow:
 			0.04em 0.04em 0 var(--color-surface),
 			0.1em 0.1em 0 color-mix(in srgb, var(--color-accent) 75%, transparent);
@@ -1646,8 +1653,8 @@
 	.theme-canvas .countdown-card {
 		display: flex;
 		min-width: 0;
-		width: clamp(6rem, 16vw, 8rem);
-		height: clamp(6rem, 16vw, 8rem);
+		width: min(100%, var(--countdown-size));
+		height: auto;
 		aspect-ratio: 1;
 		box-sizing: border-box;
 		flex-direction: column;
@@ -1686,6 +1693,8 @@
 		max-width: 64rem;
 	}
 	.theme-canvas .hero-copy {
+		width: 100%;
+		min-width: 0;
 		max-width: 60rem;
 		color: #fff;
 		text-align: center;
@@ -1705,11 +1714,31 @@
 	}
 	.theme-canvas .hero-copy h1 {
 		font-size: clamp(2rem, 10vw, 6rem);
+		text-align: center;
 		white-space: nowrap;
 	}
-	.theme-canvas .hero-copy h1 span {
+	.theme-canvas .hero-copy h1 .hero-ampersand {
 		display: inline;
 		margin-inline: 0.18em;
+	}
+	.theme-canvas .hero-copy h1[data-name-layout='stacked'] {
+		display: grid;
+		justify-items: center;
+		width: 100%;
+		white-space: normal;
+		line-height: 1.08;
+	}
+	.theme-canvas .hero-copy h1[data-name-layout='stacked'] .hero-name {
+		display: block;
+		width: 100%;
+		overflow-wrap: anywhere;
+		text-align: center;
+		text-wrap: balance;
+	}
+	.theme-canvas .hero-copy h1[data-name-layout='stacked'] .hero-ampersand {
+		display: block;
+		margin: 0.35em 0;
+		text-align: center;
 	}
 	.theme-canvas .hero-copy .hero-intro {
 		margin-top: 1rem;
@@ -1811,6 +1840,17 @@
 		}
 	}
 
+	@media (max-width: 40rem) {
+		.theme-canvas .hero {
+			padding-block: clamp(1.25rem, 4svh, 2.5rem);
+		}
+		.theme-canvas .hero-copy h1,
+		.theme-canvas .hero .hero-date,
+		.theme-canvas .hero .primary-button {
+			margin-top: 1.25rem;
+		}
+	}
+
 	@media (min-width: 48rem) {
 		.music-control {
 			right: max(2rem, env(safe-area-inset-right));
@@ -1821,9 +1861,6 @@
 		}
 		.hero-copy {
 			text-align: center;
-		}
-		.countdown-grid {
-			grid-template-columns: repeat(4, 1fr);
 		}
 		.couple-grid,
 		.event-grid,

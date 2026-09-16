@@ -20,13 +20,8 @@ services:
         PUBLIC_WEDDING_URL: ${PUBLIC_WEDDING_URL:-https://wedding.onlytest.my.id}
         PUBLIC_INVITATION_URL: ${PUBLIC_INVITATION_URL:-https://onlytest.my.id}
     restart: unless-stopped
-    environment:
-      HOST: 0.0.0.0
-      PORT: 3000
-      PROTOCOL_HEADER: x-forwarded-proto
-      HOST_HEADER: x-forwarded-host
     expose:
-      - '3000'
+      - '80'
     networks:
       - dokploy-network
     labels:
@@ -44,7 +39,7 @@ services:
       - 'traefik.http.routers.wedez-invitation-websecure.priority=1'
       - 'traefik.http.routers.wedez-invitation-websecure.tls=true'
       - 'traefik.http.routers.wedez-invitation-websecure.service=wedez-invitation'
-      - 'traefik.http.services.wedez-invitation.loadbalancer.server.port=3000'
+      - 'traefik.http.services.wedez-invitation.loadbalancer.server.port=80'
 
   pocketbase:
     build:

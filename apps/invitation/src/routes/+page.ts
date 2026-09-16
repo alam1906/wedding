@@ -1,14 +1,16 @@
-import { getWeddingBySlug, PublicWeddingError } from '#lib/server/wedding.js';
-import type { PageServerLoad } from './$types';
+import { getWeddingBySlug, PublicWeddingError } from '#lib/features/weddings/api/public-wedding.js';
+import { getWeddingSlug } from '#lib/features/weddings/model/wedding-url.js';
+import type { PageLoad } from './$types';
 
 const DEFAULT_WEDDING_URL = 'https://wedding.onlytest.my.id';
 
-export const load = (async ({ locals }) => {
+export const load = (async ({ fetch, url }) => {
 	const mainWebsiteUrl = (
 		import.meta.env.PUBLIC_WEDDING_URL?.trim() || DEFAULT_WEDDING_URL
 	).replace(/\/+$/, '');
+	const weddingSlug = getWeddingSlug(url);
 
-	if (!locals.weddingSlug) {
+	if (!weddingSlug) {
 		return {
 			wedding: null,
 			errorMessage: 'Alamat undangan tidak valid.',
@@ -18,7 +20,7 @@ export const load = (async ({ locals }) => {
 
 	try {
 		return {
-			wedding: await getWeddingBySlug(locals.weddingSlug),
+			wedding: await getWeddingBySlug(weddingSlug, fetch),
 			errorMessage: '',
 			mainWebsiteUrl
 		};
@@ -32,4 +34,4 @@ export const load = (async ({ locals }) => {
 			mainWebsiteUrl
 		};
 	}
-}) satisfies PageServerLoad;
+}) satisfies PageLoad;

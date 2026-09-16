@@ -1,5 +1,3 @@
-import type { Handle } from '@sveltejs/kit/hooks';
-
 const DEFAULT_INVITATION_URL = 'https://onlytest.my.id';
 const RESERVED_SUBDOMAINS = new Set([
 	'api',
@@ -30,7 +28,7 @@ function normalizeWeddingSlug(value: string): string {
 	return SLUG_PATTERN.test(slug) && !RESERVED_SUBDOMAINS.has(slug) ? slug : '';
 }
 
-function getWeddingSlug(url: URL): string {
+export function getWeddingSlug(url: URL): string {
 	const hostname = url.hostname.toLowerCase();
 
 	if (hostname === 'localhost' || hostname === '127.0.0.1') {
@@ -42,15 +40,8 @@ function getWeddingSlug(url: URL): string {
 		return normalizeWeddingSlug(hostname.slice(0, -localhostSuffix.length));
 	}
 
-	const baseHostname = configuredBaseHostname();
-	const suffix = `.${baseHostname}`;
-
+	const suffix = `.${configuredBaseHostname()}`;
 	if (!hostname.endsWith(suffix)) return '';
 
 	return normalizeWeddingSlug(hostname.slice(0, -suffix.length));
 }
-
-export const handle: Handle = async ({ event, resolve }) => {
-	event.locals.weddingSlug = getWeddingSlug(event.url);
-	return resolve(event);
-};

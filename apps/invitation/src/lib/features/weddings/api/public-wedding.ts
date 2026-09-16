@@ -1,7 +1,9 @@
 import PocketBase, { ClientResponseError, type RecordModel } from 'pocketbase';
 
-import { pocketBaseUrl } from '#lib/infrastructure/pocketbase/index.js';
 import type { WeddingData, WeddingStoryItem } from '#lib/features/weddings/model/wedding.js';
+import { pocketBaseUrl } from '#lib/infrastructure/pocketbase/index.js';
+
+type Fetch = typeof globalThis.fetch;
 
 const PUBLIC_WEDDING_FIELDS = [
 	'id',
@@ -128,13 +130,15 @@ function toWeddingData(
 
 async function getWeddingMusic(
 	client: PocketBase,
-	musicId: unknown
+	musicId: unknown,
+	fetch: Fetch
 ): Promise<{ id: string; title: string; url: string } | null> {
 	if (typeof musicId !== 'string' || musicId.length === 0) return null;
 
 	try {
 		const record = await client.collection('musics').getOne(musicId, {
-			fields: 'id,collectionId,collectionName,title,music'
+			fields: 'id,collectionId,collectionName,title,music',
+			fetch
 		});
 		const filename = typeof record.music === 'string' ? record.music : '';
 		if (!filename) return null;
@@ -155,22 +159,24 @@ function errorMessage(error: ClientResponseError): string {
 	return 'Undangan tidak ditemukan atau belum dipublikasikan.';
 }
 
-export async function getWeddingBySlug(slug: string): Promise<WeddingData> {
+export async function getWeddingBySlug(slug: string, fetch: Fetch): Promise<WeddingData> {
 	const client = new PocketBase(pocketBaseUrl);
 
 	try {
 		const record = await client
 			.collection('weddings')
 			.getFirstListItem(client.filter('slug = {:slug}', { slug }), {
-				fields: PUBLIC_WEDDING_FIELDS.join(',')
+				fields: PUBLIC_WEDDING_FIELDS.join(','),
+				fetch
 			});
 		const [storyRecords, music] = await Promise.all([
 			client.collection('wedding_stories').getFullList({
 				filter: client.filter('wedding = {:weddingId}', { weddingId: record.id }),
 				fields: WEDDING_STORY_FIELDS.join(','),
-				sort: 'sort_order,date,id'
+				sort: 'sort_order,date,id',
+				fetch
 			}),
-			getWeddingMusic(client, record.music)
+			getWeddingMusic(client, record.music, fetch)
 		]);
 
 		return toWeddingData(
