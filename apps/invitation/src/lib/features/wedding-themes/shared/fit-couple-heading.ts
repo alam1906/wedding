@@ -1,6 +1,10 @@
 import type { Attachment } from 'svelte/attachments';
 
-/** Keep the names on one line only while their rendered text fits the heading. */
+const STACKED_FONT_SIZE_PROPERTY = '--hero-stacked-font-size';
+const STACKED_WIDTH_RATIO = 0.9;
+const MINIMUM_STACKED_FONT_SIZE_REM = 1.75;
+
+/** Keep both names on separate centered lines and fit them to the available width. */
 export const fitCoupleHeading: Attachment<HTMLHeadingElement> = (node) => {
 	let disposed = false;
 	let frame: number | undefined;
@@ -10,11 +14,24 @@ export const fitCoupleHeading: Attachment<HTMLHeadingElement> = (node) => {
 		frame = undefined;
 		if (disposed || !node.isConnected || node.clientWidth === 0) return;
 
-		// Measure the inline layout even when currently stacked, so widening restores it.
-		node.dataset.nameLayout = 'inline';
-		if (node.scrollWidth > node.clientWidth) {
-			node.dataset.nameLayout = 'stacked';
-		}
+		node.style.removeProperty(STACKED_FONT_SIZE_PROPERTY);
+		node.dataset.nameLayout = 'stacked';
+		const names = node.querySelectorAll<HTMLElement>('.hero-name');
+		const widestName = Math.max(0, ...Array.from(names, (name) => name.scrollWidth));
+		if (widestName === 0) return;
+
+		const maximumFontSize = Number.parseFloat(window.getComputedStyle(node).fontSize);
+		const rootFontSize = Number.parseFloat(
+			window.getComputedStyle(document.documentElement).fontSize
+		);
+		const minimumFontSize = rootFontSize * MINIMUM_STACKED_FONT_SIZE_REM;
+		const availableWidth = node.clientWidth * STACKED_WIDTH_RATIO;
+		const fittedFontSize = Math.max(
+			minimumFontSize,
+			Math.min(maximumFontSize, maximumFontSize * (availableWidth / widestName))
+		);
+
+		node.style.setProperty(STACKED_FONT_SIZE_PROPERTY, `${fittedFontSize}px`);
 	};
 
 	const scheduleMeasure = () => {

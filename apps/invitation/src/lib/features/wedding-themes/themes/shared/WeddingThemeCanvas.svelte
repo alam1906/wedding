@@ -299,7 +299,6 @@
 						>
 					</h1>
 					<p class="hero-intro">Akan melangsungkan resepsi pernikahan dalam:</p>
-					<p class="hero-date">{akad.date}</p>
 					{#if countdownTarget}
 						<div class="hero-countdown" role="timer" aria-label="Hitung mundur hari pernikahan">
 							{#each [[{ label: 'Hari', value: countdown.days }, { label: 'Jam', value: countdown.hours }], [{ label: 'Menit', value: countdown.minutes }, { label: 'Detik', value: countdown.seconds }]] as pair (pair[0].label)}
@@ -684,12 +683,6 @@
 		color: var(--color-primary);
 		font-size: 0.6em;
 	}
-	.hero-date {
-		margin-top: 2rem;
-		color: var(--color-muted);
-		font-weight: 700;
-		text-transform: uppercase;
-	}
 	.primary-button {
 		display: inline-flex;
 		align-items: center;
@@ -801,7 +794,6 @@
 		line-height: 1.15;
 		font-weight: 700;
 	}
-	blockquote + p,
 	.section-heading > p:last-child {
 		margin-top: 1.5rem;
 		color: var(--color-muted);
@@ -1677,6 +1669,7 @@
 	.theme-canvas .hero {
 		isolation: isolate;
 		overflow: hidden;
+		padding-block: clamp(1.25rem, 4svh, 3rem);
 	}
 	.theme-canvas .hero::after {
 		position: absolute;
@@ -1708,45 +1701,36 @@
 	.theme-canvas .hero-copy .eyebrow,
 	.theme-canvas .hero-copy h1,
 	.theme-canvas .hero-copy h1 span,
-	.theme-canvas .hero-copy .hero-intro,
-	.theme-canvas .hero .hero-date {
+	.theme-canvas .hero-copy .hero-intro {
 		color: #fff;
 	}
 	.theme-canvas .hero-copy h1 {
 		font-size: clamp(2rem, 10vw, 6rem);
 		text-align: center;
-		white-space: nowrap;
-	}
-	.theme-canvas .hero-copy h1 .hero-ampersand {
-		display: inline;
-		margin-inline: 0.18em;
 	}
 	.theme-canvas .hero-copy h1[data-name-layout='stacked'] {
 		display: grid;
 		justify-items: center;
 		width: 100%;
+		font-size: var(--hero-stacked-font-size, clamp(2rem, 7vw, 4.5rem));
 		white-space: normal;
-		line-height: 1.08;
+		line-height: 0.98;
 	}
 	.theme-canvas .hero-copy h1[data-name-layout='stacked'] .hero-name {
 		display: block;
-		width: 100%;
-		overflow-wrap: anywhere;
+		max-width: 100%;
 		text-align: center;
-		text-wrap: balance;
+		white-space: nowrap;
 	}
 	.theme-canvas .hero-copy h1[data-name-layout='stacked'] .hero-ampersand {
 		display: block;
-		margin: 0.35em 0;
+		margin: 0.24em 0;
 		text-align: center;
 	}
 	.theme-canvas .hero-copy .hero-intro {
 		margin-top: 1rem;
 		font-size: clamp(0.75rem, 2.25vw, 1rem);
 		line-height: 1.5;
-	}
-	.theme-canvas .hero .hero-date {
-		color: #fff;
 	}
 	.theme-canvas .hero > .cover-frame {
 		position: absolute;
@@ -1793,8 +1777,7 @@
 	.family-3d-design.variant-2 .hero-copy .eyebrow,
 	.family-3d-design.variant-2 .hero-copy h1,
 	.family-3d-design.variant-2 .hero-copy h1 span,
-	.family-3d-design.variant-2 .hero-copy .hero-intro,
-	.family-3d-design.variant-2 .hero .hero-date {
+	.family-3d-design.variant-2 .hero-copy .hero-intro {
 		color: var(--color-text);
 	}
 	.family-3d-design.variant-2 .hero .primary-button {
@@ -1841,11 +1824,7 @@
 	}
 
 	@media (max-width: 40rem) {
-		.theme-canvas .hero {
-			padding-block: clamp(1.25rem, 4svh, 2.5rem);
-		}
 		.theme-canvas .hero-copy h1,
-		.theme-canvas .hero .hero-date,
 		.theme-canvas .hero .primary-button {
 			margin-top: 1.25rem;
 		}
