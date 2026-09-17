@@ -1,4 +1,7 @@
-FROM oven/bun:1-alpine AS build
+ARG BUN_VERSION=1.4.0
+ARG CADDY_VERSION=2.11.4
+
+FROM oven/bun:${BUN_VERSION}-alpine AS build
 
 WORKDIR /workspace
 
@@ -18,12 +21,16 @@ ENV PUBLIC_INVITATION_URL=$PUBLIC_INVITATION_URL
 
 RUN bun run --cwd apps/web build
 
-FROM nginx:1.27-alpine
+FROM caddy:${CADDY_VERSION}-alpine
 
-COPY apps/web/nginx.conf /etc/nginx/conf.d/default.conf
-COPY --from=build /workspace/apps/web/build /usr/share/nginx/html
+ARG GIT_SHA=unknown
+
+COPY deployment/Caddyfile.static /etc/caddy/Caddyfile
+COPY --from=build /workspace/apps/web/build /srv
+
+RUN printf '%s\n' "$GIT_SHA" > /srv/_wedez_revision
 
 EXPOSE 80
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
-	CMD wget -qO- http://127.0.0.1/ >/dev/null || exit 1
+	CMD wget -qO- http://127.0.0.1/healthz >/dev/null || exit 1

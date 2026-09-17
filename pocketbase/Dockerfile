@@ -2,6 +2,9 @@ FROM alpine:3.22
 
 ARG PB_VERSION=0.40.1
 ARG TARGETARCH
+ARG GIT_SHA=unknown
+
+LABEL org.opencontainers.image.revision=$GIT_SHA
 
 RUN apk add --no-cache ca-certificates unzip wget \
 	&& case "$TARGETARCH" in \

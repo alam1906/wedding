@@ -1,33 +1,37 @@
-name: Deploy Wedez
+name: Build and deploy Wedez
 
 on:
+  pull_request:
+    branches:
+      - main
   push:
     branches:
       - main
+  workflow_dispatch:
 
 concurrency:
   group: wedez-production
   cancel-in-progress: false
 
-permissions:
-  contents: read
+env:
+  PUBLIC_POCKETBASE_URL: ${{ vars.PUBLIC_POCKETBASE_URL || 'https://api-wedding.onlytest.my.id' }}
+  PUBLIC_WEDDING_URL: ${{ vars.PUBLIC_WEDDING_URL || 'https://wedding.onlytest.my.id' }}
+  PUBLIC_INVITATION_URL: ${{ vars.PUBLIC_INVITATION_URL || 'https://onlytest.my.id' }}
 
 jobs:
-  deploy:
+  quality:
+    name: Check and lint
     runs-on: ubuntu-24.04
-    env:
-      PUBLIC_POCKETBASE_URL: https://api-wedding.onlytest.my.id
-      PUBLIC_WEDDING_URL: https://wedding.onlytest.my.id
-      PUBLIC_INVITATION_URL: https://onlytest.my.id
-
+    permissions:
+      contents: read
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+        uses: actions/checkout@v7
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.0
 
       - name: Install dependencies
         run: bun install --frozen-lockfile
@@ -38,26 +42,165 @@ jobs:
       - name: Lint
         run: bun run lint
 
-      - name: Build
-        run: bun run build
+  images:
+    name: Build ${{ matrix.service }} image
+    needs: quality
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - service: web
+            context: .
+            dockerfile: ./apps/web/Dockerfile
+          - service: invitation
+            context: .
+            dockerfile: ./apps/invitation/Dockerfile
+          - service: pocketbase
+            context: ./pocketbase
+            dockerfile: ./pocketbase/Dockerfile
 
-      - name: Deploy PocketBase
-        uses: dokku/github-action@v1.10.0
-        with:
-          branch: main
-          git_remote_url: ssh://dokku@${{ vars.DOKKU_HOST }}:22/wedez-pocketbase
-          ssh_private_key: ${{ secrets.DOKKU_SSH_PRIVATE_KEY }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
 
-      - name: Deploy Web
-        uses: dokku/github-action@v1.10.0
-        with:
-          branch: main
-          git_remote_url: ssh://dokku@${{ vars.DOKKU_HOST }}:22/wedez-web
-          ssh_private_key: ${{ secrets.DOKKU_SSH_PRIVATE_KEY }}
+      - name: Normalize image name
+        id: image
+        shell: bash
+        run: |
+          repository="${GITHUB_REPOSITORY,,}"
+          echo "name=ghcr.io/${repository}-${{ matrix.service }}" >> "$GITHUB_OUTPUT"
 
-      - name: Deploy Invitation
-        uses: dokku/github-action@v1.10.0
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Login to GHCR
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v4
         with:
-          branch: main
-          git_remote_url: ssh://dokku@${{ vars.DOKKU_HOST }}:22/wedez-invitation
-          ssh_private_key: ${{ secrets.DOKKU_SSH_PRIVATE_KEY }}
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and optionally push image
+        uses: docker/build-push-action@v7
+        with:
+          context: ${{ matrix.context }}
+          file: ${{ matrix.dockerfile }}
+          platforms: linux/amd64
+          pull: true
+          push: ${{ github.event_name != 'pull_request' }}
+          build-args: |
+            BUN_VERSION=1.4.0
+            CADDY_VERSION=2.11.4
+            PB_VERSION=0.40.1
+            PUBLIC_POCKETBASE_URL=${{ env.PUBLIC_POCKETBASE_URL }}
+            PUBLIC_WEDDING_URL=${{ env.PUBLIC_WEDDING_URL }}
+            PUBLIC_INVITATION_URL=${{ env.PUBLIC_INVITATION_URL }}
+            GIT_SHA=${{ github.sha }}
+          tags: |
+            ${{ steps.image.outputs.name }}:production
+            ${{ steps.image.outputs.name }}:sha-${{ github.sha }}
+          labels: |
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+            org.opencontainers.image.revision=${{ github.sha }}
+          cache-from: type=gha,scope=wedez-${{ matrix.service }}
+          cache-to: type=gha,mode=max,scope=wedez-${{ matrix.service }}
+
+  deploy:
+    name: Deploy through Dokploy
+    if: github.event_name != 'pull_request'
+    needs: images
+    runs-on: ubuntu-24.04
+    environment: production
+    permissions:
+      contents: read
+    env:
+      DOKPLOY_URL: ${{ vars.DOKPLOY_URL }}
+      DOKPLOY_COMPOSE_ID: ${{ vars.DOKPLOY_COMPOSE_ID }}
+      DOKPLOY_API_KEY: ${{ secrets.DOKPLOY_API_KEY }}
+      WEB_HEALTH_URL: ${{ vars.WEB_HEALTH_URL || 'https://wedding.onlytest.my.id' }}
+      INVITATION_HEALTH_URL: ${{ vars.INVITATION_HEALTH_URL || 'https://deploy-health.onlytest.my.id' }}
+      POCKETBASE_HEALTH_URL: ${{ vars.POCKETBASE_HEALTH_URL || 'https://api-wedding.onlytest.my.id/api/health' }}
+    steps:
+      - name: Validate Dokploy configuration
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          test -n "$DOKPLOY_URL" || { echo "Repository variable DOKPLOY_URL belum diisi." >&2; exit 1; }
+          test -n "$DOKPLOY_COMPOSE_ID" || { echo "Repository variable DOKPLOY_COMPOSE_ID belum diisi." >&2; exit 1; }
+          test -n "$DOKPLOY_API_KEY" || { echo "Repository secret DOKPLOY_API_KEY belum diisi." >&2; exit 1; }
+
+      - name: Trigger Dokploy deployment
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          base_url="${DOKPLOY_URL%/}"
+          payload="$(jq -nc \
+            --arg composeId "$DOKPLOY_COMPOSE_ID" \
+            --arg title "GitHub ${GITHUB_SHA::12}" \
+            --arg description "${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/commit/${GITHUB_SHA}" \
+            '{composeId: $composeId, title: $title, description: $description, freshVolumes: false}')"
+
+          curl --fail-with-body --silent --show-error \
+            --request POST \
+            --url "${base_url}/api/compose.deploy" \
+            --header "accept: application/json" \
+            --header "content-type: application/json" \
+            --header "x-api-key: ${DOKPLOY_API_KEY}" \
+            --data "$payload" >/dev/null
+
+      - name: Verify deployed services
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+
+          wait_for_revision() {
+            local name="$1"
+            local url="${2%/}/_wedez_revision"
+            local actual=""
+
+            for attempt in $(seq 1 36); do
+              actual="$(curl --fail --silent --show-error --max-time 10 "$url" 2>/dev/null || true)"
+              if [ "$actual" = "$GITHUB_SHA" ]; then
+                echo "$name menjalankan revision ${GITHUB_SHA::12} setelah percobaan $attempt."
+                return 0
+              fi
+              sleep 10
+            done
+
+            echo "$name belum menjalankan revision ${GITHUB_SHA::12}." >&2
+            return 1
+          }
+
+          wait_for_http_200() {
+            local name="$1"
+            local url="$2"
+
+            for attempt in $(seq 1 36); do
+              if curl --fail --silent --show-error --max-time 10 "$url" >/dev/null 2>&1; then
+                echo "$name sehat setelah percobaan $attempt."
+                return 0
+              fi
+              sleep 10
+            done
+
+            echo "$name tidak sehat: $url" >&2
+            return 1
+          }
+
+          wait_for_revision "Web" "$WEB_HEALTH_URL" &
+          web_pid=$!
+          wait_for_revision "Invitation" "$INVITATION_HEALTH_URL" &
+          invitation_pid=$!
+          wait_for_http_200 "PocketBase" "$POCKETBASE_HEALTH_URL" &
+          pocketbase_pid=$!
+
+          result=0
+          wait "$web_pid" || result=1
+          wait "$invitation_pid" || result=1
+          wait "$pocketbase_pid" || result=1
+          exit "$result"

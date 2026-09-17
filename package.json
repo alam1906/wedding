@@ -2,6 +2,7 @@
 	"name": "wedez",
 	"private": true,
 	"version": "0.0.1",
+	"packageManager": "bun@1.4.0",
 	"type": "module",
 	"workspaces": [
 		"apps/*"
@@ -12,6 +13,7 @@
 		"dev:web": "set -a; . ./.env.dev; set +a; bun run --cwd apps/web dev -- --mode dev",
 		"dev:invitation": "set -a; . ./.env.dev; set +a; bun run --cwd apps/invitation dev -- --mode dev",
 		"build": "bun run build:web && bun run build:invitation",
+		"deploy": "gh workflow run deploy.yml --ref main",
 		"build:web": "bun run --cwd apps/web build",
 		"build:invitation": "bun run --cwd apps/invitation build",
 		"preview:web": "bun run --cwd apps/web preview",

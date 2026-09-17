@@ -1,24 +1,16 @@
 services:
   web:
-    build:
-      context: .
-      dockerfile: apps/web/Dockerfile
-      args:
-        PUBLIC_POCKETBASE_URL: ${PUBLIC_POCKETBASE_URL:-https://api-wedding.onlytest.my.id}
-        PUBLIC_WEDDING_URL: ${PUBLIC_WEDDING_URL:-https://wedding.onlytest.my.id}
-        PUBLIC_INVITATION_URL: ${PUBLIC_INVITATION_URL:-https://onlytest.my.id}
+    image: ${WEDEZ_WEB_IMAGE:-ghcr.io/alam1906/wedding-web:production}
+    pull_policy: always
     restart: unless-stopped
     expose:
       - '80'
+    networks:
+      - dokploy-network
 
   invitation:
-    build:
-      context: .
-      dockerfile: apps/invitation/Dockerfile
-      args:
-        PUBLIC_POCKETBASE_URL: ${PUBLIC_POCKETBASE_URL:-https://api-wedding.onlytest.my.id}
-        PUBLIC_WEDDING_URL: ${PUBLIC_WEDDING_URL:-https://wedding.onlytest.my.id}
-        PUBLIC_INVITATION_URL: ${PUBLIC_INVITATION_URL:-https://onlytest.my.id}
+    image: ${WEDEZ_INVITATION_IMAGE:-ghcr.io/alam1906/wedding-invitation:production}
+    pull_policy: always
     restart: unless-stopped
     expose:
       - '80'
@@ -42,12 +34,10 @@ services:
       - 'traefik.http.services.wedez-invitation.loadbalancer.server.port=80'
 
   pocketbase:
-    build:
-      context: ./pocketbase
-      dockerfile: Dockerfile
-      args:
-        PB_VERSION: ${PB_VERSION:-0.40.1}
+    image: ${WEDEZ_POCKETBASE_IMAGE:-ghcr.io/alam1906/wedding-pocketbase:production}
+    pull_policy: always
     restart: unless-stopped
+    stop_grace_period: 30s
     environment:
       PB_ENCRYPTION_KEY: ${PB_ENCRYPTION_KEY:?Set PB_ENCRYPTION_KEY sepanjang 32 karakter}
       WEDEZ_APP_URL: ${WEDEZ_APP_URL:-https://wedding.onlytest.my.id}
@@ -66,21 +56,6 @@ services:
       - pocketbase-data:/pb/pb_data
     networks:
       - dokploy-network
-    labels:
-      - 'traefik.enable=true'
-      - 'traefik.docker.network=dokploy-network'
-      - 'traefik.http.middlewares.wedez-pocketbase-https.redirectscheme.scheme=https'
-      - 'traefik.http.middlewares.wedez-pocketbase-https.redirectscheme.permanent=true'
-      - 'traefik.http.routers.wedez-pocketbase-http.rule=Host(`api-wedding.onlytest.my.id`)'
-      - 'traefik.http.routers.wedez-pocketbase-http.entrypoints=web'
-      - 'traefik.http.routers.wedez-pocketbase-http.middlewares=wedez-pocketbase-https'
-      - 'traefik.http.routers.wedez-pocketbase-http.service=wedez-pocketbase'
-      - 'traefik.http.routers.wedez-pocketbase-websecure.rule=Host(`api-wedding.onlytest.my.id`)'
-      - 'traefik.http.routers.wedez-pocketbase-websecure.entrypoints=websecure'
-      - 'traefik.http.routers.wedez-pocketbase-websecure.tls=true'
-      - 'traefik.http.routers.wedez-pocketbase-websecure.tls.certresolver=letsencrypt'
-      - 'traefik.http.routers.wedez-pocketbase-websecure.service=wedez-pocketbase'
-      - 'traefik.http.services.wedez-pocketbase.loadbalancer.server.port=8090'
 
 volumes:
   pocketbase-data:
