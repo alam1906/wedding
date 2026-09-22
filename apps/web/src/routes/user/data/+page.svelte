@@ -26,7 +26,7 @@
 
 	const sections = [
 		{ title: 'Domain', description: 'Atur subdomain unik undangan pernikahanmu.' },
-		{ title: 'Pengantin', description: 'Lengkapi informasi dan foto kedua mempelai.' },
+		{ title: 'Mempelai', description: 'Lengkapi informasi dan foto kedua mempelai.' },
 		{ title: 'Acara', description: 'Atur waktu dan alamat rangkaian acara.' },
 		{ title: 'Media', description: 'Kelola cover dan galeri undangan.' },
 		{ title: 'Story', description: 'Ceritakan perjalanan hubungan kalian.' },
@@ -139,6 +139,31 @@
 	] as const;
 
 	type ThemeKey = (typeof themes)[number]['key'];
+	const quoteOptions = [
+		{
+			key: 'quote-1',
+			label: 'Quote 1',
+			reference: 'Ar-Rum: 21',
+			text: 'Dan di antara tanda-tanda (kebesaran)-Nya ialah Dia menciptakan pasangan-pasangan untukmu dari jenismu sendiri, agar kamu cenderung dan merasa tenteram kepadanya, dan Dia menjadikan di antaramu rasa kasih dan sayang. Sungguh, pada yang demikian itu benar-benar terdapat tanda-tanda (kebesaran Allah) bagi kaum yang berpikir.'
+		},
+		{
+			key: 'quote-2',
+			label: 'Quote 2',
+			reference: 'An-Nisa: 1',
+			text: 'Wahai manusia! Bertakwalah kepada Tuhanmu yang telah menciptakan kamu dari diri yang satu (Adam), dan (Allah) menciptakan pasangannya (Hawa) dari (diri)-nya; dan dari keduanya Allah memperkembangbiakkan laki-laki dan perempuan yang banyak. Bertakwalah kepada Allah yang dengan nama-Nya kamu saling meminta, dan (peliharalah) hubungan kekeluargaan. Sesungguhnya Allah selalu menjaga dan mengawasimu.'
+		},
+		{
+			key: 'quote-3',
+			label: 'Quote 3',
+			reference: 'An-Nahl: 72',
+			text: 'Dan Allah menjadikan bagimu pasangan (suami atau istri) dari jenis kamu sendiri dan menjadikan anak dan cucu bagimu dari pasanganmu, serta memberimu rezeki dari yang baik. Mengapa mereka beriman kepada yang batil dan mengingkari nikmat Allah?'
+		}
+	] as const;
+	type QuotePreset = (typeof quoteOptions)[number]['key'] | 'custom';
+
+	function getQuotePreset(value: string): QuotePreset {
+		return quoteOptions.find((option) => option.text === value)?.key ?? 'custom';
+	}
 
 	function normalizeTheme(value: string): ThemeKey {
 		const legacyThemes: Record<string, ThemeKey> = {
@@ -174,6 +199,7 @@
 	const musicOptions = getMusicOptionsContext();
 	const weddingState = getWeddingContext();
 	const initialWedding = await getInitialWedding();
+	const initialQuotePreset = getQuotePreset(initialWedding.quote);
 	let wedding = $state<WeddingData>({ ...initialWedding });
 	let stories = $state<EditableWeddingStory[]>(toEditableStories(initialWedding.stories));
 	let akadValue = $state(toDateTimeLocal(initialWedding.akad));
@@ -182,6 +208,13 @@
 	let selectedMusic = $state(initialWedding.music);
 	let musicEnabled = $state(initialWedding.music !== '');
 	let lastSelectedMusic = initialWedding.music;
+	let selectedQuotePreset = $state<QuotePreset>(initialQuotePreset);
+	let customQuote = $state(initialQuotePreset === 'custom' ? initialWedding.quote : '');
+	let selectedQuote = $derived(
+		selectedQuotePreset === 'custom'
+			? customQuote
+			: (quoteOptions.find((option) => option.key === selectedQuotePreset)?.text ?? '')
+	);
 	let activeSection = $derived(getActiveSection(page.state));
 	let isSaving = $state(false);
 	let localSingleImagePreviews = $state<Partial<Record<WeddingSingleFileField, string>>>({});
@@ -210,7 +243,7 @@
 			(pendingSingleFileDeletions.includes('cover') ? '' : wedding.cover_url)
 	);
 	const invitationBaseHost = getWeddingInvitationBaseHost();
-	let invitationHostPreview = $derived(getWeddingInvitationHost(wedding.slug || 'namapengantin'));
+	let invitationHostPreview = $derived(getWeddingInvitationHost(wedding.slug || 'namamempelai'));
 
 	async function getInitialWedding(): Promise<WeddingData> {
 		try {
@@ -250,7 +283,7 @@
 		switch (section) {
 			case 'Domain':
 				return wedding.slug.trim().length >= 3;
-			case 'Pengantin':
+			case 'Mempelai':
 				return hasValues(
 					wedding.groom_name,
 					wedding.groom_father_name,
@@ -309,6 +342,8 @@
 		selectedTheme = normalizeTheme(updatedWedding.theme);
 		selectedMusic = updatedWedding.music;
 		musicEnabled = updatedWedding.music !== '';
+		selectedQuotePreset = getQuotePreset(updatedWedding.quote);
+		customQuote = selectedQuotePreset === 'custom' ? updatedWedding.quote : '';
 		if (updatedWedding.music) {
 			lastSelectedMusic = updatedWedding.music;
 		}
@@ -480,6 +515,8 @@
 		selectedTheme = normalizeTheme(wedding.theme);
 		selectedMusic = wedding.music;
 		musicEnabled = wedding.music !== '';
+		selectedQuotePreset = getQuotePreset(wedding.quote);
+		customQuote = selectedQuotePreset === 'custom' ? wedding.quote : '';
 		if (wedding.music) {
 			lastSelectedMusic = wedding.music;
 		}
@@ -721,6 +758,7 @@
 			} else {
 				const formData = new FormData(form);
 				formData.delete('music-option');
+				formData.delete('quote-preset');
 				removeEmptyFiles(formData);
 				for (const field of singleImageFields) {
 					const file = localSingleImageFiles[field];
@@ -778,7 +816,7 @@
 					<button
 						type="button"
 						onclick={() => openSection(section.title)}
-						class="group rounded-2xl border border-gray-200 bg-white p-5 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-gray-300 hover:shadow-md"
+						class="group rounded-2xl border border-gray-200 bg-white p-5 text-left transition hover:-translate-y-0.5 hover:border-gray-300"
 					>
 						<div class="flex items-start justify-between gap-4">
 							<span
@@ -808,7 +846,7 @@
 			</div>
 		{:else}
 			<form
-				class="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm sm:p-7"
+				class="rounded-2xl border border-gray-200 bg-white p-5 sm:p-7"
 				onsubmit={saveActiveSection}
 			>
 				<header class="border-b border-gray-200 pb-5">
@@ -888,7 +926,7 @@
 													disabled={!musicEnabled}
 													bind:group={selectedMusic}
 													onchange={() => (lastSelectedMusic = music.id)}
-													class="size-4 shrink-0 border-gray-400 text-gray-900 focus:ring-gray-900 disabled:opacity-40"
+													class="size-4 shrink-0 border-[#cbd5e1] text-gray-900 focus:ring-[#9400ff] disabled:opacity-40"
 												/>
 												<span
 													class="grid size-10 shrink-0 place-items-center rounded-full bg-gray-100 text-gray-500"
@@ -928,7 +966,7 @@
 										class="relative flex h-full w-full cursor-pointer flex-col overflow-hidden rounded-xl border-2 transition duration-200 {selectedTheme ===
 										theme.key
 											? 'border-gray-900 bg-white'
-											: 'border-gray-200 bg-white hover:-translate-y-0.5 hover:border-gray-400 hover:shadow-sm'}"
+											: 'border-gray-200 bg-white hover:-translate-y-0.5 hover:border-gray-400'}"
 									>
 										<input
 											type="radio"
@@ -1107,7 +1145,7 @@
 									minlength="3"
 									maxlength="50"
 									pattern="[a-z0-9]+(?:-[a-z0-9]+)*"
-									placeholder="namapengantin"
+									placeholder="namamempelai"
 									spellcheck="false"
 									class="field min-w-0 flex-1 border-0 px-4 py-3 text-sm"
 									required
@@ -1124,118 +1162,89 @@
 								<span class="font-semibold break-all text-gray-700">{invitationHostPreview}</span>
 							</p>
 						</label>
-					{:else if activeSection === 'Pengantin'}
-						<div class="grid gap-6 xl:grid-cols-2">
-							<section class="rounded-xl py-5 sm:p-5">
-								<h2 class="font-semibold text-gray-900">Pengantin pria</h2>
-								<div class="mt-4 flex flex-col gap-4 sm:flex-row sm:items-center">
-									{#if groomPhotoPreview}
-										<div
-											class="relative size-24 shrink-0 overflow-hidden rounded-xl bg-white shadow-sm"
-										>
-											<img
-												src={groomPhotoPreview}
-												alt="Preview pengantin pria"
-												class="size-full object-cover"
-											/>
-											{#if localSingleImagePreviews.groom_photo}
-												<span
-													class="absolute right-1 bottom-1 left-1 rounded bg-gray-900/75 px-1 py-0.5 text-center text-[9px] font-semibold text-white"
-													>Belum disimpan</span
-												>
-											{:else}
-												<button
-													type="button"
-													onclick={() => queueFileRemoval('groom_photo')}
-													aria-label="Hapus foto pengantin pria"
-													class="absolute top-1 right-1 rounded-md bg-white/90 px-2 py-1 text-[10px] font-semibold text-red-600 shadow"
-													>Hapus</button
-												>
-											{/if}
-										</div>
-									{:else}
-										<div
-											class="grid size-24 shrink-0 place-items-center rounded-xl border border-dashed border-gray-300 bg-white px-3 text-center text-xs text-gray-400"
-										>
-											Belum ada foto
-										</div>
-									{/if}
-									<label class="min-w-0 flex-1 text-sm font-medium text-gray-700"
-										>Foto pengantin pria<input
-											type="file"
-											accept={OPTIMIZABLE_IMAGE_ACCEPT}
-											onchange={(event) => previewSingleImage(event, 'groom_photo')}
-											class="mt-2 block w-full text-sm text-gray-500 file:mr-4 file:rounded-lg file:border-0 file:bg-white file:px-4 file:py-2 file:font-semibold file:text-gray-700"
-										/></label
-									>
-								</div>
-								<div class="mt-5 space-y-4">
-									<label class="block text-sm font-medium text-gray-700"
-										>Nama lengkap<input
-											name="groom_name"
-											value={wedding.groom_name}
-											class="field mt-2 w-full rounded-xl border border-gray-700 bg-white px-4 py-3 text-sm"
-										/></label
-									>
-									<label class="block text-sm font-medium text-gray-700"
-										>Nama ayah<input
-											name="groom_father_name"
-											value={wedding.groom_father_name}
-											class="field mt-2 w-full rounded-xl border border-gray-700 bg-white px-4 py-3 text-sm"
-										/></label
-									>
-									<label class="block text-sm font-medium text-gray-700"
-										>Nama ibu<input
-											name="groom_mother_name"
-											value={wedding.groom_mother_name}
-											class="field mt-2 w-full rounded-xl border border-gray-700 bg-white px-4 py-3 text-sm"
-										/></label
-									>
-								</div>
-							</section>
-
-							<section class="rounded-xl py-5 sm:p-5">
-								<h2 class="font-semibold text-gray-900">Pengantin wanita</h2>
-								<div class="mt-4 flex flex-col gap-4 sm:flex-row sm:items-center">
-									{#if bridePhotoPreview}
-										<div
-											class="relative size-24 shrink-0 overflow-hidden rounded-xl bg-white shadow-sm"
-										>
+					{:else if activeSection === 'Mempelai'}
+						<div class="grid gap-6 lg:grid-cols-2">
+							<section class="rounded-xl border border-gray-200 p-4 sm:p-5">
+								<h2 class="text-lg font-bold text-gray-950">Mempelai Wanita</h2>
+								<div class="mt-4 min-h-44 rounded-xl bg-gray-50 p-6">
+									<p class="text-sm font-medium text-gray-900">Foto Mempelai</p>
+									<div class="relative mt-4 w-fit">
+										{#if bridePhotoPreview}
 											<img
 												src={bridePhotoPreview}
-												alt="Preview pengantin wanita"
-												class="size-full object-cover"
+												alt="Preview mempelai wanita"
+												class="size-22 rounded-full object-cover"
 											/>
-											{#if localSingleImagePreviews.bride_photo}
-												<span
-													class="absolute right-1 bottom-1 left-1 rounded bg-gray-900/75 px-1 py-0.5 text-center text-[9px] font-semibold text-white"
-													>Belum disimpan</span
+										{:else}
+											<div
+												class="grid size-22 place-items-center rounded-full border-2 border-dashed border-gray-300 text-gray-400"
+											>
+												<svg
+													aria-hidden="true"
+													class="size-9"
+													viewBox="0 0 24 24"
+													fill="none"
+													stroke="currentColor"
+													stroke-width="1.7"
+													stroke-linecap="round"
+													stroke-linejoin="round"
 												>
-											{:else}
-												<button
-													type="button"
-													onclick={() => queueFileRemoval('bride_photo')}
-													aria-label="Hapus foto pengantin wanita"
-													class="absolute top-1 right-1 rounded-md bg-white/90 px-2 py-1 text-[10px] font-semibold text-red-600 shadow"
-													>Hapus</button
+													<circle cx="12" cy="8" r="3.5"></circle>
+													<path d="M5.5 21v-2.5a6.5 6.5 0 0 1 13 0V21"></path>
+												</svg>
+											</div>
+										{/if}
+										{#if bridePhotoPreview && !localSingleImagePreviews.bride_photo}
+											<button
+												type="button"
+												onclick={() => queueFileRemoval('bride_photo')}
+												aria-label="Hapus foto mempelai wanita"
+												class="absolute -top-1 -right-1 grid size-8 cursor-pointer place-items-center rounded-full bg-red-500 text-white"
+											>
+												<svg
+													aria-hidden="true"
+													class="size-4"
+													viewBox="0 0 24 24"
+													fill="none"
+													stroke="currentColor"
+													stroke-width="2"
+													stroke-linecap="round"
+													stroke-linejoin="round"
 												>
-											{/if}
-										</div>
-									{:else}
-										<div
-											class="grid size-24 shrink-0 place-items-center rounded-xl border border-dashed border-gray-300 bg-white px-3 text-center text-xs text-gray-400"
-										>
-											Belum ada foto
-										</div>
-									{/if}
-									<label class="min-w-0 flex-1 text-sm font-medium text-gray-700"
-										>Foto pengantin wanita<input
+													<path d="M4 7h16M9 7V4h6v3M7 7l1 13h8l1-13M10 11v5M14 11v5"></path>
+												</svg>
+											</button>
+										{:else}
+											<label
+												for="bride-photo"
+												aria-label={bridePhotoPreview
+													? 'Ganti foto mempelai wanita'
+													: 'Pilih foto mempelai wanita'}
+												class="absolute -top-1 -right-1 grid size-8 cursor-pointer place-items-center rounded-full bg-linear-to-r from-[#9400ff] to-[#7200e8] text-white"
+											>
+												<svg
+													aria-hidden="true"
+													class="size-4"
+													viewBox="0 0 24 24"
+													fill="none"
+													stroke="currentColor"
+													stroke-width="2"
+													stroke-linecap="round"
+													stroke-linejoin="round"
+												>
+													<path d="m14 5 5 5M4 20l3.5-.7L19 7.8a2.1 2.1 0 0 0-3-3L4.7 16.5 4 20Z"
+													></path>
+												</svg>
+											</label>
+										{/if}
+										<input
+											id="bride-photo"
 											type="file"
 											accept={OPTIMIZABLE_IMAGE_ACCEPT}
 											onchange={(event) => previewSingleImage(event, 'bride_photo')}
-											class="mt-2 block w-full text-sm text-gray-500 file:mr-4 file:rounded-lg file:border-0 file:bg-white file:px-4 file:py-2 file:font-semibold file:text-gray-700"
-										/></label
-									>
+											class="sr-only"
+										/>
+									</div>
 								</div>
 								<div class="mt-5 space-y-4">
 									<label class="block text-sm font-medium text-gray-700"
@@ -1256,6 +1265,113 @@
 										>Nama ibu<input
 											name="bride_mother_name"
 											value={wedding.bride_mother_name}
+											class="field mt-2 w-full rounded-xl border border-gray-700 bg-white px-4 py-3 text-sm"
+										/></label
+									>
+								</div>
+							</section>
+
+							<section class="rounded-xl border border-gray-200 p-4 sm:p-5">
+								<h2 class="text-lg font-bold text-gray-950">Mempelai Pria</h2>
+								<div class="mt-4 min-h-44 rounded-xl bg-gray-50 p-6">
+									<p class="text-sm font-medium text-gray-900">Foto Mempelai</p>
+									<div class="relative mt-4 w-fit">
+										{#if groomPhotoPreview}
+											<img
+												src={groomPhotoPreview}
+												alt="Preview mempelai pria"
+												class="size-22 rounded-full object-cover"
+											/>
+										{:else}
+											<div
+												class="grid size-22 place-items-center rounded-full border-2 border-dashed border-gray-300 text-gray-400"
+											>
+												<svg
+													aria-hidden="true"
+													class="size-9"
+													viewBox="0 0 24 24"
+													fill="none"
+													stroke="currentColor"
+													stroke-width="1.7"
+													stroke-linecap="round"
+													stroke-linejoin="round"
+												>
+													<circle cx="12" cy="8" r="3.5"></circle>
+													<path d="M5.5 21v-2.5a6.5 6.5 0 0 1 13 0V21"></path>
+												</svg>
+											</div>
+										{/if}
+										{#if groomPhotoPreview && !localSingleImagePreviews.groom_photo}
+											<button
+												type="button"
+												onclick={() => queueFileRemoval('groom_photo')}
+												aria-label="Hapus foto mempelai pria"
+												class="absolute -top-1 -right-1 grid size-8 cursor-pointer place-items-center rounded-full bg-red-500 text-white"
+											>
+												<svg
+													aria-hidden="true"
+													class="size-4"
+													viewBox="0 0 24 24"
+													fill="none"
+													stroke="currentColor"
+													stroke-width="2"
+													stroke-linecap="round"
+													stroke-linejoin="round"
+												>
+													<path d="M4 7h16M9 7V4h6v3M7 7l1 13h8l1-13M10 11v5M14 11v5"></path>
+												</svg>
+											</button>
+										{:else}
+											<label
+												for="groom-photo"
+												aria-label={groomPhotoPreview
+													? 'Ganti foto mempelai pria'
+													: 'Pilih foto mempelai pria'}
+												class="absolute -top-1 -right-1 grid size-8 cursor-pointer place-items-center rounded-full bg-linear-to-r from-[#9400ff] to-[#7200e8] text-white"
+											>
+												<svg
+													aria-hidden="true"
+													class="size-4"
+													viewBox="0 0 24 24"
+													fill="none"
+													stroke="currentColor"
+													stroke-width="2"
+													stroke-linecap="round"
+													stroke-linejoin="round"
+												>
+													<path d="m14 5 5 5M4 20l3.5-.7L19 7.8a2.1 2.1 0 0 0-3-3L4.7 16.5 4 20Z"
+													></path>
+												</svg>
+											</label>
+										{/if}
+										<input
+											id="groom-photo"
+											type="file"
+											accept={OPTIMIZABLE_IMAGE_ACCEPT}
+											onchange={(event) => previewSingleImage(event, 'groom_photo')}
+											class="sr-only"
+										/>
+									</div>
+								</div>
+								<div class="mt-5 space-y-4">
+									<label class="block text-sm font-medium text-gray-700"
+										>Nama lengkap<input
+											name="groom_name"
+											value={wedding.groom_name}
+											class="field mt-2 w-full rounded-xl border border-gray-700 bg-white px-4 py-3 text-sm"
+										/></label
+									>
+									<label class="block text-sm font-medium text-gray-700"
+										>Nama ayah<input
+											name="groom_father_name"
+											value={wedding.groom_father_name}
+											class="field mt-2 w-full rounded-xl border border-gray-700 bg-white px-4 py-3 text-sm"
+										/></label
+									>
+									<label class="block text-sm font-medium text-gray-700"
+										>Nama ibu<input
+											name="groom_mother_name"
+											value={wedding.groom_mother_name}
 											class="field mt-2 w-full rounded-xl border border-gray-700 bg-white px-4 py-3 text-sm"
 										/></label
 									>
@@ -1307,34 +1423,64 @@
 						<div class="space-y-8">
 							<section>
 								<h2 class="font-semibold text-gray-900">Cover undangan</h2>
-								{#if coverPreview}
-									<div class="relative mt-4 overflow-hidden rounded-xl bg-gray-100">
+								<div
+									class="relative mt-4 aspect-video overflow-hidden rounded-xl bg-gray-100 focus-within:ring-2 focus-within:ring-[#9400ff]/30"
+									class:border-2={!coverPreview}
+									class:border-dashed={!coverPreview}
+									class:border-gray-300={!coverPreview}
+								>
+									{#if coverPreview}
 										<img
 											src={coverPreview}
 											alt="Preview cover undangan"
-											class="aspect-video w-full object-cover"
+											class="size-full object-cover"
 										/>
 										{#if localSingleImagePreviews.cover}
 											<span
-												class="absolute top-3 right-3 rounded-lg bg-white/90 px-3 py-2 text-xs font-semibold text-gray-700 shadow"
+												class="absolute top-3 right-3 z-20 rounded-lg bg-white/90 px-3 py-2 text-xs font-semibold text-gray-700 shadow"
 												>Belum disimpan</span
 											>
 										{:else}
 											<button
 												type="button"
 												onclick={() => queueFileRemoval('cover')}
-												class="absolute top-3 right-3 rounded-lg bg-white/90 px-3 py-2 text-xs font-semibold text-red-600 shadow"
+												class="absolute top-3 right-3 z-20 cursor-pointer rounded-lg bg-white/90 px-3 py-2 text-xs font-semibold text-red-600 shadow"
 												>Hapus</button
 											>
 										{/if}
-									</div>
-								{/if}
-								<input
-									type="file"
-									accept={OPTIMIZABLE_IMAGE_ACCEPT}
-									onchange={(event) => previewSingleImage(event, 'cover')}
-									class="mt-4 block w-full text-sm text-gray-500 file:mr-4 file:rounded-lg file:border-0 file:bg-gray-100 file:px-4 file:py-2 file:font-semibold file:text-gray-700"
-								/>
+									{/if}
+
+									<input
+										type="file"
+										accept={OPTIMIZABLE_IMAGE_ACCEPT}
+										onchange={(event) => previewSingleImage(event, 'cover')}
+										aria-label={coverPreview ? 'Ganti cover undangan' : 'Pilih cover undangan'}
+										class="absolute inset-0 z-10 size-full cursor-pointer opacity-0"
+									/>
+									{#if !coverPreview}
+										<span
+											class="pointer-events-none absolute inset-0 z-10 grid place-items-center"
+											aria-hidden="true"
+										>
+											<span
+												class="grid size-11 place-items-center rounded-full bg-gray-200 text-gray-600"
+											>
+												<svg
+													class="size-5"
+													viewBox="0 0 24 24"
+													fill="none"
+													stroke="currentColor"
+													stroke-width="2"
+													stroke-linecap="round"
+													stroke-linejoin="round"
+												>
+													<path d="m14 5 5 5M4 20l3.5-.7L19 7.8a2.1 2.1 0 0 0-3-3L4.7 16.5 4 20Z"
+													></path>
+												</svg>
+											</span>
+										</span>
+									{/if}
+								</div>
 							</section>
 
 							<section class="border-t border-gray-200 pt-6">
@@ -1362,7 +1508,7 @@
 														type="button"
 														onclick={() => queueFileRemoval('gallery', image.name)}
 														aria-label="Hapus foto galeri"
-														class="absolute top-2 right-2 rounded-lg bg-white/90 px-2.5 py-1.5 text-xs font-semibold text-red-600 opacity-0 shadow transition group-hover:opacity-100 focus:opacity-100"
+														class="absolute top-2 right-2 rounded-lg bg-white/90 px-2.5 py-1.5 text-xs font-semibold text-red-600 shadow"
 														>Hapus</button
 													>
 												{/if}
@@ -1516,17 +1662,92 @@
 							>
 						</div>
 					{:else if activeSection === 'Quote'}
-						<label class="block text-sm font-medium text-gray-700"
-							>Quote pernikahan<textarea
-								name="quote"
-								bind:value={wedding.quote}
-								class="field mt-2 min-h-40 w-full rounded-xl border border-gray-700 bg-white px-4 py-3 text-sm"
-								placeholder="Tuliskan quote yang bermakna"></textarea></label
-						>
+						<fieldset>
+							<legend class="sr-only">Pilihan quote</legend>
+							<div class="grid gap-3 sm:grid-cols-2">
+								{#each quoteOptions as option (option.key)}
+									<label
+										class="flex cursor-pointer items-center justify-between gap-3 rounded-xl border px-4 py-3 transition"
+										class:border-violet-600={selectedQuotePreset === option.key}
+										class:bg-violet-50={selectedQuotePreset === option.key}
+										class:border-gray-200={selectedQuotePreset !== option.key}
+										class:bg-white={selectedQuotePreset !== option.key}
+									>
+										<input
+											type="radio"
+											name="quote-preset"
+											value={option.key}
+											bind:group={selectedQuotePreset}
+											class="sr-only"
+										/>
+										<span class="text-sm font-semibold text-gray-900">
+											{option.label}: {option.reference}
+										</span>
+										<span
+											class="grid size-5 shrink-0 place-items-center rounded-full border"
+											class:border-violet-600={selectedQuotePreset === option.key}
+											class:bg-violet-600={selectedQuotePreset === option.key}
+											class:border-gray-300={selectedQuotePreset !== option.key}
+										>
+											{#if selectedQuotePreset === option.key}
+												<span class="size-2 rounded-full bg-white"></span>
+											{/if}
+										</span>
+									</label>
+								{/each}
+
+								<label
+									class="flex cursor-pointer items-center justify-between gap-3 rounded-xl border px-4 py-3 transition"
+									class:border-violet-600={selectedQuotePreset === 'custom'}
+									class:bg-violet-50={selectedQuotePreset === 'custom'}
+									class:border-gray-200={selectedQuotePreset !== 'custom'}
+									class:bg-white={selectedQuotePreset !== 'custom'}
+								>
+									<input
+										type="radio"
+										name="quote-preset"
+										value="custom"
+										bind:group={selectedQuotePreset}
+										onchange={() => (customQuote = '')}
+										class="sr-only"
+									/>
+									<span class="text-sm font-semibold text-gray-900">Custom</span>
+									<span
+										class="grid size-5 shrink-0 place-items-center rounded-full border"
+										class:border-violet-600={selectedQuotePreset === 'custom'}
+										class:bg-violet-600={selectedQuotePreset === 'custom'}
+										class:border-gray-300={selectedQuotePreset !== 'custom'}
+									>
+										{#if selectedQuotePreset === 'custom'}
+											<span class="size-2 rounded-full bg-white"></span>
+										{/if}
+									</span>
+								</label>
+							</div>
+
+							{#if selectedQuotePreset === 'custom'}
+								<label class="mt-5 block text-sm font-medium text-gray-700"
+									>Isi quote<textarea
+										name="quote"
+										bind:value={customQuote}
+										class="field mt-2 min-h-40 w-full rounded-xl border border-gray-700 bg-white px-4 py-3 text-sm"
+										placeholder="Tuliskan quote yang bermakna"></textarea></label
+								>
+							{:else}
+								<label class="mt-5 block text-sm font-medium text-gray-700"
+									>Isi quote<textarea
+										name="quote"
+										value={selectedQuote}
+										readonly
+										class="field mt-2 min-h-40 w-full resize-none rounded-xl border border-gray-700 bg-gray-50 px-4 py-3 text-sm leading-6 text-gray-700"
+									></textarea></label
+								>
+							{/if}
+						</fieldset>
 					{:else if activeSection === 'Kado'}
 						<div class="grid gap-6 xl:grid-cols-2">
 							<section class="rounded-xl py-5 sm:p-5">
-								<h2 class="font-semibold text-gray-900">Pengantin pria</h2>
+								<h2 class="font-semibold text-gray-900">Mempelai pria</h2>
 								<div class="mt-4 space-y-4">
 									<label class="block text-sm font-medium text-gray-700"
 										>Nama bank atau e-wallet<input
@@ -1552,7 +1773,7 @@
 								</div>
 							</section>
 							<section class="rounded-xl py-5 sm:p-5">
-								<h2 class="font-semibold text-gray-900">Pengantin wanita</h2>
+								<h2 class="font-semibold text-gray-900">Mempelai wanita</h2>
 								<div class="mt-4 space-y-4">
 									<label class="block text-sm font-medium text-gray-700"
 										>Nama bank atau e-wallet<input
@@ -1586,7 +1807,7 @@
 						type="submit"
 						disabled={isSaving || isOptimizingImages}
 						aria-busy={isSaving || isOptimizingImages}
-						class="cursor-pointer rounded-xl bg-gray-900 px-5 py-3 text-sm font-semibold text-white transition disabled:cursor-not-allowed disabled:opacity-60"
+						class="cursor-pointer rounded-xl bg-linear-to-r from-[#9400ff] to-[#7200e8] px-5 py-3 text-sm font-semibold text-white transition disabled:cursor-not-allowed disabled:opacity-60"
 					>
 						{isOptimizingImages
 							? 'Mengoptimalkan gambar...'

@@ -200,7 +200,7 @@
 				>
 			{/each}
 			<a
-				class="rounded-full bg-yellow-400 px-5 py-2.5 text-sm font-semibold text-gray-950 transition-colors hover:bg-yellow-300"
+				class="rounded-full bg-linear-to-r from-[#9400ff] to-[#7200e8] px-5 py-2.5 text-sm font-semibold text-white"
 				href="/login">Buat Undangan</a
 			>
 		</nav>
@@ -251,7 +251,7 @@
 					>
 				{/each}
 				<a
-					class="mt-2 rounded-xl bg-yellow-400 px-4 py-3 text-center text-sm font-semibold text-gray-950"
+					class="mt-2 rounded-xl bg-linear-to-r from-[#9400ff] to-[#7200e8] px-4 py-3 text-center text-sm font-semibold text-white"
 					href="/login"
 					onclick={closeMobileMenu}>Buat Undangan</a
 				>
@@ -273,7 +273,7 @@
 					class="max-w-2xl text-[40px] leading-[1.08] font-bold tracking-[-0.045em] text-gray-950 sm:text-[48px] lg:text-[56px] 2xl:max-w-3xl 2xl:text-[64px]"
 				>
 					Undangan Digital untuk <span
-						class="bg-linear-to-r from-red-500 to-yellow-400 bg-clip-text text-transparent"
+						class="bg-linear-to-r from-[#9400ff] to-[#7200e8] bg-clip-text text-transparent"
 						>Gen Z</span
 					>
 				</h1>
@@ -287,7 +287,7 @@
 
 				<div class="mt-8 flex flex-col gap-3 sm:flex-row">
 					<a
-						class="inline-flex min-h-12 items-center justify-center rounded-full bg-yellow-400 px-6 text-sm font-semibold text-gray-950 transition-colors hover:bg-yellow-300"
+						class="inline-flex min-h-12 items-center justify-center rounded-full bg-linear-to-r from-[#9400ff] to-[#7200e8] px-6 text-sm font-semibold text-white"
 						href="/login"
 					>
 						Buat undangan gratis
@@ -532,11 +532,8 @@
 		</section>
 	</div>
 
-	<section
-		class="w-full bg-white px-4 py-20 sm:px-6 lg:px-8 lg:py-28 2xl:px-10"
-		aria-labelledby="why-wedez-title"
-	>
-		<div class="mx-auto w-full max-w-7xl 2xl:max-w-[1520px]">
+	<section class="w-full bg-white py-20 lg:py-28" aria-labelledby="why-wedez-title">
+		<div class="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 2xl:max-w-[1600px] 2xl:px-10">
 			<div class="max-w-3xl">
 				<p class="text-sm font-semibold text-[#667052]">KENAPA MEMILIH WEDEZ</p>
 				<h2
@@ -688,7 +685,7 @@
 											<p class="text-[9px] font-bold tracking-[0.16em] text-[#ff746b] uppercase">
 												We are getting married
 											</p>
-											<p class="mt-4 text-3xl font-black tracking-[-0.05em] text-[#293042]">
+											<p class="mt-4 text-3xl font-black tracking-tighter text-[#293042]">
 												Raka<br /><span class="text-[#ff746b]">&</span> Laras
 											</p>
 											<div class="mx-auto mt-5 flex w-fit gap-2">
@@ -764,12 +761,9 @@
 		</section>
 	</div>
 
-	<section
-		class="w-full bg-white px-4 py-20 sm:px-6 lg:px-8 lg:py-28 2xl:px-10"
-		aria-labelledby="features-title"
-	>
+	<section class="w-full bg-white py-20 lg:py-28" aria-labelledby="features-title">
 		<div
-			class="mx-auto grid w-full max-w-7xl items-center gap-14 lg:grid-cols-[0.85fr_1.15fr] lg:gap-20 2xl:max-w-[1520px] 2xl:gap-24"
+			class="mx-auto grid w-full max-w-7xl items-center gap-14 px-4 sm:px-6 lg:grid-cols-[0.85fr_1.15fr] lg:gap-20 lg:px-8 2xl:max-w-[1600px] 2xl:gap-24 2xl:px-10"
 		>
 			<div>
 				<p class="text-sm font-semibold text-gray-600">SATU DASHBOARD</p>
@@ -1042,7 +1036,7 @@
 							<a
 								class={[
 									'mt-auto inline-flex min-h-12 items-center justify-center rounded-full px-6 text-sm font-semibold transition-colors',
-									'bg-gray-100 text-gray-950 hover:bg-gray-200'
+									'bg-linear-to-r from-[#9400ff] to-[#7200e8] text-white'
 								]}
 								href="#buat-undangan"
 							>
@@ -1055,12 +1049,8 @@
 		</section>
 	</div>
 
-	<section
-		id="faq"
-		class="w-full scroll-mt-22 bg-white px-4 py-20 sm:px-6 lg:px-8 lg:py-28"
-		aria-labelledby="faq-title"
-	>
-		<div class="mx-auto w-full max-w-6xl">
+	<section id="faq" class="w-full scroll-mt-22 bg-white py-20 lg:py-28" aria-labelledby="faq-title">
+		<div class="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 2xl:max-w-[1600px] 2xl:px-10">
 			<div class="mx-auto max-w-3xl text-center">
 				<p class="text-sm font-semibold text-gray-600">PERTANYAAN UMUM</p>
 				<h2
@@ -1124,7 +1114,7 @@
 				Mulai gratis, pilih tema favorit, dan lihat hasilnya secara langsung.
 			</p>
 			<a
-				class="mt-8 inline-flex min-h-12 items-center justify-center rounded-full bg-gray-950 px-7 text-sm font-semibold text-white transition-colors hover:bg-gray-800"
+				class="mt-8 inline-flex min-h-12 items-center justify-center rounded-full bg-linear-to-r from-[#9400ff] to-[#7200e8] px-7 text-sm font-semibold text-white"
 				href="/login"
 			>
 				Buat undangan sekarang
@@ -1142,8 +1132,8 @@
 	</section>
 </main>
 
-<footer class="border-t border-gray-200 bg-white px-4 py-10 sm:px-6 lg:px-8 2xl:px-10">
-	<div class="mx-auto max-w-7xl text-center 2xl:max-w-[1520px]">
+<footer class="border-t border-gray-200 bg-white py-10">
+	<div class="mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8 2xl:max-w-[1600px] 2xl:px-10">
 		<p class="text-sm text-gray-500">© 2026 Wedez</p>
 	</div>
 </footer>

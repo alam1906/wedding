@@ -115,7 +115,7 @@ export async function optimizeImage(file: File, options: ImageOptimizationOption
 		}
 
 		context.imageSmoothingEnabled = true;
-		context.imageSmoothingQuality = 'high';
+		context.imageSmoothingQuality = 'medium';
 		context.drawImage(decodedImage.source, 0, 0, outputWidth, outputHeight);
 
 		const webp = await canvasToWebp(canvas, options.quality);

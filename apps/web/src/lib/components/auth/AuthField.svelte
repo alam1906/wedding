@@ -52,7 +52,7 @@
 			{oninput}
 			aria-invalid={error ? 'true' : undefined}
 			aria-describedby={error ? errorId : undefined}
-			class="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm text-gray-900 transition outline-none placeholder:text-gray-400 focus:border-blue-500 focus:ring-0 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-500"
+			class="w-full rounded-xl border border-[#cbd5e1] bg-white px-4 py-3 text-sm text-gray-900 transition outline-none placeholder:text-gray-400 focus:border-[#9400ff] focus:ring-0 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-500"
 			class:pr-12={isPasswordField}
 		/>
 		{#if isPasswordField}
@@ -62,7 +62,7 @@
 				onclick={() => (isPasswordVisible = !isPasswordVisible)}
 				aria-label={isPasswordVisible ? 'Sembunyikan kata sandi' : 'Tampilkan kata sandi'}
 				aria-pressed={isPasswordVisible}
-				class="absolute inset-y-0 right-0 grid w-12 place-items-center rounded-r-xl text-gray-500 transition hover:text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none disabled:cursor-not-allowed disabled:text-gray-400"
+				class="absolute inset-y-0 right-0 grid w-12 place-items-center rounded-r-xl text-gray-500 transition hover:text-gray-900 focus:ring-2 focus:ring-[#9400ff] focus:outline-none disabled:cursor-not-allowed disabled:text-gray-400"
 			>
 				{#if isPasswordVisible}
 					<svg

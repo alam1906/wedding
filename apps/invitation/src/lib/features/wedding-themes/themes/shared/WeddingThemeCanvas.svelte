@@ -375,7 +375,9 @@
 		<section class="quote-section section-shell">
 			<div class="narrow-content" data-reveal>
 				<blockquote>
-					{wedding.quote || 'Dua hati, satu perjalanan, dan satu janji untuk selamanya.'}
+					<span class="quote-text"
+						>“{wedding.quote || 'Dua hati, satu perjalanan, dan satu janji untuk selamanya.'}”</span
+					>
 				</blockquote>
 			</div>
 		</section>
@@ -515,6 +517,15 @@
 		<PublicRsvpForm slug={wedding.slug} token={rsvpToken} />
 
 		<footer class="closing-section section-shell">
+			<div class="cover-frame" aria-hidden="true">
+				{#if wedding.cover_url}
+					<img src={wedding.cover_url} alt="" loading="lazy" decoding="async" />
+				{:else}
+					<div class="cover-placeholder">
+						<span>{groomName.charAt(0)}</span><b>♥</b><span>{brideName.charAt(0)}</span>
+					</div>
+				{/if}
+			</div>
 			<div class="narrow-content">
 				<p>Terima kasih atas doa dan kehadiran Anda</p>
 				<h2>{coupleName}</h2>
@@ -788,11 +799,15 @@
 		text-transform: uppercase;
 	}
 	blockquote {
-		margin-top: 1.5rem;
+		width: min(100%, 50rem);
+		margin: 0;
 		font-family: Georgia, serif;
-		font-size: clamp(2rem, 5vw, 3.75rem);
+		font-size: clamp(1rem, 2.5vw, 1.875rem);
 		line-height: 1.15;
 		font-weight: 700;
+	}
+	.quote-text {
+		display: block;
 	}
 	.section-heading > p:last-child {
 		margin-top: 1.5rem;
@@ -1129,12 +1144,15 @@
 	}
 	.closing-section {
 		display: grid;
-		min-height: 26rem;
+		min-height: 60svh;
 		place-items: center;
-		background: var(--color-text);
+		isolation: isolate;
+		overflow: hidden;
+		background: var(--color-background);
 		color: var(--color-surface);
 	}
 	.closing-section .narrow-content {
+		z-index: 2;
 		display: grid;
 		place-items: center;
 	}
@@ -1505,19 +1523,6 @@
 	.family-3d-design .gallery-grid img {
 		border-radius: 0.75rem;
 	}
-	.family-3d-design .closing-section {
-		background:
-			radial-gradient(
-				circle at 75% 20%,
-				color-mix(in srgb, var(--color-accent) 35%, transparent),
-				transparent 25%
-			),
-			linear-gradient(
-				145deg,
-				color-mix(in srgb, var(--color-text) 82%, var(--color-primary)),
-				var(--color-text)
-			);
-	}
 	.family-3d-design.variant-2 {
 		background-image:
 			radial-gradient(
@@ -1671,7 +1676,8 @@
 		overflow: hidden;
 		padding-block: clamp(1.25rem, 4svh, 3rem);
 	}
-	.theme-canvas .hero::after {
+	.theme-canvas .hero::after,
+	.theme-canvas .closing-section::after {
 		position: absolute;
 		z-index: 1;
 		inset: 0;
@@ -1754,10 +1760,36 @@
 		aspect-ratio: auto;
 		object-fit: cover;
 	}
+	.theme-canvas .closing-section > .cover-frame {
+		position: absolute;
+		z-index: 0;
+		inset: 0;
+		width: 100%;
+		max-width: none;
+		margin: 0;
+		border: 0;
+		border-radius: 0;
+		background: var(--color-background);
+		box-shadow: none;
+		padding: 0;
+		rotate: none;
+	}
+	.theme-canvas .closing-section > .cover-frame img,
+	.theme-canvas .closing-section > .cover-frame .cover-placeholder {
+		width: 100%;
+		height: 100%;
+		border-radius: 0;
+		aspect-ratio: auto;
+		object-fit: cover;
+	}
+	.theme-canvas .closing-section > .cover-frame img {
+		filter: brightness(0.55);
+	}
 	.theme-canvas .hero > .decoration {
 		display: none;
 	}
-	.family-3d-design.variant-2 .hero::after {
+	.family-3d-design.variant-2 .hero::after,
+	.family-3d-design.variant-2 .closing-section::after {
 		background:
 			radial-gradient(
 				circle at 78% 18%,
@@ -1788,7 +1820,8 @@
 			0 1.1rem 2.6rem color-mix(in srgb, var(--color-accent) 24%, transparent);
 		color: var(--color-text);
 	}
-	.family-3d-design.variant-3 .hero::after {
+	.family-3d-design.variant-3 .hero::after,
+	.family-3d-design.variant-3 .closing-section::after {
 		background:
 			radial-gradient(
 				circle at 20% 16%,

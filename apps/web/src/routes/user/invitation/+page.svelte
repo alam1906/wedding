@@ -28,6 +28,7 @@
 	type GuestSortField = 'name' | 'created_at';
 	type SortDirection = 'ascending' | 'descending';
 	type GuestStatusFilter = 'all' | GuestStatus;
+	type GuestAction = 'share' | 'copy' | 'edit' | 'preview' | 'delete';
 	const guestStatusOptions = [
 		{ value: 'all', label: 'Semua status' },
 		{ value: 'pending', label: 'Menunggu' },
@@ -57,6 +58,9 @@
 	let guestStatusFilter = $state<GuestStatusFilter>('all');
 	let statusMenuOpen = $state(false);
 	let statusMenuButton: HTMLButtonElement | undefined;
+	let guestActionMenuGuest = $state<Guest | null>(null);
+	let guestActionMenuButton: HTMLButtonElement | undefined;
+	let guestActionMenuPosition = $state({ top: 0, left: 0 });
 	let guestDialog: HTMLDialogElement | undefined;
 	let csvDialog: HTMLDialogElement | undefined;
 	let deleteDialog: HTMLDialogElement | undefined;
@@ -152,6 +156,73 @@
 			document.removeEventListener('keydown', handleKeydown);
 		};
 	};
+
+	const attachGuestActionMenu: Attachment<HTMLDivElement> = (element) => {
+		const handlePointerDown = (event: PointerEvent) => {
+			const target = event.target;
+			if (!(target instanceof Element)) return;
+			if (element.contains(target) || target.closest('[data-guest-actions-trigger]')) return;
+
+			closeGuestActionMenu();
+		};
+		const handleKeydown = (event: KeyboardEvent) => {
+			if (event.key !== 'Escape') return;
+
+			closeGuestActionMenu(true);
+		};
+		const handleViewportChange = () => closeGuestActionMenu();
+
+		document.addEventListener('pointerdown', handlePointerDown);
+		document.addEventListener('keydown', handleKeydown);
+		window.addEventListener('resize', handleViewportChange);
+		window.addEventListener('scroll', handleViewportChange, true);
+
+		return () => {
+			document.removeEventListener('pointerdown', handlePointerDown);
+			document.removeEventListener('keydown', handleKeydown);
+			window.removeEventListener('resize', handleViewportChange);
+			window.removeEventListener('scroll', handleViewportChange, true);
+		};
+	};
+
+	function closeGuestActionMenu(restoreFocus = false) {
+		const button = guestActionMenuButton;
+		guestActionMenuGuest = null;
+		guestActionMenuButton = undefined;
+
+		if (restoreFocus) button?.focus();
+	}
+
+	function toggleGuestActionMenu(event: MouseEvent, guest: Guest) {
+		const button = event.currentTarget;
+		if (!(button instanceof HTMLButtonElement)) return;
+
+		if (guestActionMenuGuest?.id === guest.id) {
+			closeGuestActionMenu(true);
+			return;
+		}
+
+		const rect = button.getBoundingClientRect();
+		const menuWidth = 164;
+		const menuHeight = 224;
+		const viewportPadding = 12;
+		const gap = 8;
+		let top = rect.bottom + gap;
+
+		if (top + menuHeight > window.innerHeight - viewportPadding) {
+			top = Math.max(viewportPadding, rect.top - menuHeight - gap);
+		}
+
+		guestActionMenuButton = button;
+		guestActionMenuPosition = {
+			top,
+			left: Math.min(
+				window.innerWidth - menuWidth - viewportPadding,
+				Math.max(viewportPadding, rect.right - menuWidth)
+			)
+		};
+		guestActionMenuGuest = guest;
+	}
 
 	function selectGuestStatus(status: GuestStatusFilter) {
 		guestStatusFilter = status;
@@ -560,6 +631,27 @@
 		window.open(guestInvitationUrl(guest), '_blank', 'noopener,noreferrer');
 	}
 
+	async function copyGuestInvitationLink(guest: Guest) {
+		if (!hasGuestInvitationUrl(guest)) return;
+
+		try {
+			await navigator.clipboard.writeText(guestInvitationUrl(guest));
+			toast.success('Tautan undangan berhasil disalin.');
+		} catch {
+			toast.error('Tautan undangan gagal disalin.');
+		}
+	}
+
+	function runGuestAction(action: GuestAction, guest: Guest) {
+		closeGuestActionMenu();
+
+		if (action === 'share') shareInvitation(guest);
+		else if (action === 'copy') void copyGuestInvitationLink(guest);
+		else if (action === 'edit') openEditForm(guest);
+		else if (action === 'preview') openGuestInvitation(guest);
+		else openDeleteDialog(guest);
+	}
+
 	function shareInvitation(guest: Guest) {
 		if (!hasGuestInvitationUrl(guest)) return;
 
@@ -639,7 +731,7 @@
 						type="submit"
 						disabled={isSaving}
 						aria-busy={isSaving}
-						class="cursor-pointer rounded-xl bg-gray-900 px-5 py-3 text-sm font-semibold text-white transition disabled:cursor-not-allowed disabled:opacity-60"
+						class="cursor-pointer rounded-xl bg-linear-to-r from-[#9400ff] to-[#7200e8] px-5 py-3 text-sm font-semibold text-white transition disabled:cursor-not-allowed disabled:opacity-60"
 					>
 						{isSaving
 							? 'Sedang menyimpan...'
@@ -743,7 +835,7 @@
 						type="submit"
 						disabled={isReadingCsv || isImportingCsv || importableCsvRows.length === 0}
 						aria-busy={isImportingCsv}
-						class="cursor-pointer rounded-xl bg-gray-900 px-5 py-3 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
+						class="cursor-pointer rounded-xl bg-linear-to-r from-[#9400ff] to-[#7200e8] px-5 py-3 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
 					>
 						{isImportingCsv
 							? 'Mengimpor...'
@@ -865,9 +957,7 @@
 
 					<div>
 						<p class="text-xs font-bold tracking-[0.16em] text-gray-500 uppercase">Pratinjau</p>
-						<div
-							class="mt-3 overflow-hidden rounded-3xl border border-[#d5ddd7] bg-[#efeae2] shadow-sm"
-						>
+						<div class="mt-3 overflow-hidden rounded-3xl border border-[#d5ddd7] bg-[#efeae2]">
 							<div class="flex items-center gap-3 bg-[#075e54] px-4 py-3 text-white">
 								<span
 									class="grid size-9 place-items-center rounded-full bg-white/15 text-sm font-bold"
@@ -915,7 +1005,7 @@
 						type="submit"
 						disabled={isSavingTemplate || !templateIsDirty}
 						aria-busy={isSavingTemplate}
-						class="cursor-pointer rounded-xl bg-gray-900 px-5 py-3 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
+						class="cursor-pointer rounded-xl bg-linear-to-r from-[#9400ff] to-[#7200e8] px-5 py-3 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
 					>
 						{isSavingTemplate ? 'Menyimpan...' : 'Simpan template'}
 					</button>
@@ -923,7 +1013,7 @@
 			</form>
 		</dialog>
 
-		<div class="rounded-2xl border border-gray-200 bg-white shadow-sm">
+		<div class="rounded-2xl border border-gray-200 bg-white">
 			<div class="border-b border-gray-200 p-5 sm:p-6">
 				<div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
 					<div class="flex min-w-0 items-center gap-3">
@@ -1063,7 +1153,7 @@
 							type="button"
 							onclick={openCreateForm}
 							title="Tambah tamu"
-							class="inline-flex size-11 cursor-pointer items-center justify-center rounded-xl bg-gray-900 text-sm font-semibold text-white transition lg:h-auto lg:w-auto lg:px-5 lg:py-3"
+							class="inline-flex size-11 cursor-pointer items-center justify-center rounded-xl bg-linear-to-r from-[#9400ff] to-[#7200e8] text-sm font-semibold text-white transition lg:h-auto lg:w-auto lg:px-5 lg:py-3"
 						>
 							<svg
 								aria-hidden="true"
@@ -1178,85 +1268,28 @@
 									{formatGuestDate(guest.created_at)}
 								</td>
 								<td class="px-6 py-4">
-									<div class="flex justify-end gap-2">
+									<div class="flex justify-end">
 										<button
 											type="button"
-											onclick={() => shareInvitation(guest)}
-											aria-label={`Kirim undangan WhatsApp ke ${guest.name}`}
-											title="Kirim lewat WhatsApp"
-											class="grid size-9 cursor-pointer place-items-center rounded-lg bg-green-50 text-green-700 transition"
+											data-guest-actions-trigger
+											onclick={(event) => toggleGuestActionMenu(event, guest)}
+											aria-label={`Buka aksi untuk ${guest.name}`}
+											aria-haspopup="menu"
+											aria-expanded={guestActionMenuGuest?.id === guest.id}
+											aria-controls={guestActionMenuGuest?.id === guest.id
+												? 'guest-action-menu'
+												: undefined}
+											class="grid size-9 cursor-pointer place-items-center rounded-lg bg-violet-100 text-[#9400ff] transition"
 										>
 											<svg
 												aria-hidden="true"
-												class="size-4"
+												class="size-5"
 												viewBox="0 0 24 24"
-												fill="none"
-												stroke="currentColor"
-												stroke-width="1.8"
-												stroke-linecap="round"
-												stroke-linejoin="round"
+												fill="currentColor"
 											>
-												<path d="M20 11.5a8 8 0 0 1-11.8 7L4 20l1.5-4.1A8 8 0 1 1 20 11.5Z"></path>
-												<path d="M9 8.5c.3 2.6 2 4.3 4.5 5l1-1c.2-.2.5-.3.8-.1l1.7.8"></path>
-											</svg>
-										</button>
-										<button
-											type="button"
-											onclick={() => openGuestInvitation(guest)}
-											aria-label={`Buka link undangan untuk ${guest.name}`}
-											title="Buka link undangan"
-											class="grid size-9 cursor-pointer place-items-center rounded-lg bg-blue-50 text-blue-700 transition"
-										>
-											<svg
-												aria-hidden="true"
-												class="size-4"
-												viewBox="0 0 24 24"
-												fill="none"
-												stroke="currentColor"
-												stroke-width="1.8"
-												stroke-linecap="round"
-												stroke-linejoin="round"
-											>
-												<path d="M10 13a5 5 0 0 0 7.1.1l2-2a5 5 0 0 0-7.1-7.1l-1.1 1.1"></path>
-												<path d="M14 11a5 5 0 0 0-7.1-.1l-2 2a5 5 0 0 0 7.1 7.1l1.1-1.1"></path>
-											</svg>
-										</button>
-										<button
-											type="button"
-											onclick={() => openEditForm(guest)}
-											aria-label={`Edit ${guest.name}`}
-											title="Edit tamu"
-											class="grid size-9 cursor-pointer place-items-center rounded-lg bg-gray-100 text-gray-700 transition"
-										>
-											<svg
-												aria-hidden="true"
-												class="size-4"
-												viewBox="0 0 24 24"
-												fill="none"
-												stroke="currentColor"
-												stroke-width="1.8"
-											>
-												<path d="m14 5 5 5M4 20l3.5-.7L19 7.8a2.1 2.1 0 0 0-3-3L4.7 16.5 4 20Z"
-												></path>
-											</svg>
-										</button>
-										<button
-											type="button"
-											onclick={() => openDeleteDialog(guest)}
-											disabled={deletingIds.includes(guest.id)}
-											aria-label={`Hapus ${guest.name}`}
-											title="Hapus tamu"
-											class="grid size-9 cursor-pointer place-items-center rounded-lg bg-red-50 text-red-600 transition disabled:cursor-not-allowed disabled:opacity-50"
-										>
-											<svg
-												aria-hidden="true"
-												class="size-4"
-												viewBox="0 0 24 24"
-												fill="none"
-												stroke="currentColor"
-												stroke-width="1.8"
-											>
-												<path d="M4 7h16M9 7V4h6v3M7 7l1 13h8l1-13M10 11v5M14 11v5"></path>
+												<circle cx="12" cy="5" r="1.7"></circle>
+												<circle cx="12" cy="12" r="1.7"></circle>
+												<circle cx="12" cy="19" r="1.7"></circle>
 											</svg>
 										</button>
 									</div>
@@ -1288,82 +1321,23 @@
 								)}">{statusLabel(guest.rsvp_status)}</span
 							>
 						</div>
-						<div class="mt-4 flex justify-end gap-2">
+						<div class="mt-4 flex justify-end">
 							<button
 								type="button"
-								onclick={() => shareInvitation(guest)}
-								aria-label={`Kirim undangan WhatsApp ke ${guest.name}`}
-								title="Kirim lewat WhatsApp"
-								class="grid size-10 cursor-pointer place-items-center rounded-xl bg-green-50 text-green-700"
+								data-guest-actions-trigger
+								onclick={(event) => toggleGuestActionMenu(event, guest)}
+								aria-label={`Buka aksi untuk ${guest.name}`}
+								aria-haspopup="menu"
+								aria-expanded={guestActionMenuGuest?.id === guest.id}
+								aria-controls={guestActionMenuGuest?.id === guest.id
+									? 'guest-action-menu'
+									: undefined}
+								class="grid size-10 cursor-pointer place-items-center rounded-xl bg-violet-100 text-[#9400ff]"
 							>
-								<svg
-									aria-hidden="true"
-									class="size-5"
-									viewBox="0 0 24 24"
-									fill="none"
-									stroke="currentColor"
-									stroke-width="1.8"
-									stroke-linecap="round"
-									stroke-linejoin="round"
-								>
-									<path d="M20 11.5a8 8 0 0 1-11.8 7L4 20l1.5-4.1A8 8 0 1 1 20 11.5Z"></path>
-									<path d="M9 8.5c.3 2.6 2 4.3 4.5 5l1-1c.2-.2.5-.3.8-.1l1.7.8"></path>
-								</svg>
-							</button>
-							<button
-								type="button"
-								onclick={() => openGuestInvitation(guest)}
-								aria-label={`Buka link undangan untuk ${guest.name}`}
-								title="Buka link undangan"
-								class="grid size-10 cursor-pointer place-items-center rounded-xl bg-blue-50 text-blue-700"
-							>
-								<svg
-									aria-hidden="true"
-									class="size-5"
-									viewBox="0 0 24 24"
-									fill="none"
-									stroke="currentColor"
-									stroke-width="1.8"
-									stroke-linecap="round"
-									stroke-linejoin="round"
-								>
-									<path d="M10 13a5 5 0 0 0 7.1.1l2-2a5 5 0 0 0-7.1-7.1l-1.1 1.1"></path>
-									<path d="M14 11a5 5 0 0 0-7.1-.1l-2 2a5 5 0 0 0 7.1 7.1l1.1-1.1"></path>
-								</svg>
-							</button>
-							<button
-								type="button"
-								onclick={() => openEditForm(guest)}
-								aria-label={`Edit ${guest.name}`}
-								class="grid size-10 cursor-pointer place-items-center rounded-xl bg-gray-100 text-gray-700"
-							>
-								<svg
-									aria-hidden="true"
-									class="size-5"
-									viewBox="0 0 24 24"
-									fill="none"
-									stroke="currentColor"
-									stroke-width="1.8"
-								>
-									<path d="m14 5 5 5M4 20l3.5-.7L19 7.8a2.1 2.1 0 0 0-3-3L4.7 16.5 4 20Z"></path>
-								</svg>
-							</button>
-							<button
-								type="button"
-								onclick={() => openDeleteDialog(guest)}
-								disabled={deletingIds.includes(guest.id)}
-								aria-label={`Hapus ${guest.name}`}
-								class="grid size-10 cursor-pointer place-items-center rounded-xl bg-red-50 text-red-600 disabled:cursor-not-allowed disabled:opacity-50"
-							>
-								<svg
-									aria-hidden="true"
-									class="size-5"
-									viewBox="0 0 24 24"
-									fill="none"
-									stroke="currentColor"
-									stroke-width="1.8"
-								>
-									<path d="M4 7h16M9 7V4h6v3M7 7l1 13h8l1-13M10 11v5M14 11v5"></path>
+								<svg aria-hidden="true" class="size-5" viewBox="0 0 24 24" fill="currentColor">
+									<circle cx="12" cy="5" r="1.7"></circle>
+									<circle cx="12" cy="12" r="1.7"></circle>
+									<circle cx="12" cy="19" r="1.7"></circle>
 								</svg>
 							</button>
 						</div>
@@ -1374,6 +1348,122 @@
 			</div>
 		</div>
 	</div>
+
+	{#if guestActionMenuGuest}
+		{@const selectedGuest = guestActionMenuGuest}
+		<div
+			{@attach attachGuestActionMenu}
+			id="guest-action-menu"
+			role="menu"
+			aria-label={`Aksi untuk ${selectedGuest.name}`}
+			class="fixed z-50 w-41 rounded-xl border border-gray-200 bg-white p-1.5 shadow-xl"
+			style:top={`${guestActionMenuPosition.top}px`}
+			style:left={`${guestActionMenuPosition.left}px`}
+		>
+			<button
+				type="button"
+				role="menuitem"
+				onclick={() => runGuestAction('share', selectedGuest)}
+				class="flex w-full cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm font-medium text-gray-800 hover:bg-gray-50"
+			>
+				<svg
+					aria-hidden="true"
+					class="size-4.5 shrink-0"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="1.8"
+					stroke-linecap="round"
+					stroke-linejoin="round"
+				>
+					<path d="m3 11 18-8-8 18-2.5-7.5L3 11Z"></path>
+					<path d="m10.5 13.5 4-4"></path>
+				</svg>
+				Kirim
+			</button>
+			<button
+				type="button"
+				role="menuitem"
+				onclick={() => runGuestAction('copy', selectedGuest)}
+				class="flex w-full cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm font-medium text-gray-800 hover:bg-gray-50"
+			>
+				<svg
+					aria-hidden="true"
+					class="size-4.5 shrink-0"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="1.8"
+				>
+					<rect x="8" y="8" width="12" height="12" rx="2"></rect>
+					<path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"></path>
+				</svg>
+				Salin Tautan
+			</button>
+			<button
+				type="button"
+				role="menuitem"
+				onclick={() => runGuestAction('edit', selectedGuest)}
+				class="flex w-full cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm font-medium text-gray-800 hover:bg-gray-50"
+			>
+				<svg
+					aria-hidden="true"
+					class="size-4.5 shrink-0"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="1.8"
+					stroke-linecap="round"
+					stroke-linejoin="round"
+				>
+					<path d="m14 5 5 5M4 20l3.5-.7L19 7.8a2.1 2.1 0 0 0-3-3L4.7 16.5 4 20Z"></path>
+				</svg>
+				Sunting
+			</button>
+			<button
+				type="button"
+				role="menuitem"
+				onclick={() => runGuestAction('preview', selectedGuest)}
+				class="flex w-full cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm font-medium text-gray-800 hover:bg-gray-50"
+			>
+				<svg
+					aria-hidden="true"
+					class="size-4.5 shrink-0"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="1.8"
+					stroke-linecap="round"
+					stroke-linejoin="round"
+				>
+					<path d="M14 4h6v6M20 4l-9 9"></path>
+					<path d="M18 13v6a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h6"></path>
+				</svg>
+				Pratinjau
+			</button>
+			<button
+				type="button"
+				role="menuitem"
+				disabled={deletingIds.includes(selectedGuest.id)}
+				onclick={() => runGuestAction('delete', selectedGuest)}
+				class="flex w-full cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm font-medium text-red-600 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
+			>
+				<svg
+					aria-hidden="true"
+					class="size-4.5 shrink-0"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="1.8"
+					stroke-linecap="round"
+					stroke-linejoin="round"
+				>
+					<path d="M4 7h16M9 7V4h6v3M7 7l1 13h8l1-13M10 11v5M14 11v5"></path>
+				</svg>
+				Hapus
+			</button>
+		</div>
+	{/if}
 </section>
 
 <style>

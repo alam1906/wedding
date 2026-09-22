@@ -248,7 +248,7 @@
 				type="submit"
 				disabled={isSubmitting}
 				aria-busy={isSubmitting}
-				class="w-full rounded-xl bg-gray-900 px-4 py-3 text-sm font-semibold text-white transition hover:bg-gray-700 focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-gray-500"
+				class="w-full cursor-pointer rounded-xl bg-linear-to-r from-[#9400ff] to-[#7200e8] px-4 py-3 text-sm font-semibold text-white transition focus:ring-2 focus:ring-[#9400ff] focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
 			>
 				{isSubmitting ? (isLogin ? 'Sedang masuk...' : 'Sedang mendaftar...') : content.submitLabel}
 			</button>

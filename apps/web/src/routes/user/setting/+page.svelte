@@ -199,7 +199,7 @@
 
 	<div class="mx-auto flex w-full max-w-6xl flex-col gap-5 lg:grid lg:grid-cols-2 lg:items-start">
 		<div class="contents lg:block lg:space-y-5">
-			<section class="order-1 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm sm:p-6">
+			<section class="order-1 rounded-2xl border border-gray-200 bg-white p-5 sm:p-6">
 				<form onsubmit={handleSaveProfile}>
 					<div
 						class="flex flex-col gap-5 border-b border-gray-200 pb-6 min-[420px]:flex-row min-[420px]:items-center"
@@ -252,7 +252,7 @@
 							type="submit"
 							disabled={!canSaveProfile}
 							aria-busy={isSavingProfile}
-							class="cursor-pointer rounded-xl bg-gray-900 px-5 py-3 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
+							class="cursor-pointer rounded-xl bg-linear-to-r from-[#9400ff] to-[#7200e8] px-5 py-3 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
 						>
 							{isSavingProfile ? 'Menyimpan...' : 'Simpan profil'}
 						</button>
@@ -260,7 +260,7 @@
 				</form>
 			</section>
 
-			<section class="order-3 rounded-2xl border border-red-200 bg-red-50/30 p-5 shadow-sm sm:p-6">
+			<section class="order-3 rounded-2xl border border-red-200 bg-red-50/30 p-5 sm:p-6">
 				<h2 class="text-lg font-bold text-gray-900">Hapus akun</h2>
 				<p class="mt-2 text-sm leading-6 text-gray-500">
 					Semua undangan dan data tamu akan dihapus secara permanen.
@@ -275,7 +275,7 @@
 		</div>
 
 		<div class="contents lg:block">
-			<section class="order-2 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm sm:p-6">
+			<section class="order-2 rounded-2xl border border-gray-200 bg-white p-5 sm:p-6">
 				<h2 class="text-lg font-bold text-gray-900">Keamanan</h2>
 				<p class="mt-1 text-sm text-gray-500">Perbarui kata sandi akun secara berkala.</p>
 				<div class="mt-5 space-y-4">
@@ -296,7 +296,7 @@
 				</div>
 				<button
 					type="button"
-					class="mt-5 w-full cursor-pointer rounded-xl bg-gray-900 px-4 py-3 text-sm font-semibold text-white"
+					class="mt-5 w-full cursor-pointer rounded-xl bg-linear-to-r from-[#9400ff] to-[#7200e8] px-4 py-3 text-sm font-semibold text-white"
 					>Ubah kata sandi</button
 				>
 			</section>

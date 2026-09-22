@@ -112,9 +112,7 @@
 <section class="px-4 py-8 sm:px-6 lg:px-10 lg:py-10">
 	<div class="mx-auto w-full max-w-6xl">
 		<div class="grid w-full min-w-0 gap-5 lg:grid-cols-2">
-			<article
-				class="flex min-w-0 items-center rounded-2xl border border-gray-200 bg-white p-5 shadow-sm"
-			>
+			<article class="flex min-w-0 items-center rounded-2xl border border-gray-200 bg-white p-5">
 				<div class="flex w-full min-w-0 items-center justify-between gap-4">
 					<div class="flex min-w-0 items-center gap-3">
 						<span
@@ -173,9 +171,7 @@
 				</div>
 			</article>
 
-			<article
-				class="flex min-w-0 items-center rounded-2xl border border-gray-200 bg-white p-5 shadow-sm"
-			>
+			<article class="flex min-w-0 items-center rounded-2xl border border-gray-200 bg-white p-5">
 				<div class="flex w-full flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
 					<div>
 						<p class="text-sm font-medium text-gray-500">Paket aktif</p>
@@ -199,7 +195,7 @@
 			</article>
 		</div>
 
-		<article class="mt-5 w-full rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+		<article class="mt-5 w-full rounded-2xl border border-gray-200 bg-white p-6">
 			<div class="grid gap-5 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start">
 				<div>
 					<p class="text-sm font-medium text-gray-500">Kelengkapan undangan</p>
@@ -225,7 +221,7 @@
 					aria-valuenow={progressPercentage}
 				>
 					<div
-						class="h-full rounded-full bg-yellow-400 transition-[width] duration-500"
+						class="h-full rounded-full bg-linear-to-r from-[#9400ff] to-[#7200e8] transition-[width] duration-500"
 						style:width={`${progressPercentage}%`}
 					></div>
 				</div>
@@ -238,7 +234,7 @@
 			</div>
 		</article>
 
-		<article class="mt-5 w-full rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+		<article class="mt-5 w-full rounded-2xl border border-gray-200 bg-white p-5">
 			<h2 class="text-lg font-bold text-gray-900">Tamu</h2>
 			<div class="mt-4 grid grid-cols-1 gap-3 min-[420px]:grid-cols-2 lg:grid-cols-4">
 				{#each stats as stat (stat.label)}

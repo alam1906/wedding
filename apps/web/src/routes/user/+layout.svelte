@@ -1,8 +1,9 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
-	import { onDestroy } from 'svelte';
-	import { logout } from '#lib/features/auth/index.js';
+	import { onDestroy, onMount } from 'svelte';
+	import type { Attachment } from 'svelte/attachments';
+	import { getAuthenticatedEmail, getAuthenticatedName, logout } from '#lib/features/auth/index.js';
 	import { GuestState, setGuestContext } from '#lib/features/guests/index.js';
 	import { MusicOptionsState, setMusicOptionsContext } from '#lib/features/musics/index.js';
 	import { setWeddingContext, WeddingState } from '#lib/features/weddings/index.js';
@@ -28,7 +29,16 @@
 	const musicOptions = setMusicOptionsContext(new MusicOptionsState());
 	const wedding = setWeddingContext(new WeddingState());
 	let menuOpen = $state(false);
+	let profileMenuOpen = $state(false);
+	let profileMenuButton: HTMLButtonElement | undefined;
+	let profileName = $state('');
+	let profileEmail = $state('');
 	let isLoggingOut = $state(false);
+	let profileInitial = $derived(
+		(profileName.trim().charAt(0) || profileEmail.trim().charAt(0) || 'W').toLocaleUpperCase(
+			'id-ID'
+		)
+	);
 
 	function resetUserState() {
 		guests.reset();
@@ -37,6 +47,31 @@
 	}
 
 	onDestroy(resetUserState);
+	onMount(() => {
+		profileName = getAuthenticatedName();
+		profileEmail = getAuthenticatedEmail();
+	});
+
+	const attachProfileMenu: Attachment<HTMLDivElement> = (element) => {
+		const handlePointerDown = (event: PointerEvent) => {
+			const target = event.target;
+			if (target instanceof Node && !element.contains(target)) profileMenuOpen = false;
+		};
+		const handleKeydown = (event: KeyboardEvent) => {
+			if (event.key !== 'Escape' || !profileMenuOpen) return;
+
+			profileMenuOpen = false;
+			profileMenuButton?.focus();
+		};
+
+		document.addEventListener('pointerdown', handlePointerDown);
+		document.addEventListener('keydown', handleKeydown);
+
+		return () => {
+			document.removeEventListener('pointerdown', handlePointerDown);
+			document.removeEventListener('keydown', handleKeydown);
+		};
+	};
 
 	async function handleLogout() {
 		if (isLoggingOut) {
@@ -45,6 +80,7 @@
 
 		isLoggingOut = true;
 		menuOpen = false;
+		profileMenuOpen = false;
 		resetUserState();
 		logout();
 		await goto('/login', { replaceState: true });
@@ -58,7 +94,7 @@
 		const base = 'flex items-center gap-3 rounded-xl px-4 py-3 text-sm transition';
 
 		return isActive(href)
-			? `${base} bg-gray-200 font-semibold text-gray-900`
+			? `${base} bg-linear-to-r from-[#9400ff] to-[#7200e8] font-semibold text-white`
 			: `${base} font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900`;
 	}
 
@@ -84,7 +120,7 @@
 			<div class="relative flex items-center justify-center px-3">
 				<a
 					href="/user/dashboard"
-					class="bg-linear-to-r from-red-500 to-yellow-500 bg-clip-text text-xl font-bold tracking-tight text-transparent"
+					class="bg-linear-to-r from-[#9400ff] to-[#7200e8] bg-clip-text text-xl font-bold tracking-tight text-transparent"
 				>
 					WEDEZ
 				</a>
@@ -125,18 +161,6 @@
 					</a>
 				{/each}
 			</nav>
-
-			<div class="mt-auto border-t border-gray-200 pt-5">
-				<button
-					type="button"
-					disabled={isLoggingOut}
-					aria-busy={isLoggingOut}
-					onclick={handleLogout}
-					class="w-full rounded-xl bg-red-600 px-4 py-3 text-center text-sm font-semibold text-white transition hover:bg-red-700"
-				>
-					{isLoggingOut ? 'Sedang keluar...' : 'Logout'}
-				</button>
-			</div>
 		</div>
 	</aside>
 
@@ -148,7 +172,10 @@
 				type="button"
 				aria-label="Buka menu"
 				aria-expanded={menuOpen}
-				onclick={() => (menuOpen = true)}
+				onclick={() => {
+					menuOpen = true;
+					profileMenuOpen = false;
+				}}
 				class="grid size-10 place-items-center rounded-xl bg-gray-100 text-gray-700 transition hover:bg-gray-200 md:hidden"
 			>
 				<span class="flex w-5 flex-col gap-1.5" aria-hidden="true">
@@ -158,6 +185,84 @@
 				</span>
 			</button>
 			<span class="text-xl font-bold tracking-tight text-gray-900">{currentMenuTitle}</span>
+
+			<div {@attach attachProfileMenu} class="relative ml-auto">
+				<button
+					bind:this={profileMenuButton}
+					type="button"
+					onclick={() => (profileMenuOpen = !profileMenuOpen)}
+					aria-label="Buka menu profil"
+					aria-haspopup="menu"
+					aria-expanded={profileMenuOpen}
+					aria-controls={profileMenuOpen ? 'profile-menu' : undefined}
+					class="grid size-10 cursor-pointer place-items-center rounded-full bg-linear-to-br from-[#9400ff] to-[#7200e8] text-sm font-bold text-white"
+				>
+					{profileInitial}
+				</button>
+
+				{#if profileMenuOpen}
+					<div
+						id="profile-menu"
+						role="menu"
+						aria-label="Menu profil"
+						class="absolute top-full right-0 z-40 mt-2 w-62 rounded-xl border border-gray-200 bg-white p-3 shadow-xl"
+					>
+						<div class="px-2 pt-1 pb-3">
+							<p class="truncate text-sm font-bold text-gray-900">
+								{profileName || 'Pengguna Wedez'}
+							</p>
+							<p class="mt-1 truncate text-sm text-gray-500">
+								{profileEmail || 'Email tidak tersedia'}
+							</p>
+						</div>
+						<a
+							href="/user/setting"
+							role="menuitem"
+							onclick={() => (profileMenuOpen = false)}
+							class="flex items-center gap-3 rounded-lg px-2 py-2.5 text-sm font-medium text-gray-800 transition hover:bg-gray-50"
+						>
+							<svg
+								aria-hidden="true"
+								class="size-5 shrink-0"
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="1.8"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+							>
+								<circle cx="12" cy="8" r="3.5"></circle>
+								<path d="M5.5 21v-2.5a6.5 6.5 0 0 1 13 0V21"></path>
+							</svg>
+							Profil Saya
+						</a>
+						<button
+							type="button"
+							role="menuitem"
+							disabled={isLoggingOut}
+							aria-busy={isLoggingOut}
+							onclick={handleLogout}
+							class="flex w-full cursor-pointer items-center gap-3 rounded-lg px-2 py-2.5 text-left text-sm font-medium text-red-500 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
+						>
+							<svg
+								aria-hidden="true"
+								class="size-5 shrink-0"
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="1.8"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+							>
+								<path d="M14 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h7a2 2 0 0 0 2-2v-3"
+								></path>
+								<path d="M10 12h11M18 9l3 3-3 3"></path>
+							</svg>
+							{isLoggingOut ? 'Sedang keluar...' : 'Keluar'}
+						</button>
+					</div>
+				{/if}
+			</div>
 		</header>
 
 		{@render children()}
@@ -196,7 +301,7 @@
 	.user-form-scope :global(select),
 	.user-form-scope :global([contenteditable='true']),
 	.user-form-scope :global([data-form-control]) {
-		border-color: var(--color-gray-400);
+		border-color: #cbd5e1;
 	}
 
 	.user-form-scope :global(input::placeholder),
@@ -217,7 +322,7 @@
 	.user-form-scope :global([contenteditable='true']:active),
 	.user-form-scope :global([data-form-control]:focus-within),
 	.user-form-scope :global([data-form-control]:active) {
-		border-color: var(--color-blue-500);
+		border-color: #9400ff;
 		outline: none;
 		box-shadow: none;
 	}
