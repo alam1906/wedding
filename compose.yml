@@ -21,12 +21,12 @@ services:
       - 'traefik.docker.network=dokploy-network'
       - 'traefik.http.middlewares.wedez-invitation-https.redirectscheme.scheme=https'
       - 'traefik.http.middlewares.wedez-invitation-https.redirectscheme.permanent=true'
-      - 'traefik.http.routers.wedez-invitation-http.rule=HostRegexp(`[a-z0-9-]+[.]onlytest[.]my[.]id`)'
+      - 'traefik.http.routers.wedez-invitation-http.rule=HostRegexp(`[a-z0-9-]+[.]wedez[.]id`)'
       - 'traefik.http.routers.wedez-invitation-http.entrypoints=web'
       - 'traefik.http.routers.wedez-invitation-http.priority=1'
       - 'traefik.http.routers.wedez-invitation-http.middlewares=wedez-invitation-https'
       - 'traefik.http.routers.wedez-invitation-http.service=wedez-invitation'
-      - 'traefik.http.routers.wedez-invitation-websecure.rule=HostRegexp(`[a-z0-9-]+[.]onlytest[.]my[.]id`)'
+      - 'traefik.http.routers.wedez-invitation-websecure.rule=HostRegexp(`[a-z0-9-]+[.]wedez[.]id`)'
       - 'traefik.http.routers.wedez-invitation-websecure.entrypoints=websecure'
       - 'traefik.http.routers.wedez-invitation-websecure.priority=1'
       - 'traefik.http.routers.wedez-invitation-websecure.tls=true'
@@ -40,8 +40,8 @@ services:
     stop_grace_period: 30s
     environment:
       PB_ENCRYPTION_KEY: ${PB_ENCRYPTION_KEY:?Set PB_ENCRYPTION_KEY sepanjang 32 karakter}
-      WEDEZ_APP_URL: ${WEDEZ_APP_URL:-https://wedding.onlytest.my.id}
-      WEDEZ_API_URL: ${WEDEZ_API_URL:-https://api-wedding.onlytest.my.id}
+      WEDEZ_APP_URL: ${WEDEZ_APP_URL:-https://wedez.id}
+      WEDEZ_API_URL: ${WEDEZ_API_URL:-https://api.wedez.id}
       WEDEZ_PRO_PRICE: ${WEDEZ_PRO_PRICE:-50000}
       DUITKU_ENV: ${DUITKU_ENV:-production}
       DUITKU_MERCHANT_CODE: ${DUITKU_MERCHANT_CODE:?Set DUITKU_MERCHANT_CODE}

@@ -6,6 +6,10 @@ import { defineConfig } from 'vite';
 export default defineConfig({
 	envDir: '../..',
 	envPrefix: ['VITE_', 'PUBLIC_'],
+	server: {
+		port: 5174,
+		strictPort: true
+	},
 	plugins: [
 		tailwindcss(),
 		sveltekit({

@@ -6,12 +6,14 @@ export const WEDDING_COMPLETION_FIELDS = [
 	'groom_photo',
 	'groom_payment_number',
 	'groom_payment_provider',
+	'groom_payment_account_name',
 	'bride_name',
 	'bride_father_name',
 	'bride_mother_name',
 	'bride_photo',
 	'bride_payment_number',
 	'bride_payment_provider',
+	'bride_payment_account_name',
 	'cover',
 	'quote',
 	'address',
@@ -23,6 +25,15 @@ export const WEDDING_COMPLETION_FIELDS = [
 ] as const;
 
 export type WeddingCompletionField = (typeof WEDDING_COMPLETION_FIELDS)[number];
+
+const GIFT_COMPLETION_FIELDS = new Set<WeddingCompletionField>([
+	'groom_payment_number',
+	'groom_payment_provider',
+	'groom_payment_account_name',
+	'bride_payment_number',
+	'bride_payment_provider',
+	'bride_payment_account_name'
+]);
 
 export type WeddingCompletion = {
 	completedFields: number;
@@ -47,12 +58,14 @@ function hasValue(value: unknown): boolean {
 }
 
 export function calculateWeddingCompletion(
-	record: Partial<Record<WeddingCompletionField, unknown>>
+	record: Partial<Record<WeddingCompletionField, unknown>> & { gift_enabled?: boolean }
 ): WeddingCompletion {
-	const totalFields = WEDDING_COMPLETION_FIELDS.length;
-	const completedFields = WEDDING_COMPLETION_FIELDS.filter((field) =>
-		hasValue(record[field])
-	).length;
+	const fields =
+		record.gift_enabled === false
+			? WEDDING_COMPLETION_FIELDS.filter((field) => !GIFT_COMPLETION_FIELDS.has(field))
+			: WEDDING_COMPLETION_FIELDS;
+	const totalFields = fields.length;
+	const completedFields = fields.filter((field) => hasValue(record[field])).length;
 
 	return {
 		completedFields,

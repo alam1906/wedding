@@ -92,5 +92,12 @@ export const WEDDING_THEME_COLORS = {
 		text: '#24344A',
 		primary: '#4C8DFF',
 		accent: '#43D3B5'
+	},
+	nocturne: {
+		background: '#101D23',
+		surface: '#192A30',
+		text: '#F7F0E1',
+		primary: '#D9B77B',
+		accent: '#8EADAA'
 	}
 } as const satisfies Record<WeddingThemeKey, WeddingThemeColors>;

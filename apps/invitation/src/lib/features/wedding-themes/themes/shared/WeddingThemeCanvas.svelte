@@ -19,7 +19,7 @@
 	} from '../../shared/theme-utils.js';
 
 	type ThemeProfile = {
-		family: '3d-design' | 'minimalist' | 'neubrutalism' | 'playful';
+		family: '3d-design' | 'minimalist' | 'neubrutalism' | 'nocturne' | 'playful';
 		name: string;
 		variant: 1 | 2 | 3;
 	};
@@ -40,7 +40,8 @@
 		'playful-3': { family: 'playful', name: 'Fresh', variant: 3 },
 		'3d-design-1': { family: '3d-design', name: 'Romantic Warm', variant: 1 },
 		'3d-design-2': { family: '3d-design', name: 'Elegant', variant: 2 },
-		'3d-design-3': { family: '3d-design', name: 'Fresh', variant: 3 }
+		'3d-design-3': { family: '3d-design', name: 'Fresh', variant: 3 },
+		nocturne: { family: 'nocturne', name: 'Nocturne', variant: 1 }
 	};
 
 	let { wedding, theme }: Props = $props();
@@ -373,7 +374,7 @@
 		</section>
 
 		<section class="quote-section section-shell">
-			<div class="narrow-content" data-reveal>
+			<div class="narrow-content" data-reveal={theme === 'nocturne' ? undefined : ''}>
 				<blockquote>
 					<span class="quote-text"
 						>“{wedding.quote || 'Dua hati, satu perjalanan, dan satu janji untuk selamanya.'}”</span
@@ -491,7 +492,7 @@
 			</dialog>
 		{/if}
 
-		{#if wedding.groom_payment_number || wedding.bride_payment_number}
+		{#if wedding.gift_enabled && (wedding.groom_payment_number || wedding.bride_payment_number)}
 			<section class="gift-section section-shell">
 				<div class="narrow-content">
 					<header class="section-heading" data-reveal>
@@ -504,10 +505,16 @@
 								<small>Untuk {groomName}</small><span class="gift-provider"
 									>{wedding.groom_payment_provider || 'Rekening / e-wallet'}</span
 								><strong>{wedding.groom_payment_number}</strong>
+								{#if wedding.groom_payment_account_name}<small
+										>Atas nama {wedding.groom_payment_account_name}</small
+									>{/if}
 							</article>{/if}{#if wedding.bride_payment_number}<article data-reveal>
 								<small>Untuk {brideName}</small><span class="gift-provider"
 									>{wedding.bride_payment_provider || 'Rekening / e-wallet'}</span
 								><strong>{wedding.bride_payment_number}</strong>
+								{#if wedding.bride_payment_account_name}<small
+										>Atas nama {wedding.bride_payment_account_name}</small
+									>{/if}
 							</article>{/if}
 					</div>
 				</div>
@@ -1850,8 +1857,320 @@
 		color: var(--color-text);
 	}
 
+	.family-nocturne {
+		--color-muted: #c5c7bd;
+		background: var(--color-background);
+		font-family: 'Avenir Next', Avenir, sans-serif;
+	}
+	.family-nocturne > section:not(.hero),
+	.family-nocturne > section:nth-of-type(even) {
+		background:
+			radial-gradient(circle at 8% 5%, #d9b77b16 0, transparent 30rem),
+			linear-gradient(155deg, #101d23, #16282d 56%, #101d23);
+	}
+	.family-nocturne .section-shell:not(.hero):not(.closing-section) {
+		padding-block: clamp(5.5rem, 10vw, 9rem);
+	}
+	.family-nocturne .hero {
+		min-height: 100svh;
+		background: #0b171d;
+	}
+	.family-nocturne .hero::after {
+		background: #071318a6;
+	}
+	.family-nocturne .closing-section::after {
+		background:
+			linear-gradient(90deg, #071318b8, #08151a75 50%, #071318b8),
+			linear-gradient(0deg, #0b171de8, transparent 34%, #0b171d80),
+			radial-gradient(circle at center, transparent, #0b171d75);
+	}
+	.family-nocturne .hero > .cover-frame img {
+		filter: none;
+	}
+	.family-nocturne .hero > .cover-frame .cover-placeholder {
+		background: radial-gradient(circle, #566d68, #15272d 58%, #0b171d);
+		color: #e9d6b7;
+	}
+	.family-nocturne .hero .decoration {
+		z-index: 1;
+		display: block;
+		width: min(25vw, 16rem);
+		border: 1px solid #f7f0e126;
+		border-radius: 50%;
+		background: transparent;
+		box-shadow:
+			0 0 0 1.5rem #d9b77b12,
+			0 0 0 3rem #d9b77b0b;
+		pointer-events: none;
+	}
+	.family-nocturne .decoration-one {
+		top: 8%;
+		left: 5%;
+	}
+	.family-nocturne .decoration-two {
+		right: 5%;
+		bottom: 8%;
+	}
+	.family-nocturne .hero-grid {
+		padding-block: clamp(2rem, 8svh, 6rem);
+	}
+	.family-nocturne .hero-copy {
+		max-width: 56rem;
+		text-shadow: 0 2px 24px #071318;
+	}
+	.family-nocturne .hero-copy .eyebrow,
+	.family-nocturne .section-heading .eyebrow {
+		color: #e9c991;
+		font-size: clamp(0.65rem, 1.5vw, 0.78rem);
+		font-weight: 600;
+		letter-spacing: 0.32em;
+		text-transform: uppercase;
+	}
+	.family-nocturne .hero-copy .eyebrow {
+		color: #f7f0e1;
+		letter-spacing: 0.12em;
+		text-transform: none;
+	}
+	.family-nocturne .hero-copy h1,
+	.family-nocturne .section-heading h2,
+	.family-nocturne blockquote,
+	.family-nocturne .closing-section h2 {
+		font-family: 'Iowan Old Style', 'Baskerville', Georgia, serif;
+		font-weight: 400;
+		letter-spacing: -0.045em;
+	}
+	.family-nocturne .hero-copy h1 {
+		margin-top: 1.1rem;
+		font-size: clamp(3.8rem, 10vw, 8rem);
+		line-height: 0.94;
+	}
+	.family-nocturne .hero-copy h1 .hero-ampersand {
+		margin-block: 0.05em;
+		color: #e9c991;
+		font-size: 0.56em;
+		font-style: italic;
+	}
+	.family-nocturne .hero-copy .hero-intro {
+		margin-top: 2rem;
+		letter-spacing: 0.07em;
+	}
+	.family-nocturne .hero-countdown {
+		--countdown-size: clamp(4.5rem, 12vw, 6.3rem);
+		width: min(100%, 32rem);
+		margin-top: 1.5rem;
+	}
+	.family-nocturne .hero-countdown .countdown-card {
+		border: 1px solid #f7f0e14d;
+		background: #0b171d99;
+		box-shadow:
+			inset 0 0 0 4px #0b171d80,
+			0 0 24px #d9b77b22;
+		color: #f7f0e1;
+		backdrop-filter: blur(8px);
+	}
+	.family-nocturne .countdown-card strong {
+		font-family: 'Iowan Old Style', Georgia, serif;
+		font-size: clamp(1.7rem, 3vw, 2.3rem);
+		font-weight: 400;
+	}
+	.family-nocturne .countdown-card span {
+		color: #e9c991;
+		font-size: 0.65rem;
+		font-weight: 600;
+		letter-spacing: 0.14em;
+	}
+	.family-nocturne .primary-button,
+	.family-nocturne .hero .primary-button {
+		border: 0;
+		border-radius: 0;
+		background: #d9b77b;
+		padding: 0.95rem 2rem;
+		box-shadow: none;
+		color: #101d23;
+		font-size: 0.72rem;
+		font-weight: 700;
+		letter-spacing: 0.18em;
+		text-shadow: none;
+		text-transform: uppercase;
+		transition: background 200ms ease;
+	}
+	.family-nocturne .primary-button:hover,
+	.family-nocturne .primary-button:focus-visible {
+		background: #f0d5a3;
+	}
+	.family-nocturne .primary-button:focus-visible {
+		outline: 2px solid #f7f0e1;
+		outline-offset: 4px;
+	}
+	.family-nocturne .section-heading h2 {
+		color: #f7f0e1;
+		font-size: clamp(3.1rem, 7vw, 6rem);
+		line-height: 1.02;
+	}
+	.family-nocturne .section-heading::after {
+		display: block;
+		width: 5rem;
+		height: 1px;
+		margin: 2rem auto 0;
+		background: #d9b77b;
+		content: '';
+	}
+	.family-nocturne .couple-grid {
+		gap: clamp(2rem, 5vw, 5rem);
+		margin-top: 4.5rem;
+	}
+	.family-nocturne .couple-grid::after {
+		color: #d9b77b;
+		font-style: italic;
+		font-weight: 400;
+		filter: none;
+	}
+	.family-nocturne .person-card img,
+	.family-nocturne .person-placeholder {
+		width: min(75%, 17rem);
+		aspect-ratio: 4 / 5;
+		border: 1px solid #d9b77b;
+		border-radius: 50% 50% 0 0;
+		box-shadow:
+			0 0 0 8px #d9b77b16,
+			0 24px 65px #050e12a8;
+	}
+	.family-nocturne .person-placeholder {
+		background: radial-gradient(circle at 30% 25%, #516a67, #192a30);
+		color: #e9c991;
+		font-family: 'Iowan Old Style', Georgia, serif;
+	}
+	.family-nocturne .person-card h3,
+	.family-nocturne .event-card h3,
+	.family-nocturne .story-card h3 {
+		color: #f7f0e1;
+		font-family: 'Iowan Old Style', Georgia, serif;
+		font-size: clamp(2rem, 3vw, 2.75rem);
+		font-weight: 400;
+	}
+	.family-nocturne .person-card p,
+	.family-nocturne .event-card p,
+	.family-nocturne .story-card p {
+		color: #c5c7bd;
+	}
+	.family-nocturne .event-card,
+	.family-nocturne .story-panel,
+	.family-nocturne .gift-grid article {
+		border: 1px solid #d9b77b61;
+		background: #1b2c31;
+		box-shadow:
+			0 22px 60px #07131880,
+			inset 0 1px #f7f0e118;
+	}
+	.family-nocturne .event-card {
+		padding: clamp(2rem, 5vw, 4rem);
+	}
+	.family-nocturne .event-card .eyebrow,
+	.family-nocturne .gift-grid small {
+		color: #d9b77b;
+	}
+	.family-nocturne .event-card strong {
+		font-size: 1.1rem;
+		font-weight: 500;
+	}
+	.family-nocturne .divider {
+		height: 1px;
+		background: #d9b77b80;
+	}
+	.family-nocturne > .quote-section {
+		min-height: clamp(16rem, 32svh, 22rem);
+		color: #f7f0e1;
+	}
+	.family-nocturne .section-shell.event-section:not(.hero):not(.closing-section) {
+		padding-bottom: clamp(3.5rem, 6vw, 5rem);
+	}
+	.family-nocturne .section-shell.quote-section:not(.hero):not(.closing-section) {
+		padding-block: clamp(3rem, 5vw, 4.5rem);
+	}
+	.family-nocturne .section-shell.story-section:not(.hero):not(.closing-section) {
+		padding-top: clamp(3.5rem, 6vw, 5rem);
+	}
+	.family-nocturne .quote-section blockquote {
+		line-height: 1.28;
+	}
+	.family-nocturne .story-list::before {
+		width: 2px;
+		background: #d9b77b;
+		box-shadow: 0 0 12px #d9b77b80;
+		opacity: 1;
+	}
+	.family-nocturne .story-marker {
+		background: #d9b77b;
+		color: #101d23;
+	}
+	.family-nocturne .story-image {
+		filter: saturate(0.8);
+	}
+	.family-nocturne .story-copy {
+		padding: clamp(1.5rem, 4vw, 2.5rem);
+	}
+	.family-nocturne .story-meta time {
+		color: #d9b77b;
+	}
+	.family-nocturne .gallery-grid figure {
+		border: 1px solid #d9b77b8c;
+		padding: 0.4rem;
+		box-shadow: 0 18px 40px #050e1280;
+	}
+	.family-nocturne .gallery-grid img {
+		filter: saturate(0.8);
+		transition:
+			filter 250ms ease,
+			scale 350ms ease;
+	}
+	.family-nocturne .gallery-grid button:hover img,
+	.family-nocturne .gallery-grid button:focus-visible img {
+		filter: saturate(1);
+		scale: 1.035;
+	}
+	.family-nocturne .gift-grid article {
+		padding: 2rem;
+	}
+	.family-nocturne .gift-provider {
+		font-family: 'Iowan Old Style', Georgia, serif;
+		font-size: 1.7rem;
+		font-weight: 400;
+	}
+	.family-nocturne .closing-section {
+		min-height: 70svh;
+	}
+	.family-nocturne .closing-section p {
+		color: #f7f0e1;
+		font-family: 'Iowan Old Style', Georgia, serif;
+		font-size: clamp(2rem, 5vw, 4rem);
+		font-weight: 400;
+	}
+	.family-nocturne .closing-section h2 {
+		color: #e9c991;
+		font-size: clamp(2.5rem, 6vw, 5rem);
+	}
+
+	@media (max-width: 40rem) {
+		.family-nocturne .hero-grid {
+			padding-inline: 0.35rem;
+		}
+		.family-nocturne .hero-copy h1 {
+			font-size: clamp(2.8rem, 11vw, 4.5rem);
+		}
+		.family-nocturne .hero-countdown {
+			--countdown-size: clamp(3.8rem, 18vw, 5rem);
+			--countdown-gap: 0.5rem;
+		}
+		.family-nocturne .hero .decoration {
+			width: 6rem;
+		}
+	}
 	@media (prefers-reduced-motion: reduce) {
 		.family-3d-design .primary-button {
+			transition: none;
+		}
+		.family-nocturne .primary-button,
+		.family-nocturne .gallery-grid img {
 			transition: none;
 		}
 	}

@@ -1,7 +1,6 @@
-const DEFAULT_INVITATION_URL = 'https://onlytest.my.id';
+const DEFAULT_INVITATION_URL = 'https://wedez.id';
 const RESERVED_SUBDOMAINS = new Set([
 	'api',
-	'api-wedding',
 	'app',
 	'admin',
 	'dokploy',

@@ -11,18 +11,21 @@ const PUBLIC_WEDDING_FIELDS = [
 	'theme',
 	'music',
 	'plan_tier',
+	'gift_enabled',
 	'groom_name',
 	'groom_father_name',
 	'groom_mother_name',
 	'groom_photo',
 	'groom_payment_number',
 	'groom_payment_provider',
+	'groom_payment_account_name',
 	'bride_name',
 	'bride_father_name',
 	'bride_mother_name',
 	'bride_photo',
 	'bride_payment_number',
 	'bride_payment_provider',
+	'bride_payment_account_name',
 	'cover',
 	'quote',
 	'address',
@@ -100,6 +103,7 @@ function toWeddingData(record: RecordModel, stories: WeddingStoryItem[]): Weddin
 		theme: typeof record.theme === 'string' && record.theme ? record.theme : 'minimalist-1',
 		music: typeof record.music === 'string' ? record.music : '',
 		plan_tier: record.plan_tier === 'pro' ? 'pro' : 'free',
+		gift_enabled: record.gift_enabled === true,
 		whatsapp_template: typeof record.whatsapp_template === 'string' ? record.whatsapp_template : '',
 		groom_name: typeof record.groom_name === 'string' ? record.groom_name : '',
 		groom_father_name: typeof record.groom_father_name === 'string' ? record.groom_father_name : '',
@@ -110,6 +114,10 @@ function toWeddingData(record: RecordModel, stories: WeddingStoryItem[]): Weddin
 			typeof record.groom_payment_number === 'string' ? record.groom_payment_number : '',
 		groom_payment_provider:
 			typeof record.groom_payment_provider === 'string' ? record.groom_payment_provider : '',
+		groom_payment_account_name:
+			typeof record.groom_payment_account_name === 'string'
+				? record.groom_payment_account_name
+				: '',
 		bride_name: typeof record.bride_name === 'string' ? record.bride_name : '',
 		bride_father_name: typeof record.bride_father_name === 'string' ? record.bride_father_name : '',
 		bride_mother_name: typeof record.bride_mother_name === 'string' ? record.bride_mother_name : '',
@@ -119,6 +127,10 @@ function toWeddingData(record: RecordModel, stories: WeddingStoryItem[]): Weddin
 			typeof record.bride_payment_number === 'string' ? record.bride_payment_number : '',
 		bride_payment_provider:
 			typeof record.bride_payment_provider === 'string' ? record.bride_payment_provider : '',
+		bride_payment_account_name:
+			typeof record.bride_payment_account_name === 'string'
+				? record.bride_payment_account_name
+				: '',
 		cover: typeof record.cover === 'string' ? record.cover : '',
 		cover_url: fileURL(record, record.cover, '800x500'),
 		quote: typeof record.quote === 'string' ? record.quote : '',

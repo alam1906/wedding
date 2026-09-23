@@ -42,15 +42,18 @@ export function mountWeddingThemeAnimations(
 			}
 
 			gsap.registerPlugin(ScrollTrigger, ScrollSmoother);
-			const smoother = ScrollSmoother.create({
-				wrapper,
-				content: root,
-				smooth: 1.2,
-				smoothTouch: 0.12,
-				effects: false
-			});
+			const smoother =
+				variant === 'nocturne'
+					? undefined
+					: ScrollSmoother.create({
+							wrapper,
+							content: root,
+							smooth: 1.2,
+							smoothTouch: 0.12,
+							effects: false
+						});
 			scrollToTopAnimations = () => {
-				smoother.scrollTop(0);
+				smoother?.scrollTop(0);
 				window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
 			};
 			if (scrollToTopRequested) {
@@ -58,6 +61,64 @@ export function mountWeddingThemeAnimations(
 				scrollToTopAnimations();
 			}
 			const context = gsap.context(() => {
+				if (variant === 'nocturne') {
+					gsap
+						.timeline({ defaults: { ease: 'power3.out' } })
+						.from(
+							'.hero > .cover-frame img, .hero > .cover-frame .cover-placeholder',
+							{
+								scale: 1.2,
+								duration: 2.4,
+								ease: 'power2.out'
+							},
+							0
+						)
+						.from(
+							'.hero-copy > *',
+							{
+								autoAlpha: 0,
+								y: 42,
+								duration: 1,
+								stagger: 0.13
+							},
+							0.2
+						)
+						.from(
+							'.hero .decoration',
+							{
+								autoAlpha: 0,
+								scale: 0.7,
+								rotate: -35,
+								duration: 1.8,
+								stagger: 0.18
+							},
+							0.1
+						);
+
+					gsap.utils.toArray<HTMLElement>('[data-reveal]').forEach((element, index) => {
+						gsap.from(element, {
+							autoAlpha: 0,
+							y: 54,
+							x: index % 2 === 0 ? -16 : 16,
+							duration: 1.15,
+							ease: 'power3.out',
+							scrollTrigger: { trigger: element, start: 'top 88%', once: true }
+						});
+					});
+
+					gsap.utils.toArray<HTMLElement>('[data-gallery-item]').forEach((item, index) => {
+						gsap.from(item, {
+							autoAlpha: 0,
+							y: 65,
+							rotate: index % 2 === 0 ? -4 : 4,
+							duration: 1,
+							ease: 'power3.out',
+							scrollTrigger: { trigger: item, start: 'top 90%', once: true }
+						});
+					});
+					return;
+				}
+
 				const isBrutalism = variant.startsWith('neubrutalism');
 				const isPlayful = variant.startsWith('playful');
 				gsap.from('[data-hero-content] > *', {
@@ -143,7 +204,7 @@ export function mountWeddingThemeAnimations(
 				window.removeEventListener('load', refreshAfterWindowLoad);
 				resizeObserver.disconnect();
 				context.revert();
-				smoother.kill();
+				smoother?.kill();
 			};
 			if (refreshRequested) {
 				refreshRequested = false;

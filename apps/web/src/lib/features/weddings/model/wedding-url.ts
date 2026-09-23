@@ -1,4 +1,4 @@
-const DEFAULT_INVITATION_URL = 'https://onlytest.my.id';
+const DEFAULT_INVITATION_URL = 'https://wedez.id';
 
 function baseWeddingUrl(): URL {
 	const configuredUrl = import.meta.env.PUBLIC_INVITATION_URL?.trim() || DEFAULT_INVITATION_URL;

@@ -2,7 +2,7 @@ import { getWeddingBySlug, PublicWeddingError } from '#lib/features/weddings/api
 import { getWeddingSlug } from '#lib/features/weddings/model/wedding-url.js';
 import type { PageLoad } from './$types';
 
-const DEFAULT_WEDDING_URL = 'https://wedding.onlytest.my.id';
+const DEFAULT_WEDDING_URL = 'https://wedez.id';
 
 export const load = (async ({ fetch, url }) => {
 	const mainWebsiteUrl = (

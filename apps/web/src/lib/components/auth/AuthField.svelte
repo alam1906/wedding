@@ -58,11 +58,12 @@
 		{#if isPasswordField}
 			<button
 				type="button"
+				tabindex={-1}
 				{disabled}
 				onclick={() => (isPasswordVisible = !isPasswordVisible)}
 				aria-label={isPasswordVisible ? 'Sembunyikan kata sandi' : 'Tampilkan kata sandi'}
 				aria-pressed={isPasswordVisible}
-				class="absolute inset-y-0 right-0 grid w-12 place-items-center rounded-r-xl text-gray-500 transition hover:text-gray-900 focus:ring-2 focus:ring-[#9400ff] focus:outline-none disabled:cursor-not-allowed disabled:text-gray-400"
+				class="absolute top-1/2 right-2 grid size-7 -translate-y-1/2 place-items-center rounded-md border border-gray-100 bg-gray-50 text-emerald-500 transition hover:bg-gray-100 focus-visible:ring-2 focus-visible:ring-[#9400ff] focus-visible:outline-none disabled:cursor-not-allowed disabled:text-gray-400"
 			>
 				{#if isPasswordVisible}
 					<svg
@@ -73,7 +74,7 @@
 						stroke-width="1.8"
 						stroke-linecap="round"
 						stroke-linejoin="round"
-						class="size-5"
+						class="size-4"
 					>
 						<path d="M3 3l18 18"></path>
 						<path d="M10.6 10.6a2 2 0 0 0 2.8 2.8"></path>
@@ -93,7 +94,7 @@
 						stroke-width="1.8"
 						stroke-linecap="round"
 						stroke-linejoin="round"
-						class="size-5"
+						class="size-4"
 					>
 						<path d="M2.3 12C3.4 9.9 6.9 6 12 6s8.6 3.9 9.7 6c-1.1 2.1-4.6 6-9.7 6s-8.6-3.9-9.7-6Z"
 						></path>

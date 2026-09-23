@@ -1111,43 +1111,69 @@
 							type="button"
 							onclick={openTemplateDialog}
 							title="Template pesan"
-							class="inline-flex size-11 cursor-pointer items-center justify-center rounded-xl border border-gray-300 bg-white text-sm font-semibold text-gray-700 transition lg:h-auto lg:w-auto lg:px-5 lg:py-3"
+							class="group inline-flex size-11 cursor-pointer items-center justify-center rounded-xl bg-linear-to-r from-[#9400ff] to-[#7200e8] p-px text-sm font-semibold lg:h-auto lg:w-auto"
 						>
-							<svg
-								aria-hidden="true"
-								class="size-5 lg:hidden"
-								viewBox="0 0 24 24"
-								fill="none"
-								stroke="currentColor"
-								stroke-width="1.8"
-								stroke-linecap="round"
-								stroke-linejoin="round"
+							<span
+								class="inline-flex size-full items-center justify-center rounded-[11px] bg-white transition group-hover:bg-gray-100 lg:h-auto lg:w-auto lg:px-5 lg:py-3"
 							>
-								<path d="M7 3h7l3 3v15H7z"></path>
-								<path d="M10 11h4M10 15h4"></path>
-							</svg>
-							<span class="sr-only lg:not-sr-only">Template</span>
+								<svg
+									aria-hidden="true"
+									class="size-5 lg:hidden"
+									viewBox="0 0 24 24"
+									fill="none"
+									stroke="url(#template-icon-gradient)"
+									stroke-width="1.8"
+									stroke-linecap="round"
+									stroke-linejoin="round"
+								>
+									<defs>
+										<linearGradient id="template-icon-gradient" x2="1" y2="0">
+											<stop stop-color="#9400ff"></stop>
+											<stop offset="1" stop-color="#7200e8"></stop>
+										</linearGradient>
+									</defs>
+									<path d="M7 3h7l3 3v15H7z"></path>
+									<path d="M10 11h4M10 15h4"></path>
+								</svg>
+								<span
+									class="sr-only bg-linear-to-r from-[#9400ff] to-[#7200e8] bg-clip-text text-transparent lg:not-sr-only"
+									>Template</span
+								>
+							</span>
 						</button>
 						<button
 							type="button"
 							onclick={openCsvDialog}
 							title="Impor tamu dari CSV"
-							class="inline-flex size-11 cursor-pointer items-center justify-center rounded-xl border border-gray-300 bg-white text-sm font-semibold text-gray-700 transition lg:h-auto lg:w-auto lg:px-5 lg:py-3"
+							class="group inline-flex size-11 cursor-pointer items-center justify-center rounded-xl bg-linear-to-r from-[#9400ff] to-[#7200e8] p-px text-sm font-semibold lg:h-auto lg:w-auto"
 						>
-							<svg
-								aria-hidden="true"
-								class="size-5 lg:hidden"
-								viewBox="0 0 24 24"
-								fill="none"
-								stroke="currentColor"
-								stroke-width="1.8"
-								stroke-linecap="round"
-								stroke-linejoin="round"
+							<span
+								class="inline-flex size-full items-center justify-center rounded-[11px] bg-white transition group-hover:bg-gray-100 lg:h-auto lg:w-auto lg:px-5 lg:py-3"
 							>
-								<path d="M12 16V4M8 8l4-4 4 4"></path>
-								<path d="M5 14v5h14v-5"></path>
-							</svg>
-							<span class="sr-only lg:not-sr-only">Impor CSV</span>
+								<svg
+									aria-hidden="true"
+									class="size-5 lg:hidden"
+									viewBox="0 0 24 24"
+									fill="none"
+									stroke="url(#csv-icon-gradient)"
+									stroke-width="1.8"
+									stroke-linecap="round"
+									stroke-linejoin="round"
+								>
+									<defs>
+										<linearGradient id="csv-icon-gradient" x2="1" y2="0">
+											<stop stop-color="#9400ff"></stop>
+											<stop offset="1" stop-color="#7200e8"></stop>
+										</linearGradient>
+									</defs>
+									<path d="M12 16V4M8 8l4-4 4 4"></path>
+									<path d="M5 14v5h14v-5"></path>
+								</svg>
+								<span
+									class="sr-only bg-linear-to-r from-[#9400ff] to-[#7200e8] bg-clip-text text-transparent lg:not-sr-only"
+									>Impor CSV</span
+								>
+							</span>
 						</button>
 						<button
 							type="button"

@@ -34,19 +34,21 @@ GHCR. Workflow sendiri membatasi token tiap job ke
 
 Tambahkan **Repository variables** berikut melalui **Settings -> Secrets and variables -> Actions**:
 
-| Variable                | Nilai                                                      |
-| ----------------------- | ---------------------------------------------------------- |
-| `DOKPLOY_URL`           | URL HTTPS panel, misalnya `https://dokploy.onlytest.my.id` |
-| `DOKPLOY_COMPOSE_ID`    | ID Docker Compose Wedez dari Dokploy                       |
-| `PUBLIC_POCKETBASE_URL` | `https://api-wedding.onlytest.my.id`                       |
-| `PUBLIC_WEDDING_URL`    | `https://wedding.onlytest.my.id`                           |
-| `PUBLIC_INVITATION_URL` | `https://onlytest.my.id`                                   |
-| `WEB_HEALTH_URL`        | `https://wedding.onlytest.my.id`                           |
-| `INVITATION_HEALTH_URL` | `https://deploy-health.onlytest.my.id`                     |
-| `POCKETBASE_HEALTH_URL` | `https://api-wedding.onlytest.my.id/api/health`            |
+| Variable                | Nilai                                                |
+| ----------------------- | ---------------------------------------------------- |
+| `DOKPLOY_URL`           | URL HTTPS panel, misalnya `https://dokploy.wedez.id` |
+| `DOKPLOY_COMPOSE_ID`    | ID Docker Compose Wedez dari Dokploy                 |
+| `PUBLIC_POCKETBASE_URL` | `https://api.wedez.id`                               |
+| `PUBLIC_WEDDING_URL`    | `https://wedez.id`                                   |
+| `PUBLIC_INVITATION_URL` | `https://wedez.id`                                   |
+| `WEB_HEALTH_URL`        | `https://wedez.id`                                   |
+| `INVITATION_HEALTH_URL` | `https://deploy-health.wedez.id`                     |
+| `POCKETBASE_HEALTH_URL` | `https://api.wedez.id/api/health`                    |
 
 Tiga variable `PUBLIC_*` dan tiga health URL sudah mempunyai default untuk domain saat ini, tetapi
-sebaiknya tetap dibuat agar perubahan domain terlihat jelas di pengaturan repository.
+sebaiknya tetap dibuat agar perubahan domain terlihat jelas di pengaturan repository. Jika variable
+tersebut sudah ada dengan domain lama, perbarui nilainya karena variable akan mengesampingkan default
+workflow. Sesuaikan juga `DOKPLOY_URL` bila alamat panel berubah.
 
 Tambahkan satu **Repository secret**:
 
@@ -121,38 +123,43 @@ DUITKU_EXPIRY_MINUTES
 ```
 
 `PUBLIC_*` bukan runtime environment Dokploy. Nilainya dipasang ketika image statis dibangun oleh
-GitHub Actions.
+GitHub Actions. Perbarui `WEDEZ_APP_URL`, `WEDEZ_API_URL`, `DUITKU_CALLBACK_URL`, dan
+`DUITKU_RETURN_URL` di Environment Dokploy jika masih menunjuk domain lama.
 
 ## 4. Domain dan TLS
 
 Tambahkan dua domain biasa melalui tab **Domains** Docker Compose:
 
-| Host                         | Service      | Container port | HTTPS |
-| ---------------------------- | ------------ | -------------: | ----- |
-| `wedding.onlytest.my.id`     | `web`        |             80 | aktif |
-| `api-wedding.onlytest.my.id` | `pocketbase` |           8090 | aktif |
+| Host           | Service      | Container port | HTTPS |
+| -------------- | ------------ | -------------: | ----- |
+| `wedez.id`     | `web`        |             80 | aktif |
+| `api.wedez.id` | `pocketbase` |           8090 | aktif |
 
-Undangan menggunakan wildcard `{slug}.onlytest.my.id`. Karena kolom Host Dokploy tidak menerima
+Undangan menggunakan wildcard `{slug}.wedez.id`. Karena kolom Host Dokploy tidak menerima
 `*`, routing wildcard sudah didefinisikan sebagai label Traefik pada service `invitation` dengan
-priority rendah. Route domain `wedding` dan `api-wedding` yang dibuat Dokploy akan menang karena
+priority rendah. Route domain `api` yang dibuat Dokploy akan menang karena
 lebih spesifik.
 
 Di Cloudflare buat record A berikut menuju IP VPS baru:
 
 ```text
-wedding      -> IP VPS
-api-wedding  -> IP VPS
-*            -> IP VPS
+@    -> IP VPS
+api  -> IP VPS
+*    -> IP VPS
 ```
 
 Untuk TLS wildcard tanpa menyimpan Cloudflare API token di VPS, buat Cloudflare Origin Certificate
-yang mencakup `onlytest.my.id` dan `*.onlytest.my.id`, lalu impor certificate dan private key ke
+yang mencakup `wedez.id` dan `*.wedez.id`, lalu impor certificate dan private key ke
 menu **Certificates** Dokploy. Gunakan Cloudflare SSL/TLS mode **Full (Strict)** dan aktifkan proxy
 Cloudflare pada ketiga record. Setelah certificate diimpor, aktifkan HTTPS pada dua domain Dokploy
 di atas dan pilih certificate provider **None** agar Traefik menggunakan certificate yang diimpor.
 
-Pastikan `https://deploy-health.onlytest.my.id` sudah mencapai service invitation sebelum
+Pastikan `https://deploy-health.wedez.id` sudah mencapai service invitation sebelum
 menjalankan workflow production pertama.
+
+Di pengaturan PocketBase yang sudah berjalan, ubah Application URL menjadi `https://api.wedez.id`
+agar tautan email yang memakai `{APP_URL}` mengarah ke domain API baru. Perubahan environment
+container tidak otomatis mengubah pengaturan yang sudah tersimpan di database PocketBase.
 
 ## 5. API key dan Compose ID
 

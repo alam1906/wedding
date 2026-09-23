@@ -17,13 +17,13 @@ Pasang dependency seluruh workspace dari root:
 bun install
 ```
 
-Jalankan aplikasi utama:
+Jalankan aplikasi utama di `http://localhost:5173`:
 
 ```sh
 bun run dev:web
 ```
 
-Jalankan aplikasi undangan:
+Jalankan aplikasi undangan di `http://localhost:5174`:
 
 ```sh
 bun run dev:invitation
@@ -35,7 +35,7 @@ Pada localhost, slug undangan dapat diberikan lewat query string:
 http://localhost:5174/?slug=yanto-yanti&rsvp=token-tamu
 ```
 
-Gunakan port berbeda jika kedua dev server dijalankan bersamaan.
+Kedua dev server memakai port tetap, termasuk saat dijalankan bersama dengan `bun run dev:all`.
 
 ## Pembayaran Duitku
 

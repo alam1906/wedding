@@ -14,7 +14,8 @@ export const WEDDING_THEME_KEYS = [
 	'playful-3',
 	'3d-design-1',
 	'3d-design-2',
-	'3d-design-3'
+	'3d-design-3',
+	'nocturne'
 ] as const;
 
 export type WeddingThemeKey = (typeof WEDDING_THEME_KEYS)[number];

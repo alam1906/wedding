@@ -74,6 +74,12 @@ export const weddingThemes = [
 		name: '3D Fresh',
 		description: 'Biru cerah dan mint dengan kedalaman modern yang ringan.',
 		load: () => import('../themes/3d-design/ThreeD3Theme.svelte')
+	},
+	{
+		key: 'nocturne',
+		name: 'Nocturne',
+		description: 'Romansa malam sinematik dengan cahaya emas dan gerak yang mengalir.',
+		load: () => import('../themes/nocturne/NocturneTheme.svelte')
 	}
 ] satisfies WeddingThemeDefinition[];
 

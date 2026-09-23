@@ -184,12 +184,20 @@
 	<div
 		class="mx-auto flex h-18 w-full max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8 2xl:max-w-[1600px] 2xl:px-10"
 	>
-		<a class="flex items-center gap-2.5" href="#beranda" aria-label="Wedez, kembali ke beranda">
+		<a class="flex items-center gap-2" href="#beranda" aria-label="Wedez, kembali ke beranda">
+			<span class="relative h-8 w-10 shrink-0 overflow-hidden" aria-hidden="true">
+				<img
+					class="absolute top-1/2 left-1/2 size-10 max-w-none -translate-x-1/2 -translate-y-1/2"
+					src="/images/hero/wedez-logo-w.png"
+					alt=""
+					width="300"
+					height="300"
+				/>
+			</span>
 			<span
-				class="grid size-9 place-items-center rounded-xl bg-gray-900 text-lg font-bold text-white"
-				>W</span
+				class="bg-linear-to-r from-[#9400ff] to-[#7200e8] bg-clip-text text-xl font-bold tracking-[-0.04em] text-transparent"
+				>wedez.id</span
 			>
-			<span class="text-xl font-bold tracking-[-0.04em] text-gray-950">wedez</span>
 		</a>
 
 		<nav class="hidden items-center gap-8 md:flex" aria-label="Navigasi utama">
@@ -268,7 +276,7 @@
 		<div
 			class="grid w-full items-center gap-14 lg:grid-cols-[0.9fr_1.1fr] lg:gap-20 2xl:grid-cols-[0.85fr_1.15fr] 2xl:gap-24"
 		>
-			<div>
+			<div class="order-2 min-w-0 lg:order-1">
 				<h1
 					class="max-w-2xl text-[40px] leading-[1.08] font-bold tracking-[-0.045em] text-gray-950 sm:text-[48px] lg:text-[56px] 2xl:max-w-3xl 2xl:text-[64px]"
 				>
@@ -320,7 +328,9 @@
 				</div>
 			</div>
 
-			<div class="relative mx-auto w-full max-w-2xl lg:translate-y-3 2xl:max-w-3xl">
+			<div
+				class="relative order-1 mx-auto w-full max-w-2xl min-w-0 lg:order-2 lg:translate-y-3 2xl:max-w-3xl"
+			>
 				<div
 					class="absolute -inset-10 -z-10 rounded-full bg-gray-200/70 blur-3xl"
 					aria-hidden="true"

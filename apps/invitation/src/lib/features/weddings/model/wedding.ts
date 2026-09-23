@@ -20,6 +20,7 @@ export type WeddingData = {
 	slug: string;
 	theme: string;
 	plan_tier: WeddingPlanTier;
+	gift_enabled: boolean;
 	groom_name: string;
 	groom_father_name: string;
 	groom_mother_name: string;
@@ -27,6 +28,7 @@ export type WeddingData = {
 	groom_photo_url: string;
 	groom_payment_number: string;
 	groom_payment_provider: string;
+	groom_payment_account_name: string;
 	bride_name: string;
 	bride_father_name: string;
 	bride_mother_name: string;
@@ -34,6 +36,7 @@ export type WeddingData = {
 	bride_photo_url: string;
 	bride_payment_number: string;
 	bride_payment_provider: string;
+	bride_payment_account_name: string;
 	cover: string;
 	cover_url: string;
 	quote: string;

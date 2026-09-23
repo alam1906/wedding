@@ -250,9 +250,9 @@
 					<div class="mt-6 flex justify-end">
 						<button
 							type="submit"
-							disabled={!canSaveProfile}
+							disabled={isSavingProfile}
 							aria-busy={isSavingProfile}
-							class="cursor-pointer rounded-xl bg-linear-to-r from-[#9400ff] to-[#7200e8] px-5 py-3 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
+							class="cursor-pointer rounded-xl bg-linear-to-r from-[#9400ff] to-[#7200e8] px-5 py-3 text-sm font-semibold text-white"
 						>
 							{isSavingProfile ? 'Menyimpan...' : 'Simpan profil'}
 						</button>
@@ -288,6 +288,13 @@
 					>
 					<label class="block text-sm font-medium text-gray-700"
 						>Kata sandi baru<input
+							type="password"
+							autocomplete="new-password"
+							class="field mt-2 w-full rounded-xl border border-gray-700 px-4 py-3 text-sm"
+						/></label
+					>
+					<label class="block text-sm font-medium text-gray-700"
+						>Konfirmasi kata sandi baru<input
 							type="password"
 							autocomplete="new-password"
 							class="field mt-2 w-full rounded-xl border border-gray-700 px-4 py-3 text-sm"

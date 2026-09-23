@@ -35,6 +35,30 @@
 		{ title: 'Musik', description: 'Pilih musik pengiring untuk undangan pernikahanmu.' },
 		{ title: 'Tema', description: 'Pilih tampilan visual untuk undangan pernikahanmu.' }
 	] as const;
+	const bankOptions = [
+		'Bank Central Asia (BCA)',
+		'Bank Mandiri',
+		'Bank Negara Indonesia (BNI)',
+		'Bank Rakyat Indonesia (BRI)',
+		'Bank Tabungan Negara (BTN)',
+		'CIMB Niaga',
+		'Bank Permata',
+		'Bank Danamon',
+		'Bank Panin',
+		'Maybank Indonesia',
+		'Bank Mega',
+		'OCBC NISP',
+		'Bank Sinarmas',
+		'UOB Indonesia',
+		'Bank BTPN',
+		'Bank Syariah Indonesia (BSI)',
+		'Bank Muamalat',
+		'Bank Jago'
+	];
+	const eWalletOptions = ['GoPay', 'DANA', 'OVO', 'ShopeePay', 'LinkAja'];
+	function isListedPaymentProvider(provider: string): boolean {
+		return [...bankOptions, ...eWalletOptions].includes(provider);
+	}
 	const singleImageFields = [
 		'groom_photo',
 		'bride_photo',
@@ -135,6 +159,13 @@
 			name: '3D Fresh',
 			description: 'Biru cerah dan mint dengan kedalaman modern yang ringan.',
 			colors: WEDDING_THEME_COLORS['3d-design-3']
+		},
+		{
+			key: 'nocturne',
+			family: 'nocturne',
+			name: 'Nocturne',
+			description: 'Romansa malam sinematik dengan cahaya emas dan animasi lembut.',
+			colors: WEDDING_THEME_COLORS.nocturne
 		}
 	] as const;
 
@@ -207,6 +238,7 @@
 	let selectedTheme = $state<ThemeKey>(normalizeTheme(initialWedding.theme));
 	let selectedMusic = $state(initialWedding.music);
 	let musicEnabled = $state(initialWedding.music !== '');
+	let giftEnabled = $state(initialWedding.gift_enabled);
 	let lastSelectedMusic = initialWedding.music;
 	let selectedQuotePreset = $state<QuotePreset>(initialQuotePreset);
 	let customQuote = $state(initialQuotePreset === 'custom' ? initialWedding.quote : '');
@@ -306,11 +338,16 @@
 			case 'Quote':
 				return hasValues(wedding.quote);
 			case 'Kado':
-				return hasValues(
-					wedding.groom_payment_provider,
-					wedding.groom_payment_number,
-					wedding.bride_payment_provider,
-					wedding.bride_payment_number
+				return (
+					!wedding.gift_enabled ||
+					hasValues(
+						wedding.groom_payment_account_name,
+						wedding.groom_payment_provider,
+						wedding.groom_payment_number,
+						wedding.bride_payment_account_name,
+						wedding.bride_payment_provider,
+						wedding.bride_payment_number
+					)
 				);
 			case 'Musik':
 				return musicEnabled && selectedMusic.length > 0;
@@ -342,6 +379,7 @@
 		selectedTheme = normalizeTheme(updatedWedding.theme);
 		selectedMusic = updatedWedding.music;
 		musicEnabled = updatedWedding.music !== '';
+		giftEnabled = updatedWedding.gift_enabled;
 		selectedQuotePreset = getQuotePreset(updatedWedding.quote);
 		customQuote = selectedQuotePreset === 'custom' ? updatedWedding.quote : '';
 		if (updatedWedding.music) {
@@ -488,6 +526,7 @@
 		story.imageFile = file;
 		story.localImagePreview = URL.createObjectURL(file);
 		story.removeImage = false;
+		input.value = '';
 	}
 
 	function removeStoryImage(storyId: string) {
@@ -515,6 +554,7 @@
 		selectedTheme = normalizeTheme(wedding.theme);
 		selectedMusic = wedding.music;
 		musicEnabled = wedding.music !== '';
+		giftEnabled = wedding.gift_enabled;
 		selectedQuotePreset = getQuotePreset(wedding.quote);
 		customQuote = selectedQuotePreset === 'custom' ? wedding.quote : '';
 		if (wedding.music) {
@@ -786,7 +826,13 @@
 					normalizeDateField(formData, 'reception');
 				}
 
-				refreshLocalData(await weddingState.updateCurrentWedding(formData));
+				const updatedWedding = await weddingState.updateCurrentWedding(formData);
+				if (activeSection === 'Kado' && updatedWedding.gift_enabled !== giftEnabled) {
+					throw new WeddingDataError(
+						'Pengaturan kado belum tersimpan. Jalankan migrasi PocketBase lalu coba lagi.'
+					);
+				}
+				refreshLocalData(updatedWedding);
 			}
 
 			clearPendingFileChanges();
@@ -858,8 +904,54 @@
 						<span aria-hidden="true">←</span>
 						Back
 					</button>
-					<h1 class="text-2xl font-bold tracking-tight text-gray-900">{activeSection}</h1>
-					<p class="mt-2 text-sm text-gray-500">{activeSectionData?.description}</p>
+					<div class="flex items-start justify-between gap-5 sm:items-center">
+						<div>
+							<h1 class="text-2xl font-bold tracking-tight text-gray-900">{activeSection}</h1>
+							<p class="mt-2 text-sm text-gray-500">{activeSectionData?.description}</p>
+						</div>
+						{#if activeSection === 'Kado'}
+							<button
+								type="button"
+								role="switch"
+								aria-label="Tambahkan kado pada undangan"
+								aria-checked={giftEnabled}
+								onclick={() => (giftEnabled = !giftEnabled)}
+								class={[
+									'relative mt-1 h-6 w-11 shrink-0 cursor-pointer rounded-full transition sm:mt-0',
+									giftEnabled ? 'bg-gray-900' : 'bg-gray-300'
+								]}
+							>
+								<span
+									aria-hidden="true"
+									class={[
+										'absolute top-1 size-4 rounded-full bg-white transition',
+										giftEnabled ? 'left-6' : 'left-1'
+									]}
+								></span>
+							</button>
+						{:else if activeSection === 'Musik'}
+							<button
+								type="button"
+								role="switch"
+								aria-label="Gunakan musik pada undangan"
+								aria-checked={musicEnabled}
+								disabled={!musicEnabled && musicOptions.options.length === 0}
+								onclick={toggleMusic}
+								class={[
+									'relative mt-1 h-6 w-11 shrink-0 cursor-pointer rounded-full transition disabled:cursor-not-allowed disabled:opacity-50 sm:mt-0',
+									musicEnabled ? 'bg-gray-900' : 'bg-gray-300'
+								]}
+							>
+								<span
+									aria-hidden="true"
+									class={[
+										'absolute top-1 size-4 rounded-full bg-white transition',
+										musicEnabled ? 'left-6' : 'left-1'
+									]}
+								></span>
+							</button>
+						{/if}
+					</div>
 				</header>
 
 				<div class="mt-6">
@@ -876,78 +968,62 @@
 								</p>
 							{/if}
 
-							<div class="flex items-center justify-between gap-5 border-b border-gray-200 pb-5">
-								<div>
-									<p class="text-sm font-semibold text-gray-900">Gunakan musik</p>
-									<p class="mt-1 text-sm text-gray-500">Putar musik saat undangan dibuka.</p>
-								</div>
-								<button
-									type="button"
-									role="switch"
-									aria-label="Gunakan musik pada undangan"
-									aria-checked={musicEnabled}
-									disabled={!musicEnabled && musicOptions.options.length === 0}
-									onclick={toggleMusic}
-									class={[
-										'relative h-6 w-11 shrink-0 rounded-full transition disabled:cursor-not-allowed disabled:opacity-50',
-										musicEnabled ? 'bg-gray-900' : 'bg-gray-300'
-									]}
-								>
-									<span
-										aria-hidden="true"
-										class={[
-											'absolute top-1 size-4 rounded-full bg-white transition',
-											musicEnabled ? 'left-6' : 'left-1'
-										]}
-									></span>
-								</button>
-							</div>
-
 							{#if musicOptions.status === 'loading'}
 								<p class="mt-4 text-sm text-gray-500">Memuat daftar musik...</p>
 							{:else if musicOptions.options.length > 0}
-								<div class="mt-5 overflow-hidden rounded-xl border border-gray-200 bg-white">
-									{#each musicOptions.options as music (music.id)}
-										<div
-											class="flex flex-col gap-3 border-b border-gray-200 px-4 py-4 transition last:border-b-0 sm:flex-row sm:items-center {musicEnabled &&
-											selectedMusic === music.id
-												? 'bg-gray-50'
-												: 'bg-white'}"
-										>
-											<label
-												class="flex min-w-0 flex-1 items-center gap-3 {musicEnabled
-													? 'cursor-pointer'
-													: 'cursor-not-allowed'}"
-											>
-												<input
-													type="radio"
-													name="music-option"
-													value={music.id}
-													disabled={!musicEnabled}
-													bind:group={selectedMusic}
-													onchange={() => (lastSelectedMusic = music.id)}
-													class="size-4 shrink-0 border-[#cbd5e1] text-gray-900 focus:ring-[#9400ff] disabled:opacity-40"
-												/>
-												<span
-													class="grid size-10 shrink-0 place-items-center rounded-full bg-gray-100 text-gray-500"
-													aria-hidden="true"
+								<div
+									aria-hidden={!musicEnabled}
+									inert={!musicEnabled}
+									class={[
+										'grid transition-[grid-template-rows,opacity] duration-300 ease-in-out motion-reduce:transition-none',
+										musicEnabled ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'
+									]}
+								>
+									<div class="min-h-0 overflow-hidden">
+										<div class="mt-5 overflow-hidden rounded-xl border border-gray-200 bg-white">
+											{#each musicOptions.options as music (music.id)}
+												<div
+													class="flex flex-col gap-3 border-b border-gray-200 px-4 py-4 transition last:border-b-0 sm:flex-row sm:items-center {musicEnabled &&
+													selectedMusic === music.id
+														? 'bg-gray-50'
+														: 'bg-white'}"
 												>
-													♪
-												</span>
-												<span class="truncate text-sm font-semibold text-gray-900"
-													>{music.title}</span
-												>
-											</label>
-											<audio
-												controls
-												preload="none"
-												src={music.music_url}
-												onplay={pauseOtherMusicPreviews}
-												data-music-preview
-												class="h-10 w-full sm:w-64"
-											></audio>
+													<label
+														class="flex min-w-0 flex-1 items-center gap-3 {musicEnabled
+															? 'cursor-pointer'
+															: 'cursor-not-allowed'}"
+													>
+														<input
+															type="radio"
+															name="music-option"
+															value={music.id}
+															disabled={!musicEnabled}
+															bind:group={selectedMusic}
+															onchange={() => (lastSelectedMusic = music.id)}
+															class="size-4 shrink-0 border-[#cbd5e1] text-gray-900 focus:ring-[#9400ff] disabled:opacity-40"
+														/>
+														<span
+															class="grid size-10 shrink-0 place-items-center rounded-full bg-gray-100 text-gray-500"
+															aria-hidden="true"
+														>
+															♪
+														</span>
+														<span class="truncate text-sm font-semibold text-gray-900"
+															>{music.title}</span
+														>
+													</label>
+													<audio
+														controls
+														preload="none"
+														src={music.music_url}
+														onplay={pauseOtherMusicPreviews}
+														data-music-preview
+														class="h-10 w-full sm:w-64"
+													></audio>
+												</div>
+											{/each}
 										</div>
-									{/each}
+									</div>
 								</div>
 							{/if}
 
@@ -1080,6 +1156,34 @@
 																class="size-3 rounded-full opacity-40"
 																style:background={theme.colors.accent}
 															></span>
+														</div>
+													</div>
+												</div>
+											{:else if theme.family === 'nocturne'}
+												<div
+													class="relative grid size-full place-items-center overflow-hidden"
+													style:background={theme.colors.background}
+												>
+													<div
+														class="absolute -top-8 -left-6 size-24 rounded-full border opacity-50"
+														style:border-color={theme.colors.primary}
+													></div>
+													<div
+														class="absolute -right-5 -bottom-8 size-28 rounded-full border opacity-50"
+														style:border-color={theme.colors.primary}
+													></div>
+													<div
+														class="grid h-[82%] w-[52%] place-items-center rounded-t-full border p-2"
+														style:border-color={theme.colors.primary}
+													>
+														<div
+															class="grid size-full place-items-center rounded-t-full"
+															style:background={theme.colors.surface}
+														>
+															<span
+																class="font-serif text-3xl italic"
+																style:color={theme.colors.primary}>&</span
+															>
 														</div>
 													</div>
 												</div>
@@ -1459,7 +1563,7 @@
 									/>
 									{#if !coverPreview}
 										<span
-											class="pointer-events-none absolute inset-0 z-10 grid place-items-center"
+											class="pointer-events-none absolute inset-0 z-10 flex flex-col items-center justify-center gap-3"
 											aria-hidden="true"
 										>
 											<span
@@ -1478,6 +1582,7 @@
 													></path>
 												</svg>
 											</span>
+											<span class="text-sm font-medium text-gray-600">Klik untuk pilih gambar</span>
 										</span>
 									{/if}
 								</div>
@@ -1579,54 +1684,65 @@
 											class="text-sm font-semibold text-red-600 hover:text-red-700">Hapus</button
 										>
 									</div>
-									{#if storyImagePreview}
-										<div class="relative mt-4 overflow-hidden rounded-xl bg-white">
+									<div
+										class="relative mt-4 aspect-video overflow-hidden rounded-xl bg-gray-100 focus-within:ring-2 focus-within:ring-[#9400ff]/30"
+										class:border-2={!storyImagePreview}
+										class:border-dashed={!storyImagePreview}
+										class:border-gray-300={!storyImagePreview}
+									>
+										{#if storyImagePreview}
 											<img
 												src={storyImagePreview}
 												alt={`Gambar ${story.title || `cerita ${index + 1}`}`}
-												class="aspect-video w-full object-cover"
+												class="size-full object-cover"
 											/>
 											<button
 												type="button"
 												onclick={() => removeStoryImage(story.id)}
-												class="absolute top-3 right-3 rounded-lg bg-white/90 px-3 py-2 text-xs font-semibold text-red-600 shadow"
+												class="absolute top-3 right-3 z-20 cursor-pointer rounded-lg bg-white/90 px-3 py-2 text-xs font-semibold text-red-600 shadow"
 												>Hapus gambar</button
 											>
 											{#if story.localImagePreview}<span
-													class="absolute right-3 bottom-3 rounded-lg bg-gray-900/75 px-3 py-1.5 text-xs font-semibold text-white"
+													class="absolute right-3 bottom-3 z-20 rounded-lg bg-gray-900/75 px-3 py-1.5 text-xs font-semibold text-white"
 													>Belum disimpan</span
 												>{/if}
-										</div>
-									{:else}
-										<div
-											class="mt-4 grid aspect-video place-items-center rounded-xl border border-dashed border-gray-300 bg-white px-5 text-center text-gray-400"
-										>
-											<div>
-												<svg
-													aria-hidden="true"
-													class="mx-auto size-8"
-													viewBox="0 0 24 24"
-													fill="none"
-													stroke="currentColor"
-													stroke-width="1.6"
-												>
-													<rect x="3" y="4" width="18" height="16" rx="2"></rect>
-													<circle cx="8.5" cy="9" r="1.5"></circle>
-													<path d="m5 17 4.5-4.5 3 3 2-2L19 18"></path>
-												</svg>
-												<p class="mt-2 text-xs font-medium">Belum ada gambar cerita</p>
-											</div>
-										</div>
-									{/if}
-									<label class="mt-4 block text-sm font-medium text-gray-700">
-										Gambar cerita
+										{/if}
 										<input
 											type="file"
 											accept={OPTIMIZABLE_IMAGE_ACCEPT}
 											onchange={(event) => previewStoryImage(event, story.id)}
-											class="mt-2 block w-full text-sm text-gray-500 file:mr-4 file:rounded-lg file:border-0 file:bg-white file:px-4 file:py-2 file:font-semibold file:text-gray-700"
+											aria-label={storyImagePreview
+												? `Ganti gambar cerita ${index + 1}`
+												: `Pilih gambar cerita ${index + 1}`}
+											class="absolute inset-0 z-10 size-full cursor-pointer opacity-0"
 										/>
-									</label>
+										{#if !storyImagePreview}
+											<span
+												class="pointer-events-none absolute inset-0 z-10 flex flex-col items-center justify-center gap-3"
+												aria-hidden="true"
+											>
+												<span
+													class="grid size-11 place-items-center rounded-full bg-gray-200 text-gray-600"
+												>
+													<svg
+														class="size-5"
+														viewBox="0 0 24 24"
+														fill="none"
+														stroke="currentColor"
+														stroke-width="2"
+														stroke-linecap="round"
+														stroke-linejoin="round"
+													>
+														<path d="m14 5 5 5M4 20l3.5-.7L19 7.8a2.1 2.1 0 0 0-3-3L4.7 16.5 4 20Z"
+														></path>
+													</svg>
+												</span>
+												<span class="text-sm font-medium text-gray-600"
+													>Klik untuk pilih gambar</span
+												>
+											</span>
+										{/if}
+									</div>
 									<div class="mt-4 grid gap-4 sm:grid-cols-2">
 										<label class="block text-sm font-medium text-gray-700"
 											>Judul<input
@@ -1745,59 +1861,125 @@
 							{/if}
 						</fieldset>
 					{:else if activeSection === 'Kado'}
-						<div class="grid gap-6 xl:grid-cols-2">
-							<section class="rounded-xl py-5 sm:p-5">
-								<h2 class="font-semibold text-gray-900">Mempelai pria</h2>
-								<div class="mt-4 space-y-4">
-									<label class="block text-sm font-medium text-gray-700"
-										>Nama bank atau e-wallet<input
-											name="groom_payment_provider"
-											type="text"
-											maxlength="100"
-											value={wedding.groom_payment_provider}
-											class="field mt-2 w-full rounded-xl border border-gray-700 bg-white px-4 py-3 text-sm"
-											placeholder="Contoh: BCA atau GoPay"
-										/></label
-									>
-									<label class="block text-sm font-medium text-gray-700"
-										>Nomor rekening atau e-wallet<input
-											name="groom_payment_number"
-											type="text"
-											maxlength="50"
-											value={wedding.groom_payment_number}
-											inputmode="numeric"
-											class="field mt-2 w-full rounded-xl border border-gray-700 bg-white px-4 py-3 text-sm"
-											placeholder="Masukkan nomor tanpa spasi"
-										/></label
-									>
-								</div>
-							</section>
-							<section class="rounded-xl py-5 sm:p-5">
-								<h2 class="font-semibold text-gray-900">Mempelai wanita</h2>
-								<div class="mt-4 space-y-4">
-									<label class="block text-sm font-medium text-gray-700"
-										>Nama bank atau e-wallet<input
-											name="bride_payment_provider"
-											type="text"
-											maxlength="100"
-											value={wedding.bride_payment_provider}
-											class="field mt-2 w-full rounded-xl border border-gray-700 bg-white px-4 py-3 text-sm"
-											placeholder="Contoh: Mandiri atau DANA"
-										/></label
-									>
-									<label class="block text-sm font-medium text-gray-700"
-										>Nomor rekening atau e-wallet<input
-											name="bride_payment_number"
-											type="text"
-											maxlength="50"
-											value={wedding.bride_payment_number}
-											inputmode="numeric"
-											class="field mt-2 w-full rounded-xl border border-gray-700 bg-white px-4 py-3 text-sm"
-											placeholder="Masukkan nomor tanpa spasi"
-										/></label
-									>
-								</div>
-							</section>
+						<input type="hidden" name="gift_enabled" value={giftEnabled ? 'true' : 'false'} />
+						<div
+							aria-hidden={!giftEnabled}
+							class={[
+								'grid transition-[grid-template-rows,opacity] duration-300 ease-in-out motion-reduce:transition-none',
+								giftEnabled ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'
+							]}
+						>
+							<div class="min-h-0 overflow-hidden">
+								<fieldset disabled={!giftEnabled} class="min-w-0 border-0 p-0">
+									<legend class="sr-only">Informasi kado</legend>
+									<div class="grid gap-6 xl:grid-cols-2">
+										<section class="rounded-xl py-5 sm:p-5">
+											<div class="space-y-4">
+												<label class="block text-sm font-medium text-gray-900">
+													Nama Pemilik Rekening / Akun <span class="text-red-500">*</span>
+													<input
+														name="groom_payment_account_name"
+														type="text"
+														maxlength="100"
+														required
+														value={wedding.groom_payment_account_name}
+														class="field mt-2 w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm"
+													/>
+												</label>
+												<label class="block text-sm font-medium text-gray-900">
+													Bank / eWallet <span class="text-red-500">*</span>
+													<select
+														name="groom_payment_provider"
+														required
+														value={wedding.groom_payment_provider}
+														class="mt-2 w-full rounded-xl border border-gray-300 bg-white px-3 py-3 text-sm text-gray-900 focus:border-[#9400ff]"
+													>
+														<option value="" disabled>Pilih bank / eWallet</option>
+														{#if wedding.groom_payment_provider && !isListedPaymentProvider(wedding.groom_payment_provider)}
+															<option value={wedding.groom_payment_provider}
+																>{wedding.groom_payment_provider}</option
+															>
+														{/if}
+														<optgroup label="Bank">
+															{#each bankOptions as bank (bank)}<option value={bank}>{bank}</option
+																>{/each}
+														</optgroup>
+														<optgroup label="eWallet">
+															{#each eWalletOptions as wallet (wallet)}<option value={wallet}
+																	>{wallet}</option
+																>{/each}
+														</optgroup>
+													</select>
+												</label>
+												<label class="block text-sm font-medium text-gray-900">
+													Nomor Rekening / Akun <span class="text-red-500">*</span>
+													<input
+														name="groom_payment_number"
+														type="text"
+														maxlength="50"
+														required
+														value={wedding.groom_payment_number}
+														inputmode="numeric"
+														class="field mt-2 w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm"
+													/>
+												</label>
+											</div>
+										</section>
+										<section class="rounded-xl py-5 sm:p-5">
+											<div class="space-y-4">
+												<label class="block text-sm font-medium text-gray-900">
+													Nama Pemilik Rekening / Akun <span class="text-red-500">*</span>
+													<input
+														name="bride_payment_account_name"
+														type="text"
+														maxlength="100"
+														required
+														value={wedding.bride_payment_account_name}
+														class="field mt-2 w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm"
+													/>
+												</label>
+												<label class="block text-sm font-medium text-gray-900">
+													Bank / eWallet <span class="text-red-500">*</span>
+													<select
+														name="bride_payment_provider"
+														required
+														value={wedding.bride_payment_provider}
+														class="mt-2 w-full rounded-xl border border-gray-300 bg-white px-3 py-3 text-sm text-gray-900 focus:border-[#9400ff]"
+													>
+														<option value="" disabled>Pilih bank / eWallet</option>
+														{#if wedding.bride_payment_provider && !isListedPaymentProvider(wedding.bride_payment_provider)}
+															<option value={wedding.bride_payment_provider}
+																>{wedding.bride_payment_provider}</option
+															>
+														{/if}
+														<optgroup label="Bank">
+															{#each bankOptions as bank (bank)}<option value={bank}>{bank}</option
+																>{/each}
+														</optgroup>
+														<optgroup label="eWallet">
+															{#each eWalletOptions as wallet (wallet)}<option value={wallet}
+																	>{wallet}</option
+																>{/each}
+														</optgroup>
+													</select>
+												</label>
+												<label class="block text-sm font-medium text-gray-900">
+													Nomor Rekening / Akun <span class="text-red-500">*</span>
+													<input
+														name="bride_payment_number"
+														type="text"
+														maxlength="50"
+														required
+														value={wedding.bride_payment_number}
+														inputmode="numeric"
+														class="field mt-2 w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm"
+													/>
+												</label>
+											</div>
+										</section>
+									</div>
+								</fieldset>
+							</div>
 						</div>
 					{/if}
 				</div>

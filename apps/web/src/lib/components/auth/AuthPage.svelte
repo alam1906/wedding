@@ -221,7 +221,7 @@
 					{#if isLogin}
 						<a
 							href="/forgot-password"
-							class="text-sm font-medium text-gray-600 hover:text-gray-900"
+							class="auth-focus text-sm font-medium text-gray-600 hover:text-gray-900"
 						>
 							Lupa kata sandi?
 						</a>
@@ -248,7 +248,7 @@
 				type="submit"
 				disabled={isSubmitting}
 				aria-busy={isSubmitting}
-				class="w-full cursor-pointer rounded-xl bg-linear-to-r from-[#9400ff] to-[#7200e8] px-4 py-3 text-sm font-semibold text-white transition focus:ring-2 focus:ring-[#9400ff] focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+				class="auth-focus w-full cursor-pointer rounded-xl bg-linear-to-r from-[#9400ff] to-[#7200e8] px-4 py-3 text-sm font-semibold text-white transition disabled:cursor-not-allowed disabled:opacity-60"
 			>
 				{isSubmitting ? (isLogin ? 'Sedang masuk...' : 'Sedang mendaftar...') : content.submitLabel}
 			</button>
@@ -281,10 +281,17 @@
 			{isLogin ? 'Belum punya akun?' : 'Sudah punya akun?'}
 			<a
 				href={isLogin ? '/register' : '/login'}
-				class="font-semibold text-gray-900 hover:text-gray-600"
+				class="auth-focus font-semibold text-gray-900 hover:text-gray-600"
 			>
 				{isLogin ? 'Daftar' : 'Masuk'}
 			</a>
 		</p>
 	</section>
 </main>
+
+<style>
+	.auth-focus:focus-visible {
+		outline: 2px solid #9400ff;
+		outline-offset: 3px;
+	}
+</style>

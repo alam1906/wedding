@@ -227,9 +227,15 @@
 				</div>
 				<a
 					href="/user/data"
-					class="inline-flex w-full shrink-0 items-center justify-center rounded-xl border border-gray-300 bg-white px-5 py-3 text-sm font-semibold text-gray-700 transition hover:bg-gray-100 sm:col-start-2 sm:row-start-1 sm:w-auto"
+					class="group inline-flex w-full shrink-0 items-center justify-center rounded-xl bg-linear-to-r from-[#9400ff] to-[#7200e8] p-px text-sm font-semibold sm:col-start-2 sm:row-start-1 sm:w-auto"
 				>
-					Lengkapi data
+					<span
+						class="inline-flex w-full items-center justify-center rounded-[11px] bg-white px-5 py-3 transition group-hover:bg-gray-100"
+					>
+						<span class="bg-linear-to-r from-[#9400ff] to-[#7200e8] bg-clip-text text-transparent">
+							Lengkapi data
+						</span>
+					</span>
 				</a>
 			</div>
 		</article>

@@ -9,6 +9,7 @@
 	],
 	"scripts": {
 		"dev": "bun run dev:web",
+		"dev:all": "bun run --no-orphans --parallel dev:web dev:invitation pb",
 		"pb": "set -a; . ./.env.dev; set +a; cd pocketbase && ./pocketbase serve --http=127.0.0.1:8090 --dir=./pb_data --encryptionEnv=PB_ENCRYPTION_KEY",
 		"dev:web": "set -a; . ./.env.dev; set +a; bun run --cwd apps/web dev -- --mode dev",
 		"dev:invitation": "set -a; . ./.env.dev; set +a; bun run --cwd apps/invitation dev -- --mode dev",
