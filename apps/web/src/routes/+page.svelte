@@ -180,7 +180,9 @@
 	href="#main-content">Lewati ke konten utama</a
 >
 
-<header class="sticky top-0 z-50 border-b border-gray-200 bg-white/90 backdrop-blur-md">
+<header
+	class="fixed inset-x-0 top-0 z-50 border-b border-gray-200 bg-white/90 backdrop-blur-md md:sticky md:inset-x-auto"
+>
 	<div
 		class="mx-auto flex h-18 w-full max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8 2xl:max-w-[1600px] 2xl:px-10"
 	>
@@ -267,6 +269,7 @@
 		</nav>
 	{/if}
 </header>
+<div class="h-18 md:hidden" aria-hidden="true"></div>
 
 <main id="main-content" class="w-full">
 	<section
