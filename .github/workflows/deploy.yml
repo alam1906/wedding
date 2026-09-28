@@ -211,6 +211,8 @@ jobs:
           admin_pid=$!
           wait_for_revision "Invitation" "$INVITATION_HEALTH_URL" &
           invitation_pid=$!
+          wait_for_http_200 "Admin page" "$ADMIN_HEALTH_URL" &
+          admin_page_pid=$!
           wait_for_http_200 "PocketBase" "$POCKETBASE_HEALTH_URL" &
           pocketbase_pid=$!
 
@@ -218,5 +220,6 @@ jobs:
           wait "$web_pid" || result=1
           wait "$admin_pid" || result=1
           wait "$invitation_pid" || result=1
+          wait "$admin_page_pid" || result=1
           wait "$pocketbase_pid" || result=1
           exit "$result"
