@@ -234,14 +234,16 @@
 			key: 'anomali',
 			family: 'anomali',
 			name: 'Anomali',
-			description: 'Editorial ivory dan hijau dengan reveal sinematik serta animasi halus berlapis.',
+			description:
+				'Editorial ivory dan hijau dengan reveal sinematik serta animasi halus berlapis.',
 			colors: WEDDING_THEME_COLORS.anomali
 		},
 		{
 			key: 'selaras',
 			family: 'selaras',
 			name: 'Selaras',
-			description: 'Stacked cards pada cerita dan galeri horizontal dalam nuansa ivory dan burgundy.',
+			description:
+				'Stacked cards pada cerita dan galeri horizontal dalam nuansa ivory dan burgundy.',
 			colors: WEDDING_THEME_COLORS.selaras
 		}
 	] as const;
@@ -1245,7 +1247,7 @@
 														class="absolute inset-x-0 top-0 h-[40%]"
 														style:background={theme.colors.text}
 													></div>
-												<div
+													<div
 														class="relative grid h-[88%] w-[64%] place-items-center rounded-t-[50%] border-2 p-1"
 														style:border-color={theme.colors.primary}
 													>
@@ -1254,11 +1256,10 @@
 															style:background={theme.colors.surface}
 															style:border-color={theme.colors.accent}
 														>
-															<span
-																class="font-serif text-3xl"
-																style:color={theme.colors.primary}>✥</span
+															<span class="font-serif text-3xl" style:color={theme.colors.primary}
+																>✥</span
 															>
-															</div>
+														</div>
 													</div>
 												</div>
 											{:else if theme.family === 'aceh' || theme.family === 'jawa' || theme.family === 'batak' || theme.family === 'bugis' || theme.family === 'betawi' || theme.family === 'minang' || theme.family === 'toraja'}
@@ -1267,58 +1268,174 @@
 													style:background={theme.colors.text}
 												>
 													{#if theme.family === 'aceh'}
-														<div class="absolute bottom-0 h-28 w-32 rounded-t-[50%] border-2" style:border-color={theme.colors.primary}></div>
-														<div class="absolute bottom-0 h-23 w-26 rounded-t-[50%] border" style:border-color={theme.colors.accent}></div>
+														<div
+															class="absolute bottom-0 h-28 w-32 rounded-t-[50%] border-2"
+															style:border-color={theme.colors.primary}
+														></div>
+														<div
+															class="absolute bottom-0 h-23 w-26 rounded-t-[50%] border"
+															style:border-color={theme.colors.accent}
+														></div>
 													{:else if theme.family === 'jawa'}
-														<div class="absolute -top-5 -left-4 size-24 rotate-45 rounded-[50%_50%_5%_50%] border-2" style:border-color={theme.colors.primary}></div>
-														<div class="absolute -right-4 -bottom-5 size-24 rotate-45 rounded-[50%_50%_5%_50%] border-2" style:border-color={theme.colors.primary}></div>
+														<div
+															class="absolute -top-5 -left-4 size-24 rotate-45 rounded-[50%_50%_5%_50%] border-2"
+															style:border-color={theme.colors.primary}
+														></div>
+														<div
+															class="absolute -right-4 -bottom-5 size-24 rotate-45 rounded-[50%_50%_5%_50%] border-2"
+															style:border-color={theme.colors.primary}
+														></div>
 													{:else if theme.family === 'batak'}
-														<div class="absolute inset-x-0 top-0 h-3" style:background={'repeating-linear-gradient(90deg,' + theme.colors.primary + ' 0 18px,' + theme.colors.surface + ' 18px 23px,' + theme.colors.text + ' 23px 40px)'}></div>
-														<div class="absolute inset-x-6 bottom-3 h-1" style:background={theme.colors.primary}></div>
+														<div
+															class="absolute inset-x-0 top-0 h-3"
+															style:background={'repeating-linear-gradient(90deg,' +
+																theme.colors.primary +
+																' 0 18px,' +
+																theme.colors.surface +
+																' 18px 23px,' +
+																theme.colors.text +
+																' 23px 40px)'}
+														></div>
+														<div
+															class="absolute inset-x-6 bottom-3 h-1"
+															style:background={theme.colors.primary}
+														></div>
 													{:else if theme.family === 'bugis'}
-														<div class="absolute inset-3 border opacity-60" style:border-color={theme.colors.primary} style:background-image={'linear-gradient(' + theme.colors.primary + '55 1px, transparent 1px),linear-gradient(90deg,' + theme.colors.primary + '55 1px, transparent 1px)'} style:background-size="15px 15px"></div>
+														<div
+															class="absolute inset-3 border opacity-60"
+															style:border-color={theme.colors.primary}
+															style:background-image={'linear-gradient(' +
+																theme.colors.primary +
+																'55 1px, transparent 1px),linear-gradient(90deg,' +
+																theme.colors.primary +
+																'55 1px, transparent 1px)'}
+															style:background-size="15px 15px"
+														></div>
 													{:else if theme.family === 'betawi'}
-														<div class="absolute inset-x-0 top-0 h-5" style:background={'linear-gradient(135deg,' + theme.colors.surface + ' 50%,transparent 50%) 0 0 / 20px 20px repeat-x'}></div>
+														<div
+															class="absolute inset-x-0 top-0 h-5"
+															style:background={'linear-gradient(135deg,' +
+																theme.colors.surface +
+																' 50%,transparent 50%) 0 0 / 20px 20px repeat-x'}
+														></div>
 													{:else if theme.family === 'minang'}
-														<div class="absolute top-2 h-14 w-4/5 rounded-t-[50%] border-t-4" style:border-color={theme.colors.primary}></div>
-														<div class="absolute top-0 left-7 h-12 w-3 rotate-25 border-l-4" style:border-color={theme.colors.primary}></div>
-														<div class="absolute top-0 right-7 h-12 w-3 -rotate-25 border-r-4" style:border-color={theme.colors.primary}></div>
+														<div
+															class="absolute top-2 h-14 w-4/5 rounded-t-[50%] border-t-4"
+															style:border-color={theme.colors.primary}
+														></div>
+														<div
+															class="absolute top-0 left-7 h-12 w-3 rotate-25 border-l-4"
+															style:border-color={theme.colors.primary}
+														></div>
+														<div
+															class="absolute top-0 right-7 h-12 w-3 -rotate-25 border-r-4"
+															style:border-color={theme.colors.primary}
+														></div>
 													{:else}
-														<div class="absolute top-4 h-12 w-4/5 rounded-[50%_50%_12%_12%] border-t-4" style:border-color={theme.colors.primary}></div>
-														<div class="absolute inset-x-10 bottom-1 h-8 border-x-2" style:border-color={theme.colors.accent}></div>
+														<div
+															class="absolute top-4 h-12 w-4/5 rounded-[50%_50%_12%_12%] border-t-4"
+															style:border-color={theme.colors.primary}
+														></div>
+														<div
+															class="absolute inset-x-10 bottom-1 h-8 border-x-2"
+															style:border-color={theme.colors.accent}
+														></div>
 													{/if}
-													<div class="relative flex flex-col items-center gap-1 text-center" style:color={theme.colors.surface}>
-														<span class="text-[10px] font-bold tracking-[0.25em] uppercase">{theme.family}</span>
-														<span class="font-serif text-4xl leading-none" style:color={theme.colors.primary}>&amp;</span>
+													<div
+														class="relative flex flex-col items-center gap-1 text-center"
+														style:color={theme.colors.surface}
+													>
+														<span class="text-[10px] font-bold tracking-[0.25em] uppercase"
+															>{theme.family}</span
+														>
+														<span
+															class="font-serif text-4xl leading-none"
+															style:color={theme.colors.primary}>&amp;</span
+														>
 													</div>
 												</div>
 											{:else if theme.family === 'selaras'}
-												<div class="grid size-full grid-cols-2 overflow-hidden" style:background={theme.colors.background}>
-													<div class="relative size-full" style:background={theme.colors.primary}><div class="absolute inset-4 border" style:border-color={theme.colors.accent}></div></div>
+												<div
+													class="grid size-full grid-cols-2 overflow-hidden"
+													style:background={theme.colors.background}
+												>
+													<div class="relative size-full" style:background={theme.colors.primary}>
+														<div
+															class="absolute inset-4 border"
+															style:border-color={theme.colors.accent}
+														></div>
+													</div>
 													<div class="flex flex-col items-center justify-center gap-2 px-3">
 														<div class="h-2 w-full" style:background={theme.colors.text}></div>
 														<div class="h-px w-4" style:background={theme.colors.accent}></div>
 														<div class="h-2 w-full" style:background={theme.colors.text}></div>
-														<div class="mt-3 h-4 w-full" style:background={theme.colors.primary}></div>
+														<div
+															class="mt-3 h-4 w-full"
+															style:background={theme.colors.primary}
+														></div>
 													</div>
 												</div>
 											{:else if theme.family === 'anomali'}
-												<div class="relative flex size-full flex-col items-center justify-center gap-2 overflow-hidden" style:background={theme.colors.text}>
-													<div class="absolute inset-0 opacity-35" style:background={'linear-gradient(150deg, ' + theme.colors.primary + ', transparent 70%)'}></div>
-													<div class="relative h-2 w-20 rounded-sm" style:background={theme.colors.surface}></div>
-													<div class="relative h-px w-6" style:background={theme.colors.accent}></div>
-													<div class="relative h-2 w-20 rounded-sm" style:background={theme.colors.surface}></div>
-													<div class="relative mt-2 flex gap-2">{#each [0, 1, 2, 3] as cell (cell)}<div class="size-3 border" style:border-color={theme.colors.accent}></div>{/each}</div>
-													<div class="relative mt-1 h-4 w-17" style:background={theme.colors.background}></div>
+												<div
+													class="relative flex size-full flex-col items-center justify-center gap-2 overflow-hidden"
+													style:background={theme.colors.text}
+												>
+													<div
+														class="absolute inset-0 opacity-35"
+														style:background={'linear-gradient(150deg, ' +
+															theme.colors.primary +
+															', transparent 70%)'}
+													></div>
+													<div
+														class="relative h-2 w-20 rounded-sm"
+														style:background={theme.colors.surface}
+													></div>
+													<div
+														class="relative h-px w-6"
+														style:background={theme.colors.accent}
+													></div>
+													<div
+														class="relative h-2 w-20 rounded-sm"
+														style:background={theme.colors.surface}
+													></div>
+													<div class="relative mt-2 flex gap-2">
+														{#each [0, 1, 2, 3] as cell (cell)}<div
+																class="size-3 border"
+																style:border-color={theme.colors.accent}
+															></div>{/each}
+													</div>
+													<div
+														class="relative mt-1 h-4 w-17"
+														style:background={theme.colors.background}
+													></div>
 												</div>
 											{:else if theme.family === 'kinetika'}
-												<div class="relative grid size-full place-items-center overflow-hidden" style:background={theme.colors.background}>
-													<div class="absolute h-[82%] w-[58%] translate-x-2 translate-y-1 border" style:background={theme.colors.surface} style:border-color={theme.colors.accent}></div>
-													<div class="absolute h-[82%] w-[58%] translate-x-1 border" style:background={theme.colors.surface} style:border-color={theme.colors.accent}></div>
-													<div class="relative flex h-[82%] w-[58%] flex-col items-center justify-around border-l-4 px-2 text-center shadow-lg" style:background={theme.colors.text} style:border-color={theme.colors.primary} style:color={theme.colors.surface}>
-														<span class="text-[7px] tracking-[0.16em] uppercase">Undangan Pernikahan</span>
+												<div
+													class="relative grid size-full place-items-center overflow-hidden"
+													style:background={theme.colors.background}
+												>
+													<div
+														class="absolute h-[82%] w-[58%] translate-x-2 translate-y-1 border"
+														style:background={theme.colors.surface}
+														style:border-color={theme.colors.accent}
+													></div>
+													<div
+														class="absolute h-[82%] w-[58%] translate-x-1 border"
+														style:background={theme.colors.surface}
+														style:border-color={theme.colors.accent}
+													></div>
+													<div
+														class="relative flex h-[82%] w-[58%] flex-col items-center justify-around border-l-4 px-2 text-center shadow-lg"
+														style:background={theme.colors.text}
+														style:border-color={theme.colors.primary}
+														style:color={theme.colors.surface}
+													>
+														<span class="text-[7px] tracking-[0.16em] uppercase"
+															>Undangan Pernikahan</span
+														>
 														<span class="font-serif text-4xl italic">&amp;</span>
-														<span class="text-[7px] tracking-[0.16em] uppercase">Buka Undangan</span>
+														<span class="text-[7px] tracking-[0.16em] uppercase">Buka Undangan</span
+														>
 													</div>
 												</div>
 											{:else if theme.family === 'nocturne'}

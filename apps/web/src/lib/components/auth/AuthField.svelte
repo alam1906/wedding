@@ -63,7 +63,7 @@
 				onclick={() => (isPasswordVisible = !isPasswordVisible)}
 				aria-label={isPasswordVisible ? 'Sembunyikan kata sandi' : 'Tampilkan kata sandi'}
 				aria-pressed={isPasswordVisible}
-				class="absolute top-1/2 right-2 grid size-7 -translate-y-1/2 place-items-center rounded-md border border-gray-100 bg-gray-50 text-emerald-500 transition hover:bg-gray-100 focus-visible:ring-2 focus-visible:ring-[#9400ff] focus-visible:outline-none disabled:cursor-not-allowed disabled:text-gray-400"
+				class="absolute top-1/2 right-2 grid size-7 -translate-y-1/2 place-items-center rounded-md text-[#8500e8] transition hover:bg-purple-50 focus-visible:ring-2 focus-visible:ring-[#9400ff] focus-visible:outline-none disabled:cursor-not-allowed disabled:text-gray-400"
 			>
 				{#if isPasswordVisible}
 					<svg
@@ -74,16 +74,12 @@
 						stroke-width="1.8"
 						stroke-linecap="round"
 						stroke-linejoin="round"
-						class="size-4"
+						class="size-5"
 					>
-						<path d="M3 3l18 18"></path>
-						<path d="M10.6 10.6a2 2 0 0 0 2.8 2.8"></path>
 						<path
-							d="M9.9 4.2A10.8 10.8 0 0 1 12 4c5.2 0 8.7 4.2 9.7 6.1a1.9 1.9 0 0 1 0 1.8 15.6 15.6 0 0 1-3.2 4"
+							d="M2.3 12C4.4 8.2 7.7 6.2 12 6.2s7.6 2 9.7 5.8c-2.1 3.8-5.4 5.8-9.7 5.8S4.4 15.8 2.3 12Z"
 						></path>
-						<path
-							d="M6.1 6.1A15.4 15.4 0 0 0 2.3 10a1.9 1.9 0 0 0 0 1.8C3.3 13.8 6.8 18 12 18c.8 0 1.6-.1 2.3-.3"
-						></path>
+						<circle cx="12" cy="12" r="2.75"></circle>
 					</svg>
 				{:else}
 					<svg
@@ -94,11 +90,13 @@
 						stroke-width="1.8"
 						stroke-linecap="round"
 						stroke-linejoin="round"
-						class="size-4"
+						class="size-5"
 					>
-						<path d="M2.3 12C3.4 9.9 6.9 6 12 6s8.6 3.9 9.7 6c-1.1 2.1-4.6 6-9.7 6s-8.6-3.9-9.7-6Z"
+						<path
+							d="M2.3 12C4.4 8.2 7.7 6.2 12 6.2s7.6 2 9.7 5.8c-2.1 3.8-5.4 5.8-9.7 5.8S4.4 15.8 2.3 12Z"
 						></path>
 						<circle cx="12" cy="12" r="2.75"></circle>
+						<path d="M3 20 21 4"></path>
 					</svg>
 				{/if}
 			</button>

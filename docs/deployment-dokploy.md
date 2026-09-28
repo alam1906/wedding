@@ -1,7 +1,7 @@
 # Deployment GitHub Actions ke Dokploy
 
 Dokumen ini mengatur deployment production tanpa build di VPS. GitHub Actions menjalankan check,
-lint, dan build tiga image. Image disimpan secara private di GHCR, kemudian Dokploy menarik image
+lint, dan build empat image. Image disimpan secara private di GHCR, kemudian Dokploy menarik image
 dan menjalankan `compose.yml`.
 
 ## Arsitektur
@@ -10,16 +10,16 @@ dan menjalankan `compose.yml`.
 git push main
   -> GitHub Actions
      -> check + lint
-     -> build image web, invitation, dan PocketBase
+     -> build image web, invitation, admin, dan PocketBase
      -> push tag production dan sha-<commit> ke GHCR
      -> POST /api/compose.deploy
   -> Dokploy
-     -> pull ketiga image
+     -> pull keempat image
      -> mempertahankan named volume PocketBase
      -> Traefik meneruskan request ke container
 ```
 
-Caddy berjalan di dalam container `web` dan `invitation` pada port 80. Traefik milik Dokploy tetap
+Caddy berjalan di dalam container `web`, `invitation`, dan `admin` pada port 80. Traefik milik Dokploy tetap
 menjadi reverse proxy publik pada port 80/443 dan menangani domain serta TLS.
 
 Gunakan panduan ini hanya pada VPS dengan instalasi OS baru. Jangan pasang Dokploy pada VPS lama
@@ -42,10 +42,11 @@ Tambahkan **Repository variables** berikut melalui **Settings -> Secrets and var
 | `PUBLIC_WEDDING_URL`    | `https://wedez.id`                                   |
 | `PUBLIC_INVITATION_URL` | `https://wedez.id`                                   |
 | `WEB_HEALTH_URL`        | `https://wedez.id`                                   |
+| `ADMIN_HEALTH_URL`      | `https://admin.wedez.id`                             |
 | `INVITATION_HEALTH_URL` | `https://deploy-health.wedez.id`                     |
 | `POCKETBASE_HEALTH_URL` | `https://api.wedez.id/api/health`                    |
 
-Tiga variable `PUBLIC_*` dan tiga health URL sudah mempunyai default untuk domain saat ini, tetapi
+Tiga variable `PUBLIC_*` dan empat health URL sudah mempunyai default untuk domain saat ini, tetapi
 sebaiknya tetap dibuat agar perubahan domain terlihat jelas di pengaturan repository. Jika variable
 tersebut sudah ada dengan domain lama, perbarui nilainya karena variable akan mengesampingkan default
 workflow. Sesuaikan juga `DOKPLOY_URL` bila alamat panel berubah.
@@ -61,11 +62,12 @@ publik atau di repository.
 
 ## 2. Registry GHCR di Dokploy
 
-GitHub Actions menerbitkan tiga package berikut:
+GitHub Actions menerbitkan empat package berikut:
 
 ```text
 ghcr.io/alam1906/wedding-web:production
 ghcr.io/alam1906/wedding-invitation:production
+ghcr.io/alam1906/wedding-admin:production
 ghcr.io/alam1906/wedding-pocketbase:production
 ```
 
@@ -127,30 +129,38 @@ GitHub Actions. Perbarui `WEDEZ_APP_URL`, `WEDEZ_API_URL`, `DUITKU_CALLBACK_URL`
 
 ## 4. Domain dan TLS
 
-Tambahkan dua domain biasa melalui tab **Domains** Docker Compose:
+Tambahkan tiga domain biasa melalui tab **Domains** Docker Compose:
 
-| Host           | Service      | Container port | HTTPS |
-| -------------- | ------------ | -------------: | ----- |
-| `wedez.id`     | `web`        |             80 | aktif |
-| `api.wedez.id` | `pocketbase` |           8090 | aktif |
+| Host             | Service      | Container port | HTTPS |
+| ---------------- | ------------ | -------------: | ----- |
+| `wedez.id`       | `web`        |             80 | aktif |
+| `admin.wedez.id` | `admin`      |             80 | aktif |
+| `api.wedez.id`   | `pocketbase` |           8090 | aktif |
 
 Undangan menggunakan wildcard `{slug}.wedez.id`. Karena kolom Host Dokploy tidak menerima
 `*`, routing wildcard sudah didefinisikan sebagai label Traefik pada service `invitation` dengan
-priority rendah. Route domain `api` yang dibuat Dokploy akan menang karena
-lebih spesifik.
+priority rendah. Route domain `api` dan `admin` yang dibuat Dokploy akan menang karena lebih
+spesifik. Daftarkan `admin.wedez.id` pada service `admin` supaya tidak jatuh ke router wildcard
+undangan.
+
+Jika Dokploy baru menampilkan service `admin` setelah Compose pertama kali dijalankan, jalankan
+workflow satu kali untuk membuat service, tambahkan domain `admin.wedez.id`, lalu jalankan ulang
+`bun run deploy`. Pemeriksaan pertama dapat gagal karena wildcard undangan masih menjawab domain
+tersebut; image admin yang sudah dibuat tetap tersedia di GHCR.
 
 Di Cloudflare buat record A berikut menuju IP VPS baru:
 
 ```text
 @    -> IP VPS
 api  -> IP VPS
+admin -> IP VPS
 *    -> IP VPS
 ```
 
 Untuk TLS wildcard tanpa menyimpan Cloudflare API token di VPS, buat Cloudflare Origin Certificate
 yang mencakup `wedez.id` dan `*.wedez.id`, lalu impor certificate dan private key ke
 menu **Certificates** Dokploy. Gunakan Cloudflare SSL/TLS mode **Full (Strict)** dan aktifkan proxy
-Cloudflare pada ketiga record. Setelah certificate diimpor, aktifkan HTTPS pada dua domain Dokploy
+Cloudflare pada keempat record. Setelah certificate diimpor, aktifkan HTTPS pada tiga domain Dokploy
 di atas dan pilih certificate provider **None** agar Traefik menggunakan certificate yang diimpor.
 
 Pastikan `https://deploy-health.wedez.id` sudah mencapai service invitation sebelum
@@ -159,6 +169,11 @@ menjalankan workflow production pertama.
 Di pengaturan PocketBase yang sudah berjalan, ubah Application URL menjadi `https://api.wedez.id`
 agar tautan email yang memakai `{APP_URL}` mengarah ke domain API baru. Perubahan environment
 container tidak otomatis mengubah pengaturan yang sudah tersimpan di database PocketBase.
+
+Dashboard admin memakai login `_superusers` dari PocketBase yang sama di `api.wedez.id`. Buat akun
+operator melalui PocketBase bila diperlukan; jangan menaruh email, kata sandi, atau token admin pada
+GitHub variables maupun image. Token dashboard hanya hidup di memori tab browser, sehingga operator
+perlu login ulang setelah refresh. Akun superuser memiliki hak penuh, termasuk data keuangan.
 
 ## 5. API key dan Compose ID
 
@@ -192,7 +207,8 @@ remote `main`; perubahan lokal yang belum dipush tidak ikut deployment.
 
 Setelah API deploy dipanggil, workflow menunggu maksimal enam menit dan memverifikasi:
 
-- web dan invitation menjalankan SHA commit yang baru;
+- web, invitation, dan admin menjalankan SHA commit yang baru; endpoint admin juga mengembalikan
+  penanda service `admin`, sehingga router wildcard undangan tidak lolos pemeriksaan;
 - endpoint health PocketBase mengembalikan HTTP 2xx.
 
 ## 7. Data dan rollback
@@ -207,9 +223,9 @@ production
 sha-<full-commit-sha>
 ```
 
-Untuk rollback, ubah sementara `WEDEZ_WEB_IMAGE`, `WEDEZ_INVITATION_IMAGE`, dan
-`WEDEZ_POCKETBASE_IMAGE` pada Environment Dokploy ke tag SHA yang sama, lalu redeploy dengan
-`freshVolumes: false`. Kembalikan ketiganya ke tag `production` sebelum deployment normal berikutnya.
+Untuk rollback, ubah sementara `WEDEZ_WEB_IMAGE`, `WEDEZ_INVITATION_IMAGE`, `WEDEZ_ADMIN_IMAGE`,
+dan `WEDEZ_POCKETBASE_IMAGE` pada Environment Dokploy ke tag SHA yang sama, lalu redeploy dengan
+`freshVolumes: false`. Kembalikan keempatnya ke tag `production` sebelum deployment normal berikutnya.
 
 Jangan rollback migration PocketBase dengan mengganti image tanpa memeriksa kompatibilitas schema
 dan backup volume terlebih dahulu.

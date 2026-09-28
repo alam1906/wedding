@@ -1,13 +1,14 @@
 # Wedez
 
-Monorepo Wedez berisi dua aplikasi SvelteKit dan satu service PocketBase.
+Monorepo Wedez berisi tiga aplikasi SvelteKit dan satu service PocketBase.
 
 ## Struktur
 
 - `apps/web`: landing page, autentikasi, dashboard, dan editor pengantin.
 - `apps/invitation`: undangan publik berbasis subdomain.
+- `apps/admin`: dashboard operasional di `admin.wedez.id`.
 - `pocketbase`: Dockerfile, hooks, dan migration PocketBase.
-- `compose.yml`: tiga service untuk deployment Dokploy.
+- `compose.yml`: empat service untuk deployment Dokploy.
 
 ## Menjalankan secara lokal
 
@@ -29,13 +30,28 @@ Jalankan aplikasi undangan di `http://localhost:5174`:
 bun run dev:invitation
 ```
 
-Pada localhost, slug undangan dapat diberikan lewat query string:
+Jalankan dashboard admin di `http://localhost:5175`:
+
+```sh
+bun run dev:admin
+```
+
+Dashboard memakai superuser PocketBase yang sama dengan backend Wedez. Sesi admin hanya hidup di
+memori tab browser dan hilang saat halaman dimuat ulang. Tidak ada kredensial admin di build frontend.
+
+Alamat undangan development memakai subdomain sesuai slug, misalnya
+`http://agushaliem.localhost:5174`. Di production, slug yang sama menjadi
+`https://agushaliem.wedez.id`. Domain dasarnya diatur oleh `PUBLIC_INVITATION_URL`:
+`http://localhost:5174` pada `.env.dev` dan `https://wedez.id` pada `.env`.
+Jangan isi variabel tersebut dengan subdomain yang sudah mengandung slug.
+
+Pada localhost, slug undangan juga dapat diberikan lewat query string:
 
 ```text
 http://localhost:5174/?slug=yanto-yanti&rsvp=token-tamu
 ```
 
-Kedua dev server memakai port tetap, termasuk saat dijalankan bersama dengan `bun run dev:all`.
+Ketiga dev server memakai port tetap, termasuk saat dijalankan bersama dengan `bun run dev:all`.
 
 ## Pembayaran Duitku
 
@@ -68,8 +84,8 @@ bun run build
 
 ## Deployment Dokploy
 
-Production dibangun seluruhnya di GitHub Actions. Workflow membuat tiga image di GHCR, lalu
-memanggil API Dokploy untuk menarik dan menjalankan image tanpa build di VPS. Dua image statis
+Production dibangun seluruhnya di GitHub Actions. Workflow membuat empat image di GHCR, lalu
+memanggil API Dokploy untuk menarik dan menjalankan image tanpa build di VPS. Tiga image statis
 menggunakan Caddy di dalam container; Traefik milik Dokploy menangani domain dan HTTPS.
 
 Panduan lengkap repository variables, secret, GHCR, domain wildcard, volume PocketBase, dan

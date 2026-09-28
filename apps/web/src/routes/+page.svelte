@@ -320,7 +320,7 @@
 <main id="main-content" class="w-full">
 	<section
 		id="beranda"
-		class="mx-auto flex min-h-[calc(100dvh-4.5rem)] w-full max-w-7xl scroll-mt-[88px] items-center overflow-hidden bg-white px-4 py-10 sm:px-6 sm:py-12 lg:px-8 lg:py-16 2xl:max-w-[1600px] 2xl:px-10"
+		class="mx-auto flex min-h-[calc(100dvh-4.5rem)] w-full max-w-7xl scroll-mt-22 items-center overflow-hidden bg-white px-4 py-10 sm:px-6 sm:py-12 lg:px-8 lg:py-16 2xl:max-w-[1600px] 2xl:px-10"
 	>
 		<div
 			class="grid w-full items-center gap-14 lg:grid-cols-[0.9fr_1.1fr] lg:gap-20 2xl:grid-cols-[0.85fr_1.15fr] 2xl:gap-24"
@@ -416,7 +416,7 @@
 							>
 						</div>
 
-						<div class="grid min-h-[420px] grid-cols-[76px_1fr] sm:grid-cols-[150px_1fr]">
+						<div class="grid min-h-105 grid-cols-[76px_1fr] sm:grid-cols-[150px_1fr]">
 							<aside class="flex flex-col border-r border-gray-200 bg-white p-2.5 sm:p-4">
 								<p class="text-center text-xs font-bold tracking-tight text-gray-900 sm:text-base">
 									<span class="sm:hidden">W</span>
@@ -619,7 +619,7 @@
 						data-reveal
 						class="group flex min-w-0 flex-col overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-gray-200/70"
 					>
-						<div class="aspect-[4/3] overflow-hidden bg-[#f5f0e6]">
+						<div class="aspect-4/3 overflow-hidden bg-[#f5f0e6]">
 							<img
 								class="size-full object-cover transition-transform duration-500 group-hover:scale-[1.035]"
 								src={reason.image}
@@ -683,7 +683,7 @@
 							data-reveal
 							class="group flex min-w-0 flex-col overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-gray-200/70"
 						>
-							<div class="relative aspect-[4/5] overflow-hidden">
+							<div class="relative aspect-4/5 overflow-hidden">
 								{#if theme.key === 'minimalist'}
 									<div
 										class="absolute inset-0 bg-[#eeeae2] transition-transform duration-500 group-hover:scale-[1.025]"
@@ -767,13 +767,13 @@
 									</div>
 								{:else}
 									<div
-										class="absolute inset-0 overflow-hidden bg-gradient-to-br from-[#e4efff] via-[#f2ecff] to-[#ffe9e2] transition-transform duration-500 group-hover:scale-[1.025]"
+										class="absolute inset-0 overflow-hidden bg-linear-to-br from-[#e4efff] via-[#f2ecff] to-[#ffe9e2] transition-transform duration-500 group-hover:scale-[1.025]"
 									>
 										<div
-											class="absolute top-5 right-5 size-24 rounded-full bg-gradient-to-br from-[#ffcab8] to-[#ff8b80] shadow-[0_18px_32px_rgba(239,118,103,0.35)]"
+											class="absolute top-5 right-5 size-24 rounded-full bg-linear-to-br from-[#ffcab8] to-[#ff8b80] shadow-[0_18px_32px_rgba(239,118,103,0.35)]"
 										></div>
 										<div
-											class="absolute bottom-5 left-4 size-28 rounded-[38%_62%_55%_45%] bg-gradient-to-br from-[#7c8cff] to-[#4251ce] shadow-[0_22px_34px_rgba(66,81,206,0.38)]"
+											class="absolute bottom-5 left-4 size-28 rounded-[38%_62%_55%_45%] bg-linear-to-br from-[#7c8cff] to-[#4251ce] shadow-[0_22px_34px_rgba(66,81,206,0.38)]"
 										></div>
 										<div
 											class="absolute top-[18%] right-7 left-7 h-[64%] rotate-[-4deg] rounded-3xl bg-white/50 shadow-[0_24px_50px_rgba(66,70,130,0.16)] backdrop-blur-sm"
@@ -782,7 +782,7 @@
 											class="absolute top-[22%] right-7 left-7 flex h-[64%] rotate-2 flex-col items-center justify-center rounded-3xl border border-white/80 bg-white/75 px-5 text-center shadow-[0_28px_55px_rgba(66,70,130,0.2)] backdrop-blur-md"
 										>
 											<span
-												class="mb-5 size-8 rounded-full bg-gradient-to-br from-[#ffb39f] to-[#6575f3] shadow-lg"
+												class="mb-5 size-8 rounded-full bg-linear-to-br from-[#ffb39f] to-[#6575f3] shadow-lg"
 											></span>
 											<p class="text-[9px] font-semibold tracking-[0.2em] text-[#66709a] uppercase">
 												The wedding of
@@ -874,7 +874,7 @@
 
 			<div
 				data-reveal
-				class="relative mx-auto w-full max-w-2xl rounded-[2rem] bg-gray-100 p-2 shadow-sm sm:p-3"
+				class="relative mx-auto w-full max-w-2xl rounded-4xl bg-gray-100 p-2 shadow-sm sm:p-3"
 			>
 				<div
 					class="absolute -inset-8 -z-10 rounded-full bg-gray-200/70 blur-3xl"
@@ -899,7 +899,7 @@
 							>
 						</div>
 
-						<div class="grid min-h-[420px] grid-cols-[76px_1fr] sm:grid-cols-[150px_1fr]">
+						<div class="grid min-h-105 grid-cols-[76px_1fr] sm:grid-cols-[150px_1fr]">
 							<aside class="flex flex-col border-r border-gray-200 bg-white p-2.5 sm:p-4">
 								<p class="text-center text-xs font-bold tracking-tight text-gray-900 sm:text-base">
 									<span class="sm:hidden">W</span>
@@ -1214,7 +1214,11 @@
 
 <footer class="border-t border-gray-200 bg-white py-10">
 	<div class="mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8 2xl:max-w-[1600px] 2xl:px-10">
-		<a href="/affiliate" class="mb-4 inline-block text-sm font-semibold text-violet-700 hover:text-violet-900">Gabung Affiliate</a>
+		<a
+			href="/affiliate"
+			class="mb-4 inline-block text-sm font-semibold text-violet-700 hover:text-violet-900"
+			>Gabung Affiliate</a
+		>
 		<p class="text-sm text-gray-500">© 2026 Wedez</p>
 	</div>
 </footer>

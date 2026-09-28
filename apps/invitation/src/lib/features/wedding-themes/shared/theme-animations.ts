@@ -76,23 +76,35 @@ export function mountWeddingThemeAnimations(
 					const lively = variant === 'gigi-balang-betawi';
 					gsap
 						.timeline({ defaults: { ease: angular ? 'power3.out' : 'power2.out' } })
-						.from('.hero > .cover-frame img, .hero > .cover-frame .cover-placeholder', {
-							scale: angular ? 1.04 : 1.1,
-							duration: 2.2
-						}, 0)
-						.from('.regional-ornament', {
-							autoAlpha: 0,
-							scale: angular ? 0.9 : 0.75,
-							y: -22,
-							duration: 1.1
-						}, 0.1)
-						.from('.hero-copy > :not(.regional-ornament)', {
-							autoAlpha: 0,
-							y: lively ? 34 : 24,
-							duration: 0.85,
-							stagger: 0.11,
-							ease: lively ? 'back.out(1.25)' : 'power2.out'
-						}, 0.3);
+						.from(
+							'.hero > .cover-frame img, .hero > .cover-frame .cover-placeholder',
+							{
+								scale: angular ? 1.04 : 1.1,
+								duration: 2.2
+							},
+							0
+						)
+						.from(
+							'.regional-ornament',
+							{
+								autoAlpha: 0,
+								scale: angular ? 0.9 : 0.75,
+								y: -22,
+								duration: 1.1
+							},
+							0.1
+						)
+						.from(
+							'.hero-copy > :not(.regional-ornament)',
+							{
+								autoAlpha: 0,
+								y: lively ? 34 : 24,
+								duration: 0.85,
+								stagger: 0.11,
+								ease: lively ? 'back.out(1.25)' : 'power2.out'
+							},
+							0.3
+						);
 					gsap.to('.regional-ornament', {
 						y: 5,
 						duration: 3.2,
@@ -126,22 +138,34 @@ export function mountWeddingThemeAnimations(
 				if (variant === 'puspa-parahyangan') {
 					gsap
 						.timeline({ defaults: { ease: 'power2.out' } })
-						.from('.hero > .cover-frame img, .hero > .cover-frame .cover-placeholder', {
-							scale: 1.08,
-							duration: 2.2
-						}, 0)
-						.from('.sunda-ornament', {
-							autoAlpha: 0,
-							scale: 0.72,
-							y: -25,
-							duration: 1.1
-						}, 0.1)
-						.from('.hero-copy > :not(.sunda-ornament)', {
-							autoAlpha: 0,
-							y: 28,
-							duration: 0.9,
-							stagger: 0.12
-						}, 0.3);
+						.from(
+							'.hero > .cover-frame img, .hero > .cover-frame .cover-placeholder',
+							{
+								scale: 1.08,
+								duration: 2.2
+							},
+							0
+						)
+						.from(
+							'.sunda-ornament',
+							{
+								autoAlpha: 0,
+								scale: 0.72,
+								y: -25,
+								duration: 1.1
+							},
+							0.1
+						)
+						.from(
+							'.hero-copy > :not(.sunda-ornament)',
+							{
+								autoAlpha: 0,
+								y: 28,
+								duration: 0.9,
+								stagger: 0.12
+							},
+							0.3
+						);
 					gsap.to('.sunda-ornament', {
 						y: 6,
 						duration: 3,

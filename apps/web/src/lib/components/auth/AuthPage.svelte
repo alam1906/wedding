@@ -40,14 +40,12 @@
 		isLogin
 			? {
 					title: 'Selamat datang',
-					description: 'Masuk untuk melanjutkan undangan atau program affiliate.',
 					submitLabel: 'Masuk',
 					metaTitle: 'Masuk - Wedez',
 					metaDescription: 'Masuk ke akun Wedez untuk mengelola undangan atau affiliate.'
 				}
 			: {
 					title: 'Buat akun',
-					description: 'Daftar untuk membuat undangan atau menjadi affiliate Wedez.',
 					submitLabel: 'Daftar',
 					metaTitle: 'Daftar - Wedez',
 					metaDescription: 'Buat akun Wedez untuk undangan pernikahan atau program affiliate.'
@@ -172,9 +170,16 @@
 <main class="grid min-h-screen place-items-center bg-gray-100 px-4 py-12">
 	<section class="w-full max-w-sm rounded-2xl border border-gray-200 bg-white p-8 shadow-sm">
 		<div class="text-center">
-			<a href="/" class="text-sm font-semibold tracking-wide text-gray-500">WEDEZ</a>
-			<h1 class="mt-3 text-2xl font-bold tracking-tight text-gray-900">{content.title}</h1>
-			<p class="mt-2 text-sm text-gray-500">{content.description}</p>
+			<a href="/" class="inline-flex" aria-label="Wedez, kembali ke beranda">
+				<img
+					class="size-20 object-contain"
+					src="/images/hero/logo-wedez.webp"
+					alt=""
+					width="256"
+					height="256"
+				/>
+			</a>
+			<h1 class="text-2xl font-bold tracking-tight text-gray-900">{content.title}</h1>
 		</div>
 
 		<form class="mt-8 space-y-5" onsubmit={submitAuth}>

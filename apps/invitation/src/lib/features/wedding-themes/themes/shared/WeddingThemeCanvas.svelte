@@ -2272,7 +2272,9 @@
 	.family-sunda .hero-countdown .countdown-card {
 		border: 1px solid #e5ca8fa3;
 		background: #10392fc7;
-		box-shadow: 0 10px 30px #051d1980, inset 0 0 0 4px #ebd9ae1c;
+		box-shadow:
+			0 10px 30px #051d1980,
+			inset 0 0 0 4px #ebd9ae1c;
 		color: #fff9ed;
 		backdrop-filter: blur(0.35rem);
 	}
@@ -2292,7 +2294,9 @@
 		font-weight: 800;
 		letter-spacing: 0.15em;
 		text-transform: uppercase;
-		transition: transform 180ms ease, box-shadow 180ms ease;
+		transition:
+			transform 180ms ease,
+			box-shadow 180ms ease;
 	}
 	.family-sunda .primary-button:hover {
 		transform: translateY(-3px);
@@ -2310,8 +2314,7 @@
 	.family-sunda > section.gift-section {
 		background:
 			radial-gradient(circle at 8% 16%, #b2c6ac3b, transparent 27rem),
-			radial-gradient(circle at 94% 82%, #d6bc7b33, transparent 29rem),
-			#f5f0e3;
+			radial-gradient(circle at 94% 82%, #d6bc7b33, transparent 29rem), #f5f0e3;
 	}
 	.family-sunda > section.event-section,
 	.family-sunda > section.gallery-section {
@@ -2356,7 +2359,9 @@
 		aspect-ratio: 4 / 5;
 		border: 6px solid #fffaf0;
 		border-radius: 48% 48% 0.5rem 0.5rem;
-		box-shadow: 0 0 0 1px #b78a43, 0 20px 40px #27453930;
+		box-shadow:
+			0 0 0 1px #b78a43,
+			0 20px 40px #27453930;
 	}
 	.family-sunda .person-placeholder {
 		background: #9db5a2;
@@ -2374,7 +2379,10 @@
 		border: 1px solid #c3a46f;
 		border-radius: 48% 48% 0.5rem 0.5rem / 12% 12% 0.5rem 0.5rem;
 		background: #fff9ec;
-		box-shadow: inset 0 0 0 7px #fff9ec, inset 0 0 0 8px #c3a46f91, 0 22px 40px #09291f73;
+		box-shadow:
+			inset 0 0 0 7px #fff9ec,
+			inset 0 0 0 8px #c3a46f91,
+			0 22px 40px #09291f73;
 		padding: clamp(3.5rem, 6vw, 5rem) clamp(1.5rem, 4vw, 3rem) clamp(2rem, 4vw, 3rem);
 		color: #183c34;
 	}
@@ -2533,7 +2541,9 @@
 	.regional-theme .hero-countdown .countdown-card {
 		border: 1px solid var(--regional-gold);
 		background: color-mix(in srgb, var(--regional-dark) 84%, transparent);
-		box-shadow: 0 10px 30px #0006, inset 0 0 0 4px #fff1;
+		box-shadow:
+			0 10px 30px #0006,
+			inset 0 0 0 4px #fff1;
 		color: var(--regional-cream);
 		backdrop-filter: blur(0.35rem);
 	}
@@ -2553,7 +2563,9 @@
 		font-weight: 900;
 		letter-spacing: 0.13em;
 		text-transform: uppercase;
-		transition: transform 180ms ease, box-shadow 180ms ease;
+		transition:
+			transform 180ms ease,
+			box-shadow 180ms ease;
 	}
 	.regional-theme .primary-button:hover {
 		transform: translateY(-3px);
@@ -2610,7 +2622,9 @@
 		aspect-ratio: 4 / 5;
 		border: 6px solid var(--color-surface);
 		border-radius: var(--regional-portrait-radius, 45% 45% 0.35rem 0.35rem);
-		box-shadow: 0 0 0 2px var(--color-primary), 0 22px 45px #0002;
+		box-shadow:
+			0 0 0 2px var(--color-primary),
+			0 22px 45px #0002;
 	}
 	.regional-theme .person-placeholder {
 		background: var(--color-accent);
@@ -2623,7 +2637,10 @@
 		border: 1px solid var(--color-primary);
 		border-radius: var(--regional-card-radius, 0.35rem);
 		background: var(--color-surface);
-		box-shadow: inset 0 0 0 6px var(--color-surface), inset 0 0 0 7px var(--color-primary), 0 18px 40px #0004;
+		box-shadow:
+			inset 0 0 0 6px var(--color-surface),
+			inset 0 0 0 7px var(--color-primary),
+			0 18px 40px #0004;
 		padding: clamp(2.5rem, 5vw, 4rem) clamp(1.5rem, 4vw, 3rem);
 		color: var(--color-text);
 	}
@@ -2721,12 +2738,17 @@
 	.family-jawa .couple-section,
 	.family-jawa .story-section,
 	.family-jawa .gift-section {
-		background-image: radial-gradient(ellipse 20px 35px at 25px 45px, #9865431a 35%, transparent 38%), radial-gradient(ellipse 20px 35px at 65px 45px, #9865431a 35%, transparent 38%);
+		background-image:
+			radial-gradient(ellipse 20px 35px at 25px 45px, #9865431a 35%, transparent 38%),
+			radial-gradient(ellipse 20px 35px at 65px 45px, #9865431a 35%, transparent 38%);
 		background-size: 90px 90px;
 	}
 	.family-jawa .event-card {
 		border-width: 2px;
-		box-shadow: inset 0 0 0 6px var(--color-surface), inset 0 0 0 8px #98654380, 0 18px 40px #0004;
+		box-shadow:
+			inset 0 0 0 6px var(--color-surface),
+			inset 0 0 0 8px #98654380,
+			0 18px 40px #0004;
 	}
 	.family-batak {
 		--regional-dark: #1f1d1b;
@@ -2746,7 +2768,12 @@
 		left: 0;
 		width: 100%;
 		height: 10px;
-		background: repeating-linear-gradient(90deg, #a82424 0 22px, #f5e9cf 22px 28px, #1f1d1b 28px 50px);
+		background: repeating-linear-gradient(
+			90deg,
+			#a82424 0 22px,
+			#f5e9cf 22px 28px,
+			#1f1d1b 28px 50px
+		);
 		content: '';
 		pointer-events: none;
 	}
@@ -2769,13 +2796,22 @@
 	}
 	.family-bugis .event-section,
 	.family-bugis .gallery-section {
-		background-image: linear-gradient(#e8d2a012 1px, transparent 1px), linear-gradient(90deg, #e8d2a012 1px, transparent 1px);
+		background-image:
+			linear-gradient(#e8d2a012 1px, transparent 1px),
+			linear-gradient(90deg, #e8d2a012 1px, transparent 1px);
 		background-size: 28px 28px;
 	}
 	.family-bugis .event-card,
 	.family-bugis .story-panel,
 	.family-bugis .gift-grid article {
-		clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 16px 100%, 0 calc(100% - 16px));
+		clip-path: polygon(
+			0 0,
+			calc(100% - 16px) 0,
+			100% 16px,
+			100% 100%,
+			16px 100%,
+			0 calc(100% - 16px)
+		);
 	}
 	.family-betawi {
 		--regional-dark: #16463b;
@@ -2795,7 +2831,8 @@
 		left: 0;
 		width: 100%;
 		height: 20px;
-		background: linear-gradient(135deg, var(--regional-cream) 50%, transparent 50%) 0 0 / 32px 20px repeat-x;
+		background: linear-gradient(135deg, var(--regional-cream) 50%, transparent 50%) 0 0 / 32px 20px
+			repeat-x;
 		content: '';
 		pointer-events: none;
 	}
@@ -2836,7 +2873,9 @@
 	}
 	.family-toraja .event-section,
 	.family-toraja .gallery-section {
-		background-image: repeating-linear-gradient(45deg, transparent 0 46px, #b85f3b16 46px 48px), repeating-linear-gradient(-45deg, transparent 0 46px, #b85f3b16 46px 48px);
+		background-image:
+			repeating-linear-gradient(45deg, transparent 0 46px, #b85f3b16 46px 48px),
+			repeating-linear-gradient(-45deg, transparent 0 46px, #b85f3b16 46px 48px);
 	}
 	.family-toraja .event-card,
 	.family-toraja .story-panel,

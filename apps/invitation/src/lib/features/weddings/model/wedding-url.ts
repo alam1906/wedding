@@ -29,17 +29,17 @@ function normalizeWeddingSlug(value: string): string {
 
 export function getWeddingSlug(url: URL): string {
 	const hostname = url.hostname.toLowerCase();
+	const baseHostname = configuredBaseHostname();
 
-	if (hostname === 'localhost' || hostname === '127.0.0.1') {
+	// Keep the query-string preview only for the local invitation environment.
+	if (
+		(baseHostname === 'localhost' || baseHostname === '127.0.0.1') &&
+		(hostname === 'localhost' || hostname === '127.0.0.1')
+	) {
 		return normalizeWeddingSlug(url.searchParams.get('slug') ?? '');
 	}
 
-	const localhostSuffix = '.localhost';
-	if (hostname.endsWith(localhostSuffix)) {
-		return normalizeWeddingSlug(hostname.slice(0, -localhostSuffix.length));
-	}
-
-	const suffix = `.${configuredBaseHostname()}`;
+	const suffix = `.${baseHostname}`;
 	if (!hostname.endsWith(suffix)) return '';
 
 	return normalizeWeddingSlug(hostname.slice(0, -suffix.length));

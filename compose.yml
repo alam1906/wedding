@@ -8,6 +8,15 @@ services:
     networks:
       - dokploy-network
 
+  admin:
+    image: ${WEDEZ_ADMIN_IMAGE:-ghcr.io/alam1906/wedding-admin:production}
+    pull_policy: always
+    restart: unless-stopped
+    expose:
+      - '80'
+    networks:
+      - dokploy-network
+
   invitation:
     image: ${WEDEZ_INVITATION_IMAGE:-ghcr.io/alam1906/wedding-invitation:production}
     pull_policy: always

@@ -8,6 +8,7 @@ WORKDIR /workspace
 COPY package.json bun.lock ./
 COPY apps/web/package.json apps/web/package.json
 COPY apps/invitation/package.json apps/invitation/package.json
+COPY apps/admin/package.json apps/admin/package.json
 RUN bun install --frozen-lockfile --ignore-scripts
 
 COPY apps/web apps/web

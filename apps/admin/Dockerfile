@@ -1,0 +1,34 @@
+ARG BUN_VERSION=1.4.0
+ARG CADDY_VERSION=2.11.4
+
+FROM oven/bun:${BUN_VERSION}-alpine AS build
+
+WORKDIR /workspace
+
+COPY package.json bun.lock ./
+COPY apps/web/package.json apps/web/package.json
+COPY apps/invitation/package.json apps/invitation/package.json
+COPY apps/admin/package.json apps/admin/package.json
+RUN bun install --frozen-lockfile --ignore-scripts
+
+COPY apps/admin apps/admin
+
+ARG PUBLIC_POCKETBASE_URL=https://api.wedez.id
+ENV PUBLIC_POCKETBASE_URL=$PUBLIC_POCKETBASE_URL
+
+RUN bun run --cwd apps/admin build
+
+FROM caddy:${CADDY_VERSION}-alpine
+
+ARG GIT_SHA=unknown
+
+COPY deployment/Caddyfile.admin /etc/caddy/Caddyfile
+COPY --from=build /workspace/apps/admin/build /srv
+
+RUN printf '%s\n' "$GIT_SHA" > /srv/_wedez_revision
+RUN printf '%s\n' 'admin' > /srv/_wedez_service
+
+EXPOSE 80
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+	CMD wget -qO- http://127.0.0.1/healthz >/dev/null || exit 1

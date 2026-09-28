@@ -16,6 +16,7 @@
 		type Payout
 	} from '../model/affiliate.js';
 	import { getToastContext } from '#lib/features/toast/index.js';
+	import RefreshIcon from './RefreshIcon.svelte';
 	let { kind, overview }: { kind: 'commissions' | 'payouts'; overview: AffiliateOverview } =
 		$props();
 	let records = $state<(Commission | Payout)[]>([]);
@@ -149,9 +150,11 @@
 				void load();
 				void invalidate('wedez:affiliate');
 			}}
-			class="cursor-pointer text-sm font-semibold text-violet-700 disabled:opacity-50"
-			>Muat ulang</button
+			aria-label={isPayout ? 'Segarkan riwayat pencairan' : 'Segarkan riwayat komisi'}
+			class="group grid size-10 shrink-0 cursor-pointer place-items-center rounded-full border border-violet-200 bg-violet-50 text-violet-700 shadow-sm transition hover:border-violet-300 hover:bg-violet-100 hover:shadow-violet-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-600 active:scale-95 disabled:pointer-events-none disabled:opacity-50"
 		>
+			<RefreshIcon />
+		</button>
 	</div>
 	{#if error}<p role="alert" class="px-5 py-4 text-sm text-red-600">{error}</p>{/if}
 	{#if loading}<p role="status" class="px-5 py-10 text-sm text-gray-500">Memuat riwayat...</p>

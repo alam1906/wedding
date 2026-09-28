@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import { onMount, tick, untrack } from 'svelte';
+	import { SvelteSet } from 'svelte/reactivity';
 	import {
 		getPublicGuestRsvp,
 		getPublicRsvpMessages,
@@ -48,7 +49,7 @@
 	let turning = $state<{ from: number; to: number; direction: BookDirection }>();
 	let motion: BookAnimationController | undefined;
 	let destroyed = false;
-	const prefetchedImages = new Set<string>();
+	const prefetchedImages = new SvelteSet<string>();
 	let initialized = $state(false);
 	let visibleHeight = $state(0);
 	const step = $derived(geometry.single ? 1 : 2);
