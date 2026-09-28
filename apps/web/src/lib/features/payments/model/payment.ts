@@ -8,6 +8,9 @@ export type ProPayment = {
 	id: string;
 	status: PaymentStatus;
 	amount: number;
+	original_amount: number;
+	discount_amount: number;
+	coupon_code: string;
 	currency: 'IDR';
 	expires_at: string;
 	checkout_url: string;
@@ -16,4 +19,12 @@ export type ProPayment = {
 export type ProPaymentState = {
 	plan_tier: WeddingPlanTier;
 	payment: ProPayment;
+};
+
+export type PaymentQuote = {
+	original_amount: number;
+	amount: number;
+	discount_amount: number;
+	discount_percent: number;
+	coupon_code: string;
 };

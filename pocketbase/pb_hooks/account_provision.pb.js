@@ -3,6 +3,7 @@ routerAdd(
 	'/api/wedez/account/provision',
 	function (e) {
 		e.response.header().set('Cache-Control', 'no-store');
+		if (!e.auth.getBool('verified')) throw new ForbiddenError('Verifikasi email terlebih dahulu.');
 		var userId = e.auth.id;
 		var weddingId = '';
 
@@ -11,7 +12,11 @@ routerAdd(
 			var existingWeddingId = String(user.get('wedding_id') || '');
 
 			if (existingWeddingId) {
-				txApp.findRecordById('weddings', existingWeddingId);
+				var existingWedding = txApp.findRecordById('weddings', existingWeddingId);
+				if (existingWedding.getString('owner') !== userId)
+					throw new ForbiddenError('Undangan bukan milik akun ini.');
+				user.set('home_area', 'wedding');
+				txApp.save(user);
 				weddingId = existingWeddingId;
 				return;
 			}
@@ -24,6 +29,7 @@ routerAdd(
 			txApp.save(wedding);
 
 			user.set('wedding_id', wedding.id);
+			user.set('home_area', 'wedding');
 			txApp.save(user);
 			weddingId = wedding.id;
 		});

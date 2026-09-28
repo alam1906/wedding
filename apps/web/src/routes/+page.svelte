@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import { slide } from 'svelte/transition';
 
 	type Theme = {
@@ -159,6 +160,53 @@
 			{ duration: 180, easing: 'ease-out' }
 		);
 	}
+
+	onMount(() => {
+		let disposed = false;
+		let revertAnimations: (() => void) | undefined;
+
+		void (async () => {
+			try {
+				const [{ gsap }, { ScrollTrigger }] = await Promise.all([
+					import('gsap'),
+					import('gsap/ScrollTrigger')
+				]);
+				const root = document.getElementById('main-content');
+				if (disposed || !root) return;
+
+				gsap.registerPlugin(ScrollTrigger);
+				const media = gsap.matchMedia();
+				media.add('(prefers-reduced-motion: no-preference)', () => {
+					const context = gsap.context(() => {
+						root.querySelectorAll<HTMLElement>('[data-reveal]').forEach((element) => {
+							gsap.from(element, {
+								autoAlpha: 0,
+								y: 28,
+								duration: 0.7,
+								ease: 'power2.out',
+								clearProps: 'opacity,visibility,transform',
+								scrollTrigger: {
+									trigger: element,
+									start: 'top 88%',
+									once: true
+								}
+							});
+						});
+					}, root);
+
+					return () => context.revert();
+				});
+				revertAnimations = () => media.revert();
+			} catch (error) {
+				console.error('Animasi landing page gagal dimuat.', error);
+			}
+		})();
+
+		return () => {
+			disposed = true;
+			revertAnimations?.();
+		};
+	});
 </script>
 
 <svelte:head>
@@ -184,18 +232,16 @@
 	class="fixed inset-x-0 top-0 z-50 border-b border-gray-200 bg-white/90 backdrop-blur-md md:sticky md:inset-x-auto"
 >
 	<div
-		class="mx-auto flex h-18 w-full max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8 2xl:max-w-[1600px] 2xl:px-10"
+		class="mx-auto flex h-18 w-full max-w-7xl items-center justify-between px-4 sm:px-6 md:grid md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] lg:px-8 2xl:max-w-[1600px] 2xl:px-10"
 	>
 		<a class="flex items-center gap-2" href="#beranda" aria-label="Wedez, kembali ke beranda">
-			<span class="relative h-8 w-10 shrink-0 overflow-hidden" aria-hidden="true">
-				<img
-					class="absolute top-1/2 left-1/2 size-10 max-w-none -translate-x-1/2 -translate-y-1/2"
-					src="/images/hero/wedez-logo-w.png"
-					alt=""
-					width="300"
-					height="300"
-				/>
-			</span>
+			<img
+				class="size-12 shrink-0 object-contain"
+				src="/images/hero/logo-wedez.webp"
+				alt=""
+				width="256"
+				height="256"
+			/>
 			<span
 				class="bg-linear-to-r from-[#9400ff] to-[#7200e8] bg-clip-text text-xl font-bold tracking-[-0.04em] text-transparent"
 				>wedez.id</span
@@ -209,11 +255,11 @@
 					href={item.href}>{item.label}</a
 				>
 			{/each}
-			<a
-				class="rounded-full bg-linear-to-r from-[#9400ff] to-[#7200e8] px-5 py-2.5 text-sm font-semibold text-white"
-				href="/login">Buat Undangan</a
-			>
 		</nav>
+		<a
+			class="hidden justify-self-end rounded-full bg-linear-to-r from-[#9400ff] to-[#7200e8] px-5 py-2.5 text-sm font-semibold text-white md:inline-flex"
+			href="/login">Buat Undangan</a
+		>
 
 		<button
 			class="grid size-10 place-items-center rounded-xl border border-gray-200 text-gray-900 md:hidden"
@@ -281,6 +327,7 @@
 		>
 			<div class="order-2 min-w-0 lg:order-1">
 				<h1
+					data-reveal
 					class="max-w-2xl text-[40px] leading-[1.08] font-bold tracking-[-0.045em] text-gray-950 sm:text-[48px] lg:text-[56px] 2xl:max-w-3xl 2xl:text-[64px]"
 				>
 					Undangan Digital untuk <span
@@ -290,6 +337,7 @@
 				</h1>
 
 				<p
+					data-reveal
 					class="mt-6 max-w-xl text-base leading-7 text-gray-600 sm:text-lg sm:leading-8 2xl:max-w-2xl 2xl:text-xl 2xl:leading-9"
 				>
 					Buat undangan digital yang estetik, personal, dan gampang dibagikan. Pilih tema, ceritakan
@@ -298,6 +346,7 @@
 
 				<div class="mt-8 flex flex-col gap-3 sm:flex-row">
 					<a
+						data-reveal
 						class="inline-flex min-h-12 items-center justify-center rounded-full bg-linear-to-r from-[#9400ff] to-[#7200e8] px-6 text-sm font-semibold text-white"
 						href="/login"
 					>
@@ -313,25 +362,27 @@
 						</svg>
 					</a>
 					<a
+						data-reveal
 						class="inline-flex min-h-12 items-center justify-center rounded-full border border-gray-300 bg-white px-6 text-sm font-semibold text-gray-800 transition-colors hover:bg-gray-100"
 						href="#tema">Lihat pilihan tema</a
 					>
 				</div>
 
 				<div class="mt-8 flex flex-wrap gap-x-6 gap-y-3 text-sm text-gray-500">
-					<span class="flex items-center gap-2"
+					<span data-reveal class="flex items-center gap-2"
 						><span class="text-gray-500">●</span> Gratis mencoba</span
 					>
-					<span class="flex items-center gap-2"
+					<span data-reveal class="flex items-center gap-2"
 						><span class="text-gray-500">●</span> Tanpa coding</span
 					>
-					<span class="flex items-center gap-2"
+					<span data-reveal class="flex items-center gap-2"
 						><span class="text-gray-500">●</span> Responsif di semua layar</span
 					>
 				</div>
 			</div>
 
 			<div
+				data-reveal
 				class="relative order-1 mx-auto w-full max-w-2xl min-w-0 lg:order-2 lg:translate-y-3 2xl:max-w-3xl"
 			>
 				<div
@@ -536,7 +587,7 @@
 		>
 			<div class="grid w-full grid-cols-2 gap-6 sm:grid-cols-4">
 				{#each [{ value: '5 menit', label: 'Mulai membuat' }, { value: '20+', label: 'Tema pilihan' }, { value: '1 link', label: 'Untuk semua tamu' }, { value: '24/7', label: 'Bisa diperbarui' }] as stat (stat.label)}
-					<div class="text-center">
+					<div data-reveal class="text-center">
 						<p class="text-lg font-semibold text-gray-950">{stat.value}</p>
 						<p class="mt-1 text-xs text-gray-500 sm:text-sm">{stat.label}</p>
 					</div>
@@ -548,14 +599,15 @@
 	<section class="w-full bg-white py-20 lg:py-28" aria-labelledby="why-wedez-title">
 		<div class="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 2xl:max-w-[1600px] 2xl:px-10">
 			<div class="max-w-3xl">
-				<p class="text-sm font-semibold text-[#667052]">KENAPA MEMILIH WEDEZ</p>
+				<p data-reveal class="text-sm font-semibold text-[#667052]">KENAPA MEMILIH WEDEZ</p>
 				<h2
+					data-reveal
 					id="why-wedez-title"
 					class="mt-3 text-[40px] leading-[1.1] font-bold tracking-[-0.04em] text-gray-950 sm:text-[48px] lg:text-[56px]"
 				>
 					Lebih sederhana untuk kalian, lebih berkesan untuk tamu.
 				</h2>
-				<p class="mt-5 max-w-2xl text-lg leading-8 text-gray-600">
+				<p data-reveal class="mt-5 max-w-2xl text-lg leading-8 text-gray-600">
 					Semua yang dibutuhkan untuk membuat dan mengelola undangan, dirancang dalam satu
 					pengalaman yang mudah digunakan.
 				</p>
@@ -564,6 +616,7 @@
 			<div class="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
 				{#each reasons as reason (reason.title)}
 					<article
+						data-reveal
 						class="group flex min-w-0 flex-col overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-gray-200/70"
 					>
 						<div class="aspect-[4/3] overflow-hidden bg-[#f5f0e6]">
@@ -598,14 +651,16 @@
 					class="flex scroll-mt-22 flex-col justify-between gap-6 md:flex-row md:items-end"
 				>
 					<div class="max-w-2xl">
-						<p class="text-sm font-semibold text-gray-600">PILIHAN TEMA</p>
+						<p data-reveal class="text-sm font-semibold text-gray-600">PILIHAN TEMA</p>
 						<h2
+							data-reveal
 							class="mt-3 text-[40px] leading-[1.1] font-bold tracking-[-0.04em] text-gray-950 sm:text-[48px] lg:text-[56px]"
 						>
 							Temukan gaya yang terasa seperti kalian.
 						</h2>
 					</div>
 					<a
+						data-reveal
 						class="inline-flex items-center text-sm font-semibold text-gray-900 hover:text-gray-600"
 						href="#buat-undangan"
 					>
@@ -625,6 +680,7 @@
 				<div class="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
 					{#each themes as theme, index (theme.key)}
 						<article
+							data-reveal
 							class="group flex min-w-0 flex-col overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-gray-200/70"
 						>
 							<div class="relative aspect-[4/5] overflow-hidden">
@@ -779,20 +835,21 @@
 			class="mx-auto grid w-full max-w-7xl items-center gap-14 px-4 sm:px-6 lg:grid-cols-[0.85fr_1.15fr] lg:gap-20 lg:px-8 2xl:max-w-[1600px] 2xl:gap-24 2xl:px-10"
 		>
 			<div>
-				<p class="text-sm font-semibold text-gray-600">SATU DASHBOARD</p>
+				<p data-reveal class="text-sm font-semibold text-gray-600">SATU DASHBOARD</p>
 				<h2
+					data-reveal
 					id="features-title"
 					class="mt-3 text-[40px] leading-[1.1] font-bold tracking-[-0.04em] text-gray-950 sm:text-[48px] lg:text-[56px]"
 				>
 					Lebih dekat dengan setiap tamu.
 				</h2>
-				<p class="mt-5 text-lg leading-8 text-gray-600">
+				<p data-reveal class="mt-5 text-lg leading-8 text-gray-600">
 					Semua informasi penting tersedia dalam satu tempat yang mudah dipahami.
 				</p>
 
 				<div class="mt-10 space-y-7">
 					{#each benefits as benefit (benefit.title)}
-						<div class="flex gap-4">
+						<div data-reveal class="flex gap-4">
 							<span
 								class="mt-1 grid size-7 shrink-0 place-items-center rounded-full bg-white text-gray-900 shadow-sm"
 							>
@@ -816,6 +873,7 @@
 			</div>
 
 			<div
+				data-reveal
 				class="relative mx-auto w-full max-w-2xl rounded-[2rem] bg-gray-100 p-2 shadow-sm sm:p-3"
 			>
 				<div
@@ -1007,13 +1065,14 @@
 		>
 			<div class="w-full">
 				<div id="harga" class="mx-auto max-w-2xl scroll-mt-22 text-center">
-					<p class="text-sm font-semibold text-gray-600">HARGA SEDERHANA</p>
+					<p data-reveal class="text-sm font-semibold text-gray-600">HARGA SEDERHANA</p>
 					<h2
+						data-reveal
 						class="mt-3 text-[40px] leading-[1.1] font-bold tracking-[-0.04em] text-gray-950 sm:text-[48px] lg:text-[56px]"
 					>
 						Mulai gratis, bayar saat siap.
 					</h2>
-					<p class="mt-5 text-lg leading-8 text-gray-600">
+					<p data-reveal class="mt-5 text-lg leading-8 text-gray-600">
 						Coba seluruh alur pembuatan undangan terlebih dahulu. Tidak ada biaya berlangganan.
 					</p>
 				</div>
@@ -1021,6 +1080,7 @@
 				<div class="mt-12 grid gap-6 md:grid-cols-2">
 					{#each plans as plan (plan.name)}
 						<article
+							data-reveal
 							class="relative flex flex-col rounded-3xl border border-gray-200 bg-white p-7 sm:p-9"
 						>
 							<p class="text-2xl font-bold tracking-[-0.02em] text-gray-950 sm:text-3xl">
@@ -1065,14 +1125,18 @@
 	<section id="faq" class="w-full scroll-mt-22 bg-white py-20 lg:py-28" aria-labelledby="faq-title">
 		<div class="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 2xl:max-w-[1600px] 2xl:px-10">
 			<div class="mx-auto max-w-3xl text-center">
-				<p class="text-sm font-semibold text-gray-600">PERTANYAAN UMUM</p>
+				<p data-reveal class="text-sm font-semibold text-gray-600">PERTANYAAN UMUM</p>
 				<h2
+					data-reveal
 					id="faq-title"
 					class="mt-3 text-[40px] leading-[1.1] font-bold tracking-[-0.04em] text-gray-950 sm:text-[48px] lg:text-[56px]"
 				>
 					FAQ - Pertanyaan yang sering diajukan
 				</h2>
-				<p class="mx-auto mt-5 max-w-2xl text-base leading-7 text-gray-600 sm:text-lg sm:leading-8">
+				<p
+					data-reveal
+					class="mx-auto mt-5 max-w-2xl text-base leading-7 text-gray-600 sm:text-lg sm:leading-8"
+				>
 					Butuh bantuan? Pertanyaan berikut mungkin dapat membantu Anda.
 				</p>
 			</div>
@@ -1080,6 +1144,7 @@
 			<div class="mt-12 space-y-3 sm:mt-14 sm:space-y-4">
 				{#each faqs as faq (faq.question)}
 					<details
+						data-reveal
 						name="wedez-faq"
 						ontoggle={animateFaqAnswer}
 						class="group overflow-hidden border border-gray-200 bg-white transition-colors open:border-gray-300 open:bg-gray-50"
@@ -1117,16 +1182,18 @@
 			id="buat-undangan"
 			class="w-full scroll-mt-22 rounded-3xl border border-gray-200 bg-white px-6 py-14 text-center shadow-sm sm:px-10 sm:py-16 lg:px-16 lg:py-20"
 		>
-			<p class="text-sm font-semibold text-gray-700">Waktunya memulai</p>
+			<p data-reveal class="text-sm font-semibold text-gray-700">Waktunya memulai</p>
 			<h2
+				data-reveal
 				class="mx-auto mt-3 max-w-3xl text-[40px] leading-[1.1] font-bold tracking-[-0.04em] text-gray-950 sm:text-[48px] lg:text-[56px]"
 			>
 				Undangan kalian bisa siap hari ini.
 			</h2>
-			<p class="mx-auto mt-5 max-w-xl text-lg leading-8 text-gray-700">
+			<p data-reveal class="mx-auto mt-5 max-w-xl text-lg leading-8 text-gray-700">
 				Mulai gratis, pilih tema favorit, dan lihat hasilnya secara langsung.
 			</p>
 			<a
+				data-reveal
 				class="mt-8 inline-flex min-h-12 items-center justify-center rounded-full bg-linear-to-r from-[#9400ff] to-[#7200e8] px-7 text-sm font-semibold text-white"
 				href="/login"
 			>
@@ -1147,6 +1214,7 @@
 
 <footer class="border-t border-gray-200 bg-white py-10">
 	<div class="mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8 2xl:max-w-[1600px] 2xl:px-10">
+		<a href="/affiliate" class="mb-4 inline-block text-sm font-semibold text-violet-700 hover:text-violet-900">Gabung Affiliate</a>
 		<p class="text-sm text-gray-500">© 2026 Wedez</p>
 	</div>
 </footer>

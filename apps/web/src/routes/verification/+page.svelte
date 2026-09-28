@@ -13,6 +13,7 @@
 		VerificationError
 	} from '#lib/features/auth/index.js';
 	import { getToastContext } from '#lib/features/toast/index.js';
+	import { postLoginDestination, safeDestination } from '#lib/features/auth/model/navigation.js';
 
 	type VerificationStatus = 'waiting' | 'confirming' | 'confirmed' | 'failed';
 
@@ -37,7 +38,7 @@
 
 			if (isEmailVerified()) {
 				toast.success('Email berhasil diverifikasi.');
-				await goto('/user/dashboard', { replaceState: true });
+				await goto(postLoginDestination(page.url.searchParams.get('next')), { replaceState: true });
 			}
 		} catch (error) {
 			toast.error(
@@ -60,7 +61,9 @@
 				await refreshAuthenticatedUser();
 
 				if (isEmailVerified()) {
-					await goto('/user/dashboard', { replaceState: true });
+					await goto(postLoginDestination(page.url.searchParams.get('next')), {
+						replaceState: true
+					});
 					return;
 				}
 			}
@@ -174,10 +177,10 @@
 				Email telah diverifikasi
 			</h1>
 			<p class="mt-3 text-sm leading-6 text-stone-500">
-				Silakan masuk untuk membuka dashboard undanganmu.
+				Silakan masuk untuk melanjutkan ke akun Wedez.
 			</p>
 			<a
-				href="/login?next=/user/dashboard"
+				href={`/login?next=${encodeURIComponent(safeDestination(page.url.searchParams.get('next')))}`}
 				class="mt-7 inline-flex w-full justify-center rounded-xl bg-stone-900 px-4 py-3.5 text-sm font-semibold text-white transition hover:bg-stone-700"
 			>
 				Masuk dan lanjutkan

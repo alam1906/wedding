@@ -50,7 +50,9 @@ Variabel yang diperlukan:
 - `DUITKU_CALLBACK_URL`: URL HTTPS publik menuju
   `/api/wedez/payments/duitku/callback`;
 - `DUITKU_RETURN_URL`: halaman `/upgrade` yang dibuka setelah checkout;
-- `DUITKU_EXPIRY_MINUTES`: `5`, `10`, atau `60`.
+
+Invoice baru berlaku 10 menit. Nilai ini dikirim lewat parameter `expiryPeriod` saat
+PocketBase membuat invoice Duitku POP; tidak diatur melalui dashboard Duitku.
 
 Paket Pro hanya diaktifkan melalui callback Duitku yang signature, merchant code, order ID, dan
 nominalnya telah diverifikasi atau melalui hasil API cek transaksi. Parameter pada return URL tidak

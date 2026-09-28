@@ -1,7 +1,7 @@
 import { ClientResponseError } from 'pocketbase';
 
 import { pocketBase } from '#lib/infrastructure/pocketbase/index.js';
-import { PAYMENT_STATUSES, type ProPaymentState } from '../model/payment.js';
+import { PAYMENT_STATUSES, type ProPaymentState, type PaymentQuote } from '../model/payment.js';
 
 export class PaymentError extends Error {
 	constructor(message: string, options?: ErrorOptions) {
@@ -31,6 +31,12 @@ function isProPaymentState(value: unknown): value is ProPaymentState {
 		PAYMENT_STATUSES.includes(payment.status as (typeof PAYMENT_STATUSES)[number]) &&
 		'amount' in payment &&
 		typeof payment.amount === 'number' &&
+		'original_amount' in payment &&
+		typeof payment.original_amount === 'number' &&
+		'discount_amount' in payment &&
+		typeof payment.discount_amount === 'number' &&
+		'coupon_code' in payment &&
+		typeof payment.coupon_code === 'string' &&
 		'checkout_url' in payment &&
 		typeof payment.checkout_url === 'string'
 	);
@@ -77,8 +83,38 @@ async function paymentRequest(
 	}
 }
 
-export function createProPaymentSession(): Promise<ProPaymentState> {
-	return paymentRequest('/api/wedez/payments/session', 'POST');
+export function createProPaymentSession(couponCode = ''): Promise<ProPaymentState> {
+	return paymentRequest('/api/wedez/payments/session', 'POST', { couponCode });
+}
+
+export async function getPaymentQuote(couponCode: string): Promise<PaymentQuote> {
+	try {
+		const result = await pocketBase.send<PaymentQuote>('/api/wedez/payments/quote', {
+			method: 'POST',
+			body: { couponCode }
+		});
+		if (
+			!result ||
+			!Number.isSafeInteger(result.original_amount) ||
+			!Number.isSafeInteger(result.amount) ||
+			!Number.isSafeInteger(result.discount_amount) ||
+			result.amount <= 0 ||
+			result.discount_amount < 0 ||
+			result.original_amount - result.discount_amount !== result.amount ||
+			typeof result.coupon_code !== 'string'
+		) {
+			throw new PaymentError('Respons harga tidak valid. Silakan muat ulang halaman.');
+		}
+		return result;
+	} catch (error) {
+		if (error instanceof PaymentError) throw error;
+		throw new PaymentError(
+			error instanceof ClientResponseError
+				? paymentErrorMessage(error)
+				: 'Kupon belum dapat diperiksa.',
+			{ cause: error }
+		);
+	}
 }
 
 export function getProPaymentStatus(): Promise<ProPaymentState> {

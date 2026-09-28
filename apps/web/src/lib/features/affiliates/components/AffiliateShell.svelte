@@ -1,0 +1,261 @@
+<script lang="ts">
+	import { goto } from '$app/navigation';
+	import { page } from '$app/state';
+	import type { Snippet } from 'svelte';
+	import type { Attachment } from 'svelte/attachments';
+	import { logout } from '#lib/features/auth/index.js';
+	import { chooseWeddingHome } from '#lib/features/auth/api/choose-home.js';
+	import { getToastContext } from '#lib/features/toast/index.js';
+
+	type NavigationIcon = 'home' | 'commissions' | 'payouts' | 'settings';
+	type NavigationItem = { href: string; label: string; icon: NavigationIcon };
+
+	let {
+		children,
+		name,
+		email,
+		hasWedding
+	}: { children: Snippet; name: string; email: string; hasWedding: boolean } = $props();
+	let menuOpen = $state(false);
+	let profileOpen = $state(false);
+	let isLoggingOut = $state(false);
+	let isSwitchingArea = $state(false);
+	const toast = getToastContext();
+	const initial = $derived((name.trim().charAt(0) || email.trim().charAt(0) || 'W').toUpperCase());
+	const navigation: NavigationItem[] = [
+		{ href: '/affiliate/dashboard', label: 'Beranda', icon: 'home' },
+		{ href: '/affiliate/commissions', label: 'Komisi', icon: 'commissions' },
+		{ href: '/affiliate/payouts', label: 'Pencairan', icon: 'payouts' },
+		{ href: '/affiliate/settings', label: 'Rekening', icon: 'settings' }
+	];
+	const currentMenuTitle = $derived(
+		navigation.find((item) => page.url.pathname === item.href)?.label ?? 'Beranda'
+	);
+
+	function navClass(href: string) {
+		const base = 'flex items-center gap-3 rounded-xl px-4 py-3 text-sm transition';
+		return page.url.pathname === href
+			? `${base} bg-linear-to-r from-[#9400ff] to-[#7200e8] font-semibold text-white`
+			: `${base} font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900`;
+	}
+
+	const attachProfile: Attachment<HTMLDivElement> = (element) => {
+		const outside = (event: PointerEvent) => {
+			if (event.target instanceof Node && !element.contains(event.target)) profileOpen = false;
+		};
+		const escape = (event: KeyboardEvent) => {
+			if (event.key !== 'Escape' || !profileOpen) return;
+			profileOpen = false;
+			element.querySelector<HTMLButtonElement>('button')?.focus();
+		};
+		document.addEventListener('pointerdown', outside);
+		document.addEventListener('keydown', escape);
+		return () => {
+			document.removeEventListener('pointerdown', outside);
+			document.removeEventListener('keydown', escape);
+		};
+	};
+
+	async function signOut() {
+		if (isLoggingOut) return;
+		isLoggingOut = true;
+		menuOpen = false;
+		profileOpen = false;
+		logout();
+		await goto('/login', { replaceState: true, invalidateAll: true });
+	}
+
+	async function switchToWedding() {
+		if (isSwitchingArea) return;
+		if (!hasWedding) {
+			profileOpen = false;
+			await goto('/start');
+			return;
+		}
+		isSwitchingArea = true;
+		try {
+			await chooseWeddingHome();
+			profileOpen = false;
+			await goto('/user/dashboard');
+		} catch {
+			toast.error('Gagal beralih ke Undangan. Silakan coba lagi.');
+		} finally {
+			isSwitchingArea = false;
+		}
+	}
+</script>
+
+<div class="min-h-screen bg-gray-100 text-gray-900">
+	<button
+		type="button"
+		aria-label="Tutup menu"
+		onclick={() => (menuOpen = false)}
+		class:open={menuOpen}
+		class="drawer-backdrop fixed inset-0 z-40 bg-gray-900/40 md:hidden"
+	></button>
+
+	<aside
+		class:open={menuOpen}
+		class="sidebar fixed inset-y-0 left-0 z-50 w-57.5 border-r border-gray-200 bg-white"
+	>
+		<div class="flex h-full flex-col px-5 py-7">
+			<div class="relative flex items-center justify-center px-3">
+				<a
+					href="/affiliate/dashboard"
+					class="bg-linear-to-r from-[#9400ff] to-[#7200e8] bg-clip-text text-xl font-bold tracking-tight text-transparent"
+					>WEDEZ</a
+				>
+			</div>
+
+			<nav class="mt-7.5 flex flex-col gap-1" aria-label="Navigasi affiliate">
+				{#each navigation as item (item.href)}
+					<a
+						href={item.href}
+						aria-current={page.url.pathname === item.href ? 'page' : undefined}
+						onclick={() => (menuOpen = false)}
+						class={navClass(item.href)}
+					>
+						<svg
+							aria-hidden="true"
+							class="size-5"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="1.8"
+						>
+							{#if item.icon === 'home'}
+								<path d="M3 11.5 12 4l9 7.5"></path>
+								<path d="M5.5 10v10h13V10M9 20v-6h6v6"></path>
+							{:else if item.icon === 'commissions'}
+								<rect x="3" y="4" width="18" height="16" rx="2"></rect>
+								<path d="M7 9h10M7 13h7"></path>
+							{:else if item.icon === 'payouts'}
+								<path d="M12 3v12m-4-4 4 4 4-4"></path>
+								<path d="M4 17v3h16v-3"></path>
+							{:else}
+								<path d="M4 7h10M18 7h2M4 17h2M10 17h10"></path>
+								<circle cx="16" cy="7" r="2"></circle>
+								<circle cx="8" cy="17" r="2"></circle>
+							{/if}
+						</svg>
+						{item.label}
+					</a>
+				{/each}
+			</nav>
+		</div>
+	</aside>
+
+	<div class="min-w-0 md:ml-57.5">
+		<header
+			class="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-gray-200 bg-white px-4 lg:px-10"
+		>
+			<button
+				type="button"
+				aria-label="Buka menu"
+				aria-expanded={menuOpen}
+				onclick={() => {
+					menuOpen = true;
+					profileOpen = false;
+				}}
+				class="grid size-10 place-items-center rounded-xl bg-gray-100 text-gray-700 transition hover:bg-gray-200 md:hidden"
+			>
+				<span class="flex w-5 flex-col gap-1.5" aria-hidden="true">
+					<span class="h-0.5 w-full rounded-full bg-current"></span>
+					<span class="h-0.5 w-full rounded-full bg-current"></span>
+					<span class="h-0.5 w-full rounded-full bg-current"></span>
+				</span>
+			</button>
+			<h1 class="text-xl font-bold tracking-tight text-gray-900">{currentMenuTitle}</h1>
+
+			<div {@attach attachProfile} class="relative ml-auto">
+				<button
+					type="button"
+					onclick={() => (profileOpen = !profileOpen)}
+					aria-label="Buka menu profil"
+					aria-haspopup="menu"
+					aria-expanded={profileOpen}
+					aria-controls={profileOpen ? 'affiliate-profile-menu' : undefined}
+					class="grid size-10 cursor-pointer place-items-center rounded-full bg-linear-to-br from-[#9400ff] to-[#7200e8] text-sm font-bold text-white"
+					>{initial}</button
+				>
+				{#if profileOpen}
+					<div
+						id="affiliate-profile-menu"
+						role="menu"
+						aria-label="Menu profil"
+						class="absolute top-full right-0 z-40 mt-2 w-62 rounded-xl border border-gray-200 bg-white p-3 shadow-xl"
+					>
+						<div class="px-2 pt-1 pb-3">
+							<p class="truncate text-sm font-bold text-gray-900">{name || 'Pengguna Wedez'}</p>
+							<p class="mt-1 truncate text-sm text-gray-500">{email || 'Email tidak tersedia'}</p>
+						</div>
+						<button
+							type="button"
+							role="menuitem"
+							disabled={isSwitchingArea}
+							aria-busy={isSwitchingArea}
+							onclick={switchToWedding}
+							class="flex w-full cursor-pointer items-center rounded-lg px-2 py-2.5 text-left text-sm font-medium text-gray-800 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+							>{hasWedding ? 'Beralih ke Undangan' : 'Buat Undangan'}</button
+						>
+						<button
+							type="button"
+							role="menuitem"
+							disabled={isLoggingOut}
+							aria-busy={isLoggingOut}
+							onclick={signOut}
+							class="flex w-full cursor-pointer items-center rounded-lg px-2 py-2.5 text-left text-sm font-medium text-red-500 hover:bg-red-50 disabled:opacity-50"
+							>{isLoggingOut ? 'Sedang keluar...' : 'Keluar'}</button
+						>
+					</div>
+				{/if}
+			</div>
+		</header>
+
+		<main class="px-4 py-8 sm:px-6 lg:px-10 lg:py-10">
+			<div class="mx-auto w-full max-w-6xl min-w-0">{@render children()}</div>
+		</main>
+	</div>
+</div>
+
+<style>
+	.sidebar {
+		transform: translate3d(-100%, 0, 0);
+		transition: transform 360ms cubic-bezier(0.22, 1, 0.36, 1);
+		will-change: transform;
+	}
+
+	.sidebar.open {
+		transform: translate3d(0, 0, 0);
+	}
+
+	.drawer-backdrop {
+		visibility: hidden;
+		pointer-events: none;
+		opacity: 0;
+		transition:
+			opacity 280ms ease,
+			visibility 0s linear 280ms;
+	}
+
+	.drawer-backdrop.open {
+		visibility: visible;
+		pointer-events: auto;
+		opacity: 1;
+		transition-delay: 0s;
+	}
+
+	@media (min-width: 768px) {
+		.sidebar {
+			transform: translate3d(0, 0, 0);
+			transition: none;
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.sidebar,
+		.drawer-backdrop {
+			transition: none;
+		}
+	}
+</style>

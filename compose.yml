@@ -49,7 +49,6 @@ services:
       DUITKU_API_URL: ${DUITKU_API_URL:-https://api-prod.duitku.com}
       DUITKU_CALLBACK_URL: ${DUITKU_CALLBACK_URL:?Set DUITKU_CALLBACK_URL}
       DUITKU_RETURN_URL: ${DUITKU_RETURN_URL:?Set DUITKU_RETURN_URL}
-      DUITKU_EXPIRY_MINUTES: ${DUITKU_EXPIRY_MINUTES:-60}
     expose:
       - '8090'
     volumes:

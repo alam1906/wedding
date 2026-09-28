@@ -4,8 +4,10 @@
 	import { onDestroy, onMount } from 'svelte';
 	import type { Attachment } from 'svelte/attachments';
 	import { getAuthenticatedEmail, getAuthenticatedName, logout } from '#lib/features/auth/index.js';
+	import { chooseAffiliateHome } from '#lib/features/auth/api/choose-home.js';
 	import { GuestState, setGuestContext } from '#lib/features/guests/index.js';
 	import { MusicOptionsState, setMusicOptionsContext } from '#lib/features/musics/index.js';
+	import { getToastContext } from '#lib/features/toast/index.js';
 	import { setWeddingContext, WeddingState } from '#lib/features/weddings/index.js';
 	import type { LayoutProps } from './$types';
 
@@ -24,16 +26,17 @@
 		{ href: '/user/setting', label: 'Pengaturan', icon: 'settings' }
 	];
 
-	let { children }: LayoutProps = $props();
+	let { children, data }: LayoutProps = $props();
 	const guests = setGuestContext(new GuestState());
 	const musicOptions = setMusicOptionsContext(new MusicOptionsState());
 	const wedding = setWeddingContext(new WeddingState());
+	const toast = getToastContext();
 	let menuOpen = $state(false);
 	let profileMenuOpen = $state(false);
-	let profileMenuButton: HTMLButtonElement | undefined;
 	let profileName = $state('');
 	let profileEmail = $state('');
 	let isLoggingOut = $state(false);
+	let isSwitchingArea = $state(false);
 	let profileInitial = $derived(
 		(profileName.trim().charAt(0) || profileEmail.trim().charAt(0) || 'W').toLocaleUpperCase(
 			'id-ID'
@@ -61,7 +64,7 @@
 			if (event.key !== 'Escape' || !profileMenuOpen) return;
 
 			profileMenuOpen = false;
-			profileMenuButton?.focus();
+			element.querySelector<HTMLButtonElement>('button')?.focus();
 		};
 
 		document.addEventListener('pointerdown', handlePointerDown);
@@ -84,6 +87,20 @@
 		resetUserState();
 		logout();
 		await goto('/login', { replaceState: true });
+	}
+
+	async function switchToAffiliate() {
+		if (isSwitchingArea) return;
+		isSwitchingArea = true;
+		try {
+			await chooseAffiliateHome();
+			profileMenuOpen = false;
+			await goto('/affiliate/dashboard');
+		} catch {
+			toast.error('Gagal beralih ke Affiliate. Silakan coba lagi.');
+		} finally {
+			isSwitchingArea = false;
+		}
 	}
 
 	function isActive(href: string) {
@@ -188,7 +205,6 @@
 
 			<div {@attach attachProfileMenu} class="relative ml-auto">
 				<button
-					bind:this={profileMenuButton}
 					type="button"
 					onclick={() => (profileMenuOpen = !profileMenuOpen)}
 					aria-label="Buka menu profil"
@@ -215,27 +231,16 @@
 								{profileEmail || 'Email tidak tersedia'}
 							</p>
 						</div>
-						<a
-							href="/user/setting"
+						<button
+							type="button"
 							role="menuitem"
-							onclick={() => (profileMenuOpen = false)}
-							class="flex items-center gap-3 rounded-lg px-2 py-2.5 text-sm font-medium text-gray-800 transition hover:bg-gray-50"
+							disabled={isSwitchingArea}
+							aria-busy={isSwitchingArea}
+							onclick={switchToAffiliate}
+							class="flex w-full cursor-pointer rounded-lg px-2 py-2.5 text-left text-sm font-medium text-gray-800 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
 						>
-							<svg
-								aria-hidden="true"
-								class="size-5 shrink-0"
-								viewBox="0 0 24 24"
-								fill="none"
-								stroke="currentColor"
-								stroke-width="1.8"
-								stroke-linecap="round"
-								stroke-linejoin="round"
-							>
-								<circle cx="12" cy="8" r="3.5"></circle>
-								<path d="M5.5 21v-2.5a6.5 6.5 0 0 1 13 0V21"></path>
-							</svg>
-							Profil Saya
-						</a>
+							{data.hasAffiliate ? 'Beralih ke Affiliate' : 'Gabung Affiliate'}
+						</button>
 						<button
 							type="button"
 							role="menuitem"

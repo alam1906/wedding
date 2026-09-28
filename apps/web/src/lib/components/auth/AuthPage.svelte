@@ -18,6 +18,11 @@
 	} from '#lib/features/auth/index.js';
 	import { getToastContext } from '#lib/features/toast/index.js';
 	import AuthField from './AuthField.svelte';
+	import {
+		postLoginDestination,
+		safeDestination,
+		verificationUrl
+	} from '#lib/features/auth/model/navigation.js';
 
 	type Props = {
 		mode: 'login' | 'register';
@@ -25,6 +30,7 @@
 
 	const toast = getToastContext();
 	let { mode }: Props = $props();
+	const destination = $derived(safeDestination(page.url.searchParams.get('next')));
 	let isSubmitting = $state(false);
 	let loginFieldErrors = $state<LoginFieldErrors>({});
 	let registerFieldErrors = $state<RegisterFieldErrors>({});
@@ -34,17 +40,17 @@
 		isLogin
 			? {
 					title: 'Selamat datang',
-					description: 'Masuk untuk mengelola undangan pernikahanmu.',
+					description: 'Masuk untuk melanjutkan undangan atau program affiliate.',
 					submitLabel: 'Masuk',
 					metaTitle: 'Masuk - Wedez',
-					metaDescription: 'Masuk ke akun Wedez untuk mengelola undangan pernikahan.'
+					metaDescription: 'Masuk ke akun Wedez untuk mengelola undangan atau affiliate.'
 				}
 			: {
 					title: 'Buat akun',
-					description: 'Daftar untuk mulai membuat undangan pernikahanmu.',
+					description: 'Daftar untuk membuat undangan atau menjadi affiliate Wedez.',
 					submitLabel: 'Daftar',
 					metaTitle: 'Daftar - Wedez',
-					metaDescription: 'Buat akun Wedez untuk mulai menyiapkan undangan pernikahan.'
+					metaDescription: 'Buat akun Wedez untuk undangan pernikahan atau program affiliate.'
 				}
 	);
 
@@ -81,7 +87,7 @@
 			try {
 				await registerWithPassword(validation.data);
 				toast.success('Akun berhasil dibuat. Silakan masuk untuk melanjutkan verifikasi.');
-				await goto('/login?next=/verification');
+				await goto('/login?next=%2Fstart');
 			} catch (error) {
 				toast.error(
 					error instanceof RegisterError
@@ -129,15 +135,11 @@
 					);
 				}
 
-				const requestedPage = page.url.searchParams.get('next');
-				const verificationPage = requestedPage?.startsWith('/verification?')
-					? requestedPage
-					: '/verification';
-				await goto(verificationPage);
+				await goto(verificationUrl(postLoginDestination(page.url.searchParams.get('next'))));
 				return;
 			}
 
-			await goto('/user/dashboard');
+			await goto(postLoginDestination(page.url.searchParams.get('next')));
 		} catch (error) {
 			toast.error(
 				error instanceof LoginError
@@ -170,7 +172,7 @@
 <main class="grid min-h-screen place-items-center bg-gray-100 px-4 py-12">
 	<section class="w-full max-w-sm rounded-2xl border border-gray-200 bg-white p-8 shadow-sm">
 		<div class="text-center">
-			<p class="text-sm font-semibold tracking-wide text-gray-500">WEDEZ</p>
+			<a href="/" class="text-sm font-semibold tracking-wide text-gray-500">WEDEZ</a>
 			<h1 class="mt-3 text-2xl font-bold tracking-tight text-gray-900">{content.title}</h1>
 			<p class="mt-2 text-sm text-gray-500">{content.description}</p>
 		</div>
@@ -280,7 +282,7 @@
 		<p class="mt-6 text-center text-sm text-gray-500">
 			{isLogin ? 'Belum punya akun?' : 'Sudah punya akun?'}
 			<a
-				href={isLogin ? '/register' : '/login'}
+				href={`${isLogin ? '/register' : '/login'}?next=${encodeURIComponent(destination)}`}
 				class="auth-focus font-semibold text-gray-900 hover:text-gray-600"
 			>
 				{isLogin ? 'Daftar' : 'Masuk'}

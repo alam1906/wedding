@@ -8,6 +8,16 @@ export type WeddingThemeAnimationController = {
 	destroy: () => void;
 };
 
+const regionalThemes = new Set<WeddingThemeKey>([
+	'pinto-aceh',
+	'kawung-jawa',
+	'gorga-batak',
+	'lipa-sabbe-bugis',
+	'gigi-balang-betawi',
+	'gonjong-minang',
+	'tongkonan-toraja'
+]);
+
 export function mountWeddingThemeAnimations(
 	rootSelector: string,
 	variant: WeddingThemeAnimation
@@ -43,7 +53,7 @@ export function mountWeddingThemeAnimations(
 
 			gsap.registerPlugin(ScrollTrigger, ScrollSmoother);
 			const smoother =
-				variant === 'nocturne'
+				variant === 'nocturne' || variant === 'puspa-parahyangan' || regionalThemes.has(variant)
 					? undefined
 					: ScrollSmoother.create({
 							wrapper,
@@ -61,6 +71,108 @@ export function mountWeddingThemeAnimations(
 				scrollToTopAnimations();
 			}
 			const context = gsap.context(() => {
+				if (regionalThemes.has(variant)) {
+					const angular = variant === 'gorga-batak' || variant === 'lipa-sabbe-bugis';
+					const lively = variant === 'gigi-balang-betawi';
+					gsap
+						.timeline({ defaults: { ease: angular ? 'power3.out' : 'power2.out' } })
+						.from('.hero > .cover-frame img, .hero > .cover-frame .cover-placeholder', {
+							scale: angular ? 1.04 : 1.1,
+							duration: 2.2
+						}, 0)
+						.from('.regional-ornament', {
+							autoAlpha: 0,
+							scale: angular ? 0.9 : 0.75,
+							y: -22,
+							duration: 1.1
+						}, 0.1)
+						.from('.hero-copy > :not(.regional-ornament)', {
+							autoAlpha: 0,
+							y: lively ? 34 : 24,
+							duration: 0.85,
+							stagger: 0.11,
+							ease: lively ? 'back.out(1.25)' : 'power2.out'
+						}, 0.3);
+					gsap.to('.regional-ornament', {
+						y: 5,
+						duration: 3.2,
+						repeat: -1,
+						yoyo: true,
+						ease: 'sine.inOut',
+						delay: 1.35
+					});
+					gsap.utils.toArray<HTMLElement>('[data-reveal]').forEach((element, index) => {
+						gsap.from(element, {
+							autoAlpha: 0,
+							x: angular ? (index % 2 === 0 ? -22 : 22) : 0,
+							y: angular ? 12 : 30,
+							duration: 0.85,
+							ease: 'power2.out',
+							scrollTrigger: { trigger: element, start: 'top 90%', once: true }
+						});
+					});
+					gsap.utils.toArray<HTMLElement>('[data-gallery-item]').forEach((item, index) => {
+						gsap.from(item, {
+							autoAlpha: 0,
+							y: 25,
+							rotate: lively ? (index % 2 === 0 ? -2 : 2) : 0,
+							duration: 0.8,
+							ease: 'power2.out',
+							scrollTrigger: { trigger: item, start: 'top 92%', once: true }
+						});
+					});
+					return;
+				}
+				if (variant === 'puspa-parahyangan') {
+					gsap
+						.timeline({ defaults: { ease: 'power2.out' } })
+						.from('.hero > .cover-frame img, .hero > .cover-frame .cover-placeholder', {
+							scale: 1.08,
+							duration: 2.2
+						}, 0)
+						.from('.sunda-ornament', {
+							autoAlpha: 0,
+							scale: 0.72,
+							y: -25,
+							duration: 1.1
+						}, 0.1)
+						.from('.hero-copy > :not(.sunda-ornament)', {
+							autoAlpha: 0,
+							y: 28,
+							duration: 0.9,
+							stagger: 0.12
+						}, 0.3);
+					gsap.to('.sunda-ornament', {
+						y: 6,
+						duration: 3,
+						repeat: -1,
+						yoyo: true,
+						ease: 'sine.inOut',
+						delay: 1.4
+					});
+
+					gsap.utils.toArray<HTMLElement>('[data-reveal]').forEach((element) => {
+						gsap.from(element, {
+							autoAlpha: 0,
+							y: 32,
+							duration: 0.85,
+							ease: 'power2.out',
+							scrollTrigger: { trigger: element, start: 'top 90%', once: true }
+						});
+					});
+
+					gsap.utils.toArray<HTMLElement>('[data-gallery-item]').forEach((item) => {
+						gsap.from(item, {
+							autoAlpha: 0,
+							y: 28,
+							duration: 0.8,
+							ease: 'power2.out',
+							scrollTrigger: { trigger: item, start: 'top 92%', once: true }
+						});
+					});
+					return;
+				}
+
 				if (variant === 'nocturne') {
 					gsap
 						.timeline({ defaults: { ease: 'power3.out' } })

@@ -9,6 +9,9 @@
 	} from '#lib/features/payments/index.js';
 	import { getToastContext } from '#lib/features/toast/index.js';
 	import { getWeddingContext, type WeddingPlanTier } from '#lib/features/weddings/index.js';
+	import CouponForm from '#lib/features/payments/components/CouponForm.svelte';
+	import { getPaymentQuote } from '#lib/features/payments/api/payment.js';
+	import type { PaymentQuote, ProPayment } from '#lib/features/payments/model/payment.js';
 
 	const DEFAULT_PRO_PRICE = 50_000;
 	const proFeatures = ['Semua Tema Premium', 'Unlimited Tamu', 'No Watermark'];
@@ -38,7 +41,28 @@
 	let couponCode = $state('');
 	let paymentError = $state('');
 	let proPrice = $state(DEFAULT_PRO_PRICE);
-	let formattedProPrice = $derived(formatRupiah(proPrice));
+	let quote = $state<PaymentQuote | null>(null);
+	let couponError = $state('');
+	let isCouponValidating = $state(false);
+	let isCheckingPayment = $state(false);
+	let hasPrice = $state(false);
+	let pendingPayment = $state<ProPayment | null>(null);
+	let couponApplied = $derived(
+		Boolean(quote && quote.coupon_code === couponCode.trim().toUpperCase())
+	);
+	let pendingDiffers = $derived(
+		pendingPayment !== null &&
+			(pendingPayment.coupon_code !== (couponApplied && quote ? quote.coupon_code : '') ||
+				pendingPayment.amount !== (couponApplied && quote ? quote.amount : proPrice))
+	);
+	let pendingExpiry = $derived(
+		pendingPayment && Number.isFinite(Date.parse(pendingPayment.expires_at))
+			? new Intl.DateTimeFormat('id-ID', { dateStyle: 'medium', timeStyle: 'short' }).format(
+					new Date(pendingPayment.expires_at)
+				)
+			: ''
+	);
+	let formattedProPrice = $derived(formatRupiah(couponApplied && quote ? quote.amount : proPrice));
 	let checkoutLabel = $derived(
 		isPlanLoading
 			? 'Memuat paket...'
@@ -46,9 +70,44 @@
 				? 'Menyiapkan pembayaran...'
 				: activePlan === 'pro'
 					? 'Paket Pro sudah aktif'
-					: 'Lanjutkan pembayaran'
+					: pendingDiffers
+						? 'Tagihan sebelumnya masih aktif'
+						: 'Lanjutkan pembayaran'
 	);
-	let checkoutDisabled = $derived(isPlanLoading || isUpgrading || activePlan === 'pro');
+	let checkoutDisabled = $derived(
+		isPlanLoading ||
+			!hasPrice ||
+			isUpgrading ||
+			isCouponValidating ||
+			isCheckingPayment ||
+			pendingDiffers ||
+			activePlan === 'pro' ||
+			Boolean(couponCode.trim() && !couponApplied)
+	);
+
+	function editCoupon(value: string) {
+		couponCode = value.toUpperCase();
+		quote = null;
+		couponError = '';
+	}
+
+	async function applyCoupon() {
+		if (isCouponValidating || isUpgrading) return;
+		isCouponValidating = true;
+		couponError = '';
+		quote = null;
+		try {
+			const result = await getPaymentQuote(couponCode);
+			couponCode = result.coupon_code;
+			proPrice = result.original_amount;
+			quote = result;
+			hasPrice = true;
+		} catch (error) {
+			couponError = error instanceof PaymentError ? error.message : 'Kupon gagal diperiksa.';
+		} finally {
+			isCouponValidating = false;
+		}
+	}
 
 	function toggleCouponForm() {
 		isCouponOpen = !isCouponOpen;
@@ -70,9 +129,10 @@
 		isUpgrading = true;
 		paymentError = '';
 
+		let redirecting = false;
 		try {
-			const result = await createProPaymentSession();
-			proPrice = result.payment.amount || DEFAULT_PRO_PRICE;
+			const result = await createProPaymentSession(couponApplied && quote ? quote.coupon_code : '');
+			proPrice = result.payment.original_amount;
 
 			if (result.plan_tier === 'pro') {
 				await finishUpgrade(false);
@@ -83,13 +143,37 @@
 				throw new PaymentError('Tautan pembayaran tidak tersedia.');
 			}
 
+			redirecting = true;
 			window.location.assign(result.payment.checkout_url);
 		} catch (error) {
+			redirecting = false;
 			paymentError =
 				error instanceof PaymentError ? error.message : 'Pembayaran tidak dapat dimulai.';
 			toast.error(paymentError);
 		} finally {
-			isUpgrading = false;
+			if (!redirecting) isUpgrading = false;
+		}
+	}
+
+	async function checkPendingPayment() {
+		if (isCheckingPayment) return;
+		isCheckingPayment = true;
+		try {
+			const result = await getProPaymentStatus();
+			pendingPayment = result.payment.status === 'pending' ? result.payment : null;
+			if (result.plan_tier === 'pro') {
+				await finishUpgrade();
+			} else if (pendingPayment) {
+				toast.info('Tagihan sebelumnya masih aktif. Periksa lagi setelah tagihan berakhir.');
+			} else {
+				toast.success('Tagihan sebelumnya sudah berakhir. Kamu bisa melanjutkan dengan kupon.');
+			}
+		} catch (error) {
+			toast.error(
+				error instanceof PaymentError ? error.message : 'Status pembayaran gagal diperiksa.'
+			);
+		} finally {
+			isCheckingPayment = false;
 		}
 	}
 
@@ -107,34 +191,46 @@
 		activePlan = await getActivePlan();
 		isPlanLoading = false;
 
-		if (returnedFromPayment && paymentCanceled) {
-			toast.info('Pembayaran dibatalkan. Paket Anda belum berubah.');
-			return;
-		}
-
 		if (activePlan === 'pro') {
 			await finishUpgrade(paymentSucceeded);
 			return;
 		}
 
-		const showPaymentProgress = returnedFromPayment && !paymentCanceled;
+		const showPaymentProgress = returnedFromPayment;
 		isUpgrading = showPaymentProgress;
 
 		try {
 			const result = await getProPaymentStatus();
-			proPrice = result.payment.amount || DEFAULT_PRO_PRICE;
+			pendingPayment = result.payment.status === 'pending' ? result.payment : null;
+			proPrice = result.payment.original_amount;
+			hasPrice = true;
+			if (result.payment.status === 'pending' && result.payment.coupon_code) {
+				couponCode = result.payment.coupon_code;
+				quote = {
+					original_amount: proPrice,
+					amount: result.payment.amount,
+					discount_amount: result.payment.discount_amount,
+					discount_percent: 10,
+					coupon_code: couponCode
+				};
+				isCouponOpen = true;
+			}
 
 			if (result.plan_tier === 'pro' && result.payment.status === 'paid') {
 				await finishUpgrade();
+			} else if (returnedFromPayment && paymentCanceled && !pendingPayment) {
+				toast.info('Tagihan sebelumnya sudah berakhir. Kamu bisa memakai kupon sekarang.');
+			} else if (returnedFromPayment && paymentCanceled) {
+				toast.info('Kamu sudah kembali dari Duitku, tetapi tagihan sebelumnya masih aktif.');
 			} else if (returnedFromPayment) {
 				toast.info('Pembayaran masih diproses. Silakan muat ulang beberapa saat lagi.');
 			}
 		} catch (error) {
-			if (returnedFromPayment) {
-				paymentError =
-					error instanceof PaymentError ? error.message : 'Status pembayaran gagal diperiksa.';
-				toast.error(paymentError);
-			}
+			paymentError =
+				error instanceof PaymentError
+					? error.message
+					: 'Harga dan status pembayaran gagal dimuat. Muat ulang halaman untuk mencoba lagi.';
+			toast.error(paymentError);
 		} finally {
 			if (showPaymentProgress) isUpgrading = false;
 		}
@@ -154,11 +250,12 @@
 </svelte:head>
 
 <main class="min-h-screen bg-gray-100">
-	<header class="border-b border-gray-200 bg-white px-4 sm:px-6">
+	<header class="fixed inset-x-0 top-0 z-50 border-b border-gray-200 bg-white px-4 sm:px-6">
 		<div class="mx-auto flex h-18 w-full max-w-6xl items-center">
 			<a href="/user/dashboard" class="text-xl font-bold tracking-tight text-gray-950">Wedez</a>
 		</div>
 	</header>
+	<div class="h-18" aria-hidden="true"></div>
 
 	<section class="px-4 pt-7 pb-44 sm:px-6 sm:pt-8 lg:px-10 lg:py-10">
 		<div class="mx-auto w-full max-w-6xl">
@@ -237,7 +334,6 @@
 							<div class="mt-5 flex flex-wrap items-center justify-between gap-3">
 								<div>
 									<p class="text-sm text-gray-500">Total harga</p>
-									<p class="mt-1 text-xs text-gray-500">Tidak ada biaya langganan bulanan.</p>
 								</div>
 								{#if isPlanLoading}
 									<span class="h-8 w-28 animate-pulse rounded-lg bg-gray-200" aria-hidden="true"
@@ -302,6 +398,34 @@
 						</div>
 					</section>
 
+					{#if pendingPayment}
+						<section
+							class="rounded-2xl border border-amber-200 bg-amber-50 p-5 text-sm text-amber-950 sm:p-6"
+							aria-label="Tagihan aktif"
+						>
+							<h2 class="font-bold">Tagihan sebelumnya masih aktif</h2>
+							<p class="mt-2 leading-6">
+								{formatRupiah(pendingPayment.amount)}
+								{pendingPayment.coupon_code
+									? `dengan kupon ${pendingPayment.coupon_code}`
+									: 'tanpa kupon'}.
+								{#if pendingExpiry}Berlaku hingga {pendingExpiry}.{/if}
+							</p>
+							{#if pendingDiffers}
+								<p class="mt-2 leading-6">
+									Kupon pilihanmu bisa digunakan setelah tagihan ini dipastikan gagal atau berakhir.
+								</p>
+							{/if}
+							<button
+								type="button"
+								disabled={isCheckingPayment}
+								onclick={checkPendingPayment}
+								class="mt-3 cursor-pointer font-semibold text-amber-900 underline underline-offset-4 disabled:cursor-not-allowed disabled:opacity-50"
+								>{isCheckingPayment ? 'Memeriksa status...' : 'Periksa status tagihan'}</button
+							>
+						</section>
+					{/if}
+
 					{#if paymentError}
 						<p
 							class="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
@@ -326,7 +450,7 @@
 									class="h-5 w-20 animate-pulse rounded bg-gray-200"
 									aria-hidden="true"
 								></span>{:else}<span class="text-sm font-semibold text-gray-900"
-									>{formattedProPrice}</span
+									>{formatRupiah(proPrice)}</span
 								>{/if}
 						</div>
 						<div class="mt-4 flex items-center justify-between gap-4 text-sm">
@@ -334,6 +458,11 @@
 								class="font-semibold text-gray-900">Rp0</span
 							>
 						</div>
+						{#if couponApplied && quote}<div
+								class="mt-3 flex justify-between text-sm text-green-700"
+							>
+								<span>Diskon kupon 10%</span><span>−{formatRupiah(quote.discount_amount)}</span>
+							</div>{/if}
 					</div>
 					<div class="flex items-center justify-between gap-4 py-5">
 						<span class="font-bold text-gray-950">Total</span>
@@ -352,27 +481,16 @@
 						Punya kode kupon?
 					</button>
 					{#if isCouponOpen}
-						<form
+						<CouponForm
 							id="desktop-coupon-form"
-							onsubmit={(event) => event.preventDefault()}
-							class="mt-3 grid grid-cols-[minmax(0,1fr)_auto] gap-3"
-						>
-							<label for="desktop-coupon-code" class="sr-only">Kode kupon</label>
-							<input
-								id="desktop-coupon-code"
-								bind:value={couponCode}
-								type="text"
-								autocomplete="off"
-								spellcheck="false"
-								class="min-w-0 rounded-xl border-2 border-violet-600 bg-white px-4 py-3 text-sm text-gray-900 outline-none focus:border-violet-700"
-							/>
-							<button
-								type="submit"
-								class="cursor-pointer rounded-xl border border-violet-600 bg-white px-4 py-3 text-sm font-semibold text-violet-700"
-							>
-								Tambahkan
-							</button>
-						</form>
+							code={couponCode}
+							busy={isCouponValidating}
+							locked={isUpgrading}
+							applied={couponApplied}
+							error={couponError}
+							oninput={editCoupon}
+							onapply={applyCoupon}
+						/>
 					{/if}
 					<button
 						type="button"
@@ -411,27 +529,16 @@
 				Punya kode kupon?
 			</button>
 			{#if isCouponOpen}
-				<form
+				<CouponForm
 					id="mobile-coupon-form"
-					onsubmit={(event) => event.preventDefault()}
-					class="mt-3 grid grid-cols-[minmax(0,1fr)_auto] gap-3"
-				>
-					<label for="mobile-coupon-code" class="sr-only">Kode kupon</label>
-					<input
-						id="mobile-coupon-code"
-						bind:value={couponCode}
-						type="text"
-						autocomplete="off"
-						spellcheck="false"
-						class="min-w-0 rounded-xl border-2 border-violet-600 bg-white px-4 py-3 text-sm text-gray-900 outline-none focus:border-violet-700"
-					/>
-					<button
-						type="submit"
-						class="cursor-pointer rounded-xl border border-violet-600 bg-white px-4 py-3 text-sm font-semibold text-violet-700"
-					>
-						Tambahkan
-					</button>
-				</form>
+					code={couponCode}
+					busy={isCouponValidating}
+					locked={isUpgrading}
+					applied={couponApplied}
+					error={couponError}
+					oninput={editCoupon}
+					onapply={applyCoupon}
+				/>
 			{/if}
 		</div>
 		<button

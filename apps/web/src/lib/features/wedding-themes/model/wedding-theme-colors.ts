@@ -99,5 +99,82 @@ export const WEDDING_THEME_COLORS = {
 		text: '#F7F0E1',
 		primary: '#D9B77B',
 		accent: '#8EADAA'
+	},
+	'puspa-parahyangan': {
+		background: '#F5F0E3',
+		surface: '#FFFCF4',
+		text: '#183C34',
+		primary: '#B78A43',
+		accent: '#8BA795'
+	},
+	'pinto-aceh': {
+		background: '#F5EBDC',
+		surface: '#FFF8EA',
+		text: '#421E24',
+		primary: '#A56A36',
+		accent: '#B83C43'
+	},
+	'kawung-jawa': {
+		background: '#F0E5D1',
+		surface: '#FFF9EB',
+		text: '#463126',
+		primary: '#986543',
+		accent: '#BCA27B'
+	},
+	'gorga-batak': {
+		background: '#F1EDE4',
+		surface: '#FFFCF4',
+		text: '#201D1B',
+		primary: '#A82424',
+		accent: '#CEAD84'
+	},
+	'lipa-sabbe-bugis': {
+		background: '#E8F1EA',
+		surface: '#FCF9E9',
+		text: '#143C36',
+		primary: '#B58A42',
+		accent: '#5B9384'
+	},
+	'gigi-balang-betawi': {
+		background: '#F7F2DF',
+		surface: '#FFFBEF',
+		text: '#17483F',
+		primary: '#C35A38',
+		accent: '#81A863'
+	},
+	'gonjong-minang': {
+		background: '#F6EFE4',
+		surface: '#FFFAF0',
+		text: '#4B1F2C',
+		primary: '#B38838',
+		accent: '#9E3441'
+	},
+	'tongkonan-toraja': {
+		background: '#F1E8DB',
+		surface: '#FFF9EB',
+		text: '#382522',
+		primary: '#B85F3B',
+		accent: '#8B7956'
+	},
+	kinetika: {
+		background: '#EEE6D8',
+		surface: '#FFFDF7',
+		text: '#382E28',
+		primary: '#81634E',
+		accent: '#C7AB88'
+	},
+	anomali: {
+		background: '#F7F4EE',
+		surface: '#FFFDF8',
+		text: '#233B32',
+		primary: '#365446',
+		accent: '#A2875E'
+	},
+	selaras: {
+		background: '#F5EFE6',
+		surface: '#FFFCF7',
+		text: '#39282A',
+		primary: '#562F38',
+		accent: '#B18565'
 	}
 } as const satisfies Record<WeddingThemeKey, WeddingThemeColors>;

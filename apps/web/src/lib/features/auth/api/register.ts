@@ -10,10 +10,6 @@ export class RegisterError extends Error {
 	}
 }
 
-async function createInitialWedding(): Promise<void> {
-	await pocketBase.send('/api/wedez/account/provision', { method: 'POST' });
-}
-
 function hasFieldError(error: ClientResponseError, field: string): boolean {
 	const data = error.response?.data;
 	return typeof data === 'object' && data !== null && field in data;
@@ -44,40 +40,19 @@ function getRegisterErrorMessage(error: ClientResponseError): string {
 }
 
 export async function registerWithPassword(input: RegisterInput) {
-	let createdUserId: string | null = null;
-
 	try {
-		const user = await pocketBase.collection('users').create({
+		return await pocketBase.collection('users').create({
 			name: input.name,
 			email: input.email,
 			password: input.password,
 			passwordConfirm: input.passwordConfirm
 		});
-		createdUserId = user.id;
-
-		await pocketBase.collection('users').authWithPassword(input.email, input.password);
-		await createInitialWedding();
-
-		return user;
 	} catch (error) {
-		if (createdUserId && pocketBase.authStore.isValid) {
-			try {
-				await pocketBase.collection('users').delete(createdUserId);
-			} catch {
-				// The original provisioning error is more useful to the caller.
-			}
-		}
-
-		const message = createdUserId
-			? 'Akun dan undangan gagal disiapkan. Silakan coba mendaftar kembali.'
-			: error instanceof ClientResponseError
+		const message =
+			error instanceof ClientResponseError
 				? getRegisterErrorMessage(error)
 				: 'Terjadi kesalahan saat mendaftar. Silakan coba lagi.';
 
 		throw new RegisterError(message, { cause: error });
-	} finally {
-		if (createdUserId) {
-			pocketBase.authStore.clear();
-		}
 	}
 }

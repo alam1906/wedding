@@ -2,6 +2,30 @@
 
 routerAdd(
 	'POST',
+	'/api/wedez/payments/quote',
+	function (e) {
+		e.response.header().set('Cache-Control', 'no-store');
+		var helpers = require(__hooks + '/duitku_helpers.js');
+		helpers.getWeddingForAuth(e);
+		var affiliate = require(__hooks + '/affiliate_helpers.js');
+		var body = new DynamicModel({ couponCode: '' });
+		e.bindBody(body);
+		var quote = affiliate.quote(e.app, e.auth.id, helpers.getConfig().price, body.couponCode);
+		// The buyer receives pricing only, never the affiliate's private profile.
+		return e.json(200, {
+			original_amount: quote.original_amount,
+			amount: quote.amount,
+			discount_amount: quote.discount_amount,
+			discount_percent: quote.discount_percent,
+			coupon_code: quote.coupon_code
+		});
+	},
+	$apis.requireAuth('users'),
+	$apis.bodyLimit(1024)
+);
+
+routerAdd(
+	'POST',
 	'/api/wedez/payments/session',
 	function (e) {
 		e.response.header().set('Cache-Control', 'no-store');
@@ -14,84 +38,107 @@ routerAdd(
 			return e.json(200, helpers.paymentResponse(e.app, weddingId, null));
 		}
 
-		var pendingPayments = e.app.findRecordsByFilter(
-			'payments',
-			"wedding = {:wedding} && provider = 'duitku' && status = 'pending'",
-			'-created',
-			10,
-			0,
-			{ wedding: weddingId }
-		);
-
-		for (var index = 0; index < pendingPayments.length; index++) {
-			var pendingPayment = pendingPayments[index];
-
-			if (helpers.paymentHasExpired(pendingPayment)) {
-				helpers.applyPaymentStatus(e.app, pendingPayment, 'expired', '');
-				continue;
+		var body = new DynamicModel({ couponCode: '' });
+		e.bindBody(body);
+		var affiliate = require(__hooks + '/affiliate_helpers.js');
+		var payment;
+		var reused = false;
+		var alreadyPro = false;
+		e.app.runInTransaction(function (txApp) {
+			if (txApp.findRecordById('weddings', weddingId).getString('plan_tier') === 'pro') {
+				alreadyPro = true;
+				return;
 			}
-
-			if (
-				Number(pendingPayment.get('amount')) === config.price &&
-				String(pendingPayment.get('checkout_url') || '')
-			) {
-				return e.json(200, helpers.paymentResponse(e.app, weddingId, pendingPayment));
+			var pricing = affiliate.quote(txApp, e.auth.id, config.price, body.couponCode);
+			var pendingPayments = txApp.findRecordsByFilter(
+				'payments',
+				"wedding = {:wedding} && provider = 'duitku' && status = 'pending'",
+				'-created',
+				0,
+				0,
+				{ wedding: weddingId }
+			);
+			for (var index = 0; index < pendingPayments.length; index++) {
+				var pending = pendingPayments[index];
+				if (helpers.paymentHasExpired(pending)) {
+					pending.set('status', 'expired');
+					pending.set('checkout_lock', '');
+					txApp.save(pending);
+					continue;
+				}
+				if (
+					pending.getInt('amount') !== pricing.amount ||
+					pending.getString('coupon_code') !== pricing.coupon_code
+				) {
+					throw new ApiError(
+						409,
+						'Masih ada pembayaran aktif dengan harga atau kupon berbeda. Selesaikan atau tunggu pembayaran tersebut kedaluwarsa.'
+					);
+				}
+				if (!pending.getString('checkout_url'))
+					throw new ApiError(
+						409,
+						'Pembayaran sedang disiapkan. Muat ulang untuk memeriksa status; jangan membuat pembayaran lain.'
+					);
+				payment = pending;
+				reused = true;
+				return;
 			}
-
-			helpers.applyPaymentStatus(e.app, pendingPayment, 'failed', '');
-		}
-
-		var merchantOrderId =
-			'WZ' +
-			Date.now().toString(36).toUpperCase() +
-			$security.randomStringWithAlphabet(8, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789');
-		var expiresAt = new Date(Date.now() + config.expiryMinutes * 60 * 1000).toISOString();
-		var payment = new Record(e.app.findCollectionByNameOrId('payments'));
-
-		payment.set('wedding', weddingId);
-		payment.set('provider', 'duitku');
-		payment.set('provider_transaction_id', merchantOrderId);
-		payment.set('amount', config.price);
-		payment.set('currency', 'IDR');
-		payment.set('status', 'pending');
-		payment.set('expires_at', expiresAt);
-		e.app.save(payment);
+			payment = new Record(txApp.findCollectionByNameOrId('payments'));
+			payment.set('wedding', weddingId);
+			payment.set('provider', 'duitku');
+			payment.set(
+				'provider_transaction_id',
+				'WZ' +
+					Date.now().toString(36).toUpperCase() +
+					$security.randomStringWithAlphabet(8, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789')
+			);
+			payment.set('currency', 'IDR');
+			payment.set('status', 'pending');
+			payment.set('checkout_lock', weddingId);
+			payment.set(
+				'expires_at',
+				new Date(Date.now() + config.expiryMinutes * 60 * 1000).toISOString()
+			);
+			Object.keys(pricing).forEach(function (key) {
+				payment.set(key, pricing[key]);
+			});
+			txApp.save(payment);
+		});
+		if (alreadyPro) return e.json(200, helpers.paymentResponse(e.app, weddingId, null));
+		if (reused) return e.json(200, helpers.paymentResponse(e.app, weddingId, payment));
+		var merchantOrderId = payment.getString('provider_transaction_id');
 
 		var email = String(e.auth.get('email') || '').trim();
 		var customerName = String(e.auth.get('name') || '').trim() || email || 'Pengguna Wedez';
-		var invoice;
-
-		try {
-			invoice = helpers.createInvoice(e.app, config, {
-				paymentAmount: config.price,
-				merchantOrderId: merchantOrderId,
-				productDetails: 'Upgrade Wedez Pro',
-				additionalParam: weddingId,
-				merchantUserInfo: email,
-				paymentMethod: '',
-				customerVaName: customerName,
+		// A timeout may still create an invoice. Keep the reservation until
+		// status reconciliation or expiry rather than issuing another charge.
+		var invoice = helpers.createInvoice(e.app, config, {
+			paymentAmount: payment.getInt('amount'),
+			merchantOrderId: merchantOrderId,
+			productDetails: 'Upgrade Wedez Pro',
+			additionalParam: weddingId,
+			merchantUserInfo: email,
+			paymentMethod: '',
+			customerVaName: customerName,
+			email: email,
+			itemDetails: [
+				{
+					name: 'Paket Wedez Pro',
+					price: payment.getInt('amount'),
+					quantity: 1
+				}
+			],
+			customerDetail: {
+				firstName: customerName,
+				lastName: '',
 				email: email,
-				itemDetails: [
-					{
-						name: 'Paket Wedez Pro',
-						price: config.price,
-						quantity: 1
-					}
-				],
-				customerDetail: {
-					firstName: customerName,
-					lastName: '',
-					email: email,
-					merchantCustomerId: e.auth.id
-				},
-				callbackUrl: config.callbackUrl,
-				returnUrl: config.returnUrl,
-				expiryPeriod: config.expiryMinutes
-			});
-		} catch (error) {
-			helpers.applyPaymentStatus(e.app, payment, 'failed', '');
-			throw error;
-		}
+				merchantCustomerId: e.auth.id
+			},
+			callbackUrl: config.callbackUrl,
+			returnUrl: config.returnUrl,
+			expiryPeriod: config.expiryMinutes
+		});
 
 		var statusCode = String(invoice.statusCode || '');
 		var checkoutUrl = String(invoice.paymentUrl || '');
@@ -104,14 +151,16 @@ routerAdd(
 			!reference ||
 			responseMerchantCode !== config.merchantCode
 		) {
-			helpers.applyPaymentStatus(e.app, payment, 'failed', reference);
+			// A malformed response is not proof that the gateway has no invoice.
 			throw new ApiError(502, 'Duitku tidak mengembalikan tautan pembayaran yang valid.');
 		}
 
-		payment = e.app.findRecordById('payments', payment.id);
-		payment.set('provider_reference', reference);
-		payment.set('checkout_url', checkoutUrl);
-		e.app.save(payment);
+		e.app.runInTransaction(function (txApp) {
+			payment = txApp.findRecordById('payments', payment.id);
+			payment.set('provider_reference', reference);
+			payment.set('checkout_url', checkoutUrl);
+			txApp.save(payment);
+		});
 
 		return e.json(201, helpers.paymentResponse(e.app, weddingId, payment));
 	},
@@ -150,7 +199,12 @@ routerAdd(
 
 		if (String(payment.get('status') || '') === 'pending') {
 			var merchantOrderId = String(payment.get('provider_transaction_id') || '');
-			var transaction = helpers.checkTransaction(e.app, config, merchantOrderId);
+			var transaction = helpers.checkTransaction(
+				e.app,
+				config,
+				merchantOrderId,
+				payment.getInt('amount')
+			);
 			var status = helpers.syncPaymentFromStatus(e.app, payment, transaction);
 
 			payment = e.app.findRecordById('payments', payment.id);

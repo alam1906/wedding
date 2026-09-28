@@ -1,15 +1,18 @@
 import { browser } from '$app/env';
 import { redirect } from '@sveltejs/kit';
 
-import { isAuthenticated, isEmailVerified } from '#lib/features/auth/index.js';
+import { requireVerifiedAccount } from '#lib/features/auth/api/guard.js';
+import { hasWedding, getAccountHome } from '#lib/features/auth/model/navigation.js';
+import { pocketBase } from '#lib/infrastructure/pocketbase/index.js';
 import type { LayoutLoad } from './$types';
 
-export const load: LayoutLoad = () => {
-	if (browser && !isAuthenticated()) {
-		redirect(307, '/login');
-	}
+export const prerender = false;
 
-	if (browser && !isEmailVerified()) {
-		redirect(307, '/verification');
-	}
+export const load: LayoutLoad = async ({ url, fetch }) => {
+	await requireVerifiedAccount(url.pathname, 'wedding', fetch);
+	if (browser && !hasWedding()) redirect(307, getAccountHome());
+	const memberships = await pocketBase
+		.collection('affiliates')
+		.getList(1, 1, { fields: 'id', fetch });
+	return { hasAffiliate: memberships.items.length > 0 };
 };

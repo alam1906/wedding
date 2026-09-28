@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
+
 function trimTrailingSlash(value) {
 	return String(value || '')
 		.trim()
@@ -32,7 +34,7 @@ function getConfig() {
 	var apiUrl = trimTrailingSlash($os.getenv('DUITKU_API_URL') || expectedApiUrl);
 	var callbackUrl = String($os.getenv('DUITKU_CALLBACK_URL') || '').trim();
 	var returnUrl = String($os.getenv('DUITKU_RETURN_URL') || '').trim();
-	var expiryMinutes = Math.floor(Number($os.getenv('DUITKU_EXPIRY_MINUTES')) || 60);
+	var expiryMinutes = 10;
 	var price = Math.floor(Number($os.getenv('WEDEZ_PRO_PRICE')) || 50000);
 
 	if (environment !== 'sandbox' && environment !== 'production') {
@@ -49,10 +51,6 @@ function getConfig() {
 
 	if (!validReturnUrl(returnUrl, environment)) {
 		throw new ApiError(503, 'Return URL Duitku tidak valid.');
-	}
-
-	if (expiryMinutes !== 5 && expiryMinutes !== 10 && expiryMinutes !== 60) {
-		throw new ApiError(503, 'Masa berlaku pembayaran Duitku harus 5, 10, atau 60 menit.');
 	}
 
 	if (price < 1000) {
@@ -150,7 +148,7 @@ function createInvoice(app, config, invoice) {
 	);
 }
 
-function checkTransaction(app, config, merchantOrderId) {
+function checkTransaction(app, config, merchantOrderId, expectedAmount) {
 	var signature = $security.hs256(config.merchantCode + merchantOrderId, config.apiKey);
 	var response = sendDuitkuRequest(
 		app,
@@ -175,7 +173,7 @@ function checkTransaction(app, config, merchantOrderId) {
 		return {
 			merchantOrderId: merchantOrderId,
 			reference: '',
-			amount: config.price,
+			amount: expectedAmount,
 			statusCode: '01',
 			statusMessage: 'PENDING'
 		};
@@ -195,7 +193,10 @@ function getWeddingForAuth(event) {
 		throw new NotFoundError('Wedding untuk akun ini tidak ditemukan.');
 	}
 
-	return event.app.findRecordById('weddings', weddingId);
+	var wedding = event.app.findRecordById('weddings', weddingId);
+	if (wedding.getString('owner') !== event.auth.id)
+		throw new ForbiddenError('Undangan bukan milik akun ini.');
+	return wedding;
 }
 
 function applyPaymentStatus(app, payment, status, reference) {
@@ -222,6 +223,7 @@ function applyPaymentStatus(app, payment, status, reference) {
 		if (nextStatus === 'paid' && !String(currentPayment.get('paid_at') || '')) {
 			currentPayment.set('paid_at', new Date().toISOString());
 		}
+		if (nextStatus !== 'pending') currentPayment.set('checkout_lock', '');
 
 		txApp.save(currentPayment);
 
@@ -232,6 +234,9 @@ function applyPaymentStatus(app, payment, status, reference) {
 				wedding.set('plan_tier', 'pro');
 				txApp.save(wedding);
 			}
+			// Both callback and status polling use this atomic, idempotent path.
+			var affiliate = require(__hooks + '/affiliate_helpers.js');
+			affiliate.creditCommission(txApp, currentPayment);
 		}
 	});
 
@@ -274,6 +279,9 @@ function paymentResponse(app, weddingId, payment) {
 					id: payment.id,
 					status: status,
 					amount: Number(payment.get('amount')),
+					original_amount: Number(payment.get('original_amount')) || Number(payment.get('amount')),
+					discount_amount: Number(payment.get('discount_amount')),
+					coupon_code: String(payment.get('coupon_code') || ''),
 					currency: String(payment.get('currency') || 'IDR'),
 					expires_at: String(payment.get('expires_at') || ''),
 					checkout_url: status === 'pending' ? String(payment.get('checkout_url') || '') : ''
@@ -282,6 +290,9 @@ function paymentResponse(app, weddingId, payment) {
 					id: '',
 					status: status,
 					amount: config.price,
+					original_amount: config.price,
+					discount_amount: 0,
+					coupon_code: '',
 					currency: 'IDR',
 					expires_at: '',
 					checkout_url: ''

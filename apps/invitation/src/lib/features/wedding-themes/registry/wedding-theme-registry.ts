@@ -80,6 +80,74 @@ export const weddingThemes = [
 		name: 'Nocturne',
 		description: 'Romansa malam sinematik dengan cahaya emas dan gerak yang mengalir.',
 		load: () => import('../themes/nocturne/NocturneTheme.svelte')
+	},
+	{
+		key: 'puspa-parahyangan',
+		name: 'Puspa Parahyangan',
+		description: 'Keanggunan adat Sunda dengan siluet siger, sulur bunga, dan palet hijau-emas.',
+		load: () => import('../themes/sunda/PuspaParahyanganTheme.svelte')
+	},
+	{
+		key: 'pinto-aceh',
+		name: 'Pinto Aceh',
+		description: 'Gerbang berukir dan bungong jeumpa dalam nuansa merah-emas Aceh.',
+		load: () => import('../themes/aceh/PintoAcehTheme.svelte')
+	},
+	{
+		key: 'kawung-jawa',
+		name: 'Kawung Jawa',
+		description: 'Ritme batik kawung dan warna soga yang tenang.',
+		load: () => import('../themes/jawa/KawungJawaTheme.svelte')
+	},
+	{
+		key: 'gorga-batak',
+		name: 'Gorga Batak',
+		description: 'Geometri gorga dengan kontras merah, hitam, dan putih.',
+		load: () => import('../themes/batak/GorgaBatakTheme.svelte')
+	},
+	{
+		key: 'lipa-sabbe-bugis',
+		name: 'Lipa Sabbe Bugis',
+		description: 'Anyaman sutra berpola kotak dalam hijau zamrud dan emas.',
+		load: () => import('../themes/bugis/LipaSabbeBugisTheme.svelte')
+	},
+	{
+		key: 'gigi-balang-betawi',
+		name: 'Gigi Balang Betawi',
+		description: 'Lisplang bergerigi dan warna ceria khas rumah Betawi.',
+		load: () => import('../themes/betawi/GigiBalangBetawiTheme.svelte')
+	},
+	{
+		key: 'gonjong-minang',
+		name: 'Gonjong Minang',
+		description: 'Siluet atap Rumah Gadang dengan marun dan emas.',
+		load: () => import('../themes/minang/GonjongMinangTheme.svelte')
+	},
+	{
+		key: 'tongkonan-toraja',
+		name: 'Tongkonan Toraja',
+		description: 'Lengkung atap Tongkonan dan geometri tanah Toraja.',
+		load: () => import('../themes/toraja/TongkonanTorajaTheme.svelte')
+	},
+	{
+		key: 'kinetika',
+		name: 'Buku Kita',
+		description: 'Undangan bergaya buku dengan sampul dan halaman yang dapat dibalik.',
+		load: () => import('../themes/kinetika/KinetikaTheme.svelte')
+	},
+	{
+		key: 'anomali',
+		name: 'Anomali',
+		description:
+			'Editorial sinematik bernuansa ivory dan hijau dengan animasi berlapis yang halus.',
+		load: () => import('../themes/anomali/AnomaliTheme.svelte')
+	},
+	{
+		key: 'selaras',
+		name: 'Selaras',
+		description:
+			'Ivory dan burgundy dengan cerita berbentuk stacked cards, galeri horizontal, dan parallax sinematik.',
+		load: () => import('../themes/selaras/SelarasTheme.svelte')
 	}
 ] satisfies WeddingThemeDefinition[];
 

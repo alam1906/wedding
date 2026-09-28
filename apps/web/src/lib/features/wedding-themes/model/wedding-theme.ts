@@ -11,7 +11,18 @@ export const WEDDING_THEME_KEYS = [
 	'3d-design-1',
 	'3d-design-2',
 	'3d-design-3',
-	'nocturne'
+	'nocturne',
+	'puspa-parahyangan',
+	'pinto-aceh',
+	'kawung-jawa',
+	'gorga-batak',
+	'lipa-sabbe-bugis',
+	'gigi-balang-betawi',
+	'gonjong-minang',
+	'tongkonan-toraja',
+	'kinetika',
+	'anomali',
+	'selaras'
 ] as const;
 
 export type WeddingThemeKey = (typeof WEDDING_THEME_KEYS)[number];

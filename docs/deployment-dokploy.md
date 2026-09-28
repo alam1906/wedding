@@ -119,7 +119,6 @@ DUITKU_API_KEY
 DUITKU_API_URL
 DUITKU_CALLBACK_URL
 DUITKU_RETURN_URL
-DUITKU_EXPIRY_MINUTES
 ```
 
 `PUBLIC_*` bukan runtime environment Dokploy. Nilainya dipasang ketika image statis dibangun oleh

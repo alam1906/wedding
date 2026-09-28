@@ -43,6 +43,7 @@
       "name": "@wedez/web",
       "version": "0.0.1",
       "dependencies": {
+        "gsap": "^3.15.0",
         "pocketbase": "^0.28.0",
         "valibot": "^1.4.2",
       },
