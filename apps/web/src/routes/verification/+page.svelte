@@ -148,11 +148,7 @@
 	<meta name="description" content="Verifikasi alamat email akun Wedez Anda." />
 </svelte:head>
 
-<main class="relative grid min-h-screen place-items-center overflow-hidden bg-stone-50 px-4 py-12">
-	<div
-		class="pointer-events-none absolute -right-20 bottom-8 size-80 rounded-full bg-yellow-100/80 blur-3xl"
-	></div>
-
+<main class="grid min-h-screen place-items-center bg-gray-100 px-4 py-12">
 	<section
 		class="relative w-full max-w-md rounded-3xl border border-stone-200 bg-white/90 p-7 text-center shadow-xl shadow-stone-200/50 backdrop-blur sm:p-10"
 	>
@@ -194,10 +190,15 @@
 				{#if status === 'failed'}
 					Link mungkin sudah kedaluwarsa. Kirim ulang email verifikasi untuk mendapatkan link baru.
 				{:else}
-					Kami telah mengirim link verifikasi{email ? ` ke ${email}` : ''}. Buka link tersebut untuk
-					melanjutkan.
+					Kami telah mengirim link verifikasi{email ? ` ke ${email}` : ''}.
 				{/if}
 			</p>
+
+			{#if status === 'waiting'}
+				<p class="mt-5 rounded-xl bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-900">
+					Link verifikasi mungkin masuk ke folder <strong class="font-semibold">Spam</strong>
+				</p>
+			{/if}
 
 			{#if email}
 				<button
