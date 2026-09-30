@@ -1,0 +1,82 @@
+.edition-theme.arunika {
+	--e-bg: #fdfbf7;
+	--e-surface: #fdfbf9;
+	--e-ink: #4a3f35;
+	--e-muted: #796759;
+	--e-accent: #886c52;
+	--e-border: #e6dcd0;
+	--e-body: 'Edition Poppins', Arial, sans-serif;
+	font-size: 14px;
+}
+.edition-theme.arunika .edition-cover {
+	background: radial-gradient(ellipse at 50% 5%, #e9d7bf, transparent 70%), #faf6f0;
+}
+.edition-theme.arunika .edition-cover-photo {
+	height: min(36dvh, 360px);
+	border-radius: 50% 50% 35% 35%;
+	mask-image: linear-gradient(#000 63%, transparent);
+}
+.edition-theme.arunika .edition-cover-names {
+	color: #715e50;
+}
+.edition-theme.arunika .edition-open-button {
+	color: #fff;
+	background: linear-gradient(120deg, #a08669, #7d6049);
+	box-shadow: 0 8px 18px #71523730;
+	border: 0;
+}
+.edition-theme.arunika .edition-heading h2 {
+	font: 400 clamp(40px, 5vw, 56px)/1.2 var(--e-script);
+	color: var(--e-accent);
+}
+.edition-theme.arunika .edition-couple-section,
+.edition-theme.arunika .edition-events-section,
+.edition-theme.arunika .edition-gift-section {
+	background: #f4ebe1;
+}
+.edition-theme.arunika .edition-couple-section::before,
+.edition-theme.arunika .edition-events-section::after {
+	content: '';
+	position: absolute;
+	width: 35px;
+	height: 65px;
+	left: 4%;
+	top: 28px;
+	border-radius: 85% 0 85% 0;
+	background: #9eaa8f66;
+	transform: rotate(-30deg);
+	box-shadow: 28px -15px 0 #c9ae9180;
+	pointer-events: none;
+}
+.edition-theme.arunika .edition-events-section::after {
+	left: auto;
+	right: 4%;
+	transform: rotate(140deg);
+}
+.edition-theme.arunika .edition-event {
+	border-radius: 16px;
+	box-shadow: 0 8px 18px #7967590d;
+}
+.edition-theme.arunika .edition-event h3,
+.edition-theme.arunika .edition-stories-cards h3 {
+	font: 400 34px/1.2 var(--e-script);
+	text-transform: none;
+	letter-spacing: 0;
+}
+.edition-theme.arunika .edition-event-date {
+	font-size: 21px;
+}
+.edition-theme.arunika .edition-gallery button {
+	border-radius: 16px 16px 60px 16px;
+}
+.edition-theme.arunika .edition-gallery button:nth-child(even) {
+	border-radius: 60px 16px 16px 16px;
+}
+.edition-theme.arunika .edition-footer {
+	background: #f4ebe1;
+}
+@media (max-height: 620px) {
+	.edition-theme.arunika .edition-cover-photo {
+		height: 24dvh;
+	}
+}

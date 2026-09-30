@@ -28,6 +28,7 @@
 		"check:web": "bun run --cwd apps/web check",
 		"check:invitation": "bun run --cwd apps/invitation check",
 		"check:admin": "bun run --cwd apps/admin check",
+		"test:p1": "bun scripts/test-account-p1.mjs",
 		"lint": "prettier --check . && eslint .",
 		"format": "prettier --write ."
 	},

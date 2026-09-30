@@ -83,12 +83,13 @@ function creditCommission(app, payment) {
 	// A lifetime upgrade earns once, even if an older invoice is paid late.
 	var earlier = app.findRecordsByFilter(
 		'payments',
-		"wedding = {:wedding} && status = 'paid' && id != {:id}",
+		(payment.getString('wedding') ? 'wedding' : 'archived_wedding_id') +
+			" = {:wedding} && status = 'paid' && id != {:id}",
 		'',
 		1,
 		0,
 		{
-			wedding: payment.getString('wedding'),
+			wedding: payment.getString('wedding') || payment.getString('archived_wedding_id'),
 			id: payment.id
 		}
 	);

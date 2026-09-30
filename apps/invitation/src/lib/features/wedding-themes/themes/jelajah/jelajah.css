@@ -1,0 +1,198 @@
+.edition-theme.edition-concept.jelajah {
+	--e-bg: #f6f1e2;
+	--e-surface: #fff9ec;
+	--e-ink: #15213a;
+	--e-muted: #586879;
+	--e-accent: #87651a;
+	--e-border: #c9c7b6;
+	--e-outer: #051426;
+	--e-serif: 'Concept Space', sans-serif;
+	--e-body: 'Edition Jost', sans-serif;
+}
+.edition-theme.edition-concept.jelajah .edition-cover {
+	border-bottom: 7px solid transparent;
+	border-image: repeating-linear-gradient(
+			135deg,
+			#b92738 0 12px,
+			#f6f1e2 12px 18px,
+			#1d5191 18px 30px,
+			#f6f1e2 30px 36px
+		)
+		7;
+}
+.edition-theme.edition-concept.jelajah .edition-cover-backdrop::after {
+	background: linear-gradient(#071e3aa6, #061a2ccd);
+}
+.edition-theme.edition-concept.jelajah .edition-cover-card {
+	max-width: none;
+	align-items: stretch;
+	text-align: center;
+}
+.edition-theme.edition-concept.jelajah .edition-cover-names {
+	font-size: clamp(30px, 5vw, 46px);
+	font-weight: 700;
+}
+.edition-theme.edition-concept.jelajah .edition-cover-names > * {
+	display: inline;
+}
+.edition-theme.edition-concept.jelajah .edition-cover-names i {
+	font: inherit;
+	color: #d1a52d;
+	margin-inline: 0.12em;
+}
+.edition-theme.edition-concept.jelajah .edition-cover-date {
+	font:
+		400 12px/1.5 'Concept Mono',
+		monospace;
+}
+.edition-theme.edition-concept.jelajah .edition-recipient {
+	position: relative;
+	text-align: left;
+	padding: 20px 24px;
+	color: #576273;
+	background:
+		linear-gradient(#f6f1e2, #f6f1e2) padding-box,
+		repeating-linear-gradient(
+				135deg,
+				#c62339 0 12px,
+				#f6f1e2 12px 20px,
+				#28589c 20px 32px,
+				#f6f1e2 32px 40px
+			)
+			border-box;
+	border: 7px solid transparent;
+}
+.edition-theme.edition-concept.jelajah .edition-recipient-name {
+	color: #15213a;
+	font-style: normal;
+}
+.edition-theme.edition-concept.jelajah .edition-open-button {
+	background: #c59b28;
+	color: #081d37;
+	border: 0;
+	font-weight: 600;
+	font-size: 13px;
+}
+.edition-theme.edition-concept.jelajah .edition-hero-ticket {
+	margin: 42px 30px;
+	padding: 24px 20px 30px;
+	background: #f6f1e2;
+	border-top: 32px solid #0d2b4a;
+	border-radius: 8px;
+}
+.edition-theme.edition-concept.jelajah .edition-hero-media {
+	aspect-ratio: 4/3;
+	max-width: none;
+	border-radius: 7px;
+	margin-bottom: 22px;
+	box-shadow: none;
+}
+.edition-theme.edition-concept.jelajah .edition-hero-names {
+	font: 700 30px/1.4 var(--e-serif);
+}
+.edition-theme.edition-concept.jelajah .edition-hero-names > * {
+	display: inline;
+}
+.edition-theme.edition-concept.jelajah .edition-hero-names i {
+	color: #bd2337;
+	font: inherit;
+	margin: 0 0.12em;
+}
+.edition-theme.edition-concept.jelajah .edition-hero-date {
+	border-top: 1px dashed #a1a7ad;
+	padding-top: 22px;
+	font-family: 'Concept Mono', monospace;
+}
+.edition-theme.edition-concept.jelajah .edition-hero::after {
+	content: '';
+	display: block;
+	height: 26px;
+	margin-top: 24px;
+	background: repeating-linear-gradient(
+		90deg,
+		#17253d 0 2px,
+		transparent 2px 4px,
+		#17253d 4px 5px,
+		transparent 5px 8px
+	);
+}
+.edition-theme.edition-concept.jelajah .edition-content {
+	display: flow-root;
+	background: #0d2846;
+}
+.edition-theme.edition-concept.jelajah .edition-section,
+.edition-theme.edition-concept.jelajah .edition-footer {
+	background: #f6f1e2;
+}
+.edition-theme.edition-concept.jelajah .edition-couple-section,
+.edition-theme.edition-concept.jelajah .edition-stories-section,
+.edition-theme.edition-concept.jelajah .edition-gift-section {
+	--e-ink: #f6f1e2;
+	--e-muted: #c0d1dc;
+	--e-accent: #e4c166;
+	--e-surface: #153958;
+	--e-border: #3e5a73;
+	background:
+		radial-gradient(#d6e2e619 1px, transparent 1px) 0 0/16px 16px,
+		#0d2846;
+}
+.edition-theme.edition-concept.jelajah .edition-person {
+	display: grid;
+	grid-template-columns: 86px minmax(0, 1fr);
+	align-items: center;
+	gap: 16px;
+	text-align: left;
+	padding: 17px;
+	background: #f6f1e2;
+	border: 1px solid #cec4a6;
+	border-radius: 8px;
+	--e-ink: #15213a;
+	--e-muted: #586879;
+}
+.edition-theme.edition-concept.jelajah .edition-portrait {
+	width: 86px;
+	height: 110px;
+	margin: 0;
+	border-radius: 0;
+	border: 3px solid #fff;
+	outline: 1px solid #15213a;
+}
+.edition-theme.edition-concept.jelajah .edition-person h3 {
+	font-size: 22px;
+}
+.edition-theme.edition-concept.jelajah .edition-person p {
+	font-size: 12px;
+}
+.edition-theme.edition-concept.jelajah .edition-quote {
+	padding: 24px;
+	border: 6px solid transparent;
+	background:
+		linear-gradient(#f6f1e2, #f6f1e2) padding-box,
+		repeating-linear-gradient(
+				135deg,
+				#c62339 0 12px,
+				#f6f1e2 12px 20px,
+				#28589c 20px 32px,
+				#f6f1e2 32px 40px
+			)
+			border-box;
+}
+.edition-theme.edition-concept.jelajah .edition-event {
+	text-align: left;
+	border-style: dashed;
+	border-color: #9c9e94;
+	background: #fffaf0;
+}
+.edition-theme.edition-concept.jelajah .edition-event-date {
+	font-family: 'Concept Mono', monospace;
+	font-size: 19px;
+}
+.edition-theme.edition-concept.jelajah .edition-gallery button {
+	padding: 6px 6px 18px;
+	background: #fff;
+	box-shadow: 0 10px 16px #0c294c26;
+	transform: rotate(-2deg);
+}
+.edition-theme.edition-concept.jelajah .edition-gallery button:nth-child(even) {
+	transform: rotate(2deg);
+}

@@ -201,7 +201,6 @@ function getWeddingForAuth(event) {
 
 function applyPaymentStatus(app, payment, status, reference) {
 	var paymentId = payment.id;
-	var weddingId = String(payment.get('wedding') || '');
 
 	app.runInTransaction(function (txApp) {
 		var currentPayment = txApp.findRecordById('payments', paymentId);
@@ -228,11 +227,15 @@ function applyPaymentStatus(app, payment, status, reference) {
 		txApp.save(currentPayment);
 
 		if (nextStatus === 'paid') {
-			var wedding = txApp.findRecordById('weddings', weddingId);
-
-			if (String(wedding.get('plan_tier') || '') !== 'pro') {
-				wedding.set('plan_tier', 'pro');
-				txApp.save(wedding);
+			// Account deletion can detach the wedding after this request loads
+			// the payment. Always use the record re-read inside the transaction.
+			var weddingId = currentPayment.getString('wedding');
+			if (weddingId) {
+				var wedding = txApp.findRecordById('weddings', weddingId);
+				if (String(wedding.get('plan_tier') || '') !== 'pro') {
+					wedding.set('plan_tier', 'pro');
+					txApp.save(wedding);
+				}
 			}
 			// Both callback and status polling use this atomic, idempotent path.
 			var affiliate = require(__hooks + '/affiliate_helpers.js');

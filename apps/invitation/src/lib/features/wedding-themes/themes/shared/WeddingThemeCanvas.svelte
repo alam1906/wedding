@@ -37,7 +37,39 @@
 		variant: 1 | 2 | 3;
 	};
 
-	type CanvasThemeKey = Exclude<WeddingThemeKey, 'kinetika' | 'anomali' | 'selaras'>;
+	type CanvasThemeKey = Exclude<
+		WeddingThemeKey,
+		| 'kinetika'
+		| 'anomali'
+		| 'selaras'
+		| 'pramesti'
+		| 'seruni'
+		| 'arsir'
+		| 'kusuma'
+		| 'aurelia'
+		| 'arunika'
+		| 'zamrud'
+		| 'cendana'
+		| 'lentera'
+		| 'safira'
+		| 'renjana'
+		| 'monokrom'
+		| 'swarna'
+		| 'sonata'
+		| 'jelajah'
+		| 'folio'
+		| 'pusaka'
+		| 'sinema'
+		| 'adikara'
+		| 'komika'
+		| 'warta'
+		| 'retro'
+		| 'kristal'
+		| 'amerta'
+		| 'niskala'
+		| 'sakura'
+		| 'lazuardi'
+	>;
 	type Props = WeddingThemeProps & {
 		theme: CanvasThemeKey;
 	};

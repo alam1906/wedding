@@ -1,0 +1,164 @@
+.edition-theme.lentera {
+	--e-bg: #f1e6c8;
+	--e-surface: #f4e9ca;
+	--e-ink: #3b2f1c;
+	--e-muted: #66563a;
+	--e-accent: #96732c;
+	--e-border: #cdb77d;
+	--e-body: 'Edition Garamond', Georgia, serif;
+	--e-shadow: 0 22px 42px #55432435;
+	font-size: 17px;
+}
+.edition-theme.lentera .edition-content {
+	background: radial-gradient(ellipse at 4% 20%, #e4d2a966, transparent 40%), #f1e6c8;
+}
+.edition-theme.lentera .edition-cover {
+	color: #faf3e0;
+	--e-muted: #e1dccb;
+	--e-accent: #d9bd72;
+	--e-ink: #faf3e0;
+}
+.edition-theme.lentera .edition-cover-photo {
+	width: 125px;
+	height: 166px;
+	border: 3px solid #d9bd72;
+	border-radius: 50%;
+	box-shadow: 0 0 0 5px #d9bd7233;
+}
+.edition-theme.lentera .edition-cover-backdrop::after {
+	background: linear-gradient(#20251b88, #192e21e0);
+}
+.edition-theme.lentera .edition-cover::after {
+	content: '';
+	position: absolute;
+	inset: 17px;
+	border: 1px solid #c0a56699;
+	outline: 1px solid #c0a56655;
+	outline-offset: 6px;
+	pointer-events: none;
+}
+.edition-theme.lentera .edition-cover-names {
+	font-size: clamp(56px, 7vw, 78px);
+	color: #fff7de;
+}
+.edition-theme.lentera .edition-cover-names > * {
+	display: block;
+}
+.edition-theme.lentera .edition-cover-names i {
+	font-size: 30px;
+	line-height: 1;
+}
+.edition-theme.lentera .edition-open-button {
+	border-radius: 2px;
+	color: #fff7df;
+	font-family: 'Edition Cinzel', serif;
+}
+.edition-theme.lentera .edition-hero-copy .edition-hero-names {
+	color: #fff9e3;
+	text-shadow: 0 3px 20px #4c371a66;
+}
+.edition-theme.lentera .edition-section {
+	padding-block: 48px;
+}
+.edition-theme.lentera .edition-container,
+.edition-theme.lentera .edition-quote,
+.edition-theme.lentera .edition-response,
+.edition-theme.lentera .edition-wishes-card {
+	position: relative;
+	padding: 48px;
+	background: linear-gradient(90deg, #efe3bf 0%, #f4e9ca 44%, #d8cda955 50%, #f4e9ca 56%, #efe3bf);
+	border: 1px solid #cdb77d;
+	border-radius: 3px;
+	box-shadow: var(--e-shadow);
+}
+.edition-theme.lentera .edition-container::after,
+.edition-theme.lentera .edition-quote::after {
+	content: '';
+	position: absolute;
+	right: 0;
+	bottom: 0;
+	border: 12px solid transparent;
+	border-right-color: #d9c487;
+	border-bottom-color: #d9c487;
+	pointer-events: none;
+}
+.edition-theme.lentera .edition-heading h2 {
+	font-size: clamp(30px, 4vw, 42px);
+	font-weight: 600;
+}
+.edition-theme.lentera .edition-portrait {
+	width: 150px;
+	height: 190px;
+	border: 3px solid #bb994c;
+	outline: 5px solid #bc9e5c38;
+	border-radius: 50%;
+}
+.edition-theme.lentera .edition-events-section .edition-container,
+.edition-theme.lentera .edition-gift-section .edition-container {
+	--e-bg: #243d2c;
+	--e-ink: #faf3e0;
+	--e-muted: #e2dbc5;
+	--e-accent: #e1c37e;
+	--e-border: #b99f6455;
+	--e-surface: #29432f;
+	background: linear-gradient(110deg, #304e36, #203627);
+	color: var(--e-ink);
+}
+.edition-theme.lentera .edition-event {
+	border-radius: 0;
+	border: 0;
+	box-shadow: none;
+	background: transparent;
+	padding-inline: 8px;
+}
+.edition-theme.lentera .edition-event + .edition-event {
+	border-left: 1px solid var(--e-border);
+}
+.edition-theme.lentera .edition-outline {
+	border-radius: 2px;
+	font-family: 'Edition Cinzel', serif;
+}
+.edition-theme.lentera .edition-gallery button {
+	padding: 7px;
+	border-radius: 0;
+	background: #fff7df;
+	box-shadow: 0 10px 20px #57422030;
+}
+.edition-theme.lentera .edition-gallery button:nth-child(2n) {
+	transform: rotate(2deg);
+}
+.edition-theme.lentera .edition-gallery button:nth-child(3n) {
+	transform: rotate(-2deg);
+}
+.edition-theme.lentera .edition-wishes-card {
+	padding: 0;
+}
+.edition-theme.lentera .edition-footer {
+	background: linear-gradient(transparent, #e4d4ab);
+}
+@media (max-width: 640px) {
+	.edition-theme.lentera .edition-container,
+	.edition-theme.lentera .edition-quote,
+	.edition-theme.lentera .edition-response {
+		padding: 30px 24px;
+	}
+	.edition-theme.lentera .edition-event + .edition-event {
+		border-left: 0;
+		border-top: 1px solid var(--e-border);
+	}
+	.edition-theme.lentera .edition-cover-names {
+		font-size: 55px;
+	}
+}
+@media (max-height: 620px) {
+	.edition-theme.lentera .edition-cover-photo {
+		width: 70px;
+		height: 94px;
+	}
+	.edition-theme.lentera .edition-cover-names {
+		font-size: 44px;
+	}
+	.edition-theme.lentera .edition-cover-names i {
+		font-size: 24px;
+	}
+}

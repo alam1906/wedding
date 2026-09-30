@@ -1,0 +1,97 @@
+.edition-theme.zamrud {
+	--e-bg: #07140f;
+	--e-surface: #0d2118;
+	--e-ink: #f4ecd8;
+	--e-muted: #c2c8b6;
+	--e-accent: #d2b257;
+	--e-border: #78682b;
+	--e-serif: 'Edition Cormorant', Georgia, serif;
+	--e-body: 'Edition Cormorant', Georgia, serif;
+	--e-shadow: 0 18px 40px #0005;
+	font-size: 18px;
+}
+.edition-theme.zamrud .edition-content,
+.edition-theme.zamrud .edition-cover {
+	background:
+		radial-gradient(ellipse at 50% 0%, #103c2c88, transparent 60%),
+		radial-gradient(ellipse at 0 85%, #7970211c, transparent 50%), #07140f;
+}
+.edition-theme.zamrud .edition-cover::after {
+	content: '';
+	position: absolute;
+	inset: 16px;
+	border: 1px solid #817022;
+	outline: 1px solid #81702250;
+	outline-offset: -6px;
+	pointer-events: none;
+}
+.edition-theme.zamrud .edition-cover-photo {
+	border: 6px solid #d5bd69;
+	outline: 1px solid #645724;
+	outline-offset: 8px;
+	border-radius: 50% 50% 12px 12px / 65% 65% 12px 12px;
+	height: min(32dvh, 290px);
+	margin-bottom: 12px;
+}
+.edition-theme.zamrud .edition-cover-names,
+.edition-theme.zamrud .edition-heading h2 {
+	background: linear-gradient(100deg, #bea044, #fff1b9, #b69a3b);
+	background-clip: text;
+	-webkit-text-fill-color: transparent;
+}
+.edition-theme.zamrud .edition-heading h2 {
+	font-size: clamp(36px, 4.6vw, 50px);
+	font-weight: 600;
+}
+.edition-theme.zamrud .edition-outline,
+.edition-theme.zamrud .edition-button {
+	border-radius: 2px;
+	font-family: 'Edition Cinzel', Georgia, serif;
+}
+.edition-theme.zamrud .edition-open-button {
+	min-width: 238px;
+}
+.edition-theme.zamrud .edition-portrait {
+	border-color: #10251b;
+	outline: 2px solid #d2b257;
+	width: 162px;
+	height: 162px;
+}
+.edition-theme.zamrud .edition-person h3 {
+	font-size: 28px;
+	font-weight: 600;
+}
+.edition-theme.zamrud .edition-person p {
+	font-size: 17px;
+}
+.edition-theme.zamrud .edition-panel {
+	border-radius: 3px;
+	background: linear-gradient(145deg, #12342466, #05110b);
+}
+.edition-theme.zamrud .edition-event-date {
+	font-size: 29px;
+}
+.edition-theme.zamrud .edition-event h3,
+.edition-theme.zamrud .edition-story-date {
+	font-family: 'Edition Cinzel', Georgia, serif;
+}
+.edition-theme.zamrud .edition-address {
+	font-size: 17px;
+}
+.edition-theme.zamrud .edition-gallery button {
+	padding: 5px;
+	border-radius: 100px 100px 4px 4px;
+	border-color: #9c8039;
+}
+.edition-theme.zamrud .edition-gallery img {
+	border-radius: inherit;
+}
+.edition-theme.zamrud .edition-error {
+	color: #ffb3a9;
+}
+.edition-theme.zamrud .edition-wish h3 {
+	font-size: 27px;
+}
+.edition-theme.zamrud .edition-footer-card {
+	border-bottom: 1px solid var(--e-border);
+}

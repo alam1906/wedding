@@ -24,6 +24,12 @@ function getDeleteAccountErrorMessage(error: ClientResponseError): string {
 		return 'Tidak dapat terhubung ke server. Periksa koneksi lalu coba lagi.';
 	}
 
+	if (error.status === 409) {
+		return typeof error.response.message === 'string'
+			? error.response.message
+			: 'Selesaikan pembayaran atau pencairan yang masih berjalan sebelum menghapus akun.';
+	}
+
 	return 'Akun gagal dihapus. Tidak ada data yang diubah.';
 }
 

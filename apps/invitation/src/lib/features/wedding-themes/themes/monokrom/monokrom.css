@@ -1,0 +1,55 @@
+.edition-theme.monokrom {
+	--e-bg: #090909;
+	--e-surface: #171717;
+	--e-ink: #f4f4f4;
+	--e-muted: #b8b8c1;
+	--e-accent: #d4d4d8;
+	--e-border: #333337;
+	--e-outer: #000;
+	--e-shadow: 0 18px 40px #0005;
+}
+.edition-theme.monokrom .edition-cover-backdrop::after {
+	background: linear-gradient(#0007, #000b);
+}
+.edition-theme.monokrom .edition-open-button {
+	background: #f5f5f5;
+	color: #090909;
+	border-color: #f5f5f5;
+	text-transform: none;
+	font-size: 13px;
+	letter-spacing: 0;
+}
+.edition-theme.monokrom .edition-cover-names i {
+	color: #b6b6bd;
+}
+.edition-theme.monokrom .edition-couple-section,
+.edition-theme.monokrom .edition-events-section,
+.edition-theme.monokrom .edition-gift-section {
+	background: #000;
+}
+.edition-theme.monokrom .edition-quote {
+	padding-block: 28px;
+	border-block: 1px solid #333337;
+}
+.edition-theme.monokrom .edition-portrait {
+	border-radius: 50% !important;
+	width: 180px !important;
+	height: 180px !important;
+	outline: 1px solid #55555b;
+}
+.edition-theme.monokrom .edition-panel {
+	border-radius: 16px;
+}
+.edition-theme.monokrom .edition-gallery button {
+	border-radius: 8px;
+	border-color: #393939;
+}
+.edition-theme.monokrom .edition-button {
+	color: #111;
+}
+.edition-theme.monokrom .edition-error {
+	color: #ffb5ad;
+}
+.edition-theme.monokrom .edition-footer {
+	background: #000;
+}

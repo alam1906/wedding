@@ -1,3 +1,8 @@
+import {
+	createThemeScrollSmoother,
+	type ThemeScrollSmoother
+} from '../../shared/theme-scroll-smoother.js';
+
 export type AnomaliMotion = {
 	open: (target: HTMLElement, complete: () => void) => void;
 	revealPhoto: () => void;
@@ -30,13 +35,15 @@ export function mountAnomaliAnimations(root: HTMLElement): AnomaliMotion {
 
 	void (async () => {
 		try {
-			const [{ gsap }, { ScrollTrigger }, { ScrollToPlugin }] = await Promise.all([
-				import('gsap'),
-				import('gsap/ScrollTrigger'),
-				import('gsap/ScrollToPlugin')
-			]);
+			const [{ gsap }, { ScrollTrigger }, { ScrollToPlugin }, { ScrollSmoother }] =
+				await Promise.all([
+					import('gsap'),
+					import('gsap/ScrollTrigger'),
+					import('gsap/ScrollToPlugin'),
+					import('gsap/ScrollSmoother')
+				]);
 			if (disposed) return;
-			gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
+			gsap.registerPlugin(ScrollTrigger, ScrollToPlugin, ScrollSmoother);
 			const context = gsap.context(() => undefined, root);
 			const media = gsap.matchMedia();
 			let finishIntro: () => void = () => undefined;
@@ -62,6 +69,14 @@ export function mountAnomaliAnimations(root: HTMLElement): AnomaliMotion {
 						finishIntro = () => undefined;
 						const { desktop, fine, reduce } = mediaContext.conditions ?? {};
 						if (reduce) return;
+						let smoother: ThemeScrollSmoother;
+						mediaContext.ignore(() => {
+							smoother = createThemeScrollSmoother(
+								root,
+								root.querySelector<HTMLElement>('[data-theme-scroll-content]')!,
+								ScrollSmoother
+							);
+						});
 						const select = gsap.utils.selector(root);
 						const localCleanups: Array<() => void> = [];
 						const listen = (element: Element, type: string, handler: EventListener) => {
@@ -415,6 +430,7 @@ export function mountAnomaliAnimations(root: HTMLElement): AnomaliMotion {
 							});
 						}
 						return () => {
+							smoother.destroy();
 							finishIntro = () => undefined;
 							localCleanups.forEach((remove) => {
 								remove();

@@ -1,0 +1,115 @@
+.edition-theme.swarna {
+	--e-bg: #090909;
+	--e-surface: #131313;
+	--e-ink: #f3ede0;
+	--e-muted: #b6b0a4;
+	--e-accent: #c0a574;
+	--e-border: #3b3429;
+	--e-outer: #080808;
+	--e-serif: 'Edition Cormorant', Georgia, serif;
+	--e-shadow: 0 20px 40px #0006;
+}
+.edition-theme.swarna .edition-cover-backdrop::after {
+	background: linear-gradient(#130f0977, #060605d4);
+}
+.edition-theme.swarna .edition-cover-names {
+	font-size: 44px;
+}
+.edition-theme.swarna .edition-cover-names i {
+	color: #c0a574;
+}
+.edition-theme.swarna .edition-open-button {
+	color: #d7bf93;
+	background: #13100c38;
+	border-color: #c0a574;
+}
+.edition-theme.swarna .edition-hero {
+	background:
+		radial-gradient(#c0a57418 0.5px, transparent 0.6px) 0 0/4px 4px,
+		#090909;
+}
+.edition-theme.swarna .edition-hero-media {
+	border: 3px solid #27251e;
+}
+.edition-theme.swarna .edition-hero-names {
+	font-size: 46px;
+}
+.edition-theme.swarna .edition-heading h2 {
+	font-size: 34px;
+}
+.edition-theme.swarna .edition-quote-section,
+.edition-theme.swarna .edition-stories-section,
+.edition-theme.swarna .edition-gift-section {
+	background: #111;
+	border-block: 1px solid #29261f;
+}
+.edition-theme.swarna .edition-portrait {
+	width: 215px;
+	height: 290px;
+	border: 2px solid #29261e;
+	outline: none;
+}
+.edition-theme.swarna .edition-person h3 {
+	font-family: 'Edition Playfair', Georgia, serif;
+	font-size: 24px;
+}
+.edition-theme.swarna .edition-event {
+	position: relative;
+	border-radius: 12px;
+	margin-inline: 12px;
+	padding: 32px 24px;
+}
+.edition-theme.swarna .edition-event::before,
+.edition-theme.swarna .edition-event::after {
+	content: '';
+	position: absolute;
+	width: 28px;
+	height: 28px;
+	pointer-events: none;
+}
+.edition-theme.swarna .edition-event::before {
+	top: 9px;
+	left: 9px;
+	border-top: 1px solid #84704c;
+	border-left: 1px solid #84704c;
+}
+.edition-theme.swarna .edition-event::after {
+	bottom: 9px;
+	right: 9px;
+	border-bottom: 1px solid #84704c;
+	border-right: 1px solid #84704c;
+}
+.edition-theme.swarna .edition-event-date {
+	font-size: 26px;
+}
+.edition-theme.swarna .edition-event-time {
+	font:
+		italic 500 20px/1.5 'Edition Cormorant',
+		serif;
+}
+.edition-theme.swarna .edition-countdown-section {
+	border-block: 1px solid #29261f;
+	color: #d1b884;
+}
+.edition-theme.swarna .edition-countdown-section .edition-countdown > div {
+	border-color: #353027;
+}
+.edition-theme.swarna .edition-gallery button {
+	border-radius: 100px 100px 3px 3px;
+	border-color: #55452b;
+}
+.edition-theme.swarna .edition-button {
+	color: #090909;
+	background: #c0a574;
+	border-color: #c0a574;
+}
+.edition-theme.swarna .edition-error {
+	color: #ffb5ad;
+}
+.edition-theme.swarna .edition-footer {
+	border-top: 1px solid #3b3429;
+	background: radial-gradient(ellipse at 50% 90%, #c0a57415, transparent 75%), #090909;
+}
+.edition-theme.swarna .edition-footer-names {
+	font-size: 40px;
+}

@@ -4,7 +4,9 @@
 	import {
 		ACCOUNT_DELETE_CONFIRMATION,
 		DeleteAccountError,
+		PasswordError,
 		UpdateProfileError,
+		changeAuthenticatedPassword,
 		deleteCurrentAccount,
 		getAuthenticatedEmail,
 		getAuthenticatedName,
@@ -23,6 +25,11 @@
 	let savedProfileName = $state('');
 	let profileError = $state('');
 	let isSavingProfile = $state(false);
+	let currentPassword = $state('');
+	let newPassword = $state('');
+	let passwordConfirm = $state('');
+	let passwordError = $state('');
+	let isChangingPassword = $state(false);
 	let deleteConfirmation = $state('');
 	let deleteAccountError = $state('');
 	let isDeletingAccount = $state(false);
@@ -65,8 +72,8 @@
 			wedding.reset();
 			logout();
 			getDeleteAccountDialog()?.close();
-			toast.success('Akun dan seluruh data Anda berhasil dihapus.');
-			await goto('/login', { replaceState: true });
+			toast.success('Akun dan data undangan Anda berhasil dihapus.');
+			await goto('/login', { replace: true });
 		} catch (error) {
 			deleteAccountError =
 				error instanceof DeleteAccountError
@@ -97,6 +104,31 @@
 			toast.error(profileError);
 		} finally {
 			isSavingProfile = false;
+		}
+	}
+
+	async function handleChangePassword(event: SubmitEvent) {
+		event.preventDefault();
+		if (isChangingPassword) return;
+		isChangingPassword = true;
+		passwordError = '';
+		try {
+			await changeAuthenticatedPassword(currentPassword, newPassword, passwordConfirm);
+			currentPassword = '';
+			newPassword = '';
+			passwordConfirm = '';
+			guests.reset();
+			wedding.reset();
+			toast.success('Kata sandi berhasil diperbarui. Silakan masuk kembali.');
+			await goto('/login', { replace: true });
+		} catch (error) {
+			passwordError =
+				error instanceof PasswordError
+					? error.message
+					: 'Kata sandi gagal diperbarui. Silakan coba lagi.';
+			toast.error(passwordError);
+		} finally {
+			isChangingPassword = false;
 		}
 	}
 
@@ -156,8 +188,9 @@
 
 			<div class="p-5 sm:p-6">
 				<p id="delete-account-description" class="text-sm leading-6 text-gray-600">
-					Tindakan ini permanen. Akun, undangan pernikahan, cerita, daftar tamu, RSVP, file, dan
-					riwayat pembayaran lokal akan dihapus.
+					Tindakan ini permanen. Akun, undangan pernikahan, cerita, daftar tamu, RSVP, dan file akan
+					dihapus. Catatan pembayaran dan affiliate tetap disimpan untuk rekonsiliasi. Pembayaran,
+					komisi, atau pencairan yang belum selesai harus diselesaikan terlebih dahulu.
 				</p>
 				<label class="mt-5 block text-sm font-medium text-gray-800">
 					Ketik <strong>{ACCOUNT_DELETE_CONFIRMATION}</strong> untuk melanjutkan
@@ -278,34 +311,53 @@
 			<section class="order-2 rounded-2xl border border-gray-200 bg-white p-5 sm:p-6">
 				<h2 class="text-lg font-bold text-gray-900">Keamanan</h2>
 				<p class="mt-1 text-sm text-gray-500">Perbarui kata sandi akun secara berkala.</p>
-				<div class="mt-5 space-y-4">
+				<form class="mt-5 space-y-4" onsubmit={handleChangePassword}>
 					<label class="block text-sm font-medium text-gray-700"
 						>Kata sandi saat ini<input
+							bind:value={currentPassword}
+							name="oldPassword"
 							type="password"
 							autocomplete="current-password"
+							required
+							disabled={isChangingPassword}
 							class="field mt-2 w-full rounded-xl border border-gray-700 px-4 py-3 text-sm"
 						/></label
 					>
 					<label class="block text-sm font-medium text-gray-700"
 						>Kata sandi baru<input
+							bind:value={newPassword}
+							name="password"
 							type="password"
 							autocomplete="new-password"
+							required
+							disabled={isChangingPassword}
 							class="field mt-2 w-full rounded-xl border border-gray-700 px-4 py-3 text-sm"
 						/></label
 					>
 					<label class="block text-sm font-medium text-gray-700"
 						>Konfirmasi kata sandi baru<input
+							bind:value={passwordConfirm}
+							name="passwordConfirm"
 							type="password"
 							autocomplete="new-password"
+							required
+							disabled={isChangingPassword}
 							class="field mt-2 w-full rounded-xl border border-gray-700 px-4 py-3 text-sm"
 						/></label
 					>
-				</div>
-				<button
-					type="button"
-					class="mt-5 w-full cursor-pointer rounded-xl bg-linear-to-r from-[#9400ff] to-[#7200e8] px-4 py-3 text-sm font-semibold text-white"
-					>Ubah kata sandi</button
-				>
+					{#if passwordError}
+						<p class="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700" role="alert">
+							{passwordError}
+						</p>
+					{/if}
+					<button
+						type="submit"
+						disabled={isChangingPassword}
+						aria-busy={isChangingPassword}
+						class="mt-5 w-full cursor-pointer rounded-xl bg-linear-to-r from-[#9400ff] to-[#7200e8] px-4 py-3 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
+						>{isChangingPassword ? 'Mengubah kata sandi...' : 'Ubah kata sandi'}</button
+					>
+				</form>
 			</section>
 		</div>
 	</div>

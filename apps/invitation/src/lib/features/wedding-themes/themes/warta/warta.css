@@ -1,0 +1,170 @@
+.edition-theme.edition-concept.warta {
+	--e-bg: #eaddb9;
+	--e-surface: #f7edcf;
+	--e-ink: #241a0f;
+	--e-muted: #615038;
+	--e-accent: #671d24;
+	--e-border: #83704e;
+	--e-outer: #1b140e;
+	--e-serif: 'Concept UnifrakturCook', serif;
+	--e-body: 'Edition Garamond', serif;
+	--e-shadow: none;
+}
+.edition-theme.edition-concept.warta .edition-content {
+	background:
+		repeating-linear-gradient(0deg, #6e543908 0 1px, transparent 1px 4px),
+		radial-gradient(ellipse at 20% 10%, #fff4d5, #e4d3a6);
+}
+.edition-theme.edition-concept.warta .edition-cover-backdrop img {
+	filter: sepia(0.7) grayscale(0.45);
+}
+.edition-theme.edition-concept.warta .edition-cover-backdrop::after {
+	background:
+		radial-gradient(#1d100744 0.7px, transparent 0.8px) 0 0/3px 3px,
+		linear-gradient(#120d0745, #120d0788 70%, #120d07bb);
+}
+.edition-theme.edition-concept.warta .edition-cover-names {
+	font-size: 50px;
+	color: #fff4d8;
+	text-shadow: 0 3px 12px #000;
+}
+.edition-theme.edition-concept.warta .edition-cover-names i {
+	color: #dcc58c;
+}
+.edition-theme.edition-concept.warta .edition-cover-date {
+	font-family: 'Concept Mono', monospace;
+	color: #f1ddb0;
+	font-size: 10px;
+}
+.edition-theme.edition-concept.warta .edition-recipient {
+	width: 100%;
+	padding-top: 18px;
+	border-top: 4px double #e3c98b;
+	color: #f1ddb0;
+}
+.edition-theme.edition-concept.warta .edition-recipient-name {
+	font-family: 'Edition Garamond', serif;
+	font-size: 23px;
+	color: #fff4d8;
+}
+.edition-theme.edition-concept.warta .edition-open-button {
+	border-radius: 0;
+	border: 3px double #98752d;
+	background: #f2e4bf;
+	color: #241a0f;
+	font-family: 'Concept Mono', monospace;
+	font-size: 10px;
+}
+.edition-theme.edition-concept.warta .edition-hero-paper {
+	display: flex;
+	flex-direction: column;
+	padding-top: 40px;
+}
+.edition-theme.edition-concept.warta .edition-hero-copy {
+	order: -1;
+	border-block: 4px double #62502b;
+	margin-bottom: 32px;
+	padding-block: 24px;
+}
+.edition-theme.edition-concept.warta .edition-hero-names {
+	font-family: var(--e-serif);
+	font-size: 42px;
+}
+.edition-theme.edition-concept.warta .edition-hero-names > * {
+	display: inline;
+}
+.edition-theme.edition-concept.warta .edition-hero-names i {
+	margin: 0 0.15em;
+	color: #241a0f;
+}
+.edition-theme.edition-concept.warta .edition-hero-media {
+	border-radius: 170px 170px 0 0;
+	box-shadow: none;
+	margin-bottom: 0;
+}
+.edition-theme.edition-concept.warta img {
+	filter: sepia(0.6) grayscale(0.35);
+}
+.edition-theme.edition-concept.warta .edition-heading {
+	border-block: 4px double #6b5734;
+	padding-block: 16px;
+}
+.edition-theme.edition-concept.warta .edition-heading h2 {
+	font-size: 34px;
+}
+.edition-theme.edition-concept.warta .edition-portrait {
+	border-radius: 0;
+	border: 7px solid #f4e9c9;
+	outline: 1px solid #756447;
+	box-shadow: 5px 10px 18px #241a0f35;
+	transform: rotate(-2deg);
+}
+.edition-theme.edition-concept.warta .edition-person:last-child .edition-portrait {
+	transform: rotate(2deg);
+}
+.edition-theme.edition-concept.warta .edition-person p {
+	font-size: 16px;
+}
+.edition-theme.edition-concept.warta .edition-person h3 {
+	font-size: 28px;
+}
+.edition-theme.edition-concept.warta .edition-event {
+	border: 4px double #77613d;
+	border-radius: 0;
+	text-align: left;
+	background: #f4e8c6;
+}
+.edition-theme.edition-concept.warta .edition-event h3 {
+	font-family: var(--e-serif);
+	font-size: 25px;
+	letter-spacing: 0;
+	text-transform: none;
+}
+.edition-theme.edition-concept.warta .edition-event-date {
+	font-family: 'Edition Garamond', serif;
+	font-size: 24px;
+}
+.edition-theme.edition-concept.warta .edition-address {
+	font-size: 16px;
+}
+.edition-theme.edition-concept.warta .edition-story-description {
+	font-size: 16px;
+	line-height: 1.6;
+}
+.edition-theme.edition-concept.warta .edition-story-description::first-letter {
+	float: left;
+	font: 700 36px/0.95 var(--e-serif);
+	color: #671d24;
+	margin: 6px 4px 0 0;
+}
+.edition-theme.edition-concept.warta .edition-story h3 {
+	font-size: 25px;
+}
+.edition-theme.edition-concept.warta .edition-story-date {
+	font-family: 'Concept Mono', monospace;
+	font-size: 9px;
+	letter-spacing: 0.08em;
+}
+.edition-theme.edition-concept.warta .edition-gallery button {
+	padding: 6px;
+	border: 1px solid #83704e;
+	background: #f7edcf;
+}
+.edition-theme.edition-concept.warta .edition-outline,
+.edition-theme.edition-concept.warta .edition-button {
+	border-radius: 0;
+}
+.edition-theme.edition-concept.warta .edition-panel {
+	border-radius: 0;
+	border-style: double;
+	border-width: 4px;
+}
+.edition-theme.edition-concept.warta .edition-wish h3 {
+	font-size: 25px;
+}
+.edition-theme.edition-concept.warta .edition-wish > p {
+	font-size: 17px;
+}
+.edition-theme.edition-concept.warta .edition-footer {
+	border-top: 4px double #6b5734;
+}

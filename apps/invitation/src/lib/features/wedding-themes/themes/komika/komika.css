@@ -1,0 +1,209 @@
+.edition-theme.edition-concept.komika {
+	--e-bg: #fdf6e8;
+	--e-surface: #fffaf0;
+	--e-ink: #1b1b1f;
+	--e-muted: #56515b;
+	--e-accent: #b81e51;
+	--e-border: #1b1b1f;
+	--e-outer: #101014;
+	--e-serif: 'Concept Bangers', sans-serif;
+	--e-body: 'Concept Baloo 2', sans-serif;
+	--e-shadow: 5px 6px 0 #1b1b1f;
+}
+.edition-theme.edition-concept.komika .edition-content {
+	background:
+		radial-gradient(#b7ad9745 1px, transparent 1px) 0 0/9px 9px,
+		#fdf6e8;
+}
+.edition-theme.edition-concept.komika .edition-cover-backdrop::after {
+	background:
+		radial-gradient(#fff3 1px, transparent 1px) 0 0/8px 8px,
+		linear-gradient(#12101780, #151115b3);
+}
+.edition-theme.edition-concept.komika .edition-cover-names {
+	font-size: 54px;
+	color: #fff8e8;
+	text-shadow: 4px 5px 0 #18171b;
+}
+.edition-theme.edition-concept.komika .edition-cover-names i {
+	font-family: var(--e-body);
+	color: #fff8e8;
+	font-weight: 600;
+}
+.edition-theme.edition-concept.komika .edition-cover-date {
+	border: 2px solid #ffda36;
+	padding: 10px 16px;
+	border-radius: 99px;
+	color: #ffda36;
+	box-shadow: 3px 4px 0 #1b1b1f;
+	font-size: 12px;
+	font-weight: 600;
+}
+.edition-theme.edition-concept.komika .edition-recipient {
+	position: relative;
+	color: #403b49;
+	background: #fffaf0;
+	border: 3px solid #1b1b1f;
+	border-radius: 24px;
+	padding: 16px 24px;
+	box-shadow: 5px 6px 0 #1b1b1f;
+}
+.edition-theme.edition-concept.komika .edition-recipient::after {
+	content: '';
+	position: absolute;
+	left: 22px;
+	bottom: -10px;
+	width: 17px;
+	height: 17px;
+	transform: rotate(45deg);
+	background: #fffaf0;
+	border-right: 3px solid #1b1b1f;
+	border-bottom: 3px solid #1b1b1f;
+}
+.edition-theme.edition-concept.komika .edition-recipient-name {
+	font-family: var(--e-body);
+	font-style: normal;
+	font-weight: 600;
+	color: #1b1b1f;
+}
+.edition-theme.edition-concept.komika .edition-open-button {
+	color: #1b1b1f;
+	background: #ffda36;
+	border: 3px solid #1b1b1f;
+	box-shadow: 4px 5px 0 #1b1b1f;
+	font-weight: 600;
+}
+.edition-theme.edition-concept.komika .edition-hero-comic {
+	background: repeating-conic-gradient(
+		from 10deg at 50% 8%,
+		#1b1b1f0c 0deg 1deg,
+		transparent 1deg 11deg
+	);
+}
+.edition-theme.edition-concept.komika .edition-hero-media {
+	border: 4px solid #1b1b1f;
+	transform: rotate(-3deg);
+	box-shadow: 6px 8px 0 #1b1b1f;
+	clip-path: polygon(
+		0 0,
+		100% 0,
+		100% 95%,
+		94% 100%,
+		88% 95%,
+		82% 100%,
+		76% 95%,
+		70% 100%,
+		64% 95%,
+		58% 100%,
+		52% 95%,
+		46% 100%,
+		40% 95%,
+		34% 100%,
+		28% 95%,
+		22% 100%,
+		16% 95%,
+		10% 100%,
+		0 95%
+	);
+}
+.edition-theme.edition-concept.komika .edition-hero-names {
+	display: inline-block;
+	padding: 22px 28px;
+	border: 3px solid #1b1b1f;
+	border-radius: 24px;
+	background: #fffaf0;
+	box-shadow: 5px 6px 0 #1b1b1f;
+	font-size: 36px;
+	transform: rotate(-2deg);
+}
+.edition-theme.edition-concept.komika .edition-hero-names i {
+	font-family: var(--e-body);
+	color: #d52c65;
+	font-weight: 600;
+	font-style: normal;
+}
+.edition-theme.edition-concept.komika .edition-heading h2 {
+	font-size: 35px;
+	letter-spacing: 0.02em;
+}
+.edition-theme.edition-concept.komika .edition-quote-section,
+.edition-theme.edition-concept.komika .edition-events-section,
+.edition-theme.edition-concept.komika .edition-gift-section {
+	--e-ink: #fff8e8;
+	--e-muted: #e3dce1;
+	--e-accent: #ffda36;
+	--e-surface: #333138;
+	--e-border: #fff8e8;
+	background:
+		radial-gradient(#ffffff24 1px, transparent 1px) 0 0/12px 12px,
+		#1b1b1f;
+}
+.edition-theme.edition-concept.komika .edition-quote blockquote {
+	font-family: var(--e-body);
+	font-weight: 400;
+}
+.edition-theme.edition-concept.komika .edition-portrait {
+	border-radius: 0;
+	outline: 0;
+	border: 4px solid #1b1b1f;
+	box-shadow: 5px 6px 0 #1b1b1f;
+	transform: rotate(-3deg);
+}
+.edition-theme.edition-concept.komika .edition-person:last-child .edition-portrait {
+	transform: rotate(3deg);
+}
+.edition-theme.edition-concept.komika .edition-person h3 {
+	font-size: 29px;
+}
+.edition-theme.edition-concept.komika .edition-event {
+	--e-ink: #1b1b1f;
+	--e-muted: #56515b;
+	--e-accent: #ac1748;
+	background: #fffaf0;
+	border: 3px solid #1b1b1f;
+	border-radius: 16px;
+	box-shadow: 5px 6px 0 #ffda36;
+	text-align: left;
+}
+.edition-theme.edition-concept.komika .edition-event h3 {
+	font: 400 28px/1.2 var(--e-serif);
+	letter-spacing: 0;
+}
+.edition-theme.edition-concept.komika .edition-stories-scrapbook .edition-story {
+	padding: 16px;
+	background: linear-gradient(130deg, #ffdbad, #ff8b96);
+	border: 3px solid #1b1b1f;
+	box-shadow: 5px 6px 0 #1b1b1f;
+	gap: 14px;
+}
+.edition-theme.edition-concept.komika .edition-story:nth-child(even) {
+	background: linear-gradient(130deg, #bcdbea, #c6b5f2);
+}
+.edition-theme.edition-concept.komika .edition-story-copy {
+	padding: 16px;
+	border: 3px solid #1b1b1f;
+	border-radius: 22px;
+	background: #fffaf0;
+}
+.edition-theme.edition-concept.komika .edition-story-description {
+	font-size: 14px;
+	line-height: 1.65;
+}
+.edition-theme.edition-concept.komika .edition-story-date {
+	font-size: 10px;
+}
+.edition-theme.edition-concept.komika .edition-gallery button {
+	border: 3px solid #1b1b1f;
+	box-shadow: 3px 4px 0 #1b1b1f;
+}
+.edition-theme.edition-concept.komika .edition-panel {
+	border-width: 3px;
+	border-radius: 16px;
+}
+.edition-theme.edition-concept.komika .edition-button {
+	background: #ffda36;
+	color: #1b1b1f;
+	border: 3px solid #1b1b1f;
+	box-shadow: 3px 4px 0 #1b1b1f;
+	font-weight: 600;
+}

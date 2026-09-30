@@ -2,6 +2,12 @@ export { LoginError, loginWithPassword } from './api/login.js';
 export { RegisterError, registerWithPassword } from './api/register.js';
 export { UpdateProfileError, updateAuthenticatedName } from './api/update-profile.js';
 export {
+	PasswordError,
+	changeAuthenticatedPassword,
+	confirmPasswordReset,
+	requestPasswordReset
+} from './api/password.js';
+export {
 	ACCOUNT_DELETE_CONFIRMATION,
 	DeleteAccountError,
 	deleteCurrentAccount

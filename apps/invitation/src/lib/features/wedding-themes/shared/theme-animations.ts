@@ -1,4 +1,5 @@
 import type { WeddingThemeKey } from '../model/wedding-theme.js';
+import { createThemeScrollSmoother } from './theme-scroll-smoother.js';
 
 export type WeddingThemeAnimation = WeddingThemeKey;
 
@@ -52,16 +53,8 @@ export function mountWeddingThemeAnimations(
 			}
 
 			gsap.registerPlugin(ScrollTrigger, ScrollSmoother);
-			const smoother =
-				variant === 'nocturne' || variant === 'puspa-parahyangan' || regionalThemes.has(variant)
-					? undefined
-					: ScrollSmoother.create({
-							wrapper,
-							content: root,
-							smooth: 1.2,
-							smoothTouch: 0.12,
-							effects: false
-						});
+			const smoother = createThemeScrollSmoother(root, root, ScrollSmoother);
+			revertAnimations = () => smoother.destroy();
 			scrollToTopAnimations = () => {
 				smoother?.scrollTop(0);
 				window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
@@ -340,7 +333,7 @@ export function mountWeddingThemeAnimations(
 				window.removeEventListener('load', refreshAfterWindowLoad);
 				resizeObserver.disconnect();
 				context.revert();
-				smoother?.kill();
+				smoother.destroy();
 			};
 			if (refreshRequested) {
 				refreshRequested = false;

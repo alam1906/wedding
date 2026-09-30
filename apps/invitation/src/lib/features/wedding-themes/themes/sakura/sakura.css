@@ -1,0 +1,274 @@
+.edition-theme.sakura {
+	--e-bg: #fcf4f7;
+	--e-surface: #ffffffef;
+	--e-ink: #51495d;
+	--e-muted: #62576a;
+	--e-accent: #a73d60;
+	--e-border: #ead5dd;
+	--e-outer: #fcf4f7;
+	--e-serif: 'Edition Playfair', Georgia, serif;
+	--e-script: 'Edition Alex', cursive;
+	--e-body: 'Edition Poppins', sans-serif;
+	--e-shadow: 0 14px 36px #70445612;
+	font-size: 14px;
+}
+.edition-theme.sakura .edition-backdrop {
+	position: fixed;
+	background: url('/images/themes/sakura/landscape.webp') center/cover;
+	opacity: 0.55;
+}
+.edition-theme.sakura .edition-content {
+	background: transparent;
+}
+.edition-theme.sakura .edition-cover {
+	background:
+		linear-gradient(#fff2, #fff3),
+		url('/images/themes/sakura/landscape.webp') center/cover;
+}
+.edition-theme.sakura .edition-cover-card {
+	gap: clamp(8px, 1.4dvh, 15px);
+}
+.edition-theme.sakura .edition-cover-photo {
+	height: clamp(140px, 39dvh, 380px);
+	aspect-ratio: 3/4;
+	border-radius: 50% 50% 40% 40% /55% 55% 24% 24%;
+	mask-image: linear-gradient(#000 86%, transparent);
+	margin-bottom: -4px;
+}
+.edition-theme.sakura .edition-cover-names {
+	color: #51495d;
+	font-size: clamp(52px, 8vw, 86px);
+	line-height: 1;
+}
+.edition-theme.sakura .edition-cover-date {
+	font-size: 10px;
+	color: #725769;
+}
+.edition-theme.sakura .edition-recipient {
+	font-size: 12px;
+	color: #51495d;
+}
+.edition-theme.sakura .edition-recipient-name {
+	font: 500 16px/1.5 var(--e-body);
+}
+.edition-theme.sakura .edition-open-button {
+	background: linear-gradient(120deg, #d77f9a, #ab4e6a);
+	color: #fff;
+	border: 0;
+	box-shadow: 0 8px 18px #a73d6026;
+	border-radius: 99px;
+	min-height: 46px;
+	padding-inline: 30px;
+	font-size: 11px;
+	letter-spacing: 0.14em;
+}
+.edition-theme.sakura .edition-countdown {
+	width: min(100%, 276px);
+	gap: 6px;
+}
+.edition-theme.sakura .edition-countdown > div {
+	border: 1px solid #d598ab66;
+	background: #ffffff7d;
+	border-radius: 10px;
+	padding: 5px 8px;
+}
+.edition-theme.sakura .edition-countdown strong {
+	color: #8f3655;
+	font:
+		500 25px/1.05 'Edition Playfair',
+		serif;
+}
+.edition-theme.sakura .edition-countdown span {
+	color: #755664;
+	font-size: 8px;
+}
+.edition-theme.sakura .edition-section {
+	padding: 80px 28px;
+	background: #ffffffb8;
+}
+.edition-theme.sakura .edition-couple-section,
+.edition-theme.sakura .edition-events-section,
+.edition-theme.sakura .edition-rsvp-section,
+.edition-theme.sakura .edition-wishes-section {
+	background: #fcf4f7d6;
+}
+.edition-theme.sakura .edition-container {
+	max-width: 800px;
+}
+.edition-theme.sakura .edition-heading h2 {
+	font: 400 clamp(40px, 5vw, 54px)/1.15 var(--e-script);
+	color: #a73d60;
+}
+.edition-theme.sakura .edition-heading {
+	margin-bottom: 38px;
+}
+.edition-theme.sakura .edition-heading::after {
+	content: '';
+	display: block;
+	width: 72px;
+	height: 1px;
+	background: #ce7d9766;
+	margin: 18px auto 0;
+}
+.edition-theme.sakura .edition-quote-section {
+	padding-block: 80px;
+}
+.edition-theme.sakura .edition-quote {
+	max-width: 760px;
+	padding: 0;
+}
+.edition-theme.sakura .edition-quote blockquote {
+	font:
+		italic 500 clamp(23px, 2.8vw, 31px)/1.65 'Edition Cormorant',
+		serif;
+}
+.edition-theme.sakura .edition-portrait {
+	width: 156px;
+	height: 156px;
+	border-radius: 50%;
+	border: 4px solid #fff;
+	outline: 1px solid #c75b7c;
+	outline-offset: 2px;
+}
+.edition-theme.sakura .edition-person h3 {
+	font-size: 23px;
+}
+.edition-theme.sakura .edition-person p {
+	font-size: 13px;
+}
+.edition-theme.sakura .edition-couple-ampersand {
+	color: #bf5879;
+	font-family: var(--e-script);
+}
+.edition-theme.sakura .edition-event {
+	border-radius: 16px;
+	padding: 34px 25px;
+}
+.edition-theme.sakura .edition-event h3 {
+	font: 400 36px/1.2 var(--e-script);
+	letter-spacing: 0;
+	color: #b9456b;
+	text-transform: none;
+}
+.edition-theme.sakura .edition-event-date {
+	font: 500 21px/1.5 var(--e-serif);
+}
+.edition-theme.sakura .edition-outline:not(.edition-open-button) {
+	border-radius: 99px;
+	padding: 10px 19px;
+	font-size: 11px;
+	background: #fff9;
+	color: #983253;
+}
+.edition-theme.sakura .edition-button {
+	background: linear-gradient(120deg, #d77f9a, #ab4e6a);
+	color: white;
+	border-radius: 99px;
+}
+.edition-theme.sakura .edition-stories-cards {
+	max-width: 420px;
+}
+.edition-theme.sakura .edition-stories-cards .edition-story {
+	padding: 16px 16px 30px;
+	border-radius: 22px;
+	background: #fffffff0;
+}
+.edition-theme.sakura .edition-story-photo {
+	border-radius: 15px;
+	aspect-ratio: 4/3;
+}
+.edition-theme.sakura .edition-story-copy {
+	display: flex;
+	flex-direction: column;
+	padding: 24px 10px 0;
+}
+.edition-theme.sakura .edition-story-date {
+	order: -1;
+	margin: 0 0 14px;
+}
+.edition-theme.sakura .edition-story h3 {
+	font: 400 34px/1.3 var(--e-script);
+	color: #983253;
+}
+.edition-theme.sakura .edition-story-description {
+	margin-top: 18px;
+	font-size: 13px;
+	line-height: 1.9;
+}
+.edition-theme.sakura .edition-gallery {
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 16px;
+}
+.edition-theme.sakura .edition-gallery button {
+	border-radius: 16px;
+	border: 6px solid #fff;
+	box-shadow: var(--e-shadow);
+}
+.edition-theme.sakura .edition-response,
+.edition-theme.sakura .edition-wishes-card {
+	background: #fffffff0;
+	border-color: var(--e-border);
+	border-radius: 18px;
+}
+.edition-theme.sakura .edition-wish-header h3 {
+	color: var(--e-ink);
+}
+.edition-theme.sakura .edition-footer {
+	background: #fcf4f7c9;
+	border-top: 1px solid var(--e-border);
+}
+.edition-theme.sakura .edition-footer-names {
+	font: 400 clamp(45px, 6vw, 66px)/1.2 var(--e-script);
+}
+.edition-theme.sakura .edition-petals {
+	position: fixed;
+	inset: 0;
+	pointer-events: none;
+	z-index: 51;
+	overflow: hidden;
+}
+.edition-theme.sakura .edition-petals span {
+	position: absolute;
+	top: -24px;
+	left: calc(3% + mod(var(--index) * 37, 93) * 1%);
+	width: 9px;
+	height: 16px;
+	border-radius: 90% 0 90% 0;
+	background: linear-gradient(45deg, #d981a280, #f8c4d5);
+	opacity: 0.65;
+	transform: rotate(calc(var(--index) * 29deg));
+}
+@media (max-width: 640px) {
+	.edition-theme.sakura .edition-cover-photo {
+		height: min(34dvh, 290px);
+	}
+	.edition-theme.sakura .edition-section {
+		padding: 60px 24px;
+	}
+	.edition-theme.sakura .edition-gallery {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 12px;
+	}
+}
+@media (max-height: 650px) {
+	.edition-theme.sakura .edition-cover-photo {
+		height: 26dvh;
+	}
+	.edition-theme.sakura .edition-cover-card {
+		gap: 8px;
+	}
+	.edition-theme.sakura .edition-cover-names {
+		font-size: 48px;
+	}
+	.edition-theme.sakura .edition-cover-date {
+		font-size: 9px;
+	}
+	.edition-theme.sakura .edition-countdown strong {
+		font-size: 22px;
+	}
+}
+@media (prefers-reduced-motion: reduce) {
+	.edition-theme.sakura .edition-petals {
+		display: none;
+	}
+}

@@ -1,0 +1,166 @@
+.edition-theme.edition-concept.pusaka {
+	--e-bg: #f1e9d5;
+	--e-surface: #e3cc96;
+	--e-ink: #2b2117;
+	--e-muted: #685437;
+	--e-accent: #886720;
+	--e-border: #b69a60;
+	--e-outer: #0d0b08;
+	--e-serif: 'Edition Cinzel', serif;
+	--e-body: 'Edition Jost', sans-serif;
+	--e-shadow: 0 12px 24px #31241130;
+}
+.edition-theme.edition-concept.pusaka .edition-content {
+	background:
+		repeating-linear-gradient(115deg, transparent 0 38px, #6f5a3910 39px, transparent 40px 76px),
+		#f1e9d5;
+}
+.edition-theme.edition-concept.pusaka .edition-cover {
+	background: #14100b;
+}
+.edition-theme.edition-concept.pusaka .edition-gates {
+	position: absolute;
+	inset: 0;
+	display: flex;
+	overflow: hidden;
+}
+.edition-theme.edition-concept.pusaka .edition-gates span {
+	position: relative;
+	width: 50%;
+	height: 100%;
+	background: linear-gradient(125deg, #2a2218, #100d09);
+	border: 8px double #685622;
+	box-shadow: inset 0 0 25px #000c;
+}
+.edition-theme.edition-concept.pusaka .edition-gates span::after {
+	content: '';
+	position: absolute;
+	inset: 25px;
+	border: 1px solid #69552f;
+	box-shadow: 0 0 0 12px #09080660;
+}
+.edition-theme.edition-concept.pusaka .edition-cover-card {
+	width: min(100%, 330px);
+	min-height: 0;
+	gap: 16px;
+	padding: 30px 24px;
+	border: 3px ridge #c7ac73;
+	border-radius: 3px;
+	background: linear-gradient(135deg, #f0d999, #b68d43);
+	box-shadow: 0 24px 36px #0009;
+}
+.edition-theme.edition-concept.pusaka .edition-cover-heading {
+	margin: 0;
+}
+.edition-theme.edition-concept.pusaka .edition-cover-names {
+	font-size: 22px;
+	color: #2b2117;
+	line-height: 1.45;
+}
+.edition-theme.edition-concept.pusaka .edition-cover-names > * {
+	display: inline;
+}
+.edition-theme.edition-concept.pusaka .edition-cover-names i {
+	font: inherit;
+	color: #2b2117;
+	margin: 0 0.2em;
+}
+.edition-theme.edition-concept.pusaka .edition-cover-date {
+	margin: 0;
+	color: #3d2d17;
+	font-size: 10px;
+}
+.edition-theme.edition-concept.pusaka .edition-recipient {
+	width: 100%;
+	padding-top: 14px;
+	border-top: 1px solid #836324;
+	color: #4c3b1c;
+}
+.edition-theme.edition-concept.pusaka .edition-recipient-name {
+	color: #2b2117;
+	font-family: 'Edition Cormorant', serif;
+}
+.edition-theme.edition-concept.pusaka .edition-open-button {
+	position: absolute;
+	top: calc(100% + 16px);
+	left: 50%;
+	transform: translateX(-50%);
+	white-space: nowrap;
+	border-color: #b79747;
+	color: #ead5a1;
+	background: #17120d;
+}
+.edition-theme.edition-concept.pusaka .edition-hero-media,
+.edition-theme.edition-concept.pusaka .edition-portrait,
+.edition-theme.edition-concept.pusaka .edition-gallery button,
+.edition-theme.edition-concept.pusaka .edition-stories-scrapbook .edition-story-photo {
+	border: 9px ridge #bca064;
+	outline: 1px solid #726038;
+	box-shadow: 0 14px 24px #211b1450;
+	border-radius: 0;
+	padding: 0;
+	background: #d3b975;
+}
+.edition-theme.edition-concept.pusaka .edition-hero-names {
+	font-size: 32px;
+}
+.edition-theme.edition-concept.pusaka .edition-person-copy {
+	padding: 20px 16px;
+	margin: auto;
+	max-width: 285px;
+	background: linear-gradient(135deg, #f0d999, #b68d43);
+	border: 3px ridge #c7ac73;
+	box-shadow: var(--e-shadow);
+}
+.edition-theme.edition-concept.pusaka .edition-person h3 {
+	font-size: 21px;
+}
+.edition-theme.edition-concept.pusaka .edition-portrait {
+	width: 200px;
+	height: 265px;
+	margin-bottom: 24px;
+}
+.edition-theme.edition-concept.pusaka .edition-heading h2 {
+	font-size: 25px;
+}
+.edition-theme.edition-concept.pusaka .edition-events-section {
+	background: #daccaa60;
+}
+.edition-theme.edition-concept.pusaka .edition-event,
+.edition-theme.edition-concept.pusaka .edition-gift {
+	background: linear-gradient(135deg, #efdca5, #be9c59);
+	border: 3px ridge #c7ac73;
+	border-radius: 3px;
+	text-align: left;
+}
+.edition-theme.edition-concept.pusaka .edition-event-date {
+	font-size: 20px;
+}
+.edition-theme.edition-concept.pusaka .edition-stories-scrapbook .edition-story-photo {
+	border-width: 6px;
+	transform: none;
+}
+.edition-theme.edition-concept.pusaka
+	.edition-stories-scrapbook
+	.edition-story:nth-child(even)
+	.edition-story-photo {
+	transform: none;
+}
+.edition-theme.edition-concept.pusaka .edition-story h3 {
+	font-size: 18px;
+}
+.edition-theme.edition-concept.pusaka .edition-gallery-section {
+	--e-ink: #f3ead4;
+	--e-muted: #d2c5ac;
+	background: #262117;
+}
+.edition-theme.edition-concept.pusaka .edition-gallery {
+	gap: 24px;
+}
+.edition-theme.edition-concept.pusaka .edition-gallery button {
+	border-width: 6px;
+}
+.edition-theme.edition-concept.pusaka .edition-response,
+.edition-theme.edition-concept.pusaka .edition-wishes-card {
+	background: #faf4e6;
+}

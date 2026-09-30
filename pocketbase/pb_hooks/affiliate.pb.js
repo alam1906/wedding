@@ -95,7 +95,8 @@ onRecordUpdateRequest(function (e) {
 	}
 	if (
 		e.record.getString('status') === 'active' &&
-		!e.app.findRecordById('users', e.record.getString('user')).getBool('verified')
+		(!e.record.getString('user') ||
+			!e.app.findRecordById('users', e.record.getString('user')).getBool('verified'))
 	) {
 		throw new BadRequestError('Email affiliate belum terverifikasi.');
 	}

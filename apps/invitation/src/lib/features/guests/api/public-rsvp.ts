@@ -2,6 +2,13 @@ import { ClientResponseError } from 'pocketbase';
 
 import { pocketBase } from '#lib/infrastructure/pocketbase/index.js';
 import type { PublicRsvpGuest, PublicRsvpInput, PublicRsvpMessagePage } from '../model/guest.js';
+import {
+	DEMO_WEDDING_SLUG,
+	DEMO_RSVP_TOKEN,
+	getDemoGuest,
+	getDemoMessages,
+	submitDemoGuest
+} from '../model/demo-rsvp.js';
 
 const RSVP_TOKEN_PATTERN = /^(?:[a-z]{6}|[A-Za-z0-9_-]{12,64})$/;
 const MAX_MESSAGE_LENGTH = 1000;
@@ -19,6 +26,9 @@ function normalizeIdentity(slug: string, token: string): { slug: string; token: 
 
 	if (!normalizedSlug || !RSVP_TOKEN_PATTERN.test(normalizedToken)) {
 		throw new PublicRsvpError('Tautan RSVP tidak valid atau tidak lengkap.');
+	}
+	if (normalizedSlug === DEMO_WEDDING_SLUG && normalizedToken !== DEMO_RSVP_TOKEN) {
+		throw new PublicRsvpError('Tautan preview RSVP tidak valid.');
 	}
 
 	return { slug: normalizedSlug, token: normalizedToken };
@@ -124,6 +134,7 @@ async function handlePublicRsvpRequest(request: () => Promise<unknown>): Promise
 
 export function getPublicGuestRsvp(slug: string, token: string): Promise<PublicRsvpGuest> {
 	const identity = normalizeIdentity(slug, token);
+	if (identity.slug === DEMO_WEDDING_SLUG) return Promise.resolve(getDemoGuest());
 
 	return handlePublicRsvpRequest(() =>
 		pocketBase.send('/api/wedez/rsvp/guest', {
@@ -143,6 +154,9 @@ export function submitPublicGuestRsvp(input: PublicRsvpInput): Promise<PublicRsv
 
 	if (message.length > MAX_MESSAGE_LENGTH) {
 		throw new PublicRsvpError(`Pesan maksimal ${MAX_MESSAGE_LENGTH} karakter.`);
+	}
+	if (identity.slug === DEMO_WEDDING_SLUG) {
+		return Promise.resolve(submitDemoGuest(input.rsvp_status, message));
 	}
 
 	return handlePublicRsvpRequest(() =>
@@ -167,6 +181,7 @@ export async function getPublicRsvpMessages(
 	if (!normalizedSlug) {
 		throw new PublicRsvpError('Undangan tidak valid.');
 	}
+	if (normalizedSlug === DEMO_WEDDING_SLUG) return getDemoMessages(normalizedPage);
 
 	try {
 		return toPublicMessagePage(

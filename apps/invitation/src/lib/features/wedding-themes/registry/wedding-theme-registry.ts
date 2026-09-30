@@ -148,6 +148,170 @@ export const weddingThemes = [
 		description:
 			'Ivory dan burgundy dengan cerita berbentuk stacked cards, galeri horizontal, dan parallax sinematik.',
 		load: () => import('../themes/selaras/SelarasTheme.svelte')
+	},
+	{
+		key: 'pramesti',
+		name: 'Pramesti',
+		description: 'Ivory dan emas dengan tipografi serif, galeri, dan timeline cerita yang elegan.',
+		load: () => import('../themes/pramesti/PramestiTheme.svelte')
+	},
+	{
+		key: 'seruni',
+		name: 'Seruni',
+		description: 'Foto layar penuh, kaligrafi, cerita polaroid, dan galeri oval bernuansa pastel.',
+		load: () => import('../themes/seruni/SeruniTheme.svelte')
+	},
+	{
+		key: 'arsir',
+		name: 'Arsir',
+		description:
+			'Gaya industrial hitam dan krem, aksen kuning, tipografi tegas, dan galeri monokrom.',
+		load: () => import('../themes/arsir/ArsirTheme.svelte')
+	},
+	{
+		key: 'kusuma',
+		name: 'Kusuma',
+		description:
+			'Sage dan pink pastel, panel transparan, foto bulat, dan kelopak yang bergerak lembut.',
+		load: () => import('../themes/kusuma/KusumaTheme.svelte')
+	},
+	{
+		key: 'aurelia',
+		name: 'Aurelia',
+		description: 'Champagne dan emas, sampul oval, kartu organik, dan transisi yang lembut.',
+		load: () => import('../themes/aurelia/AureliaTheme.svelte')
+	},
+	{
+		key: 'arunika',
+		name: 'Arunika',
+		description: 'Beige lembut, foto lengkung, kaligrafi, dan cerita dalam kartu foto.',
+		load: () => import('../themes/arunika/ArunikaTheme.svelte')
+	},
+	{
+		key: 'zamrud',
+		name: 'Zamrud',
+		description: 'Hijau zamrud gelap, bingkai emas, medali foto, dan cahaya yang lembut.',
+		load: () => import('../themes/zamrud/ZamrudTheme.svelte')
+	},
+	{
+		key: 'cendana',
+		name: 'Cendana',
+		description: 'Krem dan terakota, sampul gerbang, kartu miring, dan timeline organik.',
+		load: () => import('../themes/cendana/CendanaTheme.svelte')
+	},
+	{
+		key: 'lentera',
+		name: 'Lentera',
+		description: 'Lembaran perkamen, bingkai oval, hijau tua, dan kisah bergaya scrapbook.',
+		load: () => import('../themes/lentera/LenteraTheme.svelte')
+	},
+	{
+		key: 'safira',
+		name: 'Safira',
+		description: 'Biru kabut dan navy, potret besar, kaligrafi, dan kartu tanggal editorial.',
+		load: () => import('../themes/safira/SafiraTheme.svelte')
+	},
+	{
+		key: 'renjana',
+		name: 'Renjana',
+		description: 'Layout ramping biru-abu, foto lengkung, dan transisi yang tenang.',
+		load: () => import('../themes/renjana/RenjanaTheme.svelte')
+	},
+	{
+		key: 'monokrom',
+		name: 'Monokrom',
+		description: 'Hitam dan putih, layout ramping, potret lengkung, dan detail minimal.',
+		load: () => import('../themes/monokrom/MonokromTheme.svelte')
+	},
+	{
+		key: 'swarna',
+		name: 'Swarna',
+		description: 'Hitam dan emas, potret lengkung, detail sudut, dan komposisi yang intim.',
+		load: () => import('../themes/swarna/SwarnaTheme.svelte')
+	},
+	{
+		key: 'sonata',
+		name: 'Sonata',
+		description: 'Album vinil, tipografi tegas, dan aksen jingga.',
+		load: () => import('../themes/sonata/SonataTheme.svelte')
+	},
+	{
+		key: 'jelajah',
+		name: 'Jelajah',
+		description: 'Tiket perjalanan dengan biru navy dan detail airmail.',
+		load: () => import('../themes/jelajah/JelajahTheme.svelte')
+	},
+	{
+		key: 'folio',
+		name: 'Folio',
+		description: 'Editorial hitam putih dengan tipografi kontras.',
+		load: () => import('../themes/folio/FolioTheme.svelte')
+	},
+	{
+		key: 'pusaka',
+		name: 'Pusaka',
+		description: 'Galeri klasik dengan bingkai antik dan kuningan.',
+		load: () => import('../themes/pusaka/PusakaTheme.svelte')
+	},
+	{
+		key: 'sinema',
+		name: 'Sinema',
+		description: 'Nuansa sinematik dengan bingkai film dan aksen merah.',
+		load: () => import('../themes/sinema/SinemaTheme.svelte')
+	},
+	{
+		key: 'adikara',
+		name: 'Adikara',
+		description: 'Undangan kerajaan burgundy dengan segel emas.',
+		load: () => import('../themes/adikara/AdikaraTheme.svelte')
+	},
+	{
+		key: 'komika',
+		name: 'Komika',
+		description: 'Panel komik, halftone, dan warna pop yang ekspresif.',
+		load: () => import('../themes/komika/KomikaTheme.svelte')
+	},
+	{
+		key: 'warta',
+		name: 'Warta',
+		description: 'Surat kabar klasik, tekstur perkamen, dan foto sepia.',
+		load: () => import('../themes/warta/WartaTheme.svelte')
+	},
+	{
+		key: 'retro',
+		name: 'Retro',
+		description: 'Polaroid retro, merah diner, dan pola kotak klasik.',
+		load: () => import('../themes/retro/RetroTheme.svelte')
+	},
+	{
+		key: 'kristal',
+		name: 'Kristal',
+		description: 'Bingkai kristal, lapisan kaca, dan kilau lembut.',
+		load: () => import('../themes/kristal/KristalTheme.svelte')
+	},
+	{
+		key: 'amerta',
+		name: 'Amerta',
+		description: 'Potret sinematik hangat, detail tipis, dan cerita dalam album.',
+		load: () => import('../themes/amerta/AmertaTheme.svelte')
+	},
+	{
+		key: 'niskala',
+		name: 'Niskala',
+		description: 'Editorial gelap dengan potret penuh dan tipografi romantis.',
+		load: () => import('../themes/niskala/NiskalaTheme.svelte')
+	},
+	{
+		key: 'sakura',
+		name: 'Sakura',
+		description: 'Lanskap cat air, bunga sakura, dan warna merah muda lembut.',
+		load: () => import('../themes/sakura/SakuraTheme.svelte')
+	},
+	{
+		key: 'lazuardi',
+		name: 'Lazuardi',
+		description: 'Ilustrasi taman biru, lampu hangat, dan bingkai lengkung.',
+		load: () => import('../themes/lazuardi/LazuardiTheme.svelte')
 	}
 ] satisfies WeddingThemeDefinition[];
 

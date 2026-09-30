@@ -1,0 +1,860 @@
+@font-face {
+	font-family: 'Aurelia Cormorant';
+	src: url('/fonts/aurelia/cormorant-garamond-latin.woff2') format('woff2');
+	font-style: normal;
+	font-weight: 400 600;
+	font-display: swap;
+}
+@font-face {
+	font-family: 'Aurelia Cormorant';
+	src: url('/fonts/aurelia/cormorant-garamond-latin-italic.woff2') format('woff2');
+	font-style: italic;
+	font-weight: 400 600;
+	font-display: swap;
+}
+@font-face {
+	font-family: 'Aurelia Playfair';
+	src: url('/fonts/aurelia/playfair-display-latin-italic.woff2') format('woff2');
+	font-style: italic;
+	font-weight: 600 700;
+	font-display: swap;
+}
+@font-face {
+	font-family: 'Aurelia Jost';
+	src: url('/fonts/aurelia/jost-latin.woff2') format('woff2');
+	font-style: normal;
+	font-weight: 400 600;
+	font-display: swap;
+}
+.aurelia-theme {
+	--a-ink: #3b2f22;
+	--a-muted: #746049;
+	--a-gold: #a57935;
+	--a-gold-dark: #815820;
+	--a-border: #d8c297;
+	--a-serif: 'Aurelia Cormorant', Georgia, serif;
+	--a-display: 'Aurelia Playfair', Georgia, serif;
+	--a-shadow: 0 24px 44px #8b672f26, inset 0 1px 0 #fff9;
+	position: relative;
+	isolation: isolate;
+	min-height: 100dvh;
+	width: 100%;
+	overflow-x: clip;
+	background: #f1e3be;
+	color: var(--a-ink);
+	font:
+		400 15px/1.8 'Aurelia Jost',
+		Arial,
+		sans-serif;
+}
+.aurelia-theme *,
+.aurelia-theme *::before,
+.aurelia-theme *::after {
+	box-sizing: border-box;
+}
+.aurelia-theme :where(h1, h2, h3, p, figure, blockquote) {
+	margin: 0;
+}
+.aurelia-theme :where(h1, h2, h3) {
+	font-weight: 500;
+	line-height: 1.25;
+}
+.aurelia-theme img {
+	display: block;
+	width: 100%;
+}
+.aurelia-theme :where(button, input, textarea) {
+	font: inherit;
+}
+.aurelia-theme :where(button, a) {
+	-webkit-tap-highlight-color: transparent;
+}
+.aurelia-theme button {
+	cursor: pointer;
+}
+.aurelia-theme button:disabled {
+	cursor: wait;
+	opacity: 0.65;
+}
+.aurelia-theme :focus-visible {
+	outline: 2px solid var(--a-gold-dark);
+	outline-offset: 5px;
+}
+.aurelia-theme ::selection {
+	color: var(--a-ink);
+	background: #e4c995;
+}
+.aurelia-theme .aurelia-backdrop,
+.aurelia-theme .aurelia-cover {
+	background:
+		radial-gradient(ellipse at 24% 20%, #fff8e6b3, transparent 62%),
+		radial-gradient(ellipse at 94% 82%, #e9c9bf99, transparent 48%),
+		radial-gradient(ellipse at 60% 95%, #d8b96c45, transparent 64%), #f1e3be;
+}
+.aurelia-theme .aurelia-backdrop {
+	position: fixed;
+	inset: 0;
+	z-index: 0;
+	pointer-events: none;
+}
+.aurelia-theme .aurelia-backdrop::after {
+	content: '';
+	position: absolute;
+	inset: 0;
+	background: repeating-linear-gradient(116deg, transparent 0 49px, #ffffff1a 49px 50px);
+}
+.aurelia-theme .aurelia-content {
+	position: relative;
+	z-index: 1;
+	padding-top: 24px;
+	outline: none;
+}
+.aurelia-theme .aurelia-container {
+	width: min(100%, 800px);
+	margin-inline: auto;
+}
+.aurelia-theme .aurelia-section {
+	position: relative;
+	padding: 64px 28px;
+}
+.aurelia-theme .aurelia-heading {
+	max-width: 800px;
+	margin: 0 auto 46px;
+	text-align: center;
+}
+.aurelia-theme .aurelia-heading h2 {
+	font: 600 clamp(34px, 4.4vw, 46px)/1.2 var(--a-serif);
+	overflow-wrap: anywhere;
+}
+.aurelia-theme .aurelia-panel {
+	position: relative;
+	min-width: 0;
+	border: 1px solid #fffc;
+	border-radius: 42px 42px 42px 8px;
+	background: linear-gradient(125deg, #fffbefed, #fbedccd9);
+	box-shadow: var(--a-shadow);
+}
+.aurelia-theme .aurelia-cover {
+	position: fixed;
+	inset: 0;
+	z-index: 50;
+	height: 100dvh;
+	display: grid;
+	place-items: center;
+	padding: max(20px, env(safe-area-inset-top)) 22px max(20px, env(safe-area-inset-bottom));
+	overflow-y: auto;
+}
+.aurelia-theme .aurelia-cover-card {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: clamp(12px, 2.1dvh, 20px);
+	width: min(100%, 440px);
+	min-height: min(640px, calc(100dvh - 48px));
+	padding: clamp(26px, 4.8dvh, 44px) 42px;
+	border: 1px solid #fffe;
+	border-radius: 50% 50% 48% 48% / 22% 22% 22% 22%;
+	background: radial-gradient(ellipse at 50% 10%, #fffdf2, transparent 80%), #fbebc6;
+	box-shadow:
+		0 36px 64px #95712638,
+		inset 0 1px 0 #fff;
+	text-align: center;
+}
+.aurelia-theme .aurelia-cover-photo {
+	flex-shrink: 0;
+	width: clamp(74px, 12.5dvh, 108px);
+	aspect-ratio: 1;
+	border: 5px solid #fff9;
+	border-radius: 50%;
+	overflow: hidden;
+	box-shadow: 0 6px 20px #9a7a3630;
+}
+.aurelia-theme .aurelia-cover-photo img {
+	height: 100%;
+	object-fit: cover;
+}
+.aurelia-theme .aurelia-cover-names {
+	width: 100%;
+	font: italic 700 clamp(36px, 6.8dvh, 58px)/1.15 var(--a-display);
+	color: var(--a-gold-dark);
+	text-wrap: balance;
+	overflow-wrap: anywhere;
+	background: linear-gradient(110deg, #835922, #bd9147 52%, #936627);
+	background-clip: text;
+	-webkit-text-fill-color: transparent;
+}
+.aurelia-theme .aurelia-cover-date {
+	color: var(--a-gold-dark);
+	font-size: 11px;
+	letter-spacing: 0.12em;
+	text-transform: uppercase;
+}
+.aurelia-theme .aurelia-recipient {
+	color: var(--a-muted);
+	font-size: 12px;
+}
+.aurelia-theme .aurelia-recipient-name {
+	margin-top: 4px;
+	color: var(--a-ink);
+	font: 600 20px/1.4 var(--a-serif);
+	overflow-wrap: anywhere;
+}
+.aurelia-theme .aurelia-countdown {
+	display: grid;
+	grid-template-columns: repeat(4, minmax(0, 1fr));
+	gap: 6px;
+	width: min(100%, 282px);
+}
+.aurelia-theme .aurelia-countdown > div {
+	display: grid;
+	justify-items: center;
+	gap: 4px;
+	padding: 4px;
+}
+.aurelia-theme .aurelia-countdown > div + div {
+	border-left: 1px solid #b18a4340;
+}
+.aurelia-theme .aurelia-countdown strong {
+	font: 600 29px/1.1 var(--a-serif);
+	font-variant-numeric: lining-nums tabular-nums;
+}
+.aurelia-theme .aurelia-countdown span {
+	color: var(--a-muted);
+	font-size: 9px;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+}
+.aurelia-theme .aurelia-button,
+.aurelia-theme .aurelia-outline {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 44px;
+	padding: 12px 24px;
+	border: 1px solid var(--a-gold);
+	border-radius: 999px;
+	font-size: 11px;
+	line-height: 1.5;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+	text-decoration: none;
+	text-align: center;
+	transition:
+		background 0.25s,
+		color 0.25s,
+		box-shadow 0.25s;
+}
+.aurelia-theme .aurelia-outline {
+	background: linear-gradient(120deg, #fff9, #f0d49b55);
+	color: var(--a-gold-dark);
+}
+.aurelia-theme .aurelia-outline:hover {
+	background: #ecd2a0;
+	color: var(--a-ink);
+	box-shadow: 0 6px 16px #a5793520;
+}
+.aurelia-theme .aurelia-button {
+	background: linear-gradient(115deg, #a67b36, #aa7475);
+	color: #fff;
+	border-color: transparent;
+	box-shadow: 0 10px 20px #a5793525;
+}
+.aurelia-theme .aurelia-button:hover {
+	background: linear-gradient(115deg, #89612a, #925d5f);
+}
+.aurelia-theme .aurelia-open-button {
+	width: min(100%, 230px);
+	flex-shrink: 0;
+}
+.aurelia-theme .aurelia-quote-section {
+	padding-block: 64px;
+}
+.aurelia-theme .aurelia-quote {
+	max-width: 800px;
+	margin: auto;
+	padding: 68px 74px;
+	border-radius: 48% 48% 50% 50% / 22% 22% 36% 36%;
+	text-align: center;
+}
+.aurelia-theme .aurelia-quote blockquote {
+	font: italic 500 clamp(23px, 2.3vw, 28px)/1.6 var(--a-serif);
+	color: #675036;
+	white-space: pre-line;
+	overflow-wrap: anywhere;
+	text-wrap: pretty;
+}
+.aurelia-theme .aurelia-couple {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) 40px minmax(0, 1fr);
+	gap: 20px;
+	align-items: center;
+}
+.aurelia-theme .aurelia-person {
+	padding: 44px 32px;
+	text-align: center;
+	border-radius: 48% 52% 57% 43% / 58% 58% 42% 42%;
+}
+.aurelia-theme .aurelia-person:last-child {
+	border-radius: 52% 48% 43% 57% / 42% 42% 58% 58%;
+}
+.aurelia-theme .aurelia-portrait {
+	display: grid;
+	place-items: center;
+	width: 132px;
+	height: 132px;
+	margin: 0 auto 20px;
+	border: 3px solid #fffc;
+	outline: 1px solid #c7a567;
+	border-radius: 50%;
+	overflow: hidden;
+	background: #e5cf9f;
+}
+.aurelia-theme .aurelia-portrait img {
+	height: 100%;
+	object-fit: cover;
+}
+.aurelia-theme .aurelia-initial {
+	font: italic 600 52px/1 var(--a-display);
+	color: var(--a-gold-dark);
+}
+.aurelia-theme .aurelia-person h3 {
+	font: 600 26px/1.25 var(--a-serif);
+	margin-bottom: 12px;
+	overflow-wrap: anywhere;
+}
+.aurelia-theme .aurelia-person p {
+	color: var(--a-muted);
+	font-size: 14px;
+	overflow-wrap: anywhere;
+}
+.aurelia-theme .aurelia-couple-ampersand {
+	font: italic 600 42px/1 var(--a-display);
+	color: var(--a-gold);
+	text-align: center;
+}
+.aurelia-theme .aurelia-events {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 24px;
+}
+.aurelia-theme .aurelia-event {
+	padding: 42px 32px;
+	text-align: center;
+}
+.aurelia-theme .aurelia-event:last-child {
+	border-radius: 42px 42px 8px 42px;
+}
+.aurelia-theme .aurelia-event h3 {
+	color: var(--a-gold-dark);
+	font:
+		400 11px/1.5 'Aurelia Jost',
+		sans-serif;
+	letter-spacing: 0.16em;
+	text-transform: uppercase;
+}
+.aurelia-theme .aurelia-event-date {
+	margin-top: 20px;
+	font: 600 27px/1.3 var(--a-serif);
+}
+.aurelia-theme .aurelia-event-time {
+	margin: 10px 0 20px;
+	color: var(--a-muted);
+}
+.aurelia-theme .aurelia-address {
+	font-size: 14px;
+	color: var(--a-muted);
+	white-space: pre-line;
+	overflow-wrap: anywhere;
+}
+.aurelia-theme .aurelia-event .aurelia-outline {
+	margin-top: 26px;
+	padding-inline: 18px;
+}
+.aurelia-theme .aurelia-stories {
+	position: relative;
+}
+.aurelia-theme .aurelia-story-line {
+	position: absolute;
+	left: 29px;
+	top: 30px;
+	bottom: 30px;
+	width: 2px;
+	background: #c3a16b7a;
+}
+.aurelia-theme .aurelia-story-line span {
+	display: block;
+	width: 100%;
+	height: 100%;
+	background: #a77b36;
+}
+.aurelia-theme .aurelia-story {
+	position: relative;
+	display: grid;
+	grid-template-columns: 60px minmax(0, 1fr);
+	gap: 24px;
+	align-items: start;
+}
+.aurelia-theme .aurelia-story + .aurelia-story {
+	margin-top: 28px;
+}
+.aurelia-theme .aurelia-story-marker {
+	width: 60px;
+	height: 60px;
+	border: 3px solid #fff6e2;
+	border-radius: 50%;
+	overflow: hidden;
+	background: #d0af70;
+	box-shadow: 0 6px 18px #987a3430;
+}
+.aurelia-theme .aurelia-story-marker img {
+	height: 100%;
+	object-fit: cover;
+}
+.aurelia-theme .aurelia-story-copy {
+	padding: 28px 32px;
+	border-radius: 28px 28px 28px 6px;
+}
+.aurelia-theme .aurelia-story h3 {
+	font: 600 26px/1.3 var(--a-serif);
+	overflow-wrap: anywhere;
+}
+.aurelia-theme .aurelia-story-date {
+	margin: 8px 0 12px;
+	font-size: 11px;
+	color: var(--a-gold-dark);
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+}
+.aurelia-theme .aurelia-story-description {
+	color: var(--a-muted);
+	white-space: pre-line;
+	overflow-wrap: anywhere;
+}
+.aurelia-theme .aurelia-gallery {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 18px;
+}
+.aurelia-theme .aurelia-gallery button {
+	display: block;
+	aspect-ratio: 3/4;
+	padding: 0;
+	border: 2px solid #fffc;
+	border-radius: 34px 34px 34px 6px;
+	overflow: hidden;
+	background: #dac6a0;
+	box-shadow: 0 14px 30px #89662d28;
+}
+.aurelia-theme .aurelia-gallery button:nth-child(2n) {
+	border-radius: 34px 34px 6px 34px;
+}
+.aurelia-theme .aurelia-gallery img {
+	height: 100%;
+	object-fit: cover;
+	transition: transform 0.7s;
+}
+.aurelia-theme .aurelia-response,
+.aurelia-theme .aurelia-wishes-card {
+	width: min(100%, 800px);
+	margin-inline: auto;
+}
+.aurelia-theme .aurelia-response {
+	padding: 40px;
+}
+.aurelia-theme .aurelia-response form {
+	display: grid;
+	gap: 14px;
+}
+.aurelia-theme .aurelia-response :where(label, legend) {
+	font-size: 11px;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	color: var(--a-gold-dark);
+}
+.aurelia-theme .aurelia-response input:not([type='radio']),
+.aurelia-theme .aurelia-response textarea {
+	width: 100%;
+	min-width: 0;
+	padding: 12px 14px;
+	border: 1px solid var(--a-border);
+	border-radius: 14px;
+	background: #fffaf0a3;
+	color: var(--a-ink);
+	font-size: 16px;
+}
+.aurelia-theme .aurelia-response input[readonly] {
+	color: var(--a-muted);
+}
+.aurelia-theme .aurelia-response textarea {
+	min-height: 120px;
+	max-height: 400px;
+	resize: vertical;
+}
+.aurelia-theme .aurelia-response fieldset {
+	min-width: 0;
+	padding: 0;
+	margin: 4px 0;
+	border: 0;
+}
+.aurelia-theme .aurelia-response legend {
+	margin-bottom: 12px;
+}
+.aurelia-theme .aurelia-attendance {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 12px;
+}
+.aurelia-theme .aurelia-attendance label {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	min-height: 46px;
+	padding: 12px 14px;
+	border: 1px solid var(--a-border);
+	border-radius: 14px;
+	background: #fff6;
+	cursor: pointer;
+}
+.aurelia-theme .aurelia-attendance label.chosen {
+	border-color: var(--a-gold);
+	background: #efdcb8;
+}
+.aurelia-theme .aurelia-attendance input {
+	accent-color: var(--a-gold-dark);
+	width: 15px;
+	height: 15px;
+	flex-shrink: 0;
+}
+.aurelia-theme .aurelia-field-label {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+}
+.aurelia-theme .aurelia-field-label span {
+	font-size: 10px;
+	color: var(--a-muted);
+}
+.aurelia-theme .aurelia-response .aurelia-button {
+	width: 100%;
+}
+.aurelia-theme .aurelia-error {
+	color: #a33934;
+}
+.aurelia-theme .aurelia-wishes-card {
+	overflow: hidden;
+}
+.aurelia-theme .aurelia-wishes {
+	overflow-y: auto;
+	overscroll-behavior: contain;
+	scrollbar-width: thin;
+	scrollbar-color: #b39259 #f9edd0;
+}
+.aurelia-theme .aurelia-wish {
+	padding: 24px 30px;
+}
+.aurelia-theme .aurelia-wish + .aurelia-wish {
+	border-top: 1px solid #c5a16655;
+}
+.aurelia-theme .aurelia-wish > div {
+	display: flex;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: 20px;
+}
+.aurelia-theme .aurelia-wish h3 {
+	min-width: 0;
+	font: 600 24px/1.35 var(--a-serif);
+	overflow-wrap: anywhere;
+}
+.aurelia-theme .aurelia-attendance-status {
+	flex-shrink: 0;
+	color: var(--a-gold-dark);
+	font-size: 10px;
+	letter-spacing: 0.03em;
+	text-transform: uppercase;
+}
+.aurelia-theme .aurelia-wish > p {
+	margin-top: 10px;
+	color: var(--a-muted);
+	white-space: pre-line;
+	overflow-wrap: anywhere;
+}
+.aurelia-theme .aurelia-messages-state:not(:empty) {
+	padding: 18px 30px;
+}
+.aurelia-theme .aurelia-gift-section {
+	text-align: center;
+}
+.aurelia-theme .aurelia-gifts:not([hidden]) {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 24px;
+	margin-top: 28px;
+}
+.aurelia-theme .aurelia-gift {
+	padding: 30px;
+}
+.aurelia-theme .aurelia-gift h3 {
+	font: 600 26px/1.4 var(--a-serif);
+}
+.aurelia-theme .aurelia-gift p {
+	color: var(--a-muted);
+	overflow-wrap: anywhere;
+}
+.aurelia-theme .aurelia-gift .aurelia-account {
+	margin: 14px 0 6px;
+	font-size: 21px;
+}
+.aurelia-theme .aurelia-gift .aurelia-outline {
+	margin-top: 22px;
+	padding-inline: 16px;
+}
+.aurelia-theme .aurelia-copy-feedback:not(:empty) {
+	margin-top: 22px;
+}
+.aurelia-theme .aurelia-footer {
+	padding: 64px 28px 80px;
+	text-align: center;
+}
+.aurelia-theme .aurelia-footer-card {
+	max-width: 800px;
+	margin: auto;
+	padding: 80px 40px 60px;
+	border: 1px solid #e6c89a;
+	border-radius: 50% 50% 16px 16px / 90px 90px 16px 16px;
+	background: linear-gradient(120deg, #806342, #aa874b);
+	color: #fff7e5;
+	box-shadow: 0 26px 46px #684c3724;
+}
+.aurelia-theme .aurelia-footer-names {
+	font: italic 600 clamp(34px, 4.5vw, 48px)/1.4 var(--a-display);
+	text-wrap: balance;
+	overflow-wrap: anywhere;
+}
+.aurelia-theme .aurelia-footer-date {
+	margin-top: 18px;
+	font-size: 11px;
+	letter-spacing: 0.12em;
+	text-transform: uppercase;
+}
+.aurelia-theme .aurelia-footer a {
+	display: inline-block;
+	margin-top: 44px;
+	color: #fff4df;
+	font-size: 12px;
+	text-decoration: none;
+}
+.aurelia-theme .aurelia-music {
+	position: fixed;
+	right: max(16px, env(safe-area-inset-right));
+	bottom: max(16px, env(safe-area-inset-bottom));
+	z-index: 20;
+	min-height: 44px;
+	padding: 10px 16px;
+	border: 1px solid #c4a366;
+	border-radius: 999px;
+	background: #fff2d5f2;
+	color: var(--a-gold-dark);
+	font-size: 11px;
+	box-shadow: 0 6px 20px #8f692525;
+}
+.aurelia-theme .aurelia-lightbox {
+	position: fixed;
+	inset: 0;
+	width: min(calc(100% - 24px), 1100px);
+	max-width: none;
+	max-height: calc(100dvh - 24px);
+	margin: auto;
+	padding: 16px;
+	border: 1px solid white;
+	border-radius: 24px;
+	background: #fbf0d6;
+	color: var(--a-ink);
+}
+.aurelia-theme .aurelia-lightbox::backdrop {
+	background: #302418e8;
+}
+.aurelia-theme .aurelia-lightbox > img {
+	height: min(70dvh, 800px);
+	object-fit: contain;
+	border-radius: 12px;
+}
+.aurelia-theme .aurelia-lightbox-bar,
+.aurelia-theme .aurelia-lightbox-controls {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+}
+.aurelia-theme .aurelia-lightbox-controls {
+	margin-top: 8px;
+}
+.aurelia-theme .aurelia-lightbox button {
+	min-height: 44px;
+	padding: 8px 12px;
+	border: 0;
+	border-radius: 8px;
+	background: transparent;
+	color: var(--a-gold-dark);
+	font-size: 12px;
+}
+@media (max-width: 640px) {
+	.aurelia-theme .aurelia-content {
+		padding-top: 12px;
+	}
+	.aurelia-theme .aurelia-section {
+		padding: 48px 22px;
+	}
+	.aurelia-theme .aurelia-heading {
+		margin-bottom: 36px;
+	}
+	.aurelia-theme .aurelia-cover-card {
+		padding-inline: 30px;
+		min-height: min(600px, calc(100dvh - 48px));
+	}
+	.aurelia-theme .aurelia-cover-names {
+		font-size: clamp(34px, 6dvh, 48px);
+	}
+	.aurelia-theme .aurelia-quote {
+		padding: 48px 32px;
+		border-radius: 46% 46% 50% 50% / 12% 12% 16% 16%;
+	}
+	.aurelia-theme .aurelia-couple {
+		grid-template-columns: minmax(0, 1fr);
+		gap: 28px;
+	}
+	.aurelia-theme .aurelia-person {
+		width: min(100%, 360px);
+		justify-self: center;
+		padding: 42px 32px;
+	}
+	.aurelia-theme .aurelia-couple-ampersand {
+		font-size: 34px;
+	}
+	.aurelia-theme .aurelia-events,
+	.aurelia-theme .aurelia-gifts:not([hidden]) {
+		grid-template-columns: minmax(0, 1fr);
+	}
+	.aurelia-theme .aurelia-event {
+		padding: 36px 28px;
+	}
+	.aurelia-theme .aurelia-story {
+		grid-template-columns: 44px minmax(0, 1fr);
+		gap: 14px;
+	}
+	.aurelia-theme .aurelia-story-marker {
+		width: 44px;
+		height: 44px;
+	}
+	.aurelia-theme .aurelia-story-line {
+		left: 21px;
+		top: 22px;
+		bottom: 22px;
+	}
+	.aurelia-theme .aurelia-story-copy {
+		padding: 24px 22px;
+	}
+	.aurelia-theme .aurelia-story h3 {
+		font-size: 25px;
+	}
+	.aurelia-theme .aurelia-story-description {
+		font-size: 14px;
+	}
+	.aurelia-theme .aurelia-gallery {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 12px;
+	}
+	.aurelia-theme .aurelia-response {
+		padding: 30px 24px;
+	}
+	.aurelia-theme .aurelia-attendance {
+		grid-template-columns: minmax(0, 1fr);
+	}
+	.aurelia-theme .aurelia-wish {
+		padding: 22px 24px;
+	}
+	.aurelia-theme .aurelia-wish > div {
+		gap: 12px;
+	}
+	.aurelia-theme .aurelia-attendance-status {
+		max-width: 48%;
+		text-align: right;
+	}
+	.aurelia-theme .aurelia-footer {
+		padding: 48px 22px 72px;
+	}
+	.aurelia-theme .aurelia-footer-card {
+		padding: 64px 28px 48px;
+		border-radius: 50% 50% 16px 16px / 64px 64px 16px 16px;
+	}
+}
+@media (max-height: 640px) {
+	.aurelia-theme .aurelia-cover {
+		padding-block: 12px;
+	}
+	.aurelia-theme .aurelia-cover-card {
+		min-height: 0;
+		gap: 10px;
+		padding-block: 24px;
+	}
+	.aurelia-theme .aurelia-cover-photo {
+		width: 68px;
+	}
+	.aurelia-theme .aurelia-cover-names {
+		font-size: 36px;
+	}
+	.aurelia-theme .aurelia-countdown strong {
+		font-size: 25px;
+	}
+}
+@media (max-height: 480px) and (min-width: 600px) {
+	.aurelia-theme .aurelia-cover-card {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 12px 28px;
+		width: min(100%, 700px);
+		padding: 26px 44px;
+		border-radius: 110px;
+		justify-items: center;
+	}
+	.aurelia-theme .aurelia-cover-photo {
+		grid-column: 1;
+	}
+	.aurelia-theme .aurelia-cover-names {
+		grid-column: 1;
+		grid-row: 2 / 4;
+		font-size: 32px;
+	}
+	.aurelia-theme .aurelia-cover-date {
+		grid-column: 2;
+		grid-row: 1;
+	}
+	.aurelia-theme .aurelia-recipient {
+		grid-column: 2;
+		grid-row: 2;
+	}
+	.aurelia-theme .aurelia-countdown {
+		grid-column: 2;
+		grid-row: 3;
+	}
+	.aurelia-theme .aurelia-open-button {
+		grid-column: 2;
+		grid-row: 4;
+	}
+}
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+	.aurelia-theme .aurelia-gallery button:hover img {
+		transform: scale(1.045);
+	}
+}
+@media (prefers-reduced-motion: reduce) {
+	.aurelia-theme *,
+	.aurelia-theme *::before,
+	.aurelia-theme *::after {
+		transition: none !important;
+		animation: none !important;
+	}
+}

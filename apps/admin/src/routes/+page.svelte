@@ -336,7 +336,7 @@
 						autocomplete="username"
 						required
 						bind:value={email}
-						class="login-input w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm outline-none focus:border-[#9400ff]"
+						class="admin-input w-full px-4 py-3 text-sm"
 						placeholder="nama@email.com"
 					/>
 				</div>
@@ -351,7 +351,7 @@
 							autocomplete="current-password"
 							required
 							bind:value={password}
-							class="login-input w-full rounded-xl border border-slate-300 bg-white px-4 py-3 pr-12 text-sm outline-none focus:border-[#9400ff]"
+							class="admin-input w-full px-4 py-3 pr-12 text-sm"
 							placeholder="Masukkan kata sandi"
 						/>
 						<button
@@ -684,10 +684,10 @@
 									type="search"
 									bind:value={search}
 									placeholder="Cari {selectedLabel.toLowerCase()}…"
-									class="min-w-0 flex-1 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm outline-none focus:border-violet-500"
+									class="admin-input min-w-0 flex-1 px-4 py-3 text-sm"
 								/><button
 									type="submit"
-									class="rounded-xl bg-linear-to-r from-[#9400ff] to-[#7200e8] px-4 py-2.5 text-sm font-semibold text-white"
+									class="rounded-xl bg-linear-to-r from-[#9400ff] to-[#7200e8] px-4 py-3 text-sm font-semibold text-white"
 									>Cari</button
 								>
 							</form>
@@ -975,7 +975,7 @@
 					id="action-detail"
 					required
 					bind:value={actionDetail}
-					class="mt-2 w-full rounded-xl border border-gray-300 px-4 py-2.5 text-sm focus:border-[#9400ff]"
+					class="admin-input mt-2 w-full px-4 py-3 text-sm"
 				/>{/if}
 			{#if actionError}<p
 					role="alert"

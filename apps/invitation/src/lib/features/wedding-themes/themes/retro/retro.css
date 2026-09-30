@@ -1,0 +1,185 @@
+.edition-theme.edition-concept.retro {
+	--e-bg: #fff8ea;
+	--e-surface: #fffdf4;
+	--e-ink: #3a2418;
+	--e-muted: #785d4e;
+	--e-accent: #c20d30;
+	--e-border: #caac89;
+	--e-outer: #141414;
+	--e-serif: 'Concept Bungee', sans-serif;
+	--e-body: 'Edition Poppins', sans-serif;
+	--e-shadow: 0 12px 20px #39261a2b;
+	background: conic-gradient(#141414 25%, #faf8f1 0 50%, #141414 0 75%, #faf8f1 0) 0 0/48px 48px;
+}
+.edition-theme.edition-concept.retro .edition-content {
+	border-inline: 8px solid #27231f;
+	max-width: 496px;
+	box-shadow: 0 0 40px #0008;
+}
+.edition-theme.edition-concept.retro .edition-cover {
+	background:
+		repeating-linear-gradient(120deg, #840c250b 0 2px, transparent 2px 7px),
+		radial-gradient(ellipse at top, #ed3251, #bd1131 65%, #800a22);
+	border: 8px double #edb869;
+}
+.edition-theme.edition-concept.retro .edition-cover-card {
+	min-height: 0;
+	max-width: 440px;
+	gap: 15px;
+}
+.edition-theme.edition-concept.retro .edition-cover-heading {
+	margin: 0;
+}
+.edition-theme.edition-concept.retro .edition-cover-photo {
+	height: clamp(140px, 31dvh, 280px);
+	aspect-ratio: 4/3;
+	overflow: visible;
+	border: 8px solid #fff9eb;
+	border-bottom: 22px solid #fff9eb;
+	border-radius: 0;
+	transform: rotate(-3deg);
+	box-shadow: 0 18px 25px #43041650;
+}
+.edition-theme.edition-concept.retro .edition-cover-names {
+	font:
+		400 clamp(29px, 6vw, 43px)/1.3 'Concept Monoton',
+		sans-serif;
+	color: #ffe3f2;
+	text-shadow: 0 0 10px #ff9bca;
+}
+.edition-theme.edition-concept.retro .edition-cover-names > * {
+	display: inline;
+}
+.edition-theme.edition-concept.retro .edition-cover-names i {
+	font-family: 'Edition Alex', cursive;
+	font-size: 0.85em;
+	color: #ffe8b2;
+	margin: 0 0.16em;
+}
+.edition-theme.edition-concept.retro .edition-cover-date {
+	color: #ffe7bc;
+	margin: 0;
+	font-size: 10px;
+}
+.edition-theme.edition-concept.retro .edition-recipient {
+	color: #ffe7cf;
+	font-size: 11px;
+}
+.edition-theme.edition-concept.retro .edition-recipient-name {
+	font-family: 'Edition Alex', cursive;
+	color: #fff4d5;
+	font-style: normal;
+	font-size: 27px;
+}
+.edition-theme.edition-concept.retro .edition-open-button {
+	background: #ffe6b3;
+	color: #850b26;
+	border: 3px solid #7f0a22;
+	box-shadow: 0 5px 0 #70061e;
+	font-size: 12px;
+	font-weight: 600;
+}
+.edition-theme.edition-concept.retro .edition-hero-polaroid {
+	border-top: 8px dashed #c91335;
+}
+.edition-theme.edition-concept.retro .edition-hero-media,
+.edition-theme.edition-concept.retro .edition-portrait {
+	border: 9px solid #fffdf7;
+	border-bottom-width: 30px;
+	border-radius: 0;
+	transform: rotate(-3deg);
+	outline: none;
+	box-shadow: 0 18px 24px #39281e45;
+}
+.edition-theme.edition-concept.retro .edition-hero-names {
+	font-size: 33px;
+}
+.edition-theme.edition-concept.retro .edition-hero-names i {
+	font:
+		400 40px/1 'Edition Alex',
+		cursive;
+	color: #c91335;
+}
+.edition-theme.edition-concept.retro .edition-hero-date {
+	display: inline-block;
+	border: 1px dashed #a88459;
+	background: #ffebc7;
+	padding: 7px 12px;
+	font-size: 10px;
+}
+.edition-theme.edition-concept.retro .edition-heading h2 {
+	font-size: 27px;
+}
+.edition-theme.edition-concept.retro .edition-person:last-child .edition-portrait {
+	transform: rotate(3deg);
+}
+.edition-theme.edition-concept.retro .edition-person h3 {
+	font-size: 22px;
+}
+.edition-theme.edition-concept.retro .edition-quote-section {
+	background: #efd8b1;
+	border-block: 2px dashed #ba9570;
+}
+.edition-theme.edition-concept.retro .edition-events-section,
+.edition-theme.edition-concept.retro .edition-gallery-section,
+.edition-theme.edition-concept.retro .edition-rsvp-section {
+	--e-ink: #fff3d9;
+	--e-muted: #eed5c4;
+	--e-accent: #f4ca67;
+	--e-surface: #a00c2b;
+	--e-border: #e3a487;
+	background: repeating-linear-gradient(110deg, #4b001808 0 2px, transparent 2px 7px), #ba1234;
+}
+.edition-theme.edition-concept.retro .edition-event {
+	background: #fff8ea;
+	--e-ink: #3a2418;
+	--e-muted: #785d4e;
+	--e-accent: #b00d2c;
+	border: 2px dashed #a27c56;
+	border-radius: 4px;
+	text-align: left;
+}
+.edition-theme.edition-concept.retro .edition-event h3 {
+	font-family: var(--e-serif);
+	font-size: 19px;
+	letter-spacing: 0;
+}
+.edition-theme.edition-concept.retro .edition-event-date {
+	font-family: 'Edition Playfair', serif;
+	font-size: 22px;
+}
+.edition-theme.edition-concept.retro .edition-story-photo {
+	box-shadow: 0 9px 16px #30221a30;
+}
+.edition-theme.edition-concept.retro .edition-story h3 {
+	font-size: 17px;
+}
+.edition-theme.edition-concept.retro .edition-story-description {
+	font-size: 13px;
+}
+.edition-theme.edition-concept.retro .edition-story-date {
+	font-size: 9px;
+}
+.edition-theme.edition-concept.retro .edition-gallery {
+	gap: 18px;
+}
+.edition-theme.edition-concept.retro .edition-gallery button {
+	border: 6px solid #fff9ee;
+	border-bottom-width: 20px;
+	transform: rotate(-2deg);
+}
+.edition-theme.edition-concept.retro .edition-gallery button:nth-child(even) {
+	transform: rotate(2deg);
+}
+.edition-theme.edition-concept.retro .edition-response {
+	--e-ink: #3a2418;
+	--e-muted: #785d4e;
+	--e-accent: #b00d2c;
+	background: #fff8ea;
+	border: 2px dashed #a27c56;
+}
+.edition-theme.edition-concept.retro .edition-footer {
+	--e-ink: #fff3d9;
+	--e-muted: #e1c8b6;
+	background: #3a2418;
+}

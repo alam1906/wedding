@@ -1,3 +1,8 @@
+import {
+	createThemeScrollSmoother,
+	type ThemeScrollSmoother
+} from '../../shared/theme-scroll-smoother.js';
+
 export type SelarasMotion = {
 	open: (target: HTMLElement, complete: () => void) => void;
 	revealPhoto: () => void;
@@ -29,13 +34,15 @@ export function mountSelarasAnimations(root: HTMLElement): SelarasMotion {
 
 	void (async () => {
 		try {
-			const [{ gsap }, { ScrollTrigger }, { ScrollToPlugin }] = await Promise.all([
-				import('gsap'),
-				import('gsap/ScrollTrigger'),
-				import('gsap/ScrollToPlugin')
-			]);
+			const [{ gsap }, { ScrollTrigger }, { ScrollToPlugin }, { ScrollSmoother }] =
+				await Promise.all([
+					import('gsap'),
+					import('gsap/ScrollTrigger'),
+					import('gsap/ScrollToPlugin'),
+					import('gsap/ScrollSmoother')
+				]);
 			if (disposed) return;
-			gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
+			gsap.registerPlugin(ScrollTrigger, ScrollToPlugin, ScrollSmoother);
 			const context = gsap.context(() => undefined, root);
 			const media = gsap.matchMedia();
 			let finishIntro: () => void = () => undefined;
@@ -65,6 +72,14 @@ export function mountSelarasAnimations(root: HTMLElement): SelarasMotion {
 								refreshScenes = () => undefined;
 							};
 						}
+						let smoother: ThemeScrollSmoother;
+						mediaContext.ignore(() => {
+							smoother = createThemeScrollSmoother(
+								root,
+								root.querySelector<HTMLElement>('[data-theme-scroll-content]')!,
+								ScrollSmoother
+							);
+						});
 						if (!opened && !introPlayed) {
 							introPlayed = true;
 							const intro = gsap.timeline({ defaults: { ease: 'power3.out' } });
@@ -315,6 +330,27 @@ export function mountSelarasAnimations(root: HTMLElement): SelarasMotion {
 								root
 									.querySelectorAll('.response-paper, .wishes-paper')
 									.forEach((panel) => reveal([panel], panel));
+								// A transformed scroll surface cannot use native sticky positioning.
+								const closing = root.querySelector<HTMLElement>('.closing-section');
+								if (closing) {
+									gsap.set(root.querySelector('.closing-reveal'), { display: 'block' });
+									gsap.set(closing, { position: 'relative' });
+									gsap.fromTo(
+										closing,
+										{ yPercent: -100 },
+										{
+											yPercent: 0,
+											ease: 'none',
+											scrollTrigger: {
+												trigger: root.querySelector('.closing-reveal'),
+												start: 'top bottom',
+												end: 'bottom bottom',
+												scrub: true,
+												invalidateOnRefresh: true
+											}
+										}
+									);
+								}
 							});
 						};
 
@@ -363,6 +399,7 @@ export function mountSelarasAnimations(root: HTMLElement): SelarasMotion {
 						refreshScenes = reflow;
 						return () => {
 							sceneContext?.revert();
+							smoother.destroy();
 							finishIntro = () => undefined;
 							if (refreshScenes === reflow) refreshScenes = () => undefined;
 						};

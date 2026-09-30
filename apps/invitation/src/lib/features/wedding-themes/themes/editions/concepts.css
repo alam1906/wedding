@@ -1,0 +1,232 @@
+@font-face {
+	font-family: 'Concept Anton';
+	src: url('/fonts/concepts/anton-latin.woff2') format('woff2');
+	font-weight: 400;
+	font-style: normal;
+	font-display: swap;
+}
+@font-face {
+	font-family: 'Concept Bodoni Moda';
+	src: url('/fonts/concepts/bodoni-moda-latin.woff2') format('woff2');
+	font-weight: 400 600;
+	font-style: normal;
+	font-display: swap;
+}
+@font-face {
+	font-family: 'Concept Bangers';
+	src: url('/fonts/concepts/bangers-latin.woff2') format('woff2');
+	font-weight: 400;
+	font-style: normal;
+	font-display: swap;
+}
+@font-face {
+	font-family: 'Concept Baloo 2';
+	src: url('/fonts/concepts/baloo-2-latin.woff2') format('woff2');
+	font-weight: 400 600;
+	font-style: normal;
+	font-display: swap;
+}
+@font-face {
+	font-family: 'Concept UnifrakturCook';
+	src: url('/fonts/concepts/unifrakturcook-latin.woff2') format('woff2');
+	font-weight: 700;
+	font-style: normal;
+	font-display: swap;
+}
+@font-face {
+	font-family: 'Concept Bungee';
+	src: url('/fonts/concepts/bungee-latin.woff2') format('woff2');
+	font-weight: 400;
+	font-style: normal;
+	font-display: swap;
+}
+@font-face {
+	font-family: 'Concept Monoton';
+	src: url('/fonts/concepts/monoton-latin.woff2') format('woff2');
+	font-weight: 400;
+	font-style: normal;
+	font-display: swap;
+}
+@font-face {
+	font-family: 'Concept Cinzel Decorative';
+	src: url('/fonts/concepts/cinzel-decorative-latin.woff2') format('woff2');
+	font-weight: 400;
+	font-style: normal;
+	font-display: swap;
+}
+@font-face {
+	font-family: 'Concept Space';
+	src: url('/fonts/arsir/space-grotesk-latin.woff2') format('woff2');
+	font-weight: 300 700;
+	font-display: swap;
+}
+@font-face {
+	font-family: 'Concept Mono';
+	src: url('/fonts/arsir/jetbrains-mono-latin.woff2') format('woff2');
+	font-weight: 400 700;
+	font-display: swap;
+}
+@font-face {
+	font-family: 'Concept Oswald';
+	src: url('/fonts/arsir/oswald-latin.woff2') format('woff2');
+	font-weight: 300 700;
+	font-display: swap;
+}
+
+/* Only the concepts based on references 16–25 use this layer. Existing themes keep their layout. */
+.edition-theme.edition-narrow.edition-concept {
+	font-size: 14px;
+}
+.edition-theme.edition-narrow.edition-concept .edition-content {
+	max-width: 480px;
+}
+.edition-theme.edition-narrow.edition-concept
+	:is(.edition-section, .edition-panel, .edition-person, .edition-footer) {
+	color: var(--e-ink);
+}
+.edition-theme.edition-narrow.edition-concept .edition-hero {
+	padding: 64px 34px 52px;
+}
+.edition-theme.edition-narrow.edition-concept .edition-hero-media {
+	border-radius: 0;
+	width: 100%;
+	max-width: 340px;
+	aspect-ratio: 3/4;
+}
+.edition-theme.edition-narrow.edition-concept .edition-hero-date {
+	font-family: var(--e-body);
+	font-size: 11px;
+}
+.edition-theme.edition-narrow.edition-concept .edition-heading h2 {
+	font-family: var(--e-serif);
+	font-size: 30px;
+}
+.edition-theme.edition-narrow.edition-concept .edition-quote blockquote {
+	font-family: var(--e-quote-font, 'Edition Cormorant'), serif;
+}
+.edition-theme.edition-narrow.edition-concept .edition-panel {
+	border-radius: 8px;
+}
+.edition-theme.edition-narrow.edition-concept .edition-button {
+	font-size: 12px;
+}
+.edition-theme.edition-narrow.edition-concept .edition-stories-scrapbook .edition-story {
+	display: grid;
+	grid-template-columns: minmax(80px, 0.8fr) minmax(0, 1.6fr);
+	align-items: start;
+	gap: 20px;
+	text-align: left;
+}
+.edition-theme.edition-narrow.edition-concept
+	.edition-stories-scrapbook
+	.edition-story:nth-child(even) {
+	grid-template-columns: minmax(0, 1.6fr) minmax(80px, 0.8fr);
+	text-align: right;
+}
+.edition-theme.edition-narrow.edition-concept .edition-stories-scrapbook .edition-story-photo {
+	width: 100%;
+	height: auto;
+	aspect-ratio: 3/4;
+	margin: 8px 0 0;
+	border: 5px solid var(--e-surface);
+	border-bottom-width: 16px;
+	border-radius: 0;
+	transform: rotate(-3deg);
+	grid-row: 1;
+}
+.edition-theme.edition-narrow.edition-concept
+	.edition-stories-scrapbook
+	.edition-story:nth-child(even)
+	.edition-story-photo {
+	grid-column: 2;
+	transform: rotate(3deg);
+}
+.edition-theme.edition-narrow.edition-concept .edition-story-copy {
+	padding: 0;
+	border: 0;
+	background: none;
+	border-radius: 0;
+}
+.edition-theme.edition-narrow.edition-concept .edition-story h3 {
+	font-size: 21px;
+}
+.edition-theme.edition-narrow.edition-concept .edition-story-description {
+	font-size: 14px;
+	line-height: 1.85;
+}
+.edition-theme.edition-narrow.edition-concept .edition-stories-cards .edition-story {
+	display: block;
+	padding: 0;
+}
+.edition-theme.edition-narrow.edition-concept .edition-stories-cards .edition-story-photo {
+	width: 100%;
+	height: auto;
+	aspect-ratio: 4/3;
+	border-radius: 0;
+	border: 0;
+	margin-bottom: 24px;
+}
+.edition-theme.edition-narrow.edition-concept
+	.edition-story:not(:has(.edition-story-photo))
+	.edition-story-copy {
+	grid-column: 1/-1;
+}
+.edition-theme.edition-narrow.edition-concept .edition-gallery button {
+	border-radius: 0;
+}
+.edition-theme.edition-narrow.edition-concept .edition-countdown-section {
+	min-height: 240px;
+}
+.edition-theme.edition-narrow.edition-concept .edition-wish h3 {
+	font-size: 21px;
+}
+.edition-theme.edition-narrow.edition-concept .edition-cover-date {
+	max-width: 100%;
+	text-wrap: balance;
+}
+.edition-theme.edition-narrow.edition-concept .edition-seal {
+	display: grid;
+	place-items: center;
+	width: 86px;
+	height: 86px;
+	border-radius: 50%;
+	font:
+		400 23px/1 'Edition Cinzel',
+		serif;
+	background: radial-gradient(circle at 30% 20%, #fae997, #c4a031 65%, #80621b);
+	color: #3b2411;
+	box-shadow:
+		inset 0 0 0 5px #e6c15770,
+		0 12px 20px #0005;
+}
+@media (max-width: 380px) {
+	.edition-theme.edition-narrow.edition-concept .edition-section {
+		padding-inline: 22px;
+	}
+	.edition-theme.edition-narrow.edition-concept .edition-hero {
+		padding-inline: 26px;
+	}
+	.edition-theme.edition-narrow.edition-concept .edition-stories-scrapbook .edition-story,
+	.edition-theme.edition-narrow.edition-concept
+		.edition-stories-scrapbook
+		.edition-story:nth-child(even) {
+		grid-template-columns: minmax(0, 1fr);
+		text-align: left;
+	}
+	.edition-theme.edition-narrow.edition-concept .edition-stories-scrapbook .edition-story-photo,
+	.edition-theme.edition-narrow.edition-concept
+		.edition-stories-scrapbook
+		.edition-story:nth-child(even)
+		.edition-story-photo {
+		width: 55%;
+		grid-column: 1;
+		margin: 0 auto 12px;
+	}
+}
+@media (prefers-reduced-motion: reduce) {
+	.edition-theme.edition-concept *,
+	.edition-theme.edition-concept *::before,
+	.edition-theme.edition-concept *::after {
+		scroll-behavior: auto;
+	}
+}

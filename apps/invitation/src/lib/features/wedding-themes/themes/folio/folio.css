@@ -1,0 +1,201 @@
+.edition-theme.edition-concept.folio {
+	--e-bg: #f7f7f3;
+	--e-surface: #efeee7;
+	--e-ink: #101010;
+	--e-muted: #62686b;
+	--e-accent: #272727;
+	--e-border: #a5a8a8;
+	--e-outer: #101010;
+	--e-serif: 'Concept Bodoni Moda', serif;
+	--e-body: 'Edition Jost', sans-serif;
+	--e-shadow: none;
+}
+.edition-theme.edition-concept.folio .edition-content {
+	max-width: 520px;
+}
+.edition-theme.edition-concept.folio .edition-cover-backdrop img,
+.edition-theme.edition-concept.folio .edition-hero-media img,
+.edition-theme.edition-concept.folio .edition-story-photo img {
+	filter: grayscale(1);
+}
+.edition-theme.edition-concept.folio .edition-cover-backdrop::after {
+	background: linear-gradient(#0004, #000a);
+}
+.edition-theme.edition-concept.folio .edition-cover-card {
+	max-width: none;
+	align-items: stretch;
+	gap: 24px;
+}
+.edition-theme.edition-concept.folio .edition-cover-names {
+	font: 600 clamp(50px, 8.5vw, 104px)/1.12 var(--e-serif);
+	text-transform: uppercase;
+}
+.edition-theme.edition-concept.folio .edition-cover-names span:first-child {
+	color: transparent;
+	-webkit-text-stroke: 1px #fff;
+}
+.edition-theme.edition-concept.folio .edition-cover-names i {
+	color: #fff;
+	font-size: 25px;
+	margin: 4dvh 0;
+}
+.edition-theme.edition-concept.folio .edition-cover-date {
+	text-align: right;
+	order: 3;
+	margin: 0;
+	font-family: 'Concept Mono', monospace;
+}
+.edition-theme.edition-concept.folio .edition-recipient {
+	margin-top: auto;
+	padding-top: 24px;
+	border-top: 1px solid #ffffff50;
+	text-align: left;
+	order: 2;
+}
+.edition-theme.edition-concept.folio .edition-open-button {
+	order: 4;
+	border-radius: 0;
+	border-color: #ccc;
+	color: #fff;
+	background: #1112;
+}
+.edition-theme.edition-concept.folio .edition-hero-editorial {
+	padding: 0 0 52px;
+}
+.edition-theme.edition-concept.folio .edition-hero-media {
+	max-width: none;
+	aspect-ratio: 1.04;
+	margin: 0;
+	box-shadow: none;
+}
+.edition-theme.edition-concept.folio .edition-hero-copy {
+	position: relative;
+	margin-top: -85px;
+	padding: 0 22px;
+}
+.edition-theme.edition-concept.folio .edition-hero-names {
+	font: 600 clamp(54px, 16vw, 85px)/1.2 var(--e-serif);
+	text-transform: uppercase;
+	text-align: right;
+}
+.edition-theme.edition-concept.folio .edition-hero-names span:first-child {
+	color: transparent;
+	-webkit-text-stroke: 1px #fff;
+	text-align: left;
+}
+.edition-theme.edition-concept.folio .edition-hero-names i {
+	visibility: hidden;
+	height: 32px;
+	margin: 0;
+	font-size: 1px;
+}
+.edition-theme.edition-concept.folio .edition-hero-date {
+	font-family: 'Concept Mono', monospace;
+	text-align: right;
+	margin-top: 36px;
+}
+.edition-theme.edition-concept.folio .edition-heading {
+	text-align: left;
+	border-bottom: 1px solid #161616;
+	padding-bottom: 24px;
+}
+.edition-theme.edition-concept.folio .edition-heading h2 {
+	font-size: 40px;
+	font-weight: 600;
+	text-transform: uppercase;
+	line-height: 1.08;
+}
+.edition-theme.edition-concept.folio .edition-portrait {
+	width: 85%;
+	height: auto;
+	aspect-ratio: 3/4;
+	margin: 0 0 22px;
+	border: 0;
+	outline: 0;
+	border-radius: 0;
+}
+.edition-theme.edition-concept.folio .edition-portrait img {
+	filter: grayscale(1);
+	transition: filter 0.4s;
+}
+.edition-theme.edition-concept.folio .edition-person:last-child .edition-portrait {
+	margin-left: auto;
+}
+.edition-theme.edition-concept.folio .edition-person {
+	text-align: left;
+}
+.edition-theme.edition-concept.folio .edition-person:last-child {
+	text-align: right;
+}
+.edition-theme.edition-concept.folio .edition-person:hover img {
+	filter: none;
+}
+.edition-theme.edition-concept.folio .edition-person h3 {
+	font-size: 30px;
+}
+.edition-theme.edition-concept.folio .edition-events-section {
+	background: #efeee7;
+}
+.edition-theme.edition-concept.folio .edition-event {
+	text-align: left;
+	padding: 30px 0;
+	border: 0;
+	border-top: 2px solid #101010;
+	border-radius: 0;
+}
+.edition-theme.edition-concept.folio .edition-event-date {
+	font: 600 34px/1.2 var(--e-serif);
+}
+.edition-theme.edition-concept.folio .edition-outline,
+.edition-theme.edition-concept.folio .edition-button {
+	border-radius: 0;
+}
+.edition-theme.edition-concept.folio .edition-stories-cards .edition-story {
+	padding-bottom: 28px;
+	border: 0;
+	border-bottom: 1px solid #999;
+	border-radius: 0;
+	background: none;
+	text-align: left;
+}
+.edition-theme.edition-concept.folio .edition-stories-cards .edition-story-photo {
+	aspect-ratio: 3/4;
+	width: 85%;
+}
+.edition-theme.edition-concept.folio .edition-story:nth-child(even) {
+	text-align: right;
+}
+.edition-theme.edition-concept.folio .edition-story:nth-child(even) .edition-story-photo {
+	margin-left: auto;
+}
+.edition-theme.edition-concept.folio .edition-gallery {
+	gap: 3px;
+	padding: 3px;
+	background: #111;
+}
+.edition-theme.edition-concept.folio .edition-gallery button {
+	border: 0;
+}
+.edition-theme.edition-concept.folio .edition-panel {
+	border-radius: 0;
+}
+.edition-theme.edition-concept.folio .edition-countdown-section > img {
+	display: none;
+}
+.edition-theme.edition-concept.folio .edition-countdown-section {
+	background: #101010;
+}
+.edition-theme.edition-concept.folio .edition-countdown-section .edition-countdown > div {
+	border: 0;
+	border-right: 1px solid #444;
+	border-radius: 0;
+	padding: 0;
+}
+.edition-theme.edition-concept.folio .edition-countdown strong {
+	font-size: 42px;
+}
+.edition-theme.edition-concept.folio .edition-footer {
+	--e-ink: #fff;
+	--e-muted: #ddd;
+	background: #101010;
+}

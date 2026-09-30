@@ -1,0 +1,48 @@
+.edition-theme.renjana {
+	--e-bg: #f3f0e7;
+	--e-surface: #fff;
+	--e-ink: #304b58;
+	--e-muted: #527589;
+	--e-accent: #547c8e;
+	--e-border: #dae3e5;
+	--e-outer: #e0e7e8;
+}
+.edition-theme.renjana .edition-cover-backdrop::after {
+	background: linear-gradient(#152a3670, #162d3abc);
+}
+.edition-theme.renjana .edition-open-button {
+	color: #304b58;
+	background: #f6f9f9;
+	border-color: #f6f9f9;
+	text-transform: none;
+	font-size: 13px;
+	letter-spacing: 0;
+}
+.edition-theme.renjana .edition-couple-section,
+.edition-theme.renjana .edition-events-section,
+.edition-theme.renjana .edition-stories-section {
+	background: #edf2f3;
+}
+.edition-theme.renjana .edition-portrait {
+	border-radius: 50% !important;
+	width: 180px !important;
+	height: 180px !important;
+	box-shadow: 0 12px 24px #304b5820;
+}
+.edition-theme.renjana .edition-quote {
+	border-top: 1px solid #bfcbcf;
+	border-bottom: 1px solid #bfcbcf;
+	padding-block: 30px;
+}
+.edition-theme.renjana .edition-gallery button {
+	border-radius: 14px;
+}
+.edition-theme.renjana .edition-panel {
+	box-shadow: 0 2px 0 #304b5809;
+}
+.edition-theme.renjana .edition-footer {
+	background: #dbe5e7;
+}
+.edition-theme.renjana .edition-footer-names {
+	color: #304b58;
+}

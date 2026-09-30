@@ -173,222 +173,235 @@
 {/snippet}
 
 <main class="selaras-theme" bind:this={root}>
-	<section class="cover-section" aria-label="Sampul undangan">
-		<div class="cover-photo" aria-hidden="true">
-			<div class="cover-photo-inner">
-				{#if cover}<img src={cover} alt="" fetchpriority="high" draggable="false" />
-				{:else}<div class="photo-placeholder">
-						{groom.charAt(0)}<i>&amp;</i>{bride.charAt(0)}
-					</div>{/if}
-			</div>
-		</div>
-		<div class="cover-panel">
-			<div class="cover-content">
-				<p class="cover-greeting">Kepada Bapak/Ibu/Saudara/i,</p>
-				<h1 aria-label={couple} {@attach fitCoupleHeading}>
-					<span class="name-line"><span class="hero-name" aria-hidden="true">{groom}</span></span>
-					<span class="ampersand" aria-hidden="true">&amp;</span>
-					<span class="name-line"><span class="hero-name" aria-hidden="true">{bride}</span></span>
-				</h1>
-				<div class="cover-details">
-					<p class="cover-date">{eventDate.date}</p>
-					{#if targetDate}
-						<div class="countdown" role="timer" aria-label="Hitung mundur pernikahan">
-							{#each [{ value: countdown.days, label: 'Hari' }, { value: countdown.hours, label: 'Jam' }, { value: countdown.minutes, label: 'Menit' }, { value: countdown.seconds, label: 'Detik' }] as item (item.label)}
-								<div class="countdown-cell">
-									<strong>{String(item.value).padStart(2, '0')}</strong><span>{item.label}</span>
+	<div class="theme-scroll-wrapper">
+		<div data-theme-scroll-content>
+			<section class="cover-section" aria-label="Sampul undangan">
+				<div class="cover-photo" aria-hidden="true">
+					<div class="cover-photo-inner">
+						{#if cover}<img src={cover} alt="" fetchpriority="high" draggable="false" />
+						{:else}<div class="photo-placeholder">
+								{groom.charAt(0)}<i>&amp;</i>{bride.charAt(0)}
+							</div>{/if}
+					</div>
+				</div>
+				<div class="cover-panel">
+					<div class="cover-content">
+						<p class="cover-greeting">Kepada Bapak/Ibu/Saudara/i,</p>
+						<h1 aria-label={couple} {@attach fitCoupleHeading}>
+							<span class="name-line"
+								><span class="hero-name" aria-hidden="true">{groom}</span></span
+							>
+							<span class="ampersand" aria-hidden="true">&amp;</span>
+							<span class="name-line"
+								><span class="hero-name" aria-hidden="true">{bride}</span></span
+							>
+						</h1>
+						<div class="cover-details">
+							<p class="cover-date">{eventDate.date}</p>
+							{#if targetDate}
+								<div class="countdown" role="timer" aria-label="Hitung mundur pernikahan">
+									{#each [{ value: countdown.days, label: 'Hari' }, { value: countdown.hours, label: 'Jam' }, { value: countdown.minutes, label: 'Menit' }, { value: countdown.seconds, label: 'Detik' }] as item (item.label)}
+										<div class="countdown-cell">
+											<strong>{String(item.value).padStart(2, '0')}</strong><span>{item.label}</span
+											>
+										</div>
+									{/each}
 								</div>
-							{/each}
+							{/if}
 						</div>
-					{/if}
-				</div>
-				<button class="open-button" type="button" onclick={openInvitation} disabled={opening}
-					>Buka Undangan</button
-				>
-			</div>
-		</div>
-	</section>
-
-	<div class="invitation-content" inert={mounted && !opened}>
-		<section class="couple-section section-space" tabindex="-1" aria-label="Mempelai">
-			<h2 class="section-title" data-title aria-label="Mempelai">{@render title('Mempelai')}</h2>
-			<div class="couple-grid">
-				{#each [{ name: groom, photo: wedding.groom_photo_url, father: wedding.groom_father_name, mother: wedding.groom_mother_name, label: 'Putra dari' }, { name: bride, photo: wedding.bride_photo_url, father: wedding.bride_father_name, mother: wedding.bride_mother_name, label: 'Putri dari' }] as person, index (index)}
-					<article class="person" data-person>
-						<div class="portrait-window">
-							{#if person.photo}<img
-									src={person.photo}
-									alt={person.name}
-									loading="lazy"
-									draggable="false"
-								/>
-							{:else}<div class="photo-placeholder">{person.name.charAt(0)}</div>{/if}
-						</div>
-						<div class="person-copy">
-							<h3>{person.name}</h3>
-							{#if person.father || person.mother}<p>
-									{person.label}<br /><span
-										>{formatPersonName(person.father)}{person.father && person.mother
-											? ' & '
-											: ''}{formatPersonName(person.mother)}</span
-									>
-								</p>{/if}
-						</div>
-					</article>
-				{/each}
-			</div>
-		</section>
-
-		<section class="event-section" aria-label="Waktu dan tempat">
-			<div class="event-stage section-space">
-				<h2 class="section-title" data-title aria-label="Waktu & tempat">
-					{@render title('Waktu & tempat')}
-				</h2>
-				<div class="event-track">
-					{#each [{ label: 'Akad Nikah', value: wedding.akad }, { label: 'Resepsi', value: wedding.reception }] as event, index (index)}
-						{@const date = formatEventDate(event.value)}
-						<article class="event-slide" data-event-slide>
-							<div class="event-image" aria-hidden="true">
-								{#if cover}<img src={cover} alt="" loading="lazy" />{:else}<div
-										class="photo-placeholder"
-									>
-										{groom.charAt(0)}<i>&amp;</i>{bride.charAt(0)}
-									</div>{/if}
-							</div>
-							<div class="event-copy">
-								<p class="eyebrow">{event.label}</p>
-								<h3>{date.date}</h3>
-								<p class="event-time">{date.time}</p>
-								<div class="fine-rule" aria-hidden="true"></div>
-								{#if wedding.address}<p class="event-address">{wedding.address}</p>{/if}
-								{#if maps}<a href={maps} target="_blank" rel="noreferrer" class="text-link"
-										>Buka Google Maps</a
-									>{/if}
-							</div>
-						</article>
-					{/each}
-				</div>
-			</div>
-		</section>
-
-		{#if wedding.quote.trim()}
-			<section class="quote-section section-space" aria-label="Kutipan">
-				<div class="quote-inner">
-					<div class="fine-rule" aria-hidden="true"></div>
-					<blockquote aria-label={wedding.quote}>
-						<span aria-hidden="true"
-							>{#each wedding.quote.trim().split(/\s+/u) as word, index (index)}<span
-									data-quote-word>{word}</span
-								>{wordSeparator}{/each}</span
+						<button class="open-button" type="button" onclick={openInvitation} disabled={opening}
+							>Buka Undangan</button
 						>
-					</blockquote>
-					<div class="fine-rule" aria-hidden="true"></div>
+					</div>
 				</div>
 			</section>
-		{/if}
 
-		{#if wedding.stories.length}
-			<section class="story-section" aria-label="Cerita Kami">
-				<h2 class="section-title" data-title aria-label="Cerita Kami">
-					{@render title('Cerita Kami')}
-				</h2>
-				<div class="story-stage scene-stage" data-story-stage data-motion={undefined}>
-					<div class="story-viewport">
-						<div class="story-track" data-count={wedding.stories.length}>
-							{#each wedding.stories as story, index (story.id)}
-								<article
-									class="story-slide"
-									class:without-image={!story.image_url}
-									data-story-slide
-								>
-									{#if story.image_url}<div class="story-image">
-											<img
-												src={story.image_url}
-												alt={story.title || 'Cerita ' + (index + 1)}
-												loading="lazy"
-												draggable="false"
-											/>
-										</div>{/if}
-									<div class="story-copy">
-										<h3>{story.title || 'Cerita ' + (index + 1)}</h3>
-										{#if story.date}<time datetime={story.date}>{formatStoryDate(story.date)}</time
+			<div class="invitation-content" inert={mounted && !opened}>
+				<section class="couple-section section-space" tabindex="-1" aria-label="Mempelai">
+					<h2 class="section-title" data-title aria-label="Mempelai">
+						{@render title('Mempelai')}
+					</h2>
+					<div class="couple-grid">
+						{#each [{ name: groom, photo: wedding.groom_photo_url, father: wedding.groom_father_name, mother: wedding.groom_mother_name, label: 'Putra dari' }, { name: bride, photo: wedding.bride_photo_url, father: wedding.bride_father_name, mother: wedding.bride_mother_name, label: 'Putri dari' }] as person, index (index)}
+							<article class="person" data-person>
+								<div class="portrait-window">
+									{#if person.photo}<img
+											src={person.photo}
+											alt={person.name}
+											loading="lazy"
+											draggable="false"
+										/>
+									{:else}<div class="photo-placeholder">{person.name.charAt(0)}</div>{/if}
+								</div>
+								<div class="person-copy">
+									<h3>{person.name}</h3>
+									{#if person.father || person.mother}<p>
+											{person.label}<br /><span
+												>{formatPersonName(person.father)}{person.father && person.mother
+													? ' & '
+													: ''}{formatPersonName(person.mother)}</span
+											>
+										</p>{/if}
+								</div>
+							</article>
+						{/each}
+					</div>
+				</section>
+
+				<section class="event-section" aria-label="Waktu dan tempat">
+					<div class="event-stage section-space">
+						<h2 class="section-title" data-title aria-label="Waktu & tempat">
+							{@render title('Waktu & tempat')}
+						</h2>
+						<div class="event-track">
+							{#each [{ label: 'Akad Nikah', value: wedding.akad }, { label: 'Resepsi', value: wedding.reception }] as event, index (index)}
+								{@const date = formatEventDate(event.value)}
+								<article class="event-slide" data-event-slide>
+									<div class="event-image" aria-hidden="true">
+										{#if cover}<img src={cover} alt="" loading="lazy" />{:else}<div
+												class="photo-placeholder"
+											>
+												{groom.charAt(0)}<i>&amp;</i>{bride.charAt(0)}
+											</div>{/if}
+									</div>
+									<div class="event-copy">
+										<p class="eyebrow">{event.label}</p>
+										<h3>{date.date}</h3>
+										<p class="event-time">{date.time}</p>
+										<div class="fine-rule" aria-hidden="true"></div>
+										{#if wedding.address}<p class="event-address">{wedding.address}</p>{/if}
+										{#if maps}<a href={maps} target="_blank" rel="noreferrer" class="text-link"
+												>Buka Google Maps</a
 											>{/if}
-										{#if story.content}<p>{story.content}</p>{/if}
 									</div>
 								</article>
 							{/each}
 						</div>
 					</div>
-				</div>
-			</section>
-		{/if}
+				</section>
 
-		{#if wedding.gallery.length}
-			<section class="gallery-section section-space" aria-label="Galeri kami">
-				<h2 class="section-title" data-title aria-label="Galeri kami">
-					{@render title('Galeri kami')}
-				</h2>
-				<div class="gallery-grid" data-count={wedding.gallery.length}>
-					{#each wedding.gallery as photo, index (index)}
-						<button
-							class="gallery-card"
-							type="button"
-							aria-label={'Perbesar foto ' + (index + 1)}
-							onclick={(event) => showPhoto(index, event.currentTarget)}
-						>
-							<img
-								src={photo.url}
-								alt={'Galeri pernikahan ' + (index + 1)}
-								loading="lazy"
-								draggable="false"
-							/>
-						</button>
-					{/each}
-				</div>
-			</section>
-		{/if}
+				{#if wedding.quote.trim()}
+					<section class="quote-section section-space" aria-label="Kutipan">
+						<div class="quote-inner">
+							<div class="fine-rule" aria-hidden="true"></div>
+							<blockquote aria-label={wedding.quote}>
+								<span aria-hidden="true"
+									>{#each wedding.quote.trim().split(/\s+/u) as word, index (index)}<span
+											data-quote-word>{word}</span
+										>{wordSeparator}{/each}</span
+								>
+							</blockquote>
+							<div class="fine-rule" aria-hidden="true"></div>
+						</div>
+					</section>
+				{/if}
 
-		{#if wedding.gift_enabled && giftAccounts.length}
-			<section class="gift-section section-space" aria-label="Hadiah">
-				<h2 class="section-title" data-title aria-label="Hadiah">{@render title('Hadiah')}</h2>
-				<div class="gift-grid">
-					{#each giftAccounts as account, index (index)}
-						<article class="gift-card" data-gift>
-							<p class="eyebrow">{account.name}</p>
-							<h3>{account.provider || 'Rekening / e-wallet'}</h3>
-							<p class="account-number">{account.number}</p>
-							{#if account.owner}<p class="account-owner">Atas nama {account.owner}</p>{/if}
-						</article>
-					{/each}
-				</div>
-			</section>
-		{/if}
+				{#if wedding.stories.length}
+					<section class="story-section" aria-label="Cerita Kami">
+						<h2 class="section-title" data-title aria-label="Cerita Kami">
+							{@render title('Cerita Kami')}
+						</h2>
+						<div class="story-stage scene-stage" data-story-stage data-motion={undefined}>
+							<div class="story-viewport">
+								<div class="story-track" data-count={wedding.stories.length}>
+									{#each wedding.stories as story, index (story.id)}
+										<article
+											class="story-slide"
+											class:without-image={!story.image_url}
+											data-story-slide
+										>
+											{#if story.image_url}<div class="story-image">
+													<img
+														src={story.image_url}
+														alt={story.title || 'Cerita ' + (index + 1)}
+														loading="lazy"
+														draggable="false"
+													/>
+												</div>{/if}
+											<div class="story-copy">
+												<h3>{story.title || 'Cerita ' + (index + 1)}</h3>
+												{#if story.date}<time datetime={story.date}
+														>{formatStoryDate(story.date)}</time
+													>{/if}
+												{#if story.content}<p>{story.content}</p>{/if}
+											</div>
+										</article>
+									{/each}
+								</div>
+							</div>
+						</div>
+					</section>
+				{/if}
 
-		<section class="rsvp-section section-space" aria-label="RSVP dan ucapan">
-			<h2 class="section-title" data-title aria-label="Ucapan & Doa">
-				{@render title('Ucapan & Doa')}
-			</h2>
-			<div class="rsvp-content">
-				{#key wedding.id + ':' + token}<SelarasRsvp
-						slug={wedding.slug}
-						{token}
-						onLayoutChange={() => motion?.refresh()}
-					/>{/key}
+				{#if wedding.gallery.length}
+					<section class="gallery-section section-space" aria-label="Galeri kami">
+						<h2 class="section-title" data-title aria-label="Galeri kami">
+							{@render title('Galeri kami')}
+						</h2>
+						<div class="gallery-grid" data-count={wedding.gallery.length}>
+							{#each wedding.gallery as photo, index (index)}
+								<button
+									class="gallery-card"
+									type="button"
+									aria-label={'Perbesar foto ' + (index + 1)}
+									onclick={(event) => showPhoto(index, event.currentTarget)}
+								>
+									<img
+										src={photo.url}
+										alt={'Galeri pernikahan ' + (index + 1)}
+										loading="lazy"
+										draggable="false"
+									/>
+								</button>
+							{/each}
+						</div>
+					</section>
+				{/if}
+
+				{#if wedding.gift_enabled && giftAccounts.length}
+					<section class="gift-section section-space" aria-label="Hadiah">
+						<h2 class="section-title" data-title aria-label="Hadiah">{@render title('Hadiah')}</h2>
+						<div class="gift-grid">
+							{#each giftAccounts as account, index (index)}
+								<article class="gift-card" data-gift>
+									<p class="eyebrow">{account.name}</p>
+									<h3>{account.provider || 'Rekening / e-wallet'}</h3>
+									<p class="account-number">{account.number}</p>
+									{#if account.owner}<p class="account-owner">Atas nama {account.owner}</p>{/if}
+								</article>
+							{/each}
+						</div>
+					</section>
+				{/if}
+
+				<section class="rsvp-section section-space" aria-label="RSVP dan ucapan">
+					<h2 class="section-title" data-title aria-label="Ucapan & Doa">
+						{@render title('Ucapan & Doa')}
+					</h2>
+					<div class="rsvp-content">
+						{#key wedding.id + ':' + token}<SelarasRsvp
+								slug={wedding.slug}
+								{token}
+								onLayoutChange={() => motion?.refresh()}
+							/>{/key}
+					</div>
+				</section>
+
+				<div class="closing-reveal">
+					<footer class="closing-section">
+						{#if cover}<div class="closing-image" aria-hidden="true">
+								<img src={cover} alt="" loading="lazy" />
+							</div>{/if}
+						<div class="closing-copy">
+							<p>Terima kasih atas doa dan kehadiran Anda</p>
+							<h2 aria-label={couple}><span>{groom}</span><i>&amp;</i><span>{bride}</span></h2>
+							<small>Dibuat dengan Wedez</small>
+						</div>
+					</footer>
+				</div>
 			</div>
-		</section>
-
-		<footer class="closing-section">
-			{#if cover}<div class="closing-image" aria-hidden="true">
-					<img src={cover} alt="" loading="lazy" />
-				</div>{/if}
-			<div class="closing-copy">
-				<p>Terima kasih atas doa dan kehadiran Anda</p>
-				<h2 aria-label={couple}><span>{groom}</span><i>&amp;</i><span>{bride}</span></h2>
-				<small>Dibuat dengan Wedez</small>
-			</div>
-		</footer>
+		</div>
 	</div>
-
 	{#if wedding.music_url}
 		<audio
 			bind:this={music}
@@ -972,6 +985,9 @@
 		width: 100%;
 		max-width: 1160px;
 		margin-inline: auto;
+	}
+	.closing-reveal {
+		display: contents;
 	}
 	.closing-section {
 		position: sticky;

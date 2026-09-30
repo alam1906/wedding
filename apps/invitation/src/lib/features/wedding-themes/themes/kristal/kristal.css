@@ -1,0 +1,147 @@
+.edition-theme.edition-concept.kristal {
+	--e-bg: #181722;
+	--e-surface: #292633;
+	--e-ink: #f3fbff;
+	--e-muted: #c7c8d2;
+	--e-accent: #d8bb84;
+	--e-border: #635965;
+	--e-outer: #11101a;
+	--e-serif: 'Edition Playfair', serif;
+	--e-body: 'Edition Poppins', sans-serif;
+	--e-shadow: 0 18px 35px #09071140;
+}
+.edition-theme.edition-concept.kristal .edition-content {
+	background:
+		radial-gradient(ellipse at 0 10%, #96cfe211, transparent 35%),
+		radial-gradient(ellipse at 100% 60%, #ae677911, transparent 50%), #181722;
+}
+.edition-theme.edition-concept.kristal .edition-cover-backdrop::after {
+	background: linear-gradient(#110f1633, #17121d6e 65%, #0b0b17b3);
+}
+.edition-theme.edition-concept.kristal .edition-cover-names {
+	font-size: 43px;
+	text-shadow:
+		1px 1px #9dd7e8,
+		-1px -1px #d3b3aa,
+		0 2px 15px #000;
+}
+.edition-theme.edition-concept.kristal .edition-cover-date {
+	padding: 7px 16px;
+	border: 1px solid #d8c39470;
+	background: #1b162680;
+	border-radius: 30px;
+	color: #f3fbff;
+	font-size: 11px;
+	backdrop-filter: blur(8px);
+}
+.edition-theme.edition-concept.kristal .edition-recipient {
+	padding: 15px 25px;
+	background: #ffffff0a;
+	border: 1px solid #ffffff40;
+	border-radius: 16px;
+	backdrop-filter: blur(9px);
+	color: #f3fbff;
+}
+.edition-theme.edition-concept.kristal .edition-recipient-name {
+	color: #fff;
+	font-family: 'Edition Cormorant', serif;
+	font-size: 23px;
+}
+.edition-theme.edition-concept.kristal .edition-open-button {
+	background: linear-gradient(110deg, #d2e8ed, #e3cca1);
+	border: 0;
+	color: #29252d;
+}
+.edition-theme.edition-concept.kristal .edition-hero-media {
+	border: 6px solid transparent;
+	background:
+		linear-gradient(#ddd, #ddd) padding-box,
+		linear-gradient(120deg, #a7d9e8, #ece0c8 35%, #ada6bc 65%, #a7d9e8) border-box;
+	clip-path: polygon(8% 0, 92% 0, 100% 8%, 100% 92%, 92% 100%, 8% 100%, 0 92%, 0 8%);
+}
+.edition-theme.edition-concept.kristal .edition-hero-names,
+.edition-theme.edition-concept.kristal .edition-heading h2 {
+	text-shadow:
+		1px 1px #8fc5db,
+		-1px -1px #b79bb0;
+}
+.edition-theme.edition-concept.kristal .edition-heading h2 {
+	font-size: 28px;
+}
+.edition-theme.edition-concept.kristal .edition-portrait {
+	border-radius: 50%;
+	width: 200px;
+	height: 200px;
+	outline: 0;
+	border: 6px solid #c5d6d9;
+	box-shadow:
+		0 0 0 1px #e5cba160,
+		0 16px 30px #07061088;
+}
+.edition-theme.edition-concept.kristal .edition-quote {
+	padding-block: 28px;
+	border-block: 1px solid #bfcbd34a;
+}
+.edition-theme.edition-concept.kristal .edition-quote blockquote {
+	color: #e4e3eb;
+}
+.edition-theme.edition-concept.kristal .edition-event,
+.edition-theme.edition-concept.kristal .edition-gift {
+	position: relative;
+	text-align: left;
+	border-radius: 0;
+	border: 1px solid #ffffff35;
+	background: linear-gradient(135deg, #ffffff14, #ffffff04);
+	backdrop-filter: blur(8px);
+	box-shadow: inset 0 0 24px #b6ced205;
+}
+.edition-theme.edition-concept.kristal .edition-event::before {
+	content: '';
+	position: absolute;
+	left: -1px;
+	top: -1px;
+	width: 28%;
+	height: 1px;
+	background: linear-gradient(90deg, #dfc291, #b6d9ef, transparent);
+}
+.edition-theme.edition-concept.kristal .edition-event-date {
+	font-size: 23px;
+}
+.edition-theme.edition-concept.kristal .edition-stories-scrapbook .edition-story-photo {
+	aspect-ratio: 1;
+	border-radius: 50%;
+	border: 5px solid #c2d9df;
+	transform: none;
+}
+.edition-theme.edition-concept.kristal
+	.edition-stories-scrapbook
+	.edition-story:nth-child(even)
+	.edition-story-photo {
+	transform: none;
+}
+.edition-theme.edition-concept.kristal .edition-story h3 {
+	font-size: 20px;
+}
+.edition-theme.edition-concept.kristal .edition-story-date {
+	color: #d8bb84;
+	font-size: 10px;
+}
+.edition-theme.edition-concept.kristal .edition-gallery button {
+	border: 4px solid #b7b5bf;
+	clip-path: polygon(10% 0, 90% 0, 100% 10%, 100% 90%, 90% 100%, 10% 100%, 0 90%, 0 10%);
+}
+.edition-theme.edition-concept.kristal .edition-response,
+.edition-theme.edition-concept.kristal .edition-wishes-card {
+	background: linear-gradient(130deg, #33314099, #211d2c99);
+	border-color: #ffffff35;
+	box-shadow: inset 0 1px #ffffff20;
+	border-radius: 14px;
+}
+.edition-theme.edition-concept.kristal .edition-button {
+	color: #22202b;
+	background: linear-gradient(110deg, #cfdfed, #dfc39a);
+	border: 0;
+}
+.edition-theme.edition-concept.kristal .edition-footer {
+	background: radial-gradient(ellipse at bottom, #adc5d619, transparent 65%);
+}

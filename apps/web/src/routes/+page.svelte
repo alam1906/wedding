@@ -1,12 +1,9 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { slide } from 'svelte/transition';
-
-	type Theme = {
-		key: 'minimalist' | 'neubrutalism' | 'playful' | '3d-design';
-		name: string;
-		description: string;
-	};
+	import ThemeCatalogCard from '#lib/features/wedding-themes/components/ThemeCatalogCard.svelte';
+	import { WEDDING_THEME_CATALOG } from '#lib/features/wedding-themes/model/theme-catalog.js';
+	import type { WeddingThemeKey } from '#lib/features/wedding-themes/model/wedding-theme.js';
 
 	type Plan = {
 		name: string;
@@ -18,32 +15,17 @@
 
 	const navItems = [
 		{ href: '#beranda', label: 'Beranda' },
-		{ href: '#tema', label: 'Tema' },
+		{ href: '/tema', label: 'Tema' },
 		{ href: '#harga', label: 'Harga' }
 	];
 
-	const themes: Theme[] = [
-		{
-			key: 'minimalist',
-			name: 'Minimalist',
-			description: 'Tipografi editorial, ruang lapang, dan detail yang tenang.'
-		},
-		{
-			key: 'neubrutalism',
-			name: 'Neubrutalism',
-			description: 'Warna berani, border tegas, dan komposisi penuh karakter.'
-		},
-		{
-			key: 'playful',
-			name: 'Playful',
-			description: 'Bentuk organik dan warna ceria untuk suasana yang hangat.'
-		},
-		{
-			key: '3d-design',
-			name: '3D Design',
-			description: 'Elemen berlapis, cahaya lembut, dan kedalaman yang modern.'
-		}
+	const featuredThemeKeys: WeddingThemeKey[] = [
+		'minimalist-1',
+		'neubrutalism-1',
+		'playful-1',
+		'3d-design-1'
 	];
+	const themes = WEDDING_THEME_CATALOG.filter((theme) => featuredThemeKeys.includes(theme.key));
 
 	const benefits = [
 		{
@@ -662,7 +644,7 @@
 					<a
 						data-reveal
 						class="inline-flex items-center text-sm font-semibold text-gray-900 hover:text-gray-600"
-						href="#buat-undangan"
+						href="/tema"
 					>
 						Lihat semua tema
 						<svg class="ml-2 size-4" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -678,152 +660,10 @@
 				</div>
 
 				<div class="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-					{#each themes as theme, index (theme.key)}
-						<article
-							data-reveal
-							class="group flex min-w-0 flex-col overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-gray-200/70"
-						>
-							<div class="relative aspect-4/5 overflow-hidden">
-								{#if theme.key === 'minimalist'}
-									<div
-										class="absolute inset-0 bg-[#eeeae2] transition-transform duration-500 group-hover:scale-[1.025]"
-									>
-										<div class="absolute inset-5 border border-[#b9b0a2]"></div>
-										<div
-											class="absolute top-8 right-8 left-8 flex items-center justify-between text-[8px] tracking-[0.2em] text-[#6d665d] uppercase"
-										>
-											<span>Wedding</span>
-											<span>24.10.26</span>
-										</div>
-										<div class="absolute top-[24%] right-8 left-8 text-center text-[#282622]">
-											<p class="font-serif text-5xl leading-none italic">R</p>
-											<div class="mx-auto my-4 h-px w-12 bg-[#8c8172]"></div>
-											<p class="font-serif text-5xl leading-none italic">L</p>
-										</div>
-										<div class="absolute right-8 bottom-9 left-8 text-center">
-											<p class="font-serif text-xl text-[#282622]">Raka & Laras</p>
-											<p class="mt-2 text-[8px] tracking-[0.16em] text-[#6d665d] uppercase">
-												Bandung, Indonesia
-											</p>
-										</div>
-									</div>
-								{:else if theme.key === 'neubrutalism'}
-									<div
-										class="absolute inset-0 overflow-hidden bg-[#ffdf36] transition-transform duration-500 group-hover:scale-[1.025]"
-									>
-										<div
-											class="absolute -top-8 -right-8 size-28 rotate-12 border-[3px] border-black bg-[#ff6797]"
-										></div>
-										<div
-											class="absolute top-7 left-6 rotate-[-4deg] border-[3px] border-black bg-white px-3 py-2 text-[9px] font-black uppercase shadow-[4px_4px_0_#000]"
-										>
-											Save the date!
-										</div>
-										<div
-											class="absolute top-[29%] right-5 left-5 rotate-2 border-[3px] border-black bg-[#72d8ff] p-5 shadow-[7px_7px_0_#000]"
-										>
-											<p class="text-[10px] font-black tracking-wider uppercase">The wedding of</p>
-											<p
-												class="mt-3 text-3xl leading-[0.9] font-black tracking-[-0.06em] uppercase"
-											>
-												Raka<br />& Laras
-											</p>
-										</div>
-										<div
-											class="absolute right-8 bottom-8 -rotate-3 border-[3px] border-black bg-white px-4 py-3 text-center shadow-[5px_5px_0_#000]"
-										>
-											<p class="text-xs font-black">24 / 10 / 2026</p>
-										</div>
-									</div>
-								{:else if theme.key === 'playful'}
-									<div
-										class="absolute inset-0 overflow-hidden bg-[#dff4ff] transition-transform duration-500 group-hover:scale-[1.025]"
-									>
-										<div class="absolute -top-10 -left-9 size-36 rounded-full bg-[#ff9b91]"></div>
-										<div
-											class="absolute -right-12 bottom-10 size-40 rounded-[40%_60%_55%_45%] bg-[#9ed77a]"
-										></div>
-										<div
-											class="absolute top-12 right-7 rotate-12 rounded-full bg-[#ffd45c] px-3 py-2 text-lg"
-										>
-											✦
-										</div>
-										<div
-											class="absolute top-[18%] right-8 left-8 rotate-2 rounded-[2.5rem] border-2 border-[#293042] bg-[#fff9eb] px-5 py-9 text-center shadow-[7px_7px_0_#f4ba48]"
-										>
-											<p class="text-[9px] font-bold tracking-[0.16em] text-[#ff746b] uppercase">
-												We are getting married
-											</p>
-											<p class="mt-4 text-3xl font-black tracking-tighter text-[#293042]">
-												Raka<br /><span class="text-[#ff746b]">&</span> Laras
-											</p>
-											<div class="mx-auto mt-5 flex w-fit gap-2">
-												<span class="size-2 rounded-full bg-[#ff746b]"></span>
-												<span class="size-2 rounded-full bg-[#f4ba48]"></span>
-												<span class="size-2 rounded-full bg-[#77bce8]"></span>
-											</div>
-											<p class="mt-5 text-[10px] font-bold text-[#596071]">Saturday · 24 October</p>
-										</div>
-									</div>
-								{:else}
-									<div
-										class="absolute inset-0 overflow-hidden bg-linear-to-br from-[#e4efff] via-[#f2ecff] to-[#ffe9e2] transition-transform duration-500 group-hover:scale-[1.025]"
-									>
-										<div
-											class="absolute top-5 right-5 size-24 rounded-full bg-linear-to-br from-[#ffcab8] to-[#ff8b80] shadow-[0_18px_32px_rgba(239,118,103,0.35)]"
-										></div>
-										<div
-											class="absolute bottom-5 left-4 size-28 rounded-[38%_62%_55%_45%] bg-linear-to-br from-[#7c8cff] to-[#4251ce] shadow-[0_22px_34px_rgba(66,81,206,0.38)]"
-										></div>
-										<div
-											class="absolute top-[18%] right-7 left-7 h-[64%] rotate-[-4deg] rounded-3xl bg-white/50 shadow-[0_24px_50px_rgba(66,70,130,0.16)] backdrop-blur-sm"
-										></div>
-										<div
-											class="absolute top-[22%] right-7 left-7 flex h-[64%] rotate-2 flex-col items-center justify-center rounded-3xl border border-white/80 bg-white/75 px-5 text-center shadow-[0_28px_55px_rgba(66,70,130,0.2)] backdrop-blur-md"
-										>
-											<span
-												class="mb-5 size-8 rounded-full bg-linear-to-br from-[#ffb39f] to-[#6575f3] shadow-lg"
-											></span>
-											<p class="text-[9px] font-semibold tracking-[0.2em] text-[#66709a] uppercase">
-												The wedding of
-											</p>
-											<p class="mt-3 text-3xl font-bold tracking-[-0.06em] text-[#26305f]">
-												Raka & Laras
-											</p>
-											<div class="my-5 h-px w-16 bg-[#b6bce0]"></div>
-											<p class="text-[10px] font-medium text-[#66709a]">24 · 10 · 2026</p>
-										</div>
-									</div>
-								{/if}
-								{#if index === 0}
-									<span
-										class="absolute top-4 left-4 rounded-full bg-gray-900 px-3 py-1.5 text-xs font-semibold text-white"
-										>Paling populer</span
-									>
-								{/if}
-							</div>
-							<div class="flex items-start justify-between gap-4 px-5 pt-5 pb-6">
-								<div>
-									<h3 class="text-lg font-semibold text-gray-950">{theme.name}</h3>
-									<p class="mt-1 text-sm leading-6 text-gray-500">{theme.description}</p>
-								</div>
-								<a
-									class="grid size-10 shrink-0 place-items-center rounded-full bg-gray-100 text-gray-900 transition-colors hover:bg-gray-200"
-									href="#buat-undangan"
-									aria-label="Pilih tema {theme.name}"
-								>
-									<svg class="size-4" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-										<path
-											d="M7 17L17 7M9 7H17V15"
-											stroke="currentColor"
-											stroke-width="2"
-											stroke-linecap="round"
-											stroke-linejoin="round"
-										/>
-									</svg>
-								</a>
-							</div>
-						</article>
+					{#each themes as theme (theme.key)}
+						<div data-reveal class="min-w-0">
+							<ThemeCatalogCard {theme} headingTag="h3" />
+						</div>
 					{/each}
 				</div>
 			</div>
