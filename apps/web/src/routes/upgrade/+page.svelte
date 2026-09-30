@@ -129,6 +129,15 @@
 		couponDialog?.showModal();
 	}
 
+	function continueToPayment() {
+		if (checkoutDisabled) return;
+		if (couponApplied) {
+			void handleUpgrade();
+			return;
+		}
+		openCouponDialog();
+	}
+
 	function closeCouponDialog() {
 		if (!couponDialogBusy) couponDialog?.close();
 	}
@@ -145,7 +154,7 @@
 	}
 
 	async function handleUpgrade() {
-		if (checkoutDisabled || !couponDialog?.open) return;
+		if (checkoutDisabled || (!couponApplied && !couponDialog?.open)) return;
 		isUpgrading = true;
 		paymentError = '';
 
@@ -614,9 +623,9 @@
 						type="button"
 						disabled={checkoutDisabled}
 						aria-busy={isUpgrading}
-						aria-haspopup="dialog"
-						aria-controls="coupon-checkout-dialog"
-						onclick={openCouponDialog}
+						aria-haspopup={couponApplied ? undefined : 'dialog'}
+						aria-controls={couponApplied ? undefined : 'coupon-checkout-dialog'}
+						onclick={continueToPayment}
 						class="mt-5 w-full cursor-pointer rounded-xl bg-violet-700 px-5 py-3.5 text-sm font-bold text-white transition hover:bg-violet-800 disabled:cursor-not-allowed disabled:bg-gray-300 disabled:text-gray-500"
 						>{checkoutLabel}</button
 					>
@@ -669,9 +678,9 @@
 			type="button"
 			disabled={checkoutDisabled}
 			aria-busy={isUpgrading}
-			aria-haspopup="dialog"
-			aria-controls="coupon-checkout-dialog"
-			onclick={openCouponDialog}
+			aria-haspopup={couponApplied ? undefined : 'dialog'}
+			aria-controls={couponApplied ? undefined : 'coupon-checkout-dialog'}
+			onclick={continueToPayment}
 			class="w-full cursor-pointer rounded-xl bg-violet-700 px-5 py-3.5 text-sm font-bold text-white transition disabled:cursor-not-allowed disabled:bg-gray-300 disabled:text-gray-500"
 			>{checkoutLabel}</button
 		>

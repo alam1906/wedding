@@ -82,14 +82,15 @@ async function request(
 	route,
 	{ token = admin, method = 'GET', body, status = 200, headers = {} } = {}
 ) {
+	const multipart = body instanceof FormData;
 	const response = await fetch(base + route, {
 		method,
 		headers: {
-			'Content-Type': 'application/json',
+			...(!multipart ? { 'Content-Type': 'application/json' } : {}),
 			...(token ? { Authorization: token } : {}),
 			...headers
 		},
-		body: body === undefined ? undefined : JSON.stringify(body)
+		body: multipart ? body : body === undefined ? undefined : JSON.stringify(body)
 	});
 	const text = await response.text();
 	const data = text ? JSON.parse(text) : null;
@@ -515,15 +516,35 @@ try {
 			body: { status: 'processing' }
 		});
 		await deleteAccount(affiliateUser, 'HAPUS', 409);
+		const transfer = new FormData();
+		transfer.set('status', 'paid');
+		transfer.set('transfer_reference', 'QA-NO-REAL-TRANSFER');
+		transfer.set(
+			'transfer_proof',
+			new Blob(
+				[
+					Buffer.from(
+						'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=',
+						'base64'
+					)
+				],
+				{ type: 'image/png' }
+			),
+			'qa-transfer.png'
+		);
 		await request(`/api/collections/affiliate_payouts/records/${payout.id}`, {
 			method: 'PATCH',
-			body: { status: 'paid', transfer_reference: 'QA-NO-REAL-TRANSFER' }
+			body: transfer
 		});
 		const commissions = await records('affiliate_commissions', `affiliate = '${affiliate.id}'`);
 		const settledPayout = await get('affiliate_payouts', payout.id);
+		assert.ok(settledPayout.transfer_proof.endsWith('.png'));
 		await deleteAccount(affiliateUser);
 		await assertDeleted(affiliateUser);
 		assert.deepEqual(await get('affiliate_payouts', payout.id), settledPayout);
+		const fileToken = (await request('/api/files/token', { method: 'POST' })).data.token;
+		const proofUrl = `${base}/api/files/${settledPayout.collectionId}/${payout.id}/${settledPayout.transfer_proof}`;
+		assert.equal((await fetch(`${proofUrl}?token=${encodeURIComponent(fileToken)}`)).status, 200);
 		assert.deepEqual(
 			await records('affiliate_commissions', `affiliate = '${affiliate.id}'`),
 			commissions

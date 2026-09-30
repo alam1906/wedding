@@ -21,6 +21,10 @@ await once(portProbe, 'listening');
 await new Promise((resolve) => portProbe.close(resolve));
 const base = `http://127.0.0.1:${pbPort}`;
 const password = 'Affiliate-Test-Only-9876';
+const proofImage = Buffer.from(
+	'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=',
+	'base64'
+);
 const apiKey = 'fake-duitku-test-key';
 const merchant = 'TEST';
 let invoices = 0;
@@ -115,15 +119,30 @@ server.stderr.on('data', (chunk) => {
 let admin = '';
 let checks = 0;
 async function request(route, { token = '', method = 'GET', body, status = 200 } = {}) {
+	const multipart = body instanceof FormData;
 	const response = await fetch(base + route, {
 		method,
-		headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: token } : {}) },
-		body: body === undefined ? undefined : JSON.stringify(body)
+		headers: {
+			...(!multipart ? { 'Content-Type': 'application/json' } : {}),
+			...(token ? { Authorization: token } : {})
+		},
+		body: multipart ? body : body === undefined ? undefined : JSON.stringify(body)
 	});
 	const data = await response.json();
 	if (status !== null)
 		assert.equal(response.status, status, `${method} ${route}: ${JSON.stringify(data)}`);
 	return { status: response.status, data };
+}
+function payoutForm(
+	fields,
+	bytes = proofImage,
+	type = 'image/png',
+	filename = 'bukti-transfer.png'
+) {
+	const form = new FormData();
+	for (const [key, value] of Object.entries(fields)) form.set(key, String(value));
+	form.set('transfer_proof', new Blob([bytes], { type }), filename);
+	return form;
 }
 async function check(label, fn) {
 	await fn();
@@ -241,6 +260,22 @@ try {
 	let firstBuyer;
 	let firstPayment;
 	let firstWedding;
+	await check(
+		'transfer proof migration preserves history and restricts private image uploads',
+		async () => {
+			const collection = (await request('/api/collections/affiliate_payouts', { token: admin }))
+				.data;
+			const field = collection.fields.find((field) => field.name === 'transfer_proof');
+			assert.equal(field.type, 'file');
+			assert.equal(field.maxSelect, 1);
+			assert.equal(field.maxSize, 5 * 1024 * 1024);
+			assert.equal(field.required, false);
+			assert.equal(field.protected, true);
+			assert.deepEqual(field.mimeTypes, ['image/jpeg', 'image/png', 'image/webp']);
+			assert.equal(collection.updateRule, null);
+			assert.ok(collection.viewRule.includes('affiliate.user = @request.auth.id'));
+		}
+	);
 	await check('verified enrollment; registration never creates a wedding', async () => {
 		await request('/api/wedez/affiliate/me', { status: 401 });
 		const usersCollection = (await request('/api/collections/users', { token: admin })).data;
@@ -624,12 +659,86 @@ try {
 			body: { status: 'paid', transfer_reference: 'test-transfer' },
 			status: 400
 		});
+		await request(route, {
+			token: admin,
+			method: 'PATCH',
+			body: payoutForm({ status: 'processing' }),
+			status: 400
+		});
 		await request(route, { token: admin, method: 'PATCH', body: { status: 'processing' } });
 		await request(route, { token: admin, method: 'PATCH', body: { status: 'paid' }, status: 400 });
 		await request(route, {
 			token: admin,
 			method: 'PATCH',
-			body: { status: 'paid', transfer_reference: 'test-transfer' }
+			body: { status: 'paid', transfer_reference: 'test-transfer' },
+			status: 400
+		});
+		await request(route, {
+			token: admin,
+			method: 'PATCH',
+			body: { status: 'paid', transfer_reference: 'test-transfer', transfer_proof: 'fake.png' },
+			status: 400
+		});
+		await request(route, {
+			token: affiliateUser.token,
+			method: 'PATCH',
+			body: payoutForm({ status: 'paid', transfer_reference: 'test-transfer' }),
+			status: 403
+		});
+		await request(route, {
+			token: admin,
+			method: 'PATCH',
+			body: payoutForm({ status: 'paid' }),
+			status: 400
+		});
+		await request(route, {
+			token: admin,
+			method: 'PATCH',
+			body: payoutForm(
+				{ status: 'paid', transfer_reference: 'test-transfer' },
+				'<svg xmlns="http://www.w3.org/2000/svg"></svg>',
+				'image/png',
+				'bukti.png'
+			),
+			status: 400
+		});
+		const oversized = Buffer.alloc(5 * 1024 * 1024 + 1);
+		proofImage.copy(oversized);
+		await request(route, {
+			token: admin,
+			method: 'PATCH',
+			body: payoutForm({ status: 'paid', transfer_reference: 'test-transfer' }, oversized),
+			status: 400
+		});
+		const multiple = payoutForm({ status: 'paid', transfer_reference: 'test-transfer' });
+		multiple.append('transfer_proof', new Blob([proofImage], { type: 'image/png' }), 'kedua.png');
+		await request(route, { token: admin, method: 'PATCH', body: multiple, status: 400 });
+		const unchanged = (await request(route, { token: admin })).data;
+		assert.equal(unchanged.status, 'processing');
+		assert.equal(unchanged.transfer_proof, '');
+		assert.equal(unchanged.paid_at, '');
+		assert.ok((await records('affiliate_commissions')).every((r) => r.status === 'reserved'));
+		paidPayout = (
+			await request(route, {
+				token: admin,
+				method: 'PATCH',
+				body: payoutForm({ status: 'paid', transfer_reference: 'test-transfer' })
+			})
+		).data;
+		assert.ok(paidPayout.transfer_proof.endsWith('.png'));
+		assert.equal(paidPayout.transfer_reference, 'test-transfer');
+		assert.ok(paidPayout.paid_at);
+		await request(route, {
+			token: admin,
+			method: 'PATCH',
+			body: payoutForm({ status: 'paid', transfer_reference: 'replacement' }),
+			status: 400
+		});
+		await request(route, {
+			token: admin,
+			method: 'PATCH',
+			body: { status: 'paid', transfer_proof: '' },
+			status: 400
 		});
 		await request(route, {
 			token: admin,
@@ -642,7 +751,29 @@ try {
 		assert.ok(
 			(await records('affiliate_commissions')).every((r) => r.status === 'paid' && r.paid_at)
 		);
+		assert.equal(
+			(await request(route, { token: admin })).data.transfer_proof,
+			paidPayout.transfer_proof
+		);
 	});
+	await check(
+		'transfer proof requires a file token and is limited to its owner or admin',
+		async () => {
+			const url = `${base}/api/files/${paidPayout.collectionId}/${paidPayout.id}/${paidPayout.transfer_proof}`;
+			assert.ok((await fetch(url)).status >= 400);
+			for (const token of [admin, affiliateUser.token]) {
+				const fileToken = (await request('/api/files/token', { method: 'POST', token })).data.token;
+				const response = await fetch(`${url}?token=${encodeURIComponent(fileToken)}`);
+				assert.equal(response.status, 200);
+				assert.equal(response.headers.get('content-type'), 'image/png');
+				assert.deepEqual(Buffer.from(await response.arrayBuffer()), proofImage);
+			}
+			const otherToken = (
+				await request('/api/files/token', { method: 'POST', token: firstBuyer.token })
+			).data.token;
+			assert.ok((await fetch(`${url}?token=${encodeURIComponent(otherToken)}`)).status >= 400);
+		}
+	);
 	await check('financial history is retained and paid commissions cannot be voided', async () => {
 		const commission = (await records('affiliate_commissions'))[0];
 		await request(`/api/collections/affiliate_commissions/records/${commission.id}`, {

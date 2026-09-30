@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { slide } from 'svelte/transition';
+	import PublicNavbar from '#lib/components/navigation/PublicNavbar.svelte';
 	import WhatsAppButton from '#lib/components/ui/WhatsAppButton.svelte';
 	import ThemeCatalogCard from '#lib/features/wedding-themes/components/ThemeCatalogCard.svelte';
 	import { WEDDING_THEME_CATALOG } from '#lib/features/wedding-themes/model/theme-catalog.js';
@@ -13,12 +13,6 @@
 		features: string[];
 		featured: boolean;
 	};
-
-	const navItems = [
-		{ href: '#beranda', label: 'Beranda' },
-		{ href: '/tema', label: 'Tema' },
-		{ href: '#harga', label: 'Harga' }
-	];
 
 	const featuredThemeKeys: WeddingThemeKey[] = ['neubrutalism-1', 'sakura', 'retro', 'kinetika'];
 	const themes = featuredThemeKeys.flatMap((key) =>
@@ -134,12 +128,6 @@
 		}
 	] as const;
 
-	let mobileMenuOpen = $state(false);
-
-	function closeMobileMenu() {
-		mobileMenuOpen = false;
-	}
-
 	function animateFaqAnswer(event: Event) {
 		const details = event.currentTarget as HTMLDetailsElement;
 		if (!details.open || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
@@ -224,94 +212,7 @@
 	href="#main-content">Lewati ke konten utama</a
 >
 
-<header
-	class="fixed inset-x-0 top-0 z-50 border-b border-gray-200 bg-white/90 backdrop-blur-md md:sticky md:inset-x-auto"
->
-	<div
-		class="mx-auto flex h-18 w-full max-w-7xl items-center justify-between px-4 sm:px-6 md:grid md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] lg:px-8 2xl:max-w-[1600px] 2xl:px-10"
-	>
-		<a class="flex items-center gap-2" href="#beranda" aria-label="Wedez, kembali ke beranda">
-			<img
-				class="size-12 shrink-0 object-contain"
-				src="/images/hero/logo-wedez.webp"
-				alt=""
-				width="256"
-				height="256"
-			/>
-			<span
-				class="bg-linear-to-r from-[#9400ff] to-[#7200e8] bg-clip-text text-xl font-bold tracking-[-0.04em] text-transparent"
-				>wedez.id</span
-			>
-		</a>
-
-		<nav class="hidden items-center gap-8 md:flex" aria-label="Navigasi utama">
-			{#each navItems as item (item.href)}
-				<a
-					class="text-sm font-medium text-gray-600 transition-colors hover:text-gray-950"
-					href={item.href}>{item.label}</a
-				>
-			{/each}
-		</nav>
-		<a
-			class="hidden justify-self-end rounded-full bg-linear-to-r from-[#9400ff] to-[#7200e8] px-5 py-2.5 text-sm font-semibold text-white md:inline-flex"
-			href="/login">Buat Undangan</a
-		>
-
-		<button
-			class="grid size-10 place-items-center rounded-xl border border-gray-200 text-gray-900 md:hidden"
-			type="button"
-			aria-expanded={mobileMenuOpen}
-			aria-controls="mobile-navigation"
-			aria-label={mobileMenuOpen ? 'Tutup navigasi' : 'Buka navigasi'}
-			onclick={() => (mobileMenuOpen = !mobileMenuOpen)}
-		>
-			{#if mobileMenuOpen}
-				<svg class="size-5" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-					<path
-						d="M6 6L18 18M18 6L6 18"
-						stroke="currentColor"
-						stroke-width="2"
-						stroke-linecap="round"
-					/>
-				</svg>
-			{:else}
-				<svg class="size-5" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-					<path
-						d="M4 7H20M4 12H20M4 17H20"
-						stroke="currentColor"
-						stroke-width="2"
-						stroke-linecap="round"
-					/>
-				</svg>
-			{/if}
-		</button>
-	</div>
-
-	{#if mobileMenuOpen}
-		<nav
-			id="mobile-navigation"
-			class="absolute inset-x-0 top-full overflow-hidden border-y border-gray-200 bg-white px-4 py-4 shadow-lg md:hidden"
-			aria-label="Navigasi mobile"
-			transition:slide={{ duration: 240, axis: 'y' }}
-		>
-			<div class="mx-auto flex w-full max-w-7xl flex-col gap-1">
-				{#each navItems as item (item.href)}
-					<a
-						class="rounded-xl px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-100"
-						href={item.href}
-						onclick={closeMobileMenu}>{item.label}</a
-					>
-				{/each}
-				<a
-					class="mt-2 rounded-xl bg-linear-to-r from-[#9400ff] to-[#7200e8] px-4 py-3 text-center text-sm font-semibold text-white"
-					href="/login"
-					onclick={closeMobileMenu}>Buat Undangan</a
-				>
-			</div>
-		</nav>
-	{/if}
-</header>
-<div class="h-18 md:hidden" aria-hidden="true"></div>
+<PublicNavbar />
 
 <main id="main-content" class="w-full">
 	<section

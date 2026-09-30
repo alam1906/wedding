@@ -17,6 +17,7 @@
 	} from '../model/affiliate.js';
 	import { getToastContext } from '#lib/features/toast/index.js';
 	import RefreshIcon from './RefreshIcon.svelte';
+	import TransferProofPreview from './TransferProofPreview.svelte';
 	let { kind, overview }: { kind: 'commissions' | 'payouts'; overview: AffiliateOverview } =
 		$props();
 	let records = $state<(Commission | Payout)[]>([]);
@@ -188,7 +189,11 @@
 								>{#if 'bank_name' in record}<p>{record.bank_name} · {record.account_number}</p>
 									<p class="mt-1 text-xs">
 										{record.transfer_reference || record.note || 'Menunggu proses admin'}
-									</p>{:else}{record.void_reason ||
+									</p>
+									{#if record.transfer_proof}
+										<TransferProofPreview payout={record} />
+									{/if}
+								{:else}{record.void_reason ||
 										(record.paid_at
 											? `Dibayar ${shortDate(record.paid_at)}`
 											: `Komisi #${record.id.slice(-6).toUpperCase()}`)}{/if}</td

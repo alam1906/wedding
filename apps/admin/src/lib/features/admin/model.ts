@@ -44,9 +44,20 @@ export type PayoutRecord = RecordModel & {
 	account_name: string;
 	account_number: string;
 	transfer_reference: string;
+	transfer_proof: string;
 	note: string;
 	expand?: { affiliate?: AffiliateRecord };
 };
+
+export const TRANSFER_PROOF_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+export const TRANSFER_PROOF_MAX_SIZE = 5 * 1024 * 1024;
+
+export function transferProofError(file: File): string {
+	if (!TRANSFER_PROOF_TYPES.includes(file.type)) return 'Gunakan gambar JPG, PNG, atau WebP.';
+	if (!file.size) return 'Gambar bukti transfer tidak boleh kosong.';
+	if (file.size > TRANSFER_PROOF_MAX_SIZE) return 'Ukuran gambar maksimal 5 MB.';
+	return '';
+}
 
 export function rupiah(value: number): string {
 	return new Intl.NumberFormat('id-ID', {

@@ -2,12 +2,14 @@
 	import { onMount } from 'svelte';
 	import type { Attachment } from 'svelte/attachments';
 	import StatusFilter from '#lib/features/admin/components/StatusFilter.svelte';
+	import TransferProofInput from '#lib/features/admin/components/TransferProofInput.svelte';
 
 	import {
 		adminEmail,
 		errorMessage,
 		getOverview,
 		getRecords,
+		getTransferProofUrl,
 		isUnauthorized,
 		login,
 		logout,
@@ -83,9 +85,17 @@
 	let pendingPayout = $state<{ record: PayoutRecord; status: PayoutStatus } | null>(null);
 	let actionDetail = $state('');
 	let actionError = $state('');
+	let transferProof = $state<File | null>(null);
+	let payoutFormVersion = $state(0);
+	let proofRecord = $state<PayoutRecord | null>(null);
+	let proofUrl = $state('');
+	let proofError = $state('');
+	let proofLoading = $state(false);
 	let affiliateDialog: HTMLDialogElement;
 	let actionDialog: HTMLDialogElement;
+	let proofDialog: HTMLDialogElement;
 	let requestVersion = 0;
+	let proofVersion = 0;
 
 	const selectedLabel = $derived(
 		navigation.find((item) => item.id === section)?.label ?? 'Beranda'
@@ -155,6 +165,8 @@
 		requestVersion++;
 		if (affiliateDialog?.open) affiliateDialog.close();
 		if (actionDialog?.open) actionDialog.close();
+		if (proofDialog?.open) proofDialog.close();
+		proofVersion++;
 		logout();
 		authenticated = false;
 		menuOpen = false;
@@ -162,6 +174,10 @@
 		password = '';
 		pendingAffiliate = null;
 		pendingPayout = null;
+		transferProof = null;
+		proofRecord = null;
+		proofUrl = '';
+		proofError = '';
 		actionDetail = '';
 		actionError = '';
 		error = '';
@@ -286,6 +302,8 @@
 
 	function openPayout(record: PayoutRecord, next: PayoutStatus) {
 		pendingPayout = { record, status: next };
+		payoutFormVersion++;
+		transferProof = null;
 		actionDetail = '';
 		actionError = '';
 		actionDialog.showModal();
@@ -297,7 +315,12 @@
 		actionBusy = true;
 		actionError = '';
 		try {
-			await setPayoutStatus(pendingPayout.record, pendingPayout.status, actionDetail.trim());
+			await setPayoutStatus(
+				pendingPayout.record,
+				pendingPayout.status,
+				actionDetail.trim(),
+				transferProof
+			);
 			notice = `Pencairan berhasil diubah menjadi ${statusLabels[pendingPayout.status]}.`;
 			actionDialog.close();
 			await refresh();
@@ -305,6 +328,29 @@
 			actionError = errorMessage(cause);
 		} finally {
 			actionBusy = false;
+		}
+	}
+
+	async function openTransferProof(record: PayoutRecord) {
+		const version = ++proofVersion;
+		proofRecord = record;
+		proofUrl = '';
+		proofError = '';
+		proofLoading = true;
+		proofDialog.showModal();
+		try {
+			const url = await getTransferProofUrl(record);
+			if (version === proofVersion) proofUrl = url;
+		} catch (cause) {
+			if (version !== proofVersion) return;
+			if (isUnauthorized(cause)) {
+				signOut();
+				loginError = 'Sesi admin berakhir. Silakan masuk kembali.';
+			} else {
+				proofError = errorMessage(cause);
+			}
+		} finally {
+			if (version === proofVersion) proofLoading = false;
 		}
 	}
 </script>
@@ -850,8 +896,8 @@
 															<p class="mt-0.5 text-xs text-gray-500">{item.account_name}</p></td
 														><td class="px-5 py-4 whitespace-nowrap text-gray-500"
 															>{dateTime(item.created)}</td
-														><td class="px-5 py-4"
-															><div class="flex flex-wrap justify-end gap-2">
+														><td class="px-5 py-4 align-middle whitespace-nowrap"
+															><div class="flex items-center justify-end gap-3">
 																{#if item.status === 'requested'}<button
 																		type="button"
 																		onclick={() => openPayout(item, 'processing')}
@@ -872,7 +918,18 @@
 																		onclick={() => openPayout(item, 'failed')}
 																		class="rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium"
 																		>Gagal</button
-																	>{:else}<span class="text-xs text-gray-400">Selesai</span>{/if}
+																	>{:else}<span
+																		class="inline-flex h-8 shrink-0 items-center text-xs font-medium text-gray-500"
+																		>Selesai</span
+																	>{/if}
+																{#if item.transfer_proof}
+																	<button
+																		type="button"
+																		onclick={() => openTransferProof(item)}
+																		class="inline-flex h-8 shrink-0 items-center justify-center rounded-lg border border-gray-200 bg-white px-3 text-xs font-medium text-gray-700 transition-colors hover:bg-gray-50"
+																		>Lihat bukti</button
+																	>
+																{/if}
 															</div></td
 														></tr
 													>{/each}{/if}
@@ -974,9 +1031,16 @@
 				><input
 					id="action-detail"
 					required
+					disabled={actionBusy}
+					maxlength={pendingPayout.status === 'paid' ? 200 : 500}
 					bind:value={actionDetail}
 					class="admin-input mt-2 w-full px-4 py-3 text-sm"
 				/>{/if}
+			{#if pendingPayout.status === 'paid'}
+				{#key payoutFormVersion}
+					<TransferProofInput bind:file={transferProof} disabled={actionBusy} />
+				{/key}
+			{/if}
 			{#if actionError}<p
 					role="alert"
 					class="mt-4 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700"
@@ -998,6 +1062,47 @@
 				>
 			</div>
 		</form>{/if}
+</dialog>
+
+<dialog
+	bind:this={proofDialog}
+	onclick={(event) => event.target === event.currentTarget && proofDialog.close()}
+	aria-labelledby="proof-dialog-title"
+	aria-describedby="proof-dialog-description"
+	class="admin-dialog m-auto max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-lg overflow-y-auto rounded-2xl border border-gray-200 bg-white p-0 shadow-xl"
+>
+	<div class="p-6 sm:p-8">
+		<h2 id="proof-dialog-title" class="text-lg font-bold text-gray-900">Bukti transfer</h2>
+		<p id="proof-dialog-description" class="mt-3 text-sm leading-6 text-gray-600">
+			{#if proofRecord}
+				{rupiah(proofRecord.amount)} ke {proofRecord.bank_name}
+				{proofRecord.account_number}
+				atas nama {proofRecord.account_name}.
+			{/if}
+		</p>
+		{#if proofLoading}
+			<p role="status" class="mt-5 text-sm text-gray-500">Memuat bukti transfer…</p>
+		{:else if proofError}
+			<p role="alert" class="mt-5 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">
+				{proofError}
+			</p>
+		{:else if proofUrl}
+			<img
+				src={proofUrl}
+				alt="Bukti transfer pencairan affiliate"
+				onerror={() => (proofError = 'Bukti transfer tidak dapat dimuat. Tutup lalu buka kembali.')}
+				class="mx-auto mt-5 max-h-[55dvh] rounded-xl object-contain"
+			/>
+		{/if}
+		<div class="mt-6 flex justify-end">
+			<button
+				type="button"
+				onclick={() => proofDialog.close()}
+				class="rounded-xl border border-gray-300 bg-white px-5 py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-50"
+				>Tutup</button
+			>
+		</div>
+	</div>
 </dialog>
 
 <style>

@@ -40,8 +40,10 @@ dan rekening. `affiliate_commissions` mempunyai relasi unik `payment`, pemilik a
 nominal, status `available/reserved/paid/void`, tanggal pembayaran, dan alasan pembatalan.
 
 `affiliate_payouts` menyimpan daftar komisi, total, salinan rekening pada saat pengajuan,
-status `requested/processing/paid/rejected/failed`, referensi transfer, tanggal pembayaran,
-dan catatan. Permintaan yang ditolak/gagal tetap menyimpan daftar komisi untuk audit.
+status `requested/processing/paid/rejected/failed`, referensi transfer, gambar bukti transfer,
+tanggal pembayaran, dan catatan. `transfer_proof` merupakan satu file terlindungi (JPG,
+PNG, atau WebP, maksimal 5 MB); akses memerlukan file token dan izin melihat payout.
+Permintaan yang ditolak/gagal tetap menyimpan daftar komisi untuk audit.
 Komisi tersebut boleh masuk permintaan baru setelah reservasinya dilepas.
 
 `payments` menyimpan snapshot affiliate, kode, harga asli, persentase dan nominal diskon,
@@ -53,7 +55,14 @@ Saldo dihitung dari ledger, bukan dari field saldo yang dapat diedit. Semua penu
 pengguna melalui custom endpoint; API collection hanya memberikan pembacaan milik sendiri.
 Data pembayaran/pengantin tidak dibuka kepada affiliator.
 
-## Operasional PocketBase Admin
+## Operasional dashboard admin
+
+Gunakan menu **Pencairan** di dashboard admin. Data disimpan otomatis ke PocketBase;
+tidak perlu mengubah record secara manual. Menu **Tandai dibayar** meminta referensi
+dan gambar bukti transfer, menampilkan pratinjau, lalu menyimpan keduanya bersama
+status. Bukti tersimpan dapat dibuka melalui **Lihat bukti**.
+
+Jika memakai PocketBase Admin langsung, gunakan alur yang sama:
 
 1. Buka `affiliates`, tinjau record `pending`, lalu ubah `status` menjadi `active` atau `rejected`.
    Pemilik dan kode tidak dapat diubah. `suspended` menghentikan penggunaan kupon baru dan
@@ -61,8 +70,10 @@ Data pembayaran/pengantin tidak dibuka kepada affiliator.
 2. Buka `affiliate_payouts` dengan status `requested`. Periksa total dan rekening snapshot.
 3. Ubah menjadi `processing` sebelum melakukan transfer manual, agar operator lain tahu
    pengajuan sedang ditangani.
-4. Setelah transfer dipastikan berhasil, isi `transfer_reference` dan ubah menjadi `paid`
-   dalam penyimpanan yang sama. Hook memperbarui semua komisi secara atomik dan mengisi `paid_at`.
+4. Setelah transfer dipastikan berhasil, isi `transfer_reference`, unggah `transfer_proof`,
+   dan ubah menjadi `paid` dalam penyimpanan yang sama. Hook memvalidasi file, memperbarui
+   semua komisi secara atomik, dan mengisi `paid_at`. Bukti yang sudah tersimpan tidak
+   dapat diganti atau dihapus. Pencairan lama tanpa bukti tetap dipertahankan.
 5. Jika belum diproses dan perlu ditolak, ubah `requested` → `rejected` disertai `note`.
    Jika transfer dipastikan gagal, ubah `processing` → `failed` disertai `note`.
    Kedua transisi mengembalikan komisi ke `available`.
@@ -77,11 +88,12 @@ terpisah; jangan mengubah riwayat `paid` menjadi `void`.
 
 ## Pemasangan dan batas verifikasi
 
-Deploy frontend bersama `pb_hooks` dan migration `1790899200_add_affiliates.js`,
-`1790985600_add_account_home.js`, serta `1791072000_remove_signup_intent.js`.
-Migration kedua mengisi `home_area` untuk akun lama yang sudah punya undangan atau
-keanggotaan affiliate; akun baru memilih sendiri setelah login. Migration ketiga
-menghapus `signup_intent` beserta nilai lamanya karena tidak dipakai dalam alur aplikasi.
+Deploy frontend bersama `pb_hooks` dan seluruh migration, termasuk
+`1791936000_add_affiliate_transfer_proof.js` untuk field bukti transfer.
+Migration `1790985600_add_account_home.js` mengisi `home_area` untuk akun lama yang
+sudah punya undangan atau keanggotaan affiliate; akun baru memilih sendiri setelah login.
+Migration `1791072000_remove_signup_intent.js` menghapus `signup_intent` beserta nilai
+lamanya karena tidak dipakai dalam alur aplikasi.
 PocketBase menjalankan migration saat start. Backup database sebelum pembaruan production.
 Migration ini maju saja: ledger tidak dihapus oleh perintah rollback. Gunakan migration
 koreksi jika diperlukan.
@@ -114,6 +126,16 @@ WEDEZ_KEEP_TEST_SERVER=1 bun scripts/test-affiliate.mjs
 PUBLIC_POCKETBASE_URL=http://127.0.0.1:8190 bun run --cwd apps/web dev -- --host 127.0.0.1 --port 5190
 bun scripts/test-affiliate-browser.mjs
 ```
+
+Untuk menguji unggahan bukti transfer dari dashboard admin, gunakan fixture yang sama:
+
+```sh
+bun scripts/test-admin-payout-browser.mjs
+```
+
+Script ini menjalankan admin terpisah di port 5195, membuat komisi melalui gateway
+tiruan, lalu memeriksa validasi gambar, pratinjau, pembatalan, penyimpanan, dan akses
+bukti di desktop/ponsel. PocketBase development pada port 8090 tidak digunakan.
 
 Script browser membutuhkan instalasi Playwright yang sudah tersedia. `PLAYWRIGHT_MODULE`
 dapat menunjuk modul tersebut dan `PLAYWRIGHT_CHROMIUM_EXECUTABLE` dapat menunjuk Chromium

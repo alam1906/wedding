@@ -44,6 +44,16 @@ export function getPayouts(page: number): Promise<ListResult<Payout>> {
 	return pocketBase.collection('affiliate_payouts').getList<Payout>(page, 20, {
 		sort: '-created,-id',
 		fields:
-			'id,amount,status,created,paid_at,bank_name,account_number,account_name,transfer_reference,note'
+			'id,amount,status,created,paid_at,bank_name,account_number,account_name,transfer_reference,transfer_proof,note'
 	});
+}
+
+export async function getTransferProofUrl(payout: Payout): Promise<string> {
+	if (!payout.transfer_proof) throw new Error('Bukti transfer belum tersedia.');
+	const token = await pocketBase.files.getToken({ requestKey: null });
+	return pocketBase.files.getURL(
+		{ id: payout.id, collectionName: 'affiliate_payouts' },
+		payout.transfer_proof,
+		{ token }
+	);
 }

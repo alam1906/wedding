@@ -24,6 +24,7 @@ export type Payout = BankDetails & {
 	created: string;
 	paid_at: string;
 	transfer_reference: string;
+	transfer_proof: string;
 	note: string;
 };
 export type AffiliateOverview = {

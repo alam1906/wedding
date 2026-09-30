@@ -66,6 +66,23 @@ routerAdd(
 // from it must use the same transaction as their associated commission updates.
 onRecordUpdateRequest(function (e) {
 	if (!e.hasSuperuserAuth()) throw new ForbiddenError('Hanya admin dapat memproses pencairan.');
+	// A single-file field normalizes multiple uploads to the last file before this hook.
+	// Check the multipart request too so extra images cannot be silently discarded.
+	function uploadCount(key) {
+		try {
+			return e.findUploadedFiles(key).length;
+		} catch (error) {
+			// Unlike getUnsavedFiles, findUploadedFiles throws for an absent form key.
+			if (String(error).indexOf('http: no such file') >= 0) return 0;
+			throw error;
+		}
+	}
+	if (
+		String(e.requestInfo().headers.content_type || '').indexOf('multipart/form-data') === 0 &&
+		uploadCount('transfer_proof') + uploadCount('transfer_proof+') > 1
+	) {
+		throw new BadRequestError('Unggah satu gambar bukti transfer saja.');
+	}
 	var original = e.record.original();
 	[
 		'affiliate',
@@ -80,7 +97,13 @@ onRecordUpdateRequest(function (e) {
 			throw new BadRequestError('Data pengajuan pencairan tidak dapat diubah.');
 	});
 	var helpers = require(__hooks + '/affiliate_helpers.js');
-	var payout = helpers.updatePayout(e.app, e.record.id, e.record.publicExport());
+	// publicExport contains file names, not the uploaded file objects needed for storage.
+	var payout = helpers.updatePayout(
+		e.app,
+		e.record.id,
+		e.record.publicExport(),
+		e.record.getUnsavedFiles('transfer_proof')
+	);
 	return e.json(200, payout);
 }, 'affiliate_payouts');
 

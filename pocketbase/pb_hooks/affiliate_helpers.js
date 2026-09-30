@@ -199,22 +199,36 @@ function requestPayout(app, affiliateId) {
 	return payout;
 }
 
-function updatePayout(app, id, data) {
+function updatePayout(app, id, data, proofFiles) {
 	var payout;
+	proofFiles = proofFiles || [];
 	app.runInTransaction(function (txApp) {
 		payout = txApp.findRecordById('affiliate_payouts', id);
 		var current = payout.getString('status');
 		var next = String(data.status || current);
 		var allowed = { requested: ['processing', 'rejected'], processing: ['paid', 'failed'] };
-		if (next === current) return;
+		var proofChanged =
+			proofFiles.length > 0 ||
+			String(data.transfer_proof || '') !== payout.getString('transfer_proof');
+		if (next === current) {
+			if (proofChanged)
+				throw new BadRequestError('Bukti transfer yang tersimpan tidak dapat diubah.');
+			return;
+		}
 		if (!allowed[current] || allowed[current].indexOf(next) < 0)
 			throw new BadRequestError('Perubahan status pencairan tidak valid.');
+		if (next !== 'paid' && proofChanged)
+			throw new BadRequestError('Unggah bukti transfer saat menandai pencairan dibayar.');
 		var reference = String(
 			data.transfer_reference || payout.getString('transfer_reference')
 		).trim();
 		var note = String(data.note || '').trim();
 		if (next === 'paid' && !reference)
 			throw new BadRequestError('Isi referensi transfer sebelum menandai pencairan dibayar.');
+		if (next === 'paid' && proofFiles.length !== 1)
+			throw new BadRequestError(
+				'Unggah satu gambar bukti transfer sebelum menandai pencairan dibayar.'
+			);
 		if ((next === 'rejected' || next === 'failed') && !note)
 			throw new BadRequestError('Isi alasan penolakan atau kegagalan pencairan.');
 		var records = payout.getStringSlice('commissions').map(function (commissionId) {
@@ -236,6 +250,7 @@ function updatePayout(app, id, data) {
 		payout.set('transfer_reference', reference);
 		payout.set('note', note);
 		payout.set('paid_at', paidAt);
+		if (next === 'paid') payout.set('transfer_proof', proofFiles);
 		txApp.save(payout);
 		if (next === 'processing') return;
 		records.forEach(function (record) {

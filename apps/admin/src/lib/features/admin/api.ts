@@ -1,6 +1,7 @@
 import { ClientResponseError, type ListResult, type RecordModel } from 'pocketbase';
 
 import { pocketBase } from '#lib/infrastructure/pocketbase/client.js';
+import { transferProofError } from './model.js';
 import type {
 	AffiliateRecord,
 	AffiliateStatus,
@@ -134,11 +135,25 @@ export async function setAffiliateStatus(
 export async function setPayoutStatus(
 	record: PayoutRecord,
 	status: PayoutStatus,
-	detail = ''
+	detail = '',
+	proof: File | null = null
 ): Promise<void> {
-	await pocketBase.collection('affiliate_payouts').update(record.id, {
-		status,
-		...(status === 'paid' ? { transfer_reference: detail } : {}),
-		...(status === 'rejected' || status === 'failed' ? { note: detail } : {})
-	});
+	const data = new FormData();
+	data.set('status', status);
+	if (status === 'paid') {
+		if (!proof) throw new Error('Unggah gambar bukti transfer terlebih dahulu.');
+		const validationError = transferProofError(proof);
+		if (validationError) throw new Error(validationError);
+		data.set('transfer_reference', detail);
+		data.set('transfer_proof', proof);
+	} else if (status === 'rejected' || status === 'failed') {
+		data.set('note', detail);
+	}
+	await pocketBase.collection('affiliate_payouts').update(record.id, data);
+}
+
+export async function getTransferProofUrl(record: PayoutRecord): Promise<string> {
+	if (!record.transfer_proof) throw new Error('Bukti transfer belum tersedia.');
+	const token = await pocketBase.files.getToken();
+	return pocketBase.files.getURL(record, record.transfer_proof, { token });
 }
