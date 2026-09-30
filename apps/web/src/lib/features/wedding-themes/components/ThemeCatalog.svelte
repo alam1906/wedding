@@ -6,11 +6,12 @@
 		type ThemeCategory
 	} from '../model/theme-catalog.js';
 
+	const reversedThemes = [...WEDDING_THEME_CATALOG].reverse();
 	let selectedCategory = $state<ThemeCategory>('all');
 	const visibleThemes = $derived(
 		selectedCategory === 'all'
-			? WEDDING_THEME_CATALOG
-			: WEDDING_THEME_CATALOG.filter((theme) => theme.category === selectedCategory)
+			? reversedThemes
+			: reversedThemes.filter((theme) => theme.category === selectedCategory)
 	);
 </script>
 
