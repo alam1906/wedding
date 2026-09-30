@@ -717,7 +717,7 @@
 				class="relative mx-auto w-full max-w-2xl rounded-4xl bg-gray-100 p-2 shadow-sm sm:p-3"
 			>
 				<div
-					class="absolute -inset-8 -z-10 rounded-full bg-gray-200/70 blur-3xl"
+					class="absolute inset-x-0 -inset-y-8 -z-10 rounded-full bg-gray-200/70 blur-3xl sm:-inset-x-8"
 					aria-hidden="true"
 				></div>
 				<div

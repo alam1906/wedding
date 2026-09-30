@@ -23,6 +23,28 @@ export function mountWeddingThemeAnimations(
 	rootSelector: string,
 	variant: WeddingThemeAnimation
 ): WeddingThemeAnimationController {
+	const preference = window.matchMedia('(prefers-reduced-motion: reduce)');
+	let controller = mountAnimations(rootSelector, variant);
+	const changed = () => {
+		controller.destroy();
+		controller = mountAnimations(rootSelector, variant);
+		controller.refresh();
+	};
+	preference.addEventListener('change', changed);
+	return {
+		refresh: () => controller.refresh(),
+		scrollToTop: () => controller.scrollToTop(),
+		destroy: () => {
+			preference.removeEventListener('change', changed);
+			controller.destroy();
+		}
+	};
+}
+
+function mountAnimations(
+	rootSelector: string,
+	variant: WeddingThemeAnimation
+): WeddingThemeAnimationController {
 	if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
 		return {
 			refresh: () => undefined,

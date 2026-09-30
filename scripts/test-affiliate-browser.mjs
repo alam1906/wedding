@@ -6,8 +6,10 @@ import { mkdtemp } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 const { chromium } = await import(process.env.PLAYWRIGHT_MODULE || 'playwright');
-const appUrl = 'http://127.0.0.1:5190';
-const apiUrl = 'http://127.0.0.1:8190';
+const appUrl = process.env.WEDEZ_TEST_WEB_URL || 'http://127.0.0.1:5190';
+const apiUrl = process.env.WEDEZ_TEST_API_URL || 'http://127.0.0.1:8190';
+assert.equal(new URL(appUrl).hostname, '127.0.0.1');
+assert.equal(new URL(apiUrl).hostname, '127.0.0.1');
 const password = 'Affiliate-Test-Only-9876';
 const shots = await mkdtemp(path.join(tmpdir(), 'wedez-affiliate-browser-'));
 async function api(route, method = 'GET', body, token = admin) {
@@ -41,6 +43,7 @@ const email = `browser-affiliate-${suffix}@example.test`;
 try {
 	await page.goto(appUrl + '/affiliate');
 	await page.waitForURL('**/register?**');
+	await page.waitForLoadState('networkidle');
 	await page.getByLabel('Nama', { exact: true }).fill('Affiliate Browser');
 	await page.getByLabel('Email', { exact: true }).fill(email);
 	await page.getByLabel('Kata sandi', { exact: true }).fill(password);
@@ -141,6 +144,7 @@ try {
 	});
 	await api(`/api/collections/users/records/${weddingStarter.id}`, 'PATCH', { verified: true });
 	await page.goto(appUrl + '/login?next=/upgrade');
+	await page.waitForLoadState('networkidle');
 	await page.getByLabel('Email', { exact: true }).fill(weddingEmail);
 	await page.getByLabel('Kata sandi', { exact: true }).fill(password);
 	await page.getByRole('button', { name: 'Masuk', exact: true }).click();
@@ -176,6 +180,7 @@ try {
 	await page.getByRole('menuitem', { name: 'Keluar', exact: true }).click();
 	await page.waitForURL('**/login');
 	await page.goto(appUrl + '/login');
+	await page.waitForLoadState('networkidle');
 	console.log('PASS wedding choice and Gabung Affiliate persist across login');
 
 	await page.getByLabel('Email', { exact: true }).fill('affiliate@example.test');
@@ -232,6 +237,7 @@ try {
 	);
 	await api('/api/wedez/account/provision', 'POST', undefined, retryAuth.token);
 	await page.goto(appUrl + '/login?next=/upgrade');
+	await page.waitForLoadState('networkidle');
 	await page.getByLabel('Email', { exact: true }).fill(retryEmail);
 	await page.getByLabel('Kata sandi', { exact: true }).fill(password);
 	await page.getByRole('button', { name: 'Masuk', exact: true }).click();
@@ -298,6 +304,7 @@ try {
 	);
 	await api('/api/wedez/account/provision', 'POST', undefined, buyerAuth.token);
 	await page.goto(appUrl + '/login?next=/upgrade');
+	await page.waitForLoadState('networkidle');
 	await page.getByLabel('Email', { exact: true }).fill(buyerEmail);
 	await page.getByLabel('Kata sandi', { exact: true }).fill(password);
 	await page.getByRole('button', { name: 'Masuk', exact: true }).click();

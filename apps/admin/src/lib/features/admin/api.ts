@@ -52,9 +52,9 @@ export function isUnauthorized(error: unknown): boolean {
 	return error instanceof ClientResponseError && (error.status === 401 || error.status === 403);
 }
 
-export function errorMessage(error: unknown): string {
+export function errorMessage(error: unknown, context: 'login' | 'action' = 'action'): string {
 	if (error instanceof ClientResponseError) {
-		if (error.status === 400 || error.status === 401)
+		if ((context === 'login' && error.status === 400) || error.status === 401)
 			return 'Email atau kata sandi tidak valid, atau sesi telah berakhir.';
 		if (error.status === 429) return 'Terlalu banyak permintaan. Coba lagi beberapa saat.';
 		if (error.status === 0) return 'Tidak dapat terhubung ke PocketBase.';

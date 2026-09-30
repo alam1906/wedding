@@ -29,8 +29,15 @@
 		"check:invitation": "bun run --cwd apps/invitation check",
 		"check:admin": "bun run --cwd apps/admin check",
 		"test:p1": "bun scripts/test-account-p1.mjs",
+		"test:quality": "bun scripts/test-quality.mjs",
+		"test:quality:upgrade": "WEDEZ_TEST_UPGRADE=1 bun scripts/test-quality.mjs",
+		"test:affiliate": "bun scripts/test-affiliate.mjs",
+		"test": "bun run test:quality && bun run test:quality:upgrade && bun run test:p1 && bun run test:affiliate",
 		"lint": "prettier --check . && eslint .",
 		"format": "prettier --write ."
+	},
+	"overrides": {
+		"brace-expansion": "5.0.12"
 	},
 	"devDependencies": {
 		"@eslint/js": "^10.0.1",

@@ -1,6 +1,7 @@
 import { ClientResponseError } from 'pocketbase';
 
 import { pocketBase } from '#lib/infrastructure/pocketbase/index.js';
+import { optimizeImage, ImageOptimizationError } from '#lib/shared/image/optimize-image.js';
 
 const MAX_NAME_LENGTH = 255;
 
@@ -57,7 +58,9 @@ export async function updateAuthenticatedName(name: string): Promise<string> {
 			throw new UpdateProfileError('Respons pembaruan profil tidak valid.');
 		}
 
-		pocketBase.authStore.save(pocketBase.authStore.token, user);
+		if (pocketBase.authStore.record?.id === userId && pocketBase.authStore.isValid) {
+			pocketBase.authStore.save(pocketBase.authStore.token, user);
+		}
 		return updatedName;
 	} catch (error) {
 		if (error instanceof UpdateProfileError) {
@@ -70,5 +73,37 @@ export async function updateAuthenticatedName(name: string): Promise<string> {
 				: 'Nama lengkap gagal diperbarui. Silakan coba lagi.',
 			{ cause: error }
 		);
+	}
+}
+
+export function getAuthenticatedAvatarUrl(): string {
+	const user = pocketBase.authStore.record;
+	return user && typeof user.avatar === 'string' && user.avatar
+		? pocketBase.files.getURL(user, user.avatar, { thumb: '100x100' })
+		: '';
+}
+
+export async function updateAuthenticatedAvatar(file: File): Promise<string> {
+	const userId = pocketBase.authStore.record?.id;
+	if (!pocketBase.authStore.isValid || !userId) {
+		throw new UpdateProfileError('Sesi Anda sudah berakhir. Silakan masuk kembali.');
+	}
+	try {
+		if (file.size > 10 * 1024 * 1024) throw new UpdateProfileError('Foto maksimal 10 MB.');
+		const avatar = await optimizeImage(file, { maxWidth: 512, maxHeight: 512, quality: 0.85 });
+		// Image decoding is asynchronous; a logout must not turn this into another user's request.
+		if (pocketBase.authStore.record?.id !== userId || !pocketBase.authStore.isValid) {
+			throw new UpdateProfileError('Sesi Anda sudah berakhir. Silakan masuk kembali.');
+		}
+		const user = await pocketBase.collection('users').update(userId, { avatar });
+		if (pocketBase.authStore.record?.id === userId && pocketBase.authStore.isValid) {
+			pocketBase.authStore.save(pocketBase.authStore.token, user);
+		}
+		return pocketBase.files.getURL(user, String(user.avatar), { thumb: '100x100' });
+	} catch (error) {
+		if (error instanceof UpdateProfileError || error instanceof ImageOptimizationError) throw error;
+		throw new UpdateProfileError('Foto profil gagal diperbarui. Periksa koneksi lalu coba lagi.', {
+			cause: error
+		});
 	}
 }

@@ -20,7 +20,7 @@ env:
 
 jobs:
   quality:
-    name: Check and lint
+    name: Check, lint and backend regressions
     runs-on: ubuntu-24.04
     permissions:
       contents: read
@@ -41,6 +41,18 @@ jobs:
 
       - name: Lint
         run: bun run lint
+
+      - name: Prepare pinned PocketBase for Linux tests
+        run: |
+          qa_archive_dir=$(mktemp -d)
+          curl --fail --location --retry 3 \
+            https://github.com/pocketbase/pocketbase/releases/download/v0.40.1/pocketbase_0.40.1_linux_amd64.zip \
+            --output "$qa_archive_dir/pocketbase.zip"
+          unzip -q "$qa_archive_dir/pocketbase.zip" -d "$qa_archive_dir"
+          install -m 755 "$qa_archive_dir/pocketbase" pocketbase/pocketbase
+
+      - name: Isolated PocketBase regression tests
+        run: bun run test
 
   images:
     name: Build ${{ matrix.service }} image

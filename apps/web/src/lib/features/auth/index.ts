@@ -1,6 +1,11 @@
 export { LoginError, loginWithPassword } from './api/login.js';
 export { RegisterError, registerWithPassword } from './api/register.js';
-export { UpdateProfileError, updateAuthenticatedName } from './api/update-profile.js';
+export {
+	UpdateProfileError,
+	updateAuthenticatedName,
+	updateAuthenticatedAvatar,
+	getAuthenticatedAvatarUrl
+} from './api/update-profile.js';
 export {
 	PasswordError,
 	changeAuthenticatedPassword,

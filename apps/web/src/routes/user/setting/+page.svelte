@@ -10,12 +10,15 @@
 		deleteCurrentAccount,
 		getAuthenticatedEmail,
 		getAuthenticatedName,
+		getAuthenticatedAvatarUrl,
 		logout,
+		updateAuthenticatedAvatar,
 		updateAuthenticatedName
 	} from '#lib/features/auth/index.js';
 	import { getGuestContext } from '#lib/features/guests/index.js';
 	import { getToastContext } from '#lib/features/toast/index.js';
 	import { getWeddingContext } from '#lib/features/weddings/index.js';
+	import { OPTIMIZABLE_IMAGE_ACCEPT } from '#lib/shared/image/optimize-image.js';
 
 	const toast = getToastContext();
 	const guests = getGuestContext();
@@ -25,6 +28,9 @@
 	let savedProfileName = $state('');
 	let profileError = $state('');
 	let isSavingProfile = $state(false);
+	let avatarUrl = $state('');
+	let isSavingAvatar = $state(false);
+	let avatarInput: HTMLInputElement;
 	let currentPassword = $state('');
 	let newPassword = $state('');
 	let passwordConfirm = $state('');
@@ -132,10 +138,29 @@
 		}
 	}
 
+	async function handleAvatar(event: Event) {
+		const input = event.currentTarget as HTMLInputElement;
+		const file = input.files?.[0];
+		if (!file || isSavingAvatar) return;
+		isSavingAvatar = true;
+		profileError = '';
+		try {
+			avatarUrl = await updateAuthenticatedAvatar(file);
+			toast.success('Foto profil berhasil diperbarui.');
+		} catch (error) {
+			profileError = error instanceof Error ? error.message : 'Foto profil gagal diperbarui.';
+			toast.error(profileError);
+		} finally {
+			input.value = '';
+			isSavingAvatar = false;
+		}
+	}
+
 	onMount(() => {
 		profileName = getAuthenticatedName();
 		savedProfileName = profileName;
 		profileEmail = getAuthenticatedEmail();
+		avatarUrl = getAuthenticatedAvatarUrl();
 	});
 </script>
 
@@ -240,12 +265,29 @@
 						<div
 							class="grid size-20 shrink-0 place-items-center rounded-full bg-gray-900 text-2xl font-bold text-white"
 						>
-							W
+							{#if avatarUrl}
+								<img src={avatarUrl} alt="Foto profil" class="size-20 rounded-full object-cover" />
+							{:else}
+								W
+							{/if}
 						</div>
 						<div>
 							<h1 class="text-xl font-bold text-gray-900">Profil akun</h1>
-							<button type="button" class="mt-3 cursor-pointer text-sm font-semibold text-gray-900"
-								>Ganti foto</button
+							<input
+								bind:this={avatarInput}
+								type="file"
+								accept={OPTIMIZABLE_IMAGE_ACCEPT}
+								onchange={handleAvatar}
+								aria-label="Pilih foto profil"
+								class="hidden"
+								disabled={isSavingAvatar}
+							/>
+							<button
+								type="button"
+								onclick={() => avatarInput.click()}
+								disabled={isSavingAvatar}
+								class="mt-3 cursor-pointer text-sm font-semibold text-gray-900 disabled:opacity-50"
+								>{isSavingAvatar ? 'Menyimpan foto...' : 'Ganti foto'}</button
 							>
 						</div>
 					</div>

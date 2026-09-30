@@ -145,7 +145,7 @@
 			authenticated = true;
 			await refresh();
 		} catch (cause) {
-			loginError = errorMessage(cause);
+			loginError = errorMessage(cause, 'login');
 		} finally {
 			loginBusy = false;
 		}

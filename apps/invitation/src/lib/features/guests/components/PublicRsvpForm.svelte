@@ -44,39 +44,44 @@
 	let messagesHaveMore = $state(true);
 	let messagesLoading = $state(false);
 	let messagesError = $state('');
+	let messageRequest = 0;
+	let disposed = false;
 
 	const messageLength = $derived(message.length);
 
 	onMount(() => {
 		void loadGuest();
 		void loadMessages();
+		return () => {
+			disposed = true;
+		};
 	});
 
-	async function loadMessages(): Promise<void> {
-		if (messagesLoading || !messagesHaveMore) return;
+	async function loadMessages(reset = false): Promise<void> {
+		if (!reset && (messagesLoading || !messagesHaveMore)) return;
+		const request = ++messageRequest;
+		if (reset) {
+			messages = [];
+			messagesPage = 1;
+			messagesHaveMore = true;
+		}
 
 		messagesLoading = true;
 		messagesError = '';
 
 		try {
 			const result = await getPublicRsvpMessages(slug, messagesPage);
+			if (disposed || request !== messageRequest) return;
 			messages = [...messages, ...result.items];
 			messagesHaveMore = result.has_more;
 			messagesPage += 1;
 		} catch (error) {
+			if (disposed || request !== messageRequest) return;
 			messagesError =
 				error instanceof PublicRsvpError ? error.message : 'Ucapan tamu belum dapat dimuat.';
 		} finally {
-			messagesLoading = false;
+			if (!disposed && request === messageRequest) messagesLoading = false;
 		}
-	}
-
-	function refreshMessages(): void {
-		messages = [];
-		messagesPage = 1;
-		messagesHaveMore = true;
-		messagesError = '';
-		void loadMessages();
 	}
 
 	function statusLabel(status: PublicRsvpMessage['rsvp_status']): string {
@@ -103,22 +108,26 @@
 		errorMessage = '';
 
 		try {
-			guest = await getPublicGuestRsvp(slug, token);
+			const result = await getPublicGuestRsvp(slug, token);
+			if (disposed) return;
+			guest = result;
 			attendance =
 				guest.rsvp_status === 'attending' || guest.rsvp_status === 'not_attending'
 					? guest.rsvp_status
 					: '';
 			message = guest.message;
 		} catch (error) {
+			if (disposed) return;
 			errorMessage =
 				error instanceof PublicRsvpError ? error.message : 'Data RSVP belum dapat dimuat.';
 		} finally {
-			loading = false;
+			if (!disposed) loading = false;
 		}
 	}
 
 	async function handleSubmit(event: SubmitEvent): Promise<void> {
 		event.preventDefault();
+		if (submitting || !guest) return;
 		errorMessage = '';
 		successMessage = '';
 
@@ -130,20 +139,23 @@
 		submitting = true;
 
 		try {
-			guest = await submitPublicGuestRsvp({
+			const result = await submitPublicGuestRsvp({
 				slug,
 				token,
 				rsvp_status: attendance,
 				message
 			});
+			if (disposed) return;
+			guest = result;
 			message = guest.message;
 			successMessage = 'Terima kasih. Jawaban dan pesan Anda sudah tersimpan.';
-			refreshMessages();
+			void loadMessages(true);
 		} catch (error) {
+			if (disposed) return;
 			errorMessage =
 				error instanceof PublicRsvpError ? error.message : 'Jawaban RSVP belum dapat dikirim.';
 		} finally {
-			submitting = false;
+			if (!disposed) submitting = false;
 		}
 	}
 </script>
@@ -344,7 +356,7 @@
 								<button
 									class="mt-4 rounded-full border border-[#173b2c]/20 px-4 py-2 text-sm font-semibold text-[#173b2c] hover:bg-[#edf3ed]"
 									type="button"
-									onclick={loadMessages}>Coba lagi</button
+									onclick={() => loadMessages()}>Coba lagi</button
 								>
 							</div>
 						</div>
@@ -394,13 +406,13 @@
 								<button
 									class="rounded-full px-4 py-2 text-xs font-semibold text-rose-700 hover:bg-rose-50"
 									type="button"
-									onclick={loadMessages}>Gagal memuat, coba lagi</button
+									onclick={() => loadMessages()}>Gagal memuat, coba lagi</button
 								>
 							{:else if messagesHaveMore}
 								<button
 									class="rounded-full border border-[#173b2c]/20 px-4 py-2 text-xs font-semibold text-[#173b2c] hover:bg-[#edf3ed]"
 									type="button"
-									onclick={loadMessages}>Muat lebih banyak</button
+									onclick={() => loadMessages()}>Muat lebih banyak</button
 								>
 							{:else if !messagesHaveMore}
 								<p class="text-xs text-[#8a968e]">Semua ucapan sudah ditampilkan</p>

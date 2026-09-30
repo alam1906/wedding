@@ -79,8 +79,30 @@ digunakan untuk mengubah status pembayaran.
 ```sh
 bun run check
 bun run lint
+bun run test
 bun run build
 ```
+
+`bun run test` menjalankan PocketBase nyata dengan database dan data sintetis di direktori
+sementara: kontrak/rules/realtime, upgrade schema berisi data, pemulihan/hapus akun, serta
+pembayaran dan afiliasi. Gateway dan SMTP tetap lokal; tidak membuka `pocketbase/pb_data`.
+Port default 8190, 8193, dan 8197 harus kosong; `WEDEZ_TEST_PORT` dapat menggantinya.
+CI menjalankan suite ini sebelum membangun image, menggunakan PocketBase 0.40.1 untuk Linux.
+
+Uji browser tiga aplikasi menggunakan instalasi Playwright/Chromium yang sudah tersedia:
+
+```sh
+WEDEZ_KEEP_TEST_SERVER=1 bun run test:quality
+# Di terminal lain, gunakan fixture.json pada direktori artefak yang dicetak:
+PLAYWRIGHT_MODULE=/path/to/playwright/index.mjs \
+PLAYWRIGHT_CHROMIUM_EXECUTABLE=/path/to/chromium \
+bun scripts/test-quality-browser.mjs /path/to/wedez-quality-xxx/fixture.json
+```
+
+Runner browser menjalankan dan menghentikan ketiga web di port 5196–5198. Hentikan fixture
+PocketBase dengan Ctrl+C setelah selesai. Artefak berisi kredensial sintetis, bukan akun asli.
+Untuk menguji build statis, build ketiga web dengan URL API/undangan lokal yang sama, lalu
+jalankan runner dengan `WEDEZ_TEST_PREVIEW=1`. Build ulang dengan konfigurasi normal sesudahnya.
 
 ## Deployment Dokploy
 

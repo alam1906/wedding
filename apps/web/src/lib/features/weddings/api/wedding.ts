@@ -296,24 +296,33 @@ export async function saveCurrentWeddingStories(
 		const currentStories = await getWeddingStories(weddingId);
 		const currentStoryIds = new Set(currentStories.map((story) => story.id));
 		const retainedStoryIds = new Set<string>();
+		const batch = pocketBase.createBatch();
+		let operations = 0;
 
 		for (const [index, story] of stories.entries()) {
 			const payload = storyPayload(weddingId, story, index + 1);
 
 			if (currentStoryIds.has(story.id)) {
-				await pocketBase.collection('wedding_stories').update(story.id, payload);
+				batch.collection('wedding_stories').update(story.id, payload);
 				retainedStoryIds.add(story.id);
 			} else {
-				const createdStory = await pocketBase.collection('wedding_stories').create(payload);
-				retainedStoryIds.add(createdStory.id);
+				batch.collection('wedding_stories').create(payload);
 			}
+			operations++;
 		}
 
 		for (const story of currentStories) {
 			if (!retainedStoryIds.has(story.id)) {
-				await pocketBase.collection('wedding_stories').delete(story.id);
+				batch.collection('wedding_stories').delete(story.id);
+				operations++;
 			}
 		}
+		if (operations > 50) {
+			throw new WeddingDataError(
+				'Maksimal 50 perubahan kisah dalam sekali simpan. Kurangi perubahan lalu coba lagi.'
+			);
+		}
+		if (operations) await batch.send({ requestKey: null });
 
 		return await getWeddingStories(weddingId);
 	} catch (error) {
