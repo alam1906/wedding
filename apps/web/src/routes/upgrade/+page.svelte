@@ -38,6 +38,7 @@
 	let isPlanLoading = $state(true);
 	let isUpgrading = $state(false);
 	let isCouponOpen = $state(false);
+	let couponDialog = $state<HTMLDialogElement>();
 	let couponCode = $state('');
 	let paymentError = $state('');
 	let proPrice = $state(DEFAULT_PRO_PRICE);
@@ -84,6 +85,7 @@
 			activePlan === 'pro' ||
 			Boolean(couponCode.trim() && !couponApplied)
 	);
+	let couponDialogBusy = $derived(isUpgrading || isCouponValidating);
 
 	function editCoupon(value: string) {
 		couponCode = value.toUpperCase();
@@ -110,7 +112,25 @@
 	}
 
 	function toggleCouponForm() {
+		if (isUpgrading || isCouponValidating) return;
 		isCouponOpen = !isCouponOpen;
+	}
+
+	function openCouponDialog() {
+		if (
+			isPlanLoading ||
+			isUpgrading ||
+			isCouponValidating ||
+			isCheckingPayment ||
+			activePlan === 'pro'
+		) {
+			return;
+		}
+		couponDialog?.showModal();
+	}
+
+	function closeCouponDialog() {
+		if (!couponDialogBusy) couponDialog?.close();
 	}
 
 	async function finishUpgrade(showSuccessToast = true) {
@@ -125,7 +145,7 @@
 	}
 
 	async function handleUpgrade() {
-		if (checkoutDisabled) return;
+		if (checkoutDisabled || !couponDialog?.open) return;
 		isUpgrading = true;
 		paymentError = '';
 
@@ -248,6 +268,102 @@
 		content="Upgrade undangan digital Wedez ke paket Pro melalui pembayaran aman Duitku."
 	/>
 </svelte:head>
+
+<dialog
+	id="coupon-checkout-dialog"
+	bind:this={couponDialog}
+	aria-labelledby="coupon-checkout-title"
+	onclick={(event) => event.target === event.currentTarget && closeCouponDialog()}
+	oncancel={(event) => couponDialogBusy && event.preventDefault()}
+	class="coupon-dialog m-auto max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-md overflow-y-auto rounded-2xl border border-gray-200 bg-white p-0 shadow-2xl"
+>
+	<div class="p-5 sm:p-6">
+		<div class="flex items-start justify-between gap-4">
+			<div>
+				<h2 id="coupon-checkout-title" class="text-xl font-bold text-gray-950">
+					Punya kode kupon?
+				</h2>
+			</div>
+			<button
+				type="button"
+				onclick={closeCouponDialog}
+				disabled={couponDialogBusy}
+				aria-label="Tutup dialog kupon"
+				class="grid size-9 shrink-0 cursor-pointer place-items-center rounded-full bg-gray-100 text-gray-600 disabled:cursor-not-allowed disabled:opacity-50"
+			>
+				<svg
+					aria-hidden="true"
+					class="size-4"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="2"
+					stroke-linecap="round"
+				>
+					<path d="m6 6 12 12M18 6 6 18"></path>
+				</svg>
+			</button>
+		</div>
+
+		<div class="mt-5 rounded-xl border border-violet-100 bg-violet-50/50 p-4">
+			<p class="text-sm font-semibold text-gray-900">Kode kupon</p>
+			<CouponForm
+				id="checkout-coupon-form"
+				code={couponCode}
+				busy={isCouponValidating}
+				locked={isUpgrading}
+				applied={couponApplied}
+				error={couponError}
+				oninput={editCoupon}
+				onapply={applyCoupon}
+			/>
+		</div>
+		{#if couponCode.trim() && !couponApplied}
+			<p class="mt-3 text-xs leading-5 text-gray-500">
+				Klik Tambahkan untuk memeriksa kupon, atau kosongkan kode jika ingin lanjut tanpa kupon.
+			</p>
+		{/if}
+		{#if pendingDiffers}
+			<p
+				class="mt-4 rounded-xl bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-900"
+				role="status"
+			>
+				Tagihan sebelumnya masih aktif. Kupon ini bisa digunakan setelah tagihan tersebut berakhir.
+			</p>
+		{/if}
+		{#if paymentError}
+			<p class="mt-4 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700" role="alert">
+				{paymentError}
+			</p>
+		{/if}
+		<div class="mt-5 flex items-center justify-between gap-4 border-t border-gray-200 pt-5">
+			<span class="text-sm font-semibold text-gray-700">Total pembayaran</span>
+			<strong class="text-xl text-gray-950">{formattedProPrice}</strong>
+		</div>
+		<div class="mt-5 flex flex-col gap-3">
+			<button
+				type="button"
+				disabled={checkoutDisabled}
+				aria-busy={isUpgrading}
+				onclick={handleUpgrade}
+				class="w-full cursor-pointer rounded-xl bg-violet-700 px-5 py-3.5 text-sm font-bold text-white disabled:cursor-not-allowed disabled:bg-gray-300 disabled:text-gray-500"
+			>
+				{isUpgrading
+					? 'Menyiapkan pembayaran...'
+					: couponApplied
+						? 'Lanjutkan dengan kupon'
+						: 'Lanjut tanpa kupon'}
+			</button>
+			<button
+				type="button"
+				disabled={couponDialogBusy}
+				onclick={closeCouponDialog}
+				class="w-full cursor-pointer rounded-xl border border-gray-300 bg-white px-5 py-3 text-sm font-semibold text-gray-700 disabled:cursor-not-allowed disabled:opacity-50"
+				>Kembali</button
+			>
+		</div>
+	</div>
+</dialog>
 
 <main class="min-h-screen bg-gray-100">
 	<header class="fixed inset-x-0 top-0 z-50 border-b border-gray-200 bg-white px-4 sm:px-6">
@@ -478,7 +594,7 @@
 						onclick={toggleCouponForm}
 						class="cursor-pointer text-left text-sm font-semibold text-violet-700"
 					>
-						Punya kode kupon?
+						{couponApplied ? 'Ubah kode kupon' : 'Punya kode kupon?'}
 					</button>
 					{#if isCouponOpen}
 						<CouponForm
@@ -491,12 +607,16 @@
 							oninput={editCoupon}
 							onapply={applyCoupon}
 						/>
+					{:else if couponApplied && quote}
+						<p class="mt-2 text-xs text-green-700">Kupon {quote.coupon_code} terpasang.</p>
 					{/if}
 					<button
 						type="button"
 						disabled={checkoutDisabled}
 						aria-busy={isUpgrading}
-						onclick={handleUpgrade}
+						aria-haspopup="dialog"
+						aria-controls="coupon-checkout-dialog"
+						onclick={openCouponDialog}
 						class="mt-5 w-full cursor-pointer rounded-xl bg-violet-700 px-5 py-3.5 text-sm font-bold text-white transition hover:bg-violet-800 disabled:cursor-not-allowed disabled:bg-gray-300 disabled:text-gray-500"
 						>{checkoutLabel}</button
 					>
@@ -526,7 +646,7 @@
 				onclick={toggleCouponForm}
 				class="cursor-pointer text-left text-sm font-semibold text-violet-700"
 			>
-				Punya kode kupon?
+				{couponApplied ? 'Ubah kode kupon' : 'Punya kode kupon?'}
 			</button>
 			{#if isCouponOpen}
 				<CouponForm
@@ -539,15 +659,28 @@
 					oninput={editCoupon}
 					onapply={applyCoupon}
 				/>
+			{:else if couponApplied && quote}
+				<p class="mt-2 text-xs text-green-700">
+					Kupon {quote.coupon_code} terpasang · Hemat {formatRupiah(quote.discount_amount)}
+				</p>
 			{/if}
 		</div>
 		<button
 			type="button"
 			disabled={checkoutDisabled}
 			aria-busy={isUpgrading}
-			onclick={handleUpgrade}
+			aria-haspopup="dialog"
+			aria-controls="coupon-checkout-dialog"
+			onclick={openCouponDialog}
 			class="w-full cursor-pointer rounded-xl bg-violet-700 px-5 py-3.5 text-sm font-bold text-white transition disabled:cursor-not-allowed disabled:bg-gray-300 disabled:text-gray-500"
 			>{checkoutLabel}</button
 		>
 	</div>
 </div>
+
+<style>
+	.coupon-dialog::backdrop {
+		background: rgb(17 24 39 / 50%);
+		backdrop-filter: blur(3px);
+	}
+</style>

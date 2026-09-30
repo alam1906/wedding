@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { slide } from 'svelte/transition';
+	import WhatsAppButton from '#lib/components/ui/WhatsAppButton.svelte';
 	import ThemeCatalogCard from '#lib/features/wedding-themes/components/ThemeCatalogCard.svelte';
 	import { WEDDING_THEME_CATALOG } from '#lib/features/wedding-themes/model/theme-catalog.js';
 	import type { WeddingThemeKey } from '#lib/features/wedding-themes/model/wedding-theme.js';
@@ -19,13 +20,10 @@
 		{ href: '#harga', label: 'Harga' }
 	];
 
-	const featuredThemeKeys: WeddingThemeKey[] = [
-		'minimalist-1',
-		'neubrutalism-1',
-		'playful-1',
-		'3d-design-1'
-	];
-	const themes = WEDDING_THEME_CATALOG.filter((theme) => featuredThemeKeys.includes(theme.key));
+	const featuredThemeKeys: WeddingThemeKey[] = ['neubrutalism-1', 'sakura', 'retro', 'kinetika'];
+	const themes = featuredThemeKeys.flatMap((key) =>
+		WEDDING_THEME_CATALOG.filter((theme) => theme.key === key)
+	);
 
 	const benefits = [
 		{
@@ -37,8 +35,24 @@
 			description: 'Pantau siapa yang hadir, tidak hadir, dan belum memberikan jawaban.'
 		},
 		{
-			title: 'Selalu mudah diedit',
+			title: 'Mudah diedit',
 			description: 'Perbarui informasi acara kapan saja tanpa harus mengirim ulang undangan.'
+		}
+	];
+
+	const affiliateBenefits = [
+		{
+			title: 'Bagikan kode, dapatkan komisi',
+			description: 'Bagikan kode kuponmu dan dapatkan komisi untuk setiap pembayaran berhasil.'
+		},
+		{
+			title: 'Komisi trasnparan',
+			description:
+				'Pantau saldo tersedia, pembayaran berhasil, dan riwayat komisi langsung dari dashboard.'
+		},
+		{
+			title: 'Pencairan mudah dipantau',
+			description: 'Ajukan pencairan saldo ke rekeningmu dan ikuti statusnya dalam satu tempat.'
 		}
 	];
 
@@ -310,12 +324,19 @@
 			<div class="order-2 min-w-0 lg:order-1">
 				<h1
 					data-reveal
-					class="max-w-2xl text-[40px] leading-[1.08] font-bold tracking-[-0.045em] text-gray-950 sm:text-[48px] lg:text-[56px] 2xl:max-w-3xl 2xl:text-[64px]"
+					class="max-w-2xl text-[38px] leading-[1.08] font-bold tracking-[-0.045em] text-gray-950 sm:text-[46px] lg:text-[54px] 2xl:max-w-3xl 2xl:text-[62px]"
 				>
-					Undangan Digital untuk <span
-						class="bg-linear-to-r from-[#9400ff] to-[#7200e8] bg-clip-text text-transparent"
-						>Gen Z</span
-					>
+					<span class="block text-balance">
+						Wedding made <span
+							class="bg-linear-to-r from-[#9400ff] to-[#7200e8] bg-clip-text text-transparent"
+							>Ez</span
+						>
+						for
+						<span
+							class="bg-linear-to-r from-[#9400ff] to-[#7200e8] bg-clip-text whitespace-nowrap text-transparent"
+							>Gen Z</span
+						>
+					</span>
 				</h1>
 
 				<p
@@ -323,7 +344,7 @@
 					class="mt-6 max-w-xl text-base leading-7 text-gray-600 sm:text-lg sm:leading-8 2xl:max-w-2xl 2xl:text-xl 2xl:leading-9"
 				>
 					Buat undangan digital yang estetik, personal, dan gampang dibagikan. Pilih tema, ceritakan
-					momen kalian, lalu pantau RSVP—semuanya dalam satu tempat.
+					momen kalian, lalu pantau RSVP semuanya dalam satu tempat.
 				</p>
 
 				<div class="mt-8 flex flex-col gap-3 sm:flex-row">
@@ -568,7 +589,7 @@
 			aria-label="Ringkasan Wedez"
 		>
 			<div class="grid w-full grid-cols-2 gap-6 sm:grid-cols-4">
-				{#each [{ value: '5 menit', label: 'Mulai membuat' }, { value: '20+', label: 'Tema pilihan' }, { value: '1 link', label: 'Untuk semua tamu' }, { value: '24/7', label: 'Bisa diperbarui' }] as stat (stat.label)}
+				{#each [{ value: '5 menit', label: 'Mulai membuat' }, { value: '50+', label: 'Tema pilihan' }, { value: '1 link', label: 'Untuk semua tamu' }, { value: '24/7', label: 'Bisa diperbarui' }] as stat (stat.label)}
 					<div data-reveal class="text-center">
 						<p class="text-lg font-semibold text-gray-950">{stat.value}</p>
 						<p class="mt-1 text-xs text-gray-500 sm:text-sm">{stat.label}</p>
@@ -674,14 +695,13 @@
 		<div
 			class="mx-auto grid w-full max-w-7xl items-center gap-14 px-4 sm:px-6 lg:grid-cols-[0.85fr_1.15fr] lg:gap-20 lg:px-8 2xl:max-w-[1600px] 2xl:gap-24 2xl:px-10"
 		>
-			<div>
-				<p data-reveal class="text-sm font-semibold text-gray-600">SATU DASHBOARD</p>
+			<div class="order-2 lg:order-1">
 				<h2
 					data-reveal
 					id="features-title"
-					class="mt-3 text-[40px] leading-[1.1] font-bold tracking-[-0.04em] text-gray-950 sm:text-[48px] lg:text-[56px]"
+					class="text-[32px] font-semibold text-gray-600 sm:text-[36px]"
 				>
-					Lebih dekat dengan setiap tamu.
+					DASHBOARD PENGANTIN
 				</h2>
 				<p data-reveal class="mt-5 text-lg leading-8 text-gray-600">
 					Semua informasi penting tersedia dalam satu tempat yang mudah dipahami.
@@ -712,190 +732,88 @@
 				</div>
 			</div>
 
-			<div
-				data-reveal
-				class="relative mx-auto w-full max-w-2xl rounded-4xl bg-gray-100 p-2 shadow-sm sm:p-3"
-			>
+			<figure data-reveal class="order-1 mx-auto w-full max-w-2xl min-w-0 lg:order-2">
 				<div
-					class="absolute inset-x-0 -inset-y-8 -z-10 rounded-full bg-gray-200/70 blur-3xl sm:-inset-x-8"
-					aria-hidden="true"
-				></div>
-				<div
-					class="overflow-hidden rounded-3xl border border-gray-200 bg-gray-100 p-3 shadow-xl shadow-gray-200/60 sm:p-5"
+					class="overflow-hidden rounded-3xl border border-gray-200 bg-gray-100 p-2 shadow-xl shadow-gray-200/60 sm:p-3"
 				>
-					<div class="overflow-hidden rounded-2xl border border-gray-200 bg-white">
-						<div
-							class="flex items-center justify-between border-b border-gray-200 px-4 py-3 sm:px-5"
-						>
-							<div class="flex items-center gap-2">
-								<span class="size-2.5 rounded-full bg-gray-300"></span>
-								<span class="size-2.5 rounded-full bg-gray-300"></span>
-								<span class="size-2.5 rounded-full bg-gray-900"></span>
-							</div>
-							<p class="text-xs font-medium text-gray-500">Wedez Dashboard</p>
+					<img
+						src="/images/dashboard/overview.webp"
+						alt="Dashboard Wedez terbaru dengan progres undangan, paket aktif, dan empat statistik RSVP tamu"
+						width="1280"
+						height="800"
+						loading="lazy"
+						decoding="async"
+						class="h-auto w-full rounded-2xl"
+					/>
+				</div>
+				<figcaption class="sr-only">
+					Pratinjau dashboard pengantin Wedez dengan data contoh Raka dan Laras.
+				</figcaption>
+			</figure>
+		</div>
+	</section>
+
+	<section
+		class="w-full border-t border-gray-200 bg-white py-20 lg:py-28"
+		aria-labelledby="affiliate-title"
+	>
+		<div
+			class="mx-auto grid w-full max-w-7xl items-center gap-14 px-4 sm:px-6 lg:grid-cols-[1.15fr_0.85fr] lg:gap-20 lg:px-8 2xl:max-w-[1600px] 2xl:gap-24 2xl:px-10"
+		>
+			<div class="order-2">
+				<h2
+					data-reveal
+					id="affiliate-title"
+					class="text-[32px] font-semibold text-gray-600 sm:text-[36px]"
+				>
+					DASHBOARD AFFILIATE
+				</h2>
+				<p data-reveal class="mt-5 text-lg leading-8 text-gray-600">
+					Bantu calon pengantin menemukan undangan favoritnya. Bagikan kode kuponmu dan pantau
+					komisi dari setiap pembayaran berhasil, semuanya lewat satu dashboard.
+				</p>
+				<div class="mt-10 space-y-7">
+					{#each affiliateBenefits as benefit (benefit.title)}
+						<div data-reveal class="flex gap-4">
 							<span
-								class="rounded-full bg-gray-100 px-2.5 py-1 text-[10px] font-medium text-gray-600"
-								>Aktif</span
+								class="mt-1 grid size-7 shrink-0 place-items-center rounded-full bg-white text-gray-900 shadow-sm"
 							>
-						</div>
-
-						<div class="grid min-h-105 grid-cols-[76px_1fr] sm:grid-cols-[150px_1fr]">
-							<aside class="flex flex-col border-r border-gray-200 bg-white p-2.5 sm:p-4">
-								<p class="text-center text-xs font-bold tracking-tight text-gray-900 sm:text-base">
-									<span class="sm:hidden">W</span>
-									<span class="hidden sm:inline">Wedez</span>
-								</p>
-								<nav class="mt-4 space-y-1" aria-label="Pratinjau navigasi dashboard kedua">
-									<div
-										class="flex items-center justify-center gap-2 rounded-lg bg-gray-200 px-2 py-2 text-[10px] font-semibold text-gray-900 sm:justify-start"
-									>
-										<svg
-											class="size-3.5 shrink-0"
-											viewBox="0 0 24 24"
-											fill="none"
-											stroke="currentColor"
-											stroke-width="1.8"
-											aria-hidden="true"
-										>
-											<path d="M3 11.5 12 4l9 7.5"></path>
-											<path d="M5.5 10v10h13V10M9 20v-6h6v6"></path>
-										</svg>
-										<span class="hidden sm:inline">Beranda</span>
-									</div>
-									{#each ['Data Pernikahan', 'Undangan', 'Pengaturan'] as item (item)}
-										<div
-											class="flex items-center justify-center gap-2 rounded-lg px-2 py-2 text-[10px] font-medium text-gray-500 sm:justify-start"
-										>
-											<svg
-												class="size-3.5 shrink-0"
-												viewBox="0 0 24 24"
-												fill="none"
-												stroke="currentColor"
-												stroke-width="1.8"
-												aria-hidden="true"
-											>
-												{#if item === 'Data Pernikahan'}
-													<rect x="3" y="5" width="18" height="16" rx="2"></rect>
-													<path d="M8 3v4M16 3v4M3 10h18"></path>
-												{:else if item === 'Undangan'}
-													<rect x="3" y="5" width="18" height="14" rx="2"></rect>
-													<path d="m4 7 8 6 8-6"></path>
-												{:else}
-													<path d="M4 7h10M18 7h2M4 17h2M10 17h10"></path>
-													<circle cx="16" cy="7" r="2"></circle>
-													<circle cx="8" cy="17" r="2"></circle>
-												{/if}
-											</svg>
-											<span class="hidden sm:inline">{item}</span>
-										</div>
-									{/each}
-								</nav>
-								<div class="mt-auto border-t border-gray-200 pt-3">
-									<div
-										class="rounded-lg bg-red-600 px-2 py-2 text-center text-[9px] font-semibold text-white"
-									>
-										<span class="sm:hidden">Keluar</span>
-										<span class="hidden sm:inline">Logout</span>
-									</div>
-								</div>
-							</aside>
-
-							<div class="min-w-0 bg-gray-100">
-								<div class="flex h-10 items-center border-b border-gray-200 bg-white px-3 sm:px-4">
-									<p class="text-xs font-bold tracking-tight text-gray-900 sm:text-sm">Beranda</p>
-								</div>
-								<div class="space-y-2.5 p-2.5 sm:p-4">
-									<div class="rounded-xl border border-gray-200 bg-white p-3 shadow-sm">
-										<div class="flex items-center gap-2.5">
-											<span
-												class="grid size-7 shrink-0 place-items-center rounded-lg bg-gray-100 text-gray-600"
-											>
-												<svg
-													class="size-3.5"
-													viewBox="0 0 24 24"
-													fill="none"
-													stroke="currentColor"
-													stroke-width="1.8"
-													aria-hidden="true"
-												>
-													<path d="M10 13a5 5 0 0 0 7.1.1l2-2a5 5 0 0 0-7.1-7.1l-1.1 1.1"></path>
-													<path d="M14 11a5 5 0 0 0-7.1-.1l-2 2a5 5 0 0 0 7.1 7.1l1.1-1.1"></path>
-												</svg>
-											</span>
-											<div class="min-w-0 flex-1">
-												<p class="text-[8px] font-medium text-gray-500 sm:text-[9px]">
-													Link pernikahan
-												</p>
-												<p class="truncate text-[10px] font-bold text-gray-900 sm:text-xs">
-													wedez.id/raka-laras
-												</p>
-											</div>
-											<span
-												class="hidden rounded-lg bg-gray-900 px-2.5 py-2 text-[8px] font-semibold text-white sm:inline-flex"
-												>Kelola undangan</span
-											>
-										</div>
-									</div>
-
-									<div class="rounded-xl border border-gray-200 bg-white p-3 shadow-sm">
-										<div class="flex items-start justify-between gap-2">
-											<div>
-												<p class="text-[8px] font-medium text-gray-500 sm:text-[9px]">
-													Kelengkapan undangan
-												</p>
-												<p class="mt-1 text-sm font-bold tracking-tight text-gray-900 sm:text-base">
-													80% selesai
-												</p>
-											</div>
-											<span
-												class="rounded-lg border border-gray-300 px-2 py-1.5 text-[8px] font-semibold text-gray-700"
-												>Lengkapi data</span
-											>
-										</div>
-										<div class="mt-2.5 h-1.5 overflow-hidden rounded-full bg-gray-100">
-											<div class="h-full w-4/5 rounded-full bg-yellow-400"></div>
-										</div>
-									</div>
-
-									<div class="grid grid-cols-3 gap-1.5 sm:gap-2.5">
-										{#each [{ label: 'Tamu diundang', value: '128' }, { label: 'Tamu hadir', value: '86' }, { label: 'Tidak hadir', value: '12' }] as stat (stat.label)}
-											<div
-												class="min-w-0 rounded-xl border border-gray-200 bg-white p-2.5 shadow-sm"
-											>
-												<p class="truncate text-[7px] font-medium text-gray-500 sm:text-[8px]">
-													{stat.label}
-												</p>
-												<p
-													class="mt-1.5 text-base font-bold tracking-tight text-gray-900 sm:text-lg"
-												>
-													{stat.value}
-												</p>
-											</div>
-										{/each}
-									</div>
-
-									<div class="rounded-xl border border-gray-200 bg-white p-3 shadow-sm">
-										<div class="flex items-center justify-between gap-3">
-											<div>
-												<p class="text-[8px] font-medium text-gray-500 sm:text-[9px]">
-													Paket aktif
-												</p>
-												<p class="mt-1 text-sm font-bold tracking-tight text-gray-900">
-													Paket Gratis
-												</p>
-											</div>
-											<span
-												class="rounded-lg border border-gray-300 px-2 py-1.5 text-[8px] font-semibold text-gray-700"
-												>Lihat paket</span
-											>
-										</div>
-									</div>
-								</div>
+								<svg class="size-4" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+									<path
+										d="M7 12.5L10.5 16L17.5 8.5"
+										stroke="currentColor"
+										stroke-width="2"
+										stroke-linecap="round"
+										stroke-linejoin="round"
+									/>
+								</svg>
+							</span>
+							<div>
+								<h3 class="font-semibold text-gray-950">{benefit.title}</h3>
+								<p class="mt-1 leading-7 text-gray-600">{benefit.description}</p>
 							</div>
 						</div>
-					</div>
+					{/each}
 				</div>
 			</div>
+			<figure data-reveal class="order-1 mx-auto w-full max-w-2xl min-w-0">
+				<div
+					class="overflow-hidden rounded-3xl border border-gray-200 bg-gray-100 p-2 shadow-xl shadow-gray-200/60 sm:p-3"
+				>
+					<img
+						src="/images/dashboard/affiliate.webp"
+						alt="Dashboard affiliate Wedez dengan kode kupon, saldo komisi, pembayaran berhasil, dan progres pencairan"
+						width="1280"
+						height="800"
+						loading="lazy"
+						decoding="async"
+						class="h-auto w-full rounded-2xl"
+					/>
+				</div>
+				<figcaption class="sr-only">
+					Pratinjau dashboard affiliate Wedez dengan data contoh.
+				</figcaption>
+			</figure>
 		</div>
 	</section>
 
@@ -905,7 +823,7 @@
 		>
 			<div class="w-full">
 				<div id="harga" class="mx-auto max-w-2xl scroll-mt-22 text-center">
-					<p data-reveal class="text-sm font-semibold text-gray-600">HARGA SEDERHANA</p>
+					<p data-reveal class="text-sm font-semibold text-gray-600">HARGA</p>
 					<h2
 						data-reveal
 						class="mt-3 text-[40px] leading-[1.1] font-bold tracking-[-0.04em] text-gray-950 sm:text-[48px] lg:text-[56px]"
@@ -1022,12 +940,11 @@
 			id="buat-undangan"
 			class="w-full scroll-mt-22 rounded-3xl border border-gray-200 bg-white px-6 py-14 text-center shadow-sm sm:px-10 sm:py-16 lg:px-16 lg:py-20"
 		>
-			<p data-reveal class="text-sm font-semibold text-gray-700">Waktunya memulai</p>
 			<h2
 				data-reveal
-				class="mx-auto mt-3 max-w-3xl text-[40px] leading-[1.1] font-bold tracking-[-0.04em] text-gray-950 sm:text-[48px] lg:text-[56px]"
+				class="mx-auto max-w-3xl text-[40px] leading-[1.1] font-bold tracking-[-0.04em] text-gray-950 sm:text-[48px] lg:text-[56px]"
 			>
-				Undangan kalian bisa siap hari ini.
+				Buat undangan kurang dari 5 Menit
 			</h2>
 			<p data-reveal class="mx-auto mt-5 max-w-xl text-lg leading-8 text-gray-700">
 				Mulai gratis, pilih tema favorit, dan lihat hasilnya secara langsung.
@@ -1054,11 +971,8 @@
 
 <footer class="border-t border-gray-200 bg-white py-10">
 	<div class="mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8 2xl:max-w-[1600px] 2xl:px-10">
-		<a
-			href="/affiliate"
-			class="mb-4 inline-block text-sm font-semibold text-violet-700 hover:text-violet-900"
-			>Gabung Affiliate</a
-		>
 		<p class="text-sm text-gray-500">© 2026 Wedez</p>
 	</div>
 </footer>
+
+<WhatsAppButton phoneNumber="+6281292464061" />

@@ -20,7 +20,7 @@
 >
 
 <div class="flex min-h-dvh flex-col bg-gray-50">
-	<header class="border-b border-gray-200 bg-white">
+	<header class="sticky top-0 z-50 shrink-0 border-b border-gray-200 bg-white">
 		<div
 			class="mx-auto grid w-full max-w-7xl grid-cols-2 items-center gap-x-4 px-4 py-3 sm:px-6 md:grid-cols-[1fr_auto_1fr] lg:px-8 2xl:max-w-[1600px] 2xl:px-10"
 		>
@@ -55,7 +55,7 @@
 
 	<main
 		id="theme-catalog"
-		class="mx-auto w-full max-w-7xl flex-1 px-4 pt-10 pb-16 sm:px-6 sm:pt-16 lg:px-8 lg:pb-24 2xl:max-w-[1600px] 2xl:px-10"
+		class="mx-auto w-full max-w-7xl flex-1 scroll-mt-12 px-4 pt-10 pb-16 sm:px-6 sm:pt-16 md:scroll-mt-0 lg:px-8 lg:pb-24 2xl:max-w-[1600px] 2xl:px-10"
 	>
 		<div
 			class="flex flex-wrap items-end justify-between gap-4 border-b border-gray-200 pb-8 sm:pb-10"

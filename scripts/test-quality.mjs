@@ -187,6 +187,11 @@ try {
 	});
 	let legacy;
 	if (upgrade) {
+		// Older project databases can lack PocketBase's default avatar field.
+		const users = await pb.collections.getOne('users');
+		await pb.collections.update(users.id, {
+			fields: users.fields.filter((field) => field.name !== 'avatar')
+		});
 		const owner = await user();
 		const id = await provision(owner.client);
 		legacy = await owner.client.collection('weddings').update(id, {
@@ -204,6 +209,21 @@ try {
 		);
 		logs = '';
 		await start();
+		await check(
+			'migration adds a missing avatar field without changing existing users',
+			async () => {
+				const users = await pb.collections.getOne('users');
+				const avatar = users.fields.find((field) => field.name === 'avatar');
+				assert.equal(avatar?.type, 'file');
+				assert.equal(avatar.maxSelect, 1);
+				assert.equal(avatar.maxSize, 10 * 1024 * 1024);
+				assert.deepEqual(avatar.mimeTypes, ['image/jpeg', 'image/png', 'image/webp']);
+				const after = await owner.client.collection('users').getOne(owner.record.id);
+				assert.equal(after.email, owner.email);
+				assert.equal(after.wedding_id, id);
+				assert.equal(after.avatar, '');
+			}
+		);
 		await check(
 			'populated migration preserves legacy records/files and allows unrelated edits',
 			async () => {

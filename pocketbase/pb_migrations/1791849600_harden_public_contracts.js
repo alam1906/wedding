@@ -22,14 +22,22 @@ migrate(
 		}
 		app.save(settings);
 
-		for (const [name, fields] of [
+		for (const [collectionName, fields] of [
 			['weddings', ['cover', 'groom_photo', 'bride_photo', 'gallery']],
 			['wedding_stories', ['image']],
 			['users', ['avatar']]
 		]) {
-			const collection = app.findCollectionByNameOrId(name);
-			for (const name of fields) {
-				const field = collection.fields.getByName(name);
+			const collection = app.findCollectionByNameOrId(collectionName);
+			for (const fieldName of fields) {
+				let field = collection.fields.getByName(fieldName);
+				// Legacy users collections may not include the default profile photo field.
+				if (!field && collectionName === 'users' && fieldName === 'avatar') {
+					field = new FileField({ name: fieldName, maxSelect: 1 });
+					collection.fields.add(field);
+				}
+				if (!field) {
+					throw new Error(`Missing upload field: ${collectionName}.${fieldName}`);
+				}
 				field.mimeTypes = ['image/jpeg', 'image/png', 'image/webp'];
 				field.maxSize = 10 * 1024 * 1024;
 			}
