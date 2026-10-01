@@ -1,0 +1,926 @@
+@font-face {
+	font-family: 'Floral Parisienne';
+	src: url('/fonts/kusuma/parisienne-latin.woff2') format('woff2');
+	font-weight: 400;
+	font-style: normal;
+	font-display: swap;
+}
+
+/* The six Invee-inspired compositions share behavior, not a narrow-page layout. */
+.edition-theme.edition-floral {
+	--e-bg: #fffdf9;
+	--e-surface: #fff;
+	--e-serif: 'Edition Cormorant', Georgia, serif;
+	--e-body: 'Edition Jost', Arial, sans-serif;
+	--e-ink: #534738;
+	--e-muted: #73624f;
+	--e-accent: #926b40;
+	--e-border: #dccdb9;
+	--f-tint: #f2eee5;
+	--f-overlay: #25251b69;
+	--f-button: #997348;
+	--f-button-ink: #fff;
+	--f-corner: min(30vw, 410px);
+	--e-shadow: 0 12px 46px #49361c0c;
+}
+.edition-floral .edition-container {
+	width: min(100%, 1040px);
+	position: relative;
+	z-index: 2;
+}
+.edition-floral .edition-section {
+	padding: clamp(64px, 8vw, 112px) max(24px, 7vw);
+}
+.edition-floral .edition-heading {
+	margin-bottom: clamp(36px, 5vw, 60px);
+}
+.edition-floral .edition-heading h2 {
+	font: 400 clamp(44px, 5vw, 64px)/1.25 var(--e-script);
+	color: var(--e-accent);
+}
+.edition-floral .edition-cover {
+	overflow: clip;
+	padding: max(20px, env(safe-area-inset-top)) 24px max(20px, env(safe-area-inset-bottom));
+	background: var(--e-bg);
+}
+.edition-floral .edition-cover-backdrop {
+	background: var(--e-accent);
+}
+.edition-floral .edition-cover-backdrop::after {
+	background: var(--f-overlay);
+}
+.edition-floral .edition-cover-backdrop img {
+	object-position: center;
+}
+.edition-floral .edition-cover-card {
+	width: min(100%, 680px);
+	gap: clamp(12px, 2.8dvh, 26px);
+	padding: 26px;
+	color: #fff;
+	z-index: 3;
+}
+.edition-floral .edition-cover-heading {
+	position: relative;
+	isolation: isolate;
+}
+.edition-floral .edition-cover-names {
+	font: 400 clamp(48px, 6.4vmin, 76px)/1.1 var(--e-script);
+	color: #fff;
+	text-shadow: 0 2px 22px #0003;
+}
+.edition-floral .edition-cover-names i {
+	color: inherit;
+}
+.edition-floral .edition-cover-date,
+.edition-floral .edition-recipient {
+	color: #fff;
+	font-size: 13px;
+}
+.edition-floral .edition-cover-date {
+	font-family: var(--e-serif);
+	font-size: 17px;
+	letter-spacing: 0.06em;
+}
+.edition-floral .edition-recipient-name {
+	color: #fff;
+	font: 400 clamp(23px, 3vmin, 30px)/1.35 var(--e-script);
+}
+.edition-floral .edition-countdown {
+	width: min(100%, 350px);
+	gap: clamp(4px, 2vw, 24px);
+}
+.edition-floral .edition-countdown > div {
+	display: flex;
+	flex-direction: column-reverse;
+	align-items: center;
+	justify-content: center;
+	gap: 5px;
+	padding: 0;
+}
+.edition-floral .edition-countdown strong {
+	font: 600 clamp(25px, 3.8vmin, 36px)/1.15 var(--e-serif);
+}
+.edition-floral .edition-countdown span {
+	font-size: 10px;
+	letter-spacing: 0.04em;
+}
+.edition-floral .edition-outline,
+.edition-floral .edition-button {
+	border-radius: 4px;
+	font-size: 13px;
+	letter-spacing: 0;
+	text-transform: none;
+}
+.edition-floral .edition-open-button {
+	min-width: 190px;
+	margin-top: 4px;
+	color: var(--f-button-ink);
+	background: var(--f-button);
+	border-color: transparent;
+}
+.edition-floral .edition-open-button:hover {
+	background: var(--f-button);
+	color: var(--f-button-ink);
+	box-shadow: 0 0 0 5px #ffffff24;
+}
+.edition-floral .edition-cover :focus-visible {
+	outline-color: #fff;
+}
+.edition-floral .floral-frame {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	color: inherit;
+	stroke: currentColor;
+	stroke-width: 1.25px;
+	opacity: 0.8;
+	z-index: -1;
+	pointer-events: none;
+	overflow: visible;
+}
+.edition-floral .floral-ornaments {
+	position: absolute;
+	inset: 0;
+	z-index: 2;
+	overflow: clip;
+	pointer-events: none;
+}
+.edition-floral .floral-spray {
+	position: absolute;
+	display: block;
+	width: var(--f-corner);
+	aspect-ratio: 1;
+}
+.edition-floral .floral-spray img {
+	width: 100%;
+	height: 100%;
+	object-fit: contain;
+	transform-origin: 20% 80%;
+}
+.edition-floral .floral-spray-left {
+	left: -3%;
+	bottom: -5%;
+}
+.edition-floral .floral-spray-right {
+	right: -3%;
+	top: -5%;
+	transform: rotate(180deg);
+}
+.edition-floral .floral-ornaments-bottom .floral-spray-right {
+	top: auto;
+	bottom: -5%;
+	transform: scaleX(-1);
+}
+.edition-floral .floral-ornaments-sides .floral-spray {
+	top: 50%;
+	bottom: auto;
+	opacity: 0.85;
+}
+.edition-floral .floral-ornaments-sides .floral-spray-left {
+	transform: translateY(-50%);
+}
+.edition-floral .floral-ornaments-sides .floral-spray-right {
+	transform: translateY(-50%) scaleX(-1);
+}
+.edition-floral .edition-hero-landscape {
+	width: 100%;
+	height: 100dvh;
+	min-height: 460px;
+}
+.edition-floral .edition-hero-landscape::after {
+	background: var(--f-overlay);
+}
+.edition-floral .edition-hero-landscape .edition-hero-copy {
+	top: 0;
+	bottom: 0;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	gap: 28px;
+	z-index: 3;
+}
+.edition-floral .edition-hero-names {
+	font: 400 clamp(54px, 8vw, 96px)/1.2 var(--e-script);
+	color: #fff;
+}
+.edition-floral .edition-hero-names i,
+.edition-floral .edition-hero-date {
+	color: #fff;
+}
+.edition-floral .edition-hero-date {
+	font-size: 14px;
+}
+.edition-floral .edition-quote-section {
+	background: var(--f-tint);
+	display: grid;
+	place-items: center;
+	padding-block: clamp(72px, 9vw, 120px);
+}
+.edition-floral .edition-quote {
+	position: relative;
+	z-index: 2;
+	max-width: 760px;
+}
+.edition-floral .edition-quote blockquote {
+	font-size: clamp(22px, 2.5vw, 29px);
+	color: var(--e-ink);
+	line-height: 1.65;
+}
+.edition-floral .edition-couple-section {
+	background:
+		radial-gradient(ellipse at 0 70%, var(--f-tint), transparent 45%),
+		radial-gradient(ellipse at 100% 25%, var(--f-tint), transparent 45%), var(--e-bg);
+}
+.edition-floral .edition-couple-section > .floral-ornaments,
+.edition-floral .edition-events-section > .floral-ornaments {
+	--f-corner: min(23vw, 330px);
+	z-index: 1;
+}
+.edition-floral .edition-couple {
+	gap: clamp(20px, 4vw, 70px);
+}
+.edition-floral .edition-portrait {
+	width: min(100%, 260px);
+	height: auto;
+	aspect-ratio: 1;
+	border: 6px solid var(--e-bg);
+	outline: 1px solid var(--e-accent);
+	outline-offset: 5px;
+	margin-bottom: 30px;
+	box-shadow: 0 0 0 10px var(--f-tint);
+}
+.edition-floral .edition-person h3 {
+	color: var(--e-accent);
+	font: 400 clamp(34px, 3.8vw, 45px)/1.2 var(--e-script);
+}
+.edition-floral .floral-portrait-wrap {
+	position: relative;
+	width: min(100%, 260px);
+	margin: 0 auto 30px;
+}
+.edition-floral .floral-portrait-wrap .edition-portrait {
+	margin: 0;
+}
+.edition-floral .floral-portrait-wrap .floral-ornaments {
+	--f-corner: 50%;
+	overflow: visible;
+}
+.edition-floral .floral-portrait-wrap .floral-spray-left {
+	left: -15%;
+	bottom: -8%;
+}
+.edition-floral .floral-portrait-wrap .floral-spray-right {
+	right: -15%;
+	top: -8%;
+}
+.edition-floral .edition-person p {
+	font-size: 15px;
+}
+.edition-floral .edition-event {
+	border-radius: 180px 180px 14px 14px;
+	padding: 64px 30px 40px;
+	background: var(--e-surface);
+}
+.edition-floral .edition-event h3 {
+	font: 400 clamp(36px, 4vw, 48px)/1.3 var(--e-script);
+	text-transform: none;
+	letter-spacing: 0;
+}
+.edition-floral .edition-event-date {
+	font-size: 25px;
+}
+.edition-floral .edition-event-time {
+	margin-bottom: 22px;
+}
+.edition-floral .edition-events-section .edition-countdown {
+	margin-bottom: 48px;
+}
+.edition-floral .edition-panel {
+	box-shadow: var(--e-shadow);
+}
+.edition-floral .edition-stories-section,
+.edition-floral .edition-gift-section {
+	background: var(--f-tint);
+}
+.edition-floral .edition-stories-cards {
+	max-width: none;
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 28px;
+}
+.edition-floral .edition-stories-cards .edition-story {
+	margin: 0;
+	border-radius: 180px 180px 12px 12px;
+	padding: 16px;
+}
+.edition-floral .edition-stories-cards .edition-story-photo {
+	aspect-ratio: 4/3;
+	border-radius: 160px 160px 8px 8px;
+}
+.edition-floral .edition-story h3 {
+	font-weight: 600;
+}
+.edition-floral .edition-story-date {
+	color: var(--e-accent);
+}
+.edition-floral .edition-story-line {
+	background: var(--e-border);
+}
+.edition-floral .edition-story-line span {
+	background: var(--e-accent);
+}
+.edition-floral .edition-gallery {
+	gap: 18px;
+}
+.edition-floral .edition-gallery button {
+	border-radius: 4px;
+}
+.edition-floral .edition-response,
+.edition-floral .edition-wishes-card {
+	border-radius: 14px;
+	background: var(--e-surface);
+}
+.edition-floral .edition-footer {
+	background: var(--f-tint);
+}
+.edition-floral .edition-footer-card {
+	border-top-color: var(--e-border);
+}
+
+/* 1: sage botanicals, a tall fine arch, and warm brown calligraphy. */
+.melati .edition-cover-card {
+	width: min(100%, 490px);
+	min-height: min(77dvh, 660px);
+	padding: 56px 40px 40px;
+	border: 1px solid #fff9;
+	border-radius: 260px 260px 0 0;
+}
+.melati .edition-cover-names > *,
+.melati .edition-hero-names > * {
+	display: block;
+}
+.melati .edition-cover-names i {
+	margin: 5px 0;
+	font-size: 0.65em;
+}
+.melati .edition-cover-date {
+	order: -1;
+}
+.melati .edition-couple-ampersand {
+	font-family: var(--e-serif);
+}
+.melati .edition-event {
+	border-radius: 4px;
+	padding-block: 44px;
+}
+.melati .edition-gallery button {
+	border-radius: 80px 80px 0 0;
+}
+
+/* 2: blue eucalyptus, a hexagonal name frame, and angular portrait crops. */
+.edition-theme.eukaliptus {
+	--e-bg: #fbfdff;
+	--e-ink: #233c61;
+	--e-muted: #4d637d;
+	--e-accent: #2b4a78;
+	--e-border: #cbd8e2;
+	--f-tint: #eaf1f6;
+	--f-overlay: #2545758a;
+	--f-button: #284677;
+	--e-script: 'Floral Parisienne', cursive;
+}
+.eukaliptus .edition-cover-card {
+	width: min(100%, 500px);
+	padding: 0 25px;
+	gap: clamp(10px, 2dvh, 22px);
+}
+.eukaliptus .edition-cover-heading {
+	display: grid;
+	align-items: center;
+	min-height: clamp(235px, 44dvh, 430px);
+	width: min(100%, 370px);
+	padding: 40px;
+}
+.eukaliptus .edition-cover-heading .floral-ornaments {
+	overflow: visible;
+	--f-corner: 58%;
+	z-index: -1;
+}
+.eukaliptus .edition-cover-heading .floral-spray-left {
+	left: -25%;
+	top: 66%;
+}
+.eukaliptus .edition-cover-heading .floral-spray-right {
+	right: -25%;
+	top: 34%;
+	transform: translateY(-50%) rotate(180deg);
+}
+.eukaliptus .edition-cover-names > * {
+	display: block;
+}
+.eukaliptus .edition-cover-names {
+	font-size: clamp(42px, 6vmin, 68px);
+}
+.eukaliptus .edition-cover-names i {
+	opacity: 0.8;
+	margin: 10px 0;
+}
+.eukaliptus .edition-portrait {
+	border: 8px solid #c6ab75;
+	outline: 0;
+	box-shadow: none;
+	border-radius: 0;
+	clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
+	aspect-ratio: 0.88;
+}
+.eukaliptus .edition-events-section {
+	background: var(--f-tint);
+}
+.eukaliptus .edition-event {
+	border-radius: 6px;
+	border-top: 3px solid #c6ab75;
+	padding-block: 44px;
+}
+.eukaliptus .edition-stories-section {
+	background: var(--e-bg);
+}
+
+/* 3: peach floral corners and a large apricot arched event panel. */
+.edition-theme.jingga {
+	--e-bg: #fffdfb;
+	--e-ink: #4b3428;
+	--e-muted: #785743;
+	--e-accent: #a74929;
+	--e-border: #eccdb9;
+	--f-tint: #fff0e7;
+	--f-overlay: #35271f69;
+	--f-button: #f39463;
+	--f-button-ink: #412a1d;
+}
+.jingga .edition-cover-card {
+	gap: clamp(20px, 3.5dvh, 38px);
+}
+.jingga .edition-portrait {
+	outline-color: #f39463;
+	border-width: 3px;
+	outline-offset: 7px;
+}
+.jingga .edition-events-section > .edition-container {
+	padding: clamp(60px, 9vw, 110px) 40px 44px;
+	background: #f69a6a;
+	border-radius: 50% 50% 20px 20px / 220px 220px 20px 20px;
+}
+.jingga .edition-events-section .edition-heading h2 {
+	color: #4b3428;
+}
+.jingga .edition-event {
+	background: transparent;
+	box-shadow: none;
+	border: 0;
+	border-radius: 0;
+	padding: 12px 20px 24px;
+}
+.jingga .edition-event h3,
+.jingga .edition-event p,
+.jingga .edition-event .edition-outline {
+	color: #4b3428;
+}
+.jingga .edition-event .edition-outline {
+	border-color: #75462f;
+}
+.jingga .edition-stories-medallions {
+	max-width: 720px;
+}
+
+/* 4: mauve peonies, a curved hem, and white countdown tiles. */
+.edition-theme.peony {
+	--e-bg: #fffafb;
+	--e-ink: #68324a;
+	--e-muted: #806371;
+	--e-accent: #793d59;
+	--e-border: #e4cfd9;
+	--f-tint: #f6eaf0;
+	--f-overlay: #48243780;
+	--f-button: #f2ca83;
+	--f-button-ink: #583146;
+}
+.peony .edition-cover-backdrop,
+.peony .edition-hero {
+	border-radius: 0 0 50% 50% / 0 0 8% 8%;
+}
+.peony .edition-cover > .floral-ornaments-bottom .floral-spray-left {
+	left: calc(50% - min(16vw, 180px));
+	bottom: -3%;
+}
+.peony .edition-cover > .floral-ornaments-bottom .floral-spray-right {
+	right: calc(50% - min(16vw, 180px));
+	bottom: -3%;
+}
+.peony .edition-cover-card {
+	margin-bottom: 4dvh;
+}
+.peony .edition-countdown {
+	gap: 20px;
+	width: min(100%, 360px);
+}
+.peony .edition-countdown strong {
+	display: grid;
+	place-items: center;
+	min-width: 100%;
+	min-height: 64px;
+	padding: 8px;
+	border-radius: 9px;
+	background: #fff;
+	color: var(--e-ink);
+}
+.peony .edition-open-button {
+	border-radius: 12px;
+}
+.peony .edition-portrait {
+	border-radius: 50%;
+	aspect-ratio: 1;
+}
+.peony .edition-couple {
+	display: flex;
+	flex-direction: column;
+	gap: 56px;
+}
+.peony .edition-couple-ampersand {
+	display: none;
+}
+.peony .edition-person {
+	display: grid;
+	grid-template-columns: 280px minmax(0, 1fr);
+	gap: 54px;
+	align-items: center;
+	width: min(100%, 780px);
+	text-align: left;
+}
+.peony .edition-person:last-child {
+	direction: rtl;
+	text-align: right;
+}
+.peony .edition-person-copy {
+	direction: ltr;
+}
+.peony .floral-portrait-wrap {
+	width: 100%;
+	margin: 0;
+}
+.peony .edition-portrait {
+	width: 100%;
+}
+.peony .edition-event {
+	border-radius: 22px;
+	border-bottom: 4px solid #b595a7;
+	padding-block: 46px;
+}
+.peony .edition-gallery button:nth-child(3n + 1) {
+	border-radius: 160px 160px 8px 8px;
+}
+
+/* 5: fine intersecting facets, ivory roses, and staggered rectangular portraits. */
+.edition-theme.gardenia {
+	--e-bg: #fffefa;
+	--e-ink: #4c483c;
+	--e-muted: #716b5a;
+	--e-accent: #98694d;
+	--e-border: #decbbd;
+	--f-tint: #f4eee7;
+	--f-overlay: #292b236b;
+	--f-button: #d5a27f;
+	--f-button-ink: #33281f;
+}
+.gardenia .edition-cover-card {
+	width: min(75%, 760px);
+	min-height: min(80dvh, 700px);
+	gap: clamp(22px, 4dvh, 42px);
+	padding: 40px 48px;
+}
+.gardenia .edition-cover-card > .floral-frame {
+	opacity: 0.75;
+}
+.gardenia .edition-cover-names {
+	font: 500 clamp(38px, 5.8vmin, 62px)/1.2 var(--e-serif);
+	text-transform: uppercase;
+	letter-spacing: 0.07em;
+}
+.gardenia .edition-cover-names > * {
+	display: block;
+}
+.gardenia .edition-cover-names i {
+	margin: 5px 0;
+	font-style: italic;
+}
+.gardenia .edition-heading h2,
+.aster .edition-heading h2 {
+	font: 500 clamp(30px, 3.5vw, 46px)/1.25 var(--e-serif);
+	text-transform: uppercase;
+	letter-spacing: 0.1em;
+}
+.gardenia .edition-couple {
+	display: flex;
+	flex-direction: column;
+	gap: 56px;
+}
+.gardenia .edition-couple-ampersand {
+	display: none;
+}
+.gardenia .edition-person {
+	display: grid;
+	grid-template-columns: 260px minmax(0, 1fr);
+	gap: 64px;
+	align-items: center;
+	width: min(100%, 740px);
+}
+.gardenia .edition-person:last-child {
+	direction: rtl;
+}
+.gardenia .edition-person-copy {
+	direction: ltr;
+}
+.gardenia .floral-portrait-wrap {
+	margin: 0;
+}
+.gardenia .floral-portrait-wrap .floral-ornaments {
+	display: none;
+}
+.gardenia .edition-portrait {
+	border-radius: 0;
+	aspect-ratio: 3/4;
+	margin: 0;
+	outline-offset: 7px;
+	border: 0;
+	box-shadow:
+		0 0 0 2px var(--e-bg),
+		0 0 0 3px var(--e-accent);
+}
+.gardenia .edition-event {
+	border-radius: 70px 12px 70px 12px;
+	padding: 46px 32px;
+}
+.gardenia .edition-events-section .edition-countdown strong {
+	border: 1px solid var(--e-border);
+	border-radius: 8px;
+	padding: 8px 12px;
+}
+
+/* 6: dried palm, cotton blossoms, warm linen, and a torn-paper edge. */
+.edition-theme.aster {
+	--e-bg: #fcfaf5;
+	--e-ink: #63462f;
+	--e-muted: #7e6854;
+	--e-accent: #8d603b;
+	--e-border: #deceb8;
+	--f-tint: #f1e8da;
+	--f-overlay: #302d226b;
+	--f-button: #dcc17d;
+	--f-button-ink: #59452b;
+}
+.aster .edition-cover-names {
+	font: 500 clamp(44px, 6.2vmin, 66px)/1.15 var(--e-serif);
+}
+.aster .edition-cover-names > * {
+	display: block;
+}
+.aster .edition-cover-names i {
+	margin: 3px 0;
+}
+.aster .edition-cover::after,
+.aster .edition-hero::before {
+	content: '';
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	height: 24px;
+	background: var(--e-bg);
+	clip-path: polygon(
+		0 60%,
+		4% 72%,
+		7% 35%,
+		11% 68%,
+		14% 36%,
+		17% 64%,
+		20% 35%,
+		24% 70%,
+		28% 45%,
+		32% 70%,
+		36% 32%,
+		40% 55%,
+		44% 30%,
+		47% 70%,
+		52% 33%,
+		55% 60%,
+		60% 36%,
+		64% 69%,
+		68% 35%,
+		72% 59%,
+		76% 38%,
+		81% 70%,
+		86% 35%,
+		90% 61%,
+		95% 28%,
+		100% 63%,
+		100% 100%,
+		0 100%
+	);
+	z-index: 4;
+}
+.aster .edition-person {
+	padding: 16px;
+}
+.aster .edition-portrait {
+	width: 100%;
+	border-radius: 0;
+	border: 5px solid #cdb582;
+	outline: 0;
+	aspect-ratio: 0.88;
+	clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
+}
+.aster .edition-events-section {
+	background: repeating-linear-gradient(90deg, transparent 0 7px, #8d603b04 7px 8px), var(--f-tint);
+}
+.aster .edition-event {
+	border-radius: 4px;
+	padding-block: 46px;
+	border-style: double;
+	border-width: 4px;
+}
+.aster .edition-events-section .edition-countdown strong {
+	background: var(--e-bg);
+	min-width: 70px;
+	padding: 10px;
+}
+.aster .edition-story-copy {
+	background: var(--e-bg);
+}
+
+@media (max-width: 680px) {
+	.edition-theme.edition-floral {
+		--f-corner: min(45vw, 230px);
+	}
+	.edition-floral .edition-section {
+		padding: 64px 24px;
+	}
+	.edition-floral .edition-cover {
+		padding-inline: 22px;
+	}
+	.edition-floral .edition-cover-card {
+		padding: 20px 8px;
+	}
+	.edition-floral .edition-cover-names {
+		font-size: clamp(44px, 11vw, 62px);
+	}
+	.edition-floral .edition-cover-date {
+		font-size: 15px;
+	}
+	.edition-floral .edition-couple {
+		grid-template-columns: minmax(0, 1fr);
+		gap: 30px;
+	}
+	.edition-floral .edition-couple-section > .floral-ornaments,
+	.edition-floral .edition-events-section > .floral-ornaments {
+		--f-corner: 42vw;
+		opacity: 0.5;
+	}
+	.edition-floral .edition-person p {
+		font-size: 14px;
+	}
+	.edition-floral .edition-person h3 {
+		font-size: 38px;
+	}
+	.edition-floral .edition-events,
+	.edition-floral .edition-stories-cards {
+		grid-template-columns: minmax(0, 1fr);
+	}
+	.edition-floral .edition-gallery {
+		gap: 10px;
+	}
+	.melati .edition-cover-card {
+		min-height: min(76dvh, 620px);
+		padding: 48px 20px 30px;
+	}
+	.eukaliptus .edition-cover-card {
+		padding-inline: 20px;
+	}
+	.eukaliptus .edition-cover-heading {
+		width: 90%;
+		min-height: clamp(230px, 40dvh, 360px);
+		padding: 32px 20px;
+	}
+	.eukaliptus .edition-cover-names {
+		font-size: clamp(38px, 10vw, 58px);
+	}
+	.jingga .edition-events-section {
+		padding-inline: 20px;
+	}
+	.jingga .edition-events-section > .edition-container {
+		padding: 70px 22px 30px;
+		border-radius: 180px 180px 12px 12px;
+	}
+	.jingga .edition-events-section .edition-heading h2 {
+		font-size: 42px;
+	}
+	.peony .edition-countdown {
+		gap: 12px;
+	}
+	.peony .edition-countdown strong {
+		min-height: 56px;
+	}
+	.peony .edition-person,
+	.peony .edition-person:last-child {
+		grid-template-columns: minmax(0, 1fr);
+		gap: 30px;
+		direction: ltr;
+		text-align: center;
+	}
+	.peony .floral-portrait-wrap {
+		max-width: 250px;
+		margin-inline: auto;
+	}
+	.gardenia .edition-cover-card {
+		width: 90%;
+		min-height: min(74dvh, 630px);
+		padding: 36px 28px;
+	}
+	.gardenia .edition-cover-names {
+		font-size: clamp(31px, 8.4vw, 46px);
+	}
+	.gardenia .edition-person,
+	.gardenia .edition-person:last-child {
+		grid-template-columns: minmax(0, 1fr);
+		gap: 28px;
+		direction: ltr;
+	}
+	.gardenia .edition-portrait {
+		margin-inline: auto;
+		width: 220px;
+	}
+	.gardenia .floral-portrait-wrap {
+		margin-inline: auto;
+		width: 220px;
+	}
+	.aster .edition-cover-names {
+		font-size: clamp(40px, 10.2vw, 58px);
+	}
+	.aster .edition-person {
+		max-width: 320px;
+		margin-inline: auto;
+		width: 100%;
+	}
+}
+@media (max-height: 650px) {
+	.edition-floral .edition-cover {
+		padding-block: 16px;
+	}
+	.edition-floral .edition-cover-card {
+		gap: 10px;
+		padding-block: 14px;
+	}
+	.edition-floral .edition-cover-names {
+		font-size: clamp(34px, 8dvh, 52px);
+	}
+	.edition-floral .edition-countdown strong {
+		font-size: 26px;
+	}
+	.edition-floral .edition-countdown span {
+		font-size: 9px;
+	}
+	.edition-floral .edition-cover-date {
+		font-size: 13px;
+	}
+	.edition-floral .edition-recipient-name {
+		font-size: 23px;
+	}
+	.melati .edition-cover-card {
+		min-height: 88dvh;
+		padding-top: 36px;
+	}
+	.eukaliptus .edition-cover-heading {
+		min-height: 34dvh;
+		padding: 20px;
+	}
+	.eukaliptus .edition-cover-names i {
+		margin: 2px 0;
+	}
+	.peony .edition-countdown strong {
+		min-height: 42px;
+	}
+	.gardenia .edition-cover-card {
+		min-height: 86dvh;
+	}
+}
+/* Preserve access on exceptionally short landscape screens or large accessibility text. */
+@media (max-height: 440px) {
+	.edition-floral .edition-cover {
+		overflow-y: auto;
+	}
+	.edition-floral .edition-cover-card {
+		min-height: 340px;
+	}
+	.eukaliptus .edition-cover-heading {
+		min-height: 180px;
+	}
+}

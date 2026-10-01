@@ -44,6 +44,12 @@
 		| 'niskala'
 		| 'sakura'
 		| 'lazuardi'
+		| 'melati'
+		| 'eukaliptus'
+		| 'jingga'
+		| 'peony'
+		| 'gardenia'
+		| 'aster'
 	> {
 		return (
 			key !== 'kinetika' &&
@@ -75,7 +81,13 @@
 			key !== 'amerta' &&
 			key !== 'niskala' &&
 			key !== 'sakura' &&
-			key !== 'lazuardi'
+			key !== 'lazuardi' &&
+			key !== 'melati' &&
+			key !== 'eukaliptus' &&
+			key !== 'jingga' &&
+			key !== 'peony' &&
+			key !== 'gardenia' &&
+			key !== 'aster'
 		);
 	}
 	const canvasTheme = $derived(isCanvasTheme(definition.key) ? definition.key : 'minimalist-1');

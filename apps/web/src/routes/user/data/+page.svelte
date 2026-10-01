@@ -443,6 +443,48 @@
 			name: 'Lazuardi',
 			description: 'Ilustrasi taman biru, lampu hangat, dan bingkai lengkung.',
 			colors: WEDDING_THEME_COLORS.lazuardi
+		},
+		{
+			key: 'melati',
+			family: 'melati',
+			name: 'Floral Melati',
+			description: 'Bunga putih dan sage dengan bingkai lengkung yang hangat.',
+			colors: WEDDING_THEME_COLORS.melati
+		},
+		{
+			key: 'eukaliptus',
+			family: 'eukaliptus',
+			name: 'Floral Eukaliptus',
+			description: 'Eukaliptus biru, bingkai heksagonal, dan aksen emas tipis.',
+			colors: WEDDING_THEME_COLORS.eukaliptus
+		},
+		{
+			key: 'jingga',
+			family: 'jingga',
+			name: 'Floral Jingga',
+			description: 'Bunga peach, potret oval, dan lengkung aprikot yang lembut.',
+			colors: WEDDING_THEME_COLORS.jingga
+		},
+		{
+			key: 'peony',
+			family: 'peony',
+			name: 'Floral Peony',
+			description: 'Peony merah muda, nuansa mauve, dan bingkai berlekuk.',
+			colors: WEDDING_THEME_COLORS.peony
+		},
+		{
+			key: 'gardenia',
+			family: 'gardenia',
+			name: 'Floral Gardenia',
+			description: 'Mawar ivory, bingkai geometris berlapis, dan potret berselang.',
+			colors: WEDDING_THEME_COLORS.gardenia
+		},
+		{
+			key: 'aster',
+			family: 'aster',
+			name: 'Floral Aster',
+			description: 'Dedaunan rustic, bunga kapas, dan tekstur linen bernuansa hangat.',
+			colors: WEDDING_THEME_COLORS.aster
 		}
 	] as const;
 

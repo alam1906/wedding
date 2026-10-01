@@ -12,6 +12,9 @@
 		safeExternalURL
 	} from '../../shared/theme-utils.js';
 	import EditionRsvp from './EditionRsvp.svelte';
+	import FloralFrame from '../floral/FloralFrame.svelte';
+	import FloralOrnaments from '../floral/FloralOrnaments.svelte';
+	import FloralPortrait from '../floral/FloralPortrait.svelte';
 	import { mountEditionAnimations, type EditionMotion } from './edition-animations.js';
 	import './edition.css';
 
@@ -241,6 +244,7 @@
 	class={'edition-theme ' + theme}
 	class:edition-narrow={profile.narrow}
 	class:edition-concept={profile.concept}
+	class:edition-floral={!!profile.floral}
 	bind:this={root}
 >
 	<div class="edition-backdrop" aria-hidden="true">
@@ -276,7 +280,17 @@
 			{#if profile.cover === 'gate'}<div class="edition-gates" aria-hidden="true">
 					<span></span><span></span>
 				</div>{/if}
+			{#if profile.floral && profile.floral.frame !== 'hexagon'}
+				<FloralOrnaments
+					src={profile.floral.ornament}
+					placement={['arch', 'rustic', 'garland'].includes(profile.floral.frame)
+						? 'bottom'
+						: 'corners'}
+					eager
+				/>
+			{/if}
 			<div class="edition-cover-card">
+				{#if profile.floral?.frame === 'facets'}<FloralFrame facets />{/if}
 				{#if profile.coverIllustration}<div class="edition-cover-illustration" aria-hidden="true">
 						<img
 							src={profile.coverIllustration}
@@ -300,6 +314,10 @@
 					</div>
 				{/if}
 				<div class="edition-cover-heading">
+					{#if profile.floral?.frame === 'hexagon'}
+						<FloralFrame />
+						<FloralOrnaments src={profile.floral.ornament} placement="sides" eager />
+					{/if}
 					<h1 class="edition-cover-names" aria-label={couple}>{@render names()}</h1>
 				</div>
 				<p class="edition-cover-date">{eventDate.date}</p>
@@ -307,7 +325,7 @@
 					<p>Kepada Bapak/Ibu/Saudara/i,</p>
 					{#if recipient}<p class="edition-recipient-name">{recipient}</p>{/if}
 				</div>
-				{#if targetDate && !profile.narrow}{@render timer()}{/if}
+				{#if targetDate && !profile.narrow && !profile.floral?.countdownAtEvents}{@render timer()}{/if}
 				<button
 					type="button"
 					class="edition-outline edition-open-button"
@@ -331,8 +349,14 @@
 							</div>{/if}
 						<div class="edition-hero-copy">
 							<p class="edition-hero-names" aria-label={couple}>{@render names()}</p>
-							{#if profile.narrow}<p class="edition-hero-date">{eventDate.date}</p>{/if}
+							{#if profile.narrow || profile.floral}<p class="edition-hero-date">
+									{eventDate.date}
+								</p>{/if}
 						</div>
+						{#if profile.floral}<FloralOrnaments
+								src={profile.floral.ornament}
+								placement={profile.floral.frame === 'garland' ? 'bottom' : 'corners'}
+							/>{/if}
 					</section>
 				{/if}
 				{#if wedding.quote}
@@ -359,6 +383,10 @@
 					class="edition-section edition-couple-section"
 					aria-labelledby="edition-couple-title"
 				>
+					{#if profile.floral}<FloralOrnaments
+							src={profile.floral.ornament}
+							placement="sides"
+						/>{/if}
 					<div class="edition-container">
 						<header class="edition-heading" data-edition-reveal>
 							<h2 id="edition-couple-title">Mempelai</h2>
@@ -369,18 +397,26 @@
 										>&amp;</span
 									>{/if}
 								<article class="edition-person" aria-label={person.role} data-edition-reveal>
-									<div class="edition-portrait">
-										{#if person.photo}<img
-												src={person.photo}
-												alt={person.name}
-												loading="lazy"
-												decoding="async"
-												width="480"
-												height="640"
-											/>{:else}<span class="edition-initial" aria-hidden="true"
-												>{person.name.charAt(0)}</span
-											>{/if}
-									</div>
+									{#if profile.floral}
+										<FloralPortrait
+											photo={person.photo}
+											name={person.name}
+											ornament={profile.floral.ornament}
+										/>
+									{:else}
+										<div class="edition-portrait">
+											{#if person.photo}<img
+													src={person.photo}
+													alt={person.name}
+													loading="lazy"
+													decoding="async"
+													width="480"
+													height="640"
+												/>{:else}<span class="edition-initial" aria-hidden="true"
+													>{person.name.charAt(0)}</span
+												>{/if}
+										</div>
+									{/if}
 									<div class="edition-person-copy">
 										<h3>{person.name}</h3>
 										{#if person.father || person.mother}<p>{person.relationship}</p>
@@ -401,10 +437,15 @@
 					class="edition-section edition-events-section"
 					aria-labelledby="edition-events-title"
 				>
+					{#if profile.floral}<FloralOrnaments
+							src={profile.floral.ornament}
+							placement="corners"
+						/>{/if}
 					<div class="edition-container">
 						<header class="edition-heading" data-edition-reveal>
 							<h2 id="edition-events-title">Waktu &amp; Tempat</h2>
 						</header>
+						{#if profile.floral?.countdownAtEvents && targetDate}{@render timer()}{/if}
 						<div class="edition-events">
 							{#each events as event (event.label)}
 								<article class="edition-event edition-panel" data-edition-reveal>

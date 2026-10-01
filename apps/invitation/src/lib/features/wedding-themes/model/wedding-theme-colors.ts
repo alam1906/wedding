@@ -365,5 +365,47 @@ export const WEDDING_THEME_COLORS = {
 		text: '#203781',
 		primary: '#294495',
 		accent: '#F9E8A4'
+	},
+	melati: {
+		background: '#FFFDF9',
+		surface: '#FFFFFF',
+		text: '#534738',
+		primary: '#926B40',
+		accent: '#BCA47C'
+	},
+	eukaliptus: {
+		background: '#FBFDFF',
+		surface: '#FFFFFF',
+		text: '#233C61',
+		primary: '#2B4A78',
+		accent: '#C6AB75'
+	},
+	jingga: {
+		background: '#FFFDFB',
+		surface: '#FFFFFF',
+		text: '#4B3428',
+		primary: '#A74929',
+		accent: '#F39463'
+	},
+	peony: {
+		background: '#FFFAFB',
+		surface: '#FFFFFF',
+		text: '#68324A',
+		primary: '#793D59',
+		accent: '#F2CA83'
+	},
+	gardenia: {
+		background: '#FFFEFA',
+		surface: '#FFFFFF',
+		text: '#4C483C',
+		primary: '#98694D',
+		accent: '#D5A27F'
+	},
+	aster: {
+		background: '#FCFAF5',
+		surface: '#FFFFFF',
+		text: '#63462F',
+		primary: '#8D603B',
+		accent: '#DCC17D'
 	}
 } as const satisfies Record<WeddingThemeKey, WeddingThemeColors>;

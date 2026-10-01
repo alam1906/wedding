@@ -312,6 +312,42 @@ export const weddingThemes = [
 		name: 'Lazuardi',
 		description: 'Ilustrasi taman biru, lampu hangat, dan bingkai lengkung.',
 		load: () => import('../themes/lazuardi/LazuardiTheme.svelte')
+	},
+	{
+		key: 'melati',
+		name: 'Floral Melati',
+		description: 'Bunga putih dan sage dengan bingkai lengkung yang hangat.',
+		load: () => import('../themes/floral/MelatiTheme.svelte')
+	},
+	{
+		key: 'eukaliptus',
+		name: 'Floral Eukaliptus',
+		description: 'Eukaliptus biru, bingkai heksagonal, dan aksen emas tipis.',
+		load: () => import('../themes/floral/EukaliptusTheme.svelte')
+	},
+	{
+		key: 'jingga',
+		name: 'Floral Jingga',
+		description: 'Bunga peach, potret oval, dan lengkung aprikot yang lembut.',
+		load: () => import('../themes/floral/JinggaTheme.svelte')
+	},
+	{
+		key: 'peony',
+		name: 'Floral Peony',
+		description: 'Peony merah muda, nuansa mauve, dan bingkai berlekuk.',
+		load: () => import('../themes/floral/PeonyTheme.svelte')
+	},
+	{
+		key: 'gardenia',
+		name: 'Floral Gardenia',
+		description: 'Mawar ivory, bingkai geometris berlapis, dan potret berselang.',
+		load: () => import('../themes/floral/GardeniaTheme.svelte')
+	},
+	{
+		key: 'aster',
+		name: 'Floral Aster',
+		description: 'Dedaunan rustic, bunga kapas, dan tekstur linen bernuansa hangat.',
+		load: () => import('../themes/floral/AsterTheme.svelte')
 	}
 ] satisfies WeddingThemeDefinition[];
 

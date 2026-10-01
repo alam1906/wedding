@@ -69,7 +69,13 @@ const metadata = {
 	amerta: { name: 'Amerta', category: 'other' },
 	niskala: { name: 'Niskala', category: 'other' },
 	sakura: { name: 'Sakura', category: 'other' },
-	lazuardi: { name: 'Lazuardi', category: 'other' }
+	lazuardi: { name: 'Lazuardi', category: 'other' },
+	melati: { name: 'Floral Melati', category: 'other' },
+	eukaliptus: { name: 'Floral Eukaliptus', category: 'other' },
+	jingga: { name: 'Floral Jingga', category: 'other' },
+	peony: { name: 'Floral Peony', category: 'other' },
+	gardenia: { name: 'Floral Gardenia', category: 'other' },
+	aster: { name: 'Floral Aster', category: 'other' }
 } as const satisfies Record<WeddingThemeKey, ThemeMetadata>;
 
 export const WEDDING_THEME_CATALOG = WEDDING_THEME_KEYS.map((key) => ({

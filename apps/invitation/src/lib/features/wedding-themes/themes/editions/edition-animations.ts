@@ -11,6 +11,7 @@ export type EditionMotion = {
 };
 
 export function mountEditionAnimations(root: HTMLElement, theme: EditionKey): EditionMotion {
+	const floral = root.classList.contains('edition-floral');
 	let disposed = false;
 	let opened = false;
 	let introPlayed = false;
@@ -89,6 +90,41 @@ export function mountEditionAnimations(root: HTMLElement, theme: EditionKey): Ed
 								.progress(index / petals.length)
 						);
 						const bulbs = root.querySelectorAll('.edition-string-lights span');
+						const floralBreeze = floral
+							? Array.from(
+									root.querySelectorAll<HTMLElement>('.edition-cover [data-floral-spray]')
+								).map((spray, index) =>
+									gsap.fromTo(
+										spray,
+										{ rotation: -1.2 },
+										{
+											rotation: 1.2,
+											duration: 5.5 + index,
+											repeat: -1,
+											yoyo: true,
+											ease: 'sine.inOut'
+										}
+									)
+								)
+							: [];
+						if (floral && !opened && !introPlayed) {
+							root
+								.querySelectorAll<SVGGeometryElement>('.floral-frame polygon')
+								.forEach((polygon, index) => {
+									const length = polygon.getTotalLength();
+									gsap.fromTo(
+										polygon,
+										{ strokeDasharray: length, strokeDashoffset: length },
+										{
+											strokeDashoffset: 0,
+											duration: 1.65,
+											delay: 0.25 + index * 0.12,
+											ease: 'power2.inOut',
+											clearProps: 'strokeDasharray,strokeDashoffset'
+										}
+									);
+								});
+						}
 						if (bulbs.length)
 							gsap.from(bulbs, {
 								opacity: 0.45,
@@ -102,6 +138,7 @@ export function mountEditionAnimations(root: HTMLElement, theme: EditionKey): Ed
 						pauseAmbient = () => {
 							ambient?.paused(document.hidden);
 							petalDrift.forEach((animation) => animation.paused(document.hidden));
+							floralBreeze.forEach((animation) => animation.paused(document.hidden || opened));
 						};
 						pauseAmbient();
 						const intro =
@@ -137,6 +174,27 @@ export function mountEditionAnimations(root: HTMLElement, theme: EditionKey): Ed
 								if (content) smoother = createThemeScrollSmoother(root, content, ScrollSmoother);
 							});
 							scenesBuilt = true;
+							if (floral) {
+								root
+									.querySelectorAll<HTMLElement>('.edition-content [data-floral-spray]')
+									.forEach((spray) => {
+										gsap.fromTo(
+											spray,
+											{ yPercent: -4, rotation: -1.5 },
+											{
+												yPercent: 4,
+												rotation: 1.5,
+												ease: 'none',
+												scrollTrigger: {
+													trigger: spray.closest('section'),
+													start: 'top bottom',
+													end: 'bottom top',
+													scrub: 1
+												}
+											}
+										);
+									});
+							}
 							const revealSelector =
 								theme === 'lentera'
 									? '.edition-section > .edition-container, .edition-quote, .edition-response, .edition-wishes-card, .edition-footer-card'
@@ -255,6 +313,7 @@ export function mountEditionAnimations(root: HTMLElement, theme: EditionKey): Ed
 						if (opened) revealContent();
 						enter = (done) => {
 							intro?.progress(1);
+							pauseAmbient();
 							mediaContext.add(() => {
 								const opening = gsap.timeline({
 									onComplete: () => {
@@ -263,7 +322,30 @@ export function mountEditionAnimations(root: HTMLElement, theme: EditionKey): Ed
 									}
 								});
 								finishOpening = () => opening.progress(1);
-								if (theme === 'cendana' || theme === 'pusaka') {
+								if (floral) {
+									opening
+										.to('.edition-cover-card', {
+											y: -18,
+											autoAlpha: 0,
+											duration: 0.55,
+											ease: 'power2.inOut'
+										})
+										.to(
+											'.edition-cover-backdrop img',
+											{ scale: 1.045, duration: 1.25, ease: 'sine.inOut' },
+											0
+										)
+										.to(
+											'.edition-cover .floral-ornaments',
+											{ autoAlpha: 0, duration: 0.8, ease: 'sine.inOut' },
+											0.15
+										)
+										.to(
+											'.edition-cover',
+											{ autoAlpha: 0, duration: 0.8, ease: 'sine.inOut' },
+											0.45
+										);
+								} else if (theme === 'cendana' || theme === 'pusaka') {
 									opening
 										.to('.edition-cover-card', { autoAlpha: 0, scale: 0.95, duration: 0.4 })
 										.to(

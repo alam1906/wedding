@@ -69,6 +69,12 @@
 		| 'niskala'
 		| 'sakura'
 		| 'lazuardi'
+		| 'melati'
+		| 'eukaliptus'
+		| 'jingga'
+		| 'peony'
+		| 'gardenia'
+		| 'aster'
 	>;
 	type Props = WeddingThemeProps & {
 		theme: CanvasThemeKey;

@@ -1,7 +1,8 @@
-// Visual references: https://pixelmemori.id/preview.php?template=template{reference}
+// Numeric references: https://pixelmemori.id/preview.php?template=template{reference}
+// Other providers use an explicit URL so their template numbers are not conflated.
 // Shared data behavior, distinct compositions and styles in each theme directory.
 export type EditionProfile = {
-	reference: number;
+	reference: number | string;
 	cover: 'arch' | 'gate' | 'cinematic' | 'photo' | 'album' | 'seal' | 'polaroid' | 'illustration';
 	hero:
 		| 'none'
@@ -28,6 +29,11 @@ export type EditionProfile = {
 	backdropPhoto?: boolean;
 	coverIllustration?: string;
 	decoration?: 'petals' | 'lights';
+	floral?: {
+		frame: 'arch' | 'hexagon' | 'corners' | 'garland' | 'facets' | 'rustic';
+		ornament: string;
+		countdownAtEvents?: boolean;
+	};
 };
 export const EDITION_PROFILES = {
 	arunika: { reference: 8, cover: 'arch', hero: 'none', story: 'cards', quotePhoto: true },
@@ -157,6 +163,56 @@ export const EDITION_PROFILES = {
 		hero: 'none',
 		story: 'timeline',
 		decoration: 'lights'
+	},
+	melati: {
+		reference: 'https://demo.invee.net/?template=floral-1&ui=true&cover=image',
+		cover: 'photo',
+		hero: 'landscape',
+		story: 'cards',
+		floral: { frame: 'arch', ornament: '/images/themes/floral/melati.webp' }
+	},
+	eukaliptus: {
+		reference: 'https://demo.invee.net/?template=floral-2&ui=true&cover=image',
+		cover: 'photo',
+		hero: 'landscape',
+		story: 'timeline-cards',
+		floral: { frame: 'hexagon', ornament: '/images/themes/floral/eukaliptus.webp' }
+	},
+	jingga: {
+		reference: 'https://demo.invee.net/?template=floral-3&ui=true&cover=image',
+		cover: 'photo',
+		hero: 'landscape',
+		story: 'medallions',
+		floral: { frame: 'corners', ornament: '/images/themes/floral/jingga.webp' }
+	},
+	peony: {
+		reference: 'https://demo.invee.net/?template=floral-4&ui=true&cover=image',
+		cover: 'photo',
+		hero: 'landscape',
+		story: 'timeline',
+		floral: { frame: 'garland', ornament: '/images/themes/floral/peony.webp' }
+	},
+	gardenia: {
+		reference: 'https://demo.invee.net/?template=floral-5&ui=true&cover=image',
+		cover: 'photo',
+		hero: 'landscape',
+		story: 'scrapbook',
+		floral: {
+			frame: 'facets',
+			ornament: '/images/themes/floral/gardenia.webp',
+			countdownAtEvents: true
+		}
+	},
+	aster: {
+		reference: 'https://demo.invee.net/?template=floral-6&ui=true&cover=image',
+		cover: 'photo',
+		hero: 'landscape',
+		story: 'timeline-cards',
+		floral: {
+			frame: 'rustic',
+			ornament: '/images/themes/floral/aster.webp',
+			countdownAtEvents: true
+		}
 	}
 } satisfies Record<string, EditionProfile>;
 export type EditionKey = keyof typeof EDITION_PROFILES;

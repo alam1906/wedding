@@ -49,7 +49,13 @@ export const WEDDING_THEME_KEYS = [
 	'amerta',
 	'niskala',
 	'sakura',
-	'lazuardi'
+	'lazuardi',
+	'melati',
+	'eukaliptus',
+	'jingga',
+	'peony',
+	'gardenia',
+	'aster'
 ] as const;
 
 export type WeddingThemeKey = (typeof WEDDING_THEME_KEYS)[number];
