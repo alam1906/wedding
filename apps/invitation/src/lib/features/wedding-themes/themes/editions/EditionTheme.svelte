@@ -5,6 +5,7 @@
 	import type { WeddingThemeProps } from '../../model/wedding-theme.js';
 	import {
 		calculateCountdown,
+		formatEventCalendarDate,
 		formatEventDate,
 		formatPersonName,
 		formatStoryDate,
@@ -53,12 +54,12 @@
 		{
 			label: 'Akad Nikah',
 			date: formatEventDate(wedding.akad),
-			calendar: calendarDate(wedding.akad)
+			calendar: formatEventCalendarDate(wedding.akad)
 		},
 		{
 			label: 'Resepsi',
 			date: formatEventDate(wedding.reception),
-			calendar: calendarDate(wedding.reception)
+			calendar: formatEventCalendarDate(wedding.reception)
 		}
 	]);
 	const gifts = $derived(
@@ -210,15 +211,6 @@
 		if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
 		event.preventDefault();
 		showPhoto(galleryIndex + (event.key === 'ArrowRight' ? 1 : -1));
-	}
-	function calendarDate(value: string) {
-		const date = new Date(value.replace(' ', 'T'));
-		if (!value || Number.isNaN(date.getTime())) return null;
-		return {
-			day: new Intl.DateTimeFormat('id-ID', { day: '2-digit' }).format(date),
-			weekday: new Intl.DateTimeFormat('id-ID', { weekday: 'long' }).format(date),
-			monthYear: new Intl.DateTimeFormat('id-ID', { month: 'long', year: 'numeric' }).format(date)
-		};
 	}
 </script>
 

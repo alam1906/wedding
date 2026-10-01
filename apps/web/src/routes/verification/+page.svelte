@@ -24,30 +24,49 @@
 	let status = $state<VerificationStatus>(token ? 'confirming' : 'waiting');
 	let isResending = $state(false);
 	let resendCountdown = $state(token ? 0 : 60);
-	let isHandlingRealtimeVerification = false;
+	let isMounted = false;
+	let refreshController: AbortController | undefined;
+	let isRefreshingVerification = false;
+	let refreshQueued = false;
 
-	async function handleRealtimeVerification() {
-		if (isHandlingRealtimeVerification || status === 'confirming') {
+	async function refreshVerification() {
+		if (
+			!isMounted ||
+			!isAuthenticated() ||
+			getAuthenticatedEmail() !== email ||
+			status === 'confirming'
+		) {
 			return;
 		}
 
-		isHandlingRealtimeVerification = true;
+		if (isRefreshingVerification) {
+			refreshQueued = true;
+			return;
+		}
+
+		isRefreshingVerification = true;
 
 		try {
-			await refreshAuthenticatedUser();
+			await refreshAuthenticatedUser(refreshController?.signal);
 
-			if (isEmailVerified()) {
+			if (isMounted && getAuthenticatedEmail() === email && isEmailVerified()) {
 				toast.success('Email berhasil diverifikasi.');
 				await goto(postLoginDestination(page.url.searchParams.get('next')), { replaceState: true });
 			}
 		} catch (error) {
-			toast.error(
-				error instanceof VerificationError
-					? error.message
-					: 'Status verifikasi gagal diperbarui. Silakan muat ulang halaman.'
-			);
+			if (isMounted) {
+				toast.error(
+					error instanceof VerificationError
+						? error.message
+						: 'Status verifikasi gagal diperbarui. Silakan muat ulang halaman.'
+				);
+			}
 		} finally {
-			isHandlingRealtimeVerification = false;
+			isRefreshingVerification = false;
+			if (refreshQueued) {
+				refreshQueued = false;
+				if (isMounted && !isEmailVerified()) void refreshVerification();
+			}
 		}
 	}
 
@@ -56,9 +75,11 @@
 
 		try {
 			await confirmEmailVerification(verificationToken);
+			if (!isMounted) return;
 
-			if (isAuthenticated()) {
-				await refreshAuthenticatedUser();
+			if (isAuthenticated() && getAuthenticatedEmail() === email) {
+				await refreshAuthenticatedUser(refreshController?.signal);
+				if (!isMounted) return;
 
 				if (isEmailVerified()) {
 					await goto(postLoginDestination(page.url.searchParams.get('next')), {
@@ -70,6 +91,7 @@
 
 			status = 'confirmed';
 		} catch (error) {
+			if (!isMounted) return;
 			status = 'failed';
 			toast.error(
 				error instanceof VerificationError
@@ -88,9 +110,11 @@
 
 		try {
 			await requestEmailVerification(email);
+			if (!isMounted) return;
 			resendCountdown = 60;
 			toast.success('Email verifikasi berhasil dikirim ulang.');
 		} catch (error) {
+			if (!isMounted) return;
 			toast.error(
 				error instanceof VerificationError ? error.message : 'Email verifikasi gagal dikirim ulang.'
 			);
@@ -100,20 +124,31 @@
 	}
 
 	onMount(() => {
-		let isMounted = true;
+		isMounted = true;
+		refreshController = new AbortController();
 		let unsubscribeRealtime: (() => Promise<void>) | undefined;
+		const refreshWhenVisible = () => {
+			if (document.visibilityState === 'visible') void refreshVerification();
+		};
 
 		if (token) {
 			void confirmToken(token);
+		} else {
+			void refreshVerification();
 		}
+		window.addEventListener('focus', refreshWhenVisible);
+		window.addEventListener('online', refreshWhenVisible);
+		document.addEventListener('visibilitychange', refreshWhenVisible);
 
 		if (isAuthenticated() && !isEmailVerified()) {
 			void subscribeToEmailVerification(() => {
-				void handleRealtimeVerification();
+				void refreshVerification();
 			})
 				.then((unsubscribe) => {
 					if (isMounted) {
 						unsubscribeRealtime = unsubscribe;
+						// Cover verification between the initial request and subscription setup.
+						void refreshVerification();
 					} else {
 						void unsubscribe();
 					}
@@ -137,6 +172,10 @@
 
 		return () => {
 			isMounted = false;
+			refreshController?.abort();
+			window.removeEventListener('focus', refreshWhenVisible);
+			window.removeEventListener('online', refreshWhenVisible);
+			document.removeEventListener('visibilitychange', refreshWhenVisible);
 			clearInterval(countdownTimer);
 			void unsubscribeRealtime?.();
 		};

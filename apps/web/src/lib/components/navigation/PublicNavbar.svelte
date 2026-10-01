@@ -70,7 +70,7 @@
 		</nav>
 		<a
 			class="hidden justify-self-end rounded-full bg-linear-to-r from-[#9400ff] to-[#7200e8] px-5 py-2.5 text-sm font-semibold text-white md:inline-flex"
-			href="/login">Buat Undangan</a
+			href="/login">Login</a
 		>
 
 		<button
@@ -123,7 +123,7 @@
 				<a
 					class="mt-2 rounded-xl bg-linear-to-r from-[#9400ff] to-[#7200e8] px-4 py-3 text-center text-sm font-semibold text-white"
 					href="/login"
-					onclick={closeMobileMenu}>Buat Undangan</a
+					onclick={closeMobileMenu}>Login</a
 				>
 			</div>
 		</nav>

@@ -11,6 +11,9 @@ export type CountdownValue = {
 	isElapsed: boolean;
 };
 
+// Event times are displayed as WIB, independently of the guest's device timezone.
+const EVENT_TIME_ZONE = 'Asia/Jakarta';
+
 export function formatPersonName(value: string): string {
 	return value
 		.trim()
@@ -33,15 +36,37 @@ export function formatEventDate(value: string): EventDate {
 
 	return {
 		date: new Intl.DateTimeFormat('id-ID', {
+			timeZone: EVENT_TIME_ZONE,
 			weekday: 'long',
 			day: 'numeric',
 			month: 'long',
 			year: 'numeric'
 		}).format(date),
 		time: `${new Intl.DateTimeFormat('id-ID', {
+			timeZone: EVENT_TIME_ZONE,
 			hour: '2-digit',
 			minute: '2-digit'
 		}).format(date)} WIB`
+	};
+}
+
+export function formatEventCalendarDate(value: string) {
+	const date = new Date(value.replace(' ', 'T'));
+	if (!value || Number.isNaN(date.getTime())) return null;
+	return {
+		day: new Intl.DateTimeFormat('id-ID', {
+			timeZone: EVENT_TIME_ZONE,
+			day: '2-digit'
+		}).format(date),
+		weekday: new Intl.DateTimeFormat('id-ID', {
+			timeZone: EVENT_TIME_ZONE,
+			weekday: 'long'
+		}).format(date),
+		monthYear: new Intl.DateTimeFormat('id-ID', {
+			timeZone: EVENT_TIME_ZONE,
+			month: 'long',
+			year: 'numeric'
+		}).format(date)
 	};
 }
 
@@ -56,6 +81,8 @@ export function formatStoryDate(value: string): string {
 	}
 
 	return new Intl.DateTimeFormat('id-ID', {
+		// Stories store calendar dates at midnight UTC, not timezone-dependent event times.
+		timeZone: 'UTC',
 		day: 'numeric',
 		month: 'long',
 		year: 'numeric'

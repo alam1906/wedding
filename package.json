@@ -32,7 +32,8 @@
 		"test:quality": "bun scripts/test-quality.mjs",
 		"test:quality:upgrade": "WEDEZ_TEST_UPGRADE=1 bun scripts/test-quality.mjs",
 		"test:affiliate": "bun scripts/test-affiliate.mjs",
-		"test": "bun run test:quality && bun run test:quality:upgrade && bun run test:p1 && bun run test:affiliate",
+		"test:dates": "bun scripts/test-invitation-dates.mjs",
+		"test": "bun run test:dates && bun run test:quality && bun run test:quality:upgrade && bun run test:p1 && bun run test:affiliate",
 		"lint": "prettier --check . && eslint .",
 		"format": "prettier --write ."
 	},

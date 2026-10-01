@@ -1,4 +1,4 @@
-import { ClientResponseError } from 'pocketbase';
+import PocketBase, { BaseAuthStore, ClientResponseError } from 'pocketbase';
 
 import { pocketBase } from '#lib/infrastructure/pocketbase/index.js';
 
@@ -51,6 +51,8 @@ async function handleVerificationRequest<T>(
 	try {
 		return await request();
 	} catch (error) {
+		if (error instanceof VerificationError) throw error;
+
 		const message =
 			error instanceof ClientResponseError
 				? getVerificationErrorMessage(error, action)
@@ -74,8 +76,32 @@ export function confirmEmailVerification(token: string) {
 	);
 }
 
-export function refreshAuthenticatedUser() {
-	return handleVerificationRequest(() => pocketBase.collection('users').authRefresh(), 'refresh');
+export function refreshAuthenticatedUser(signal?: AbortSignal) {
+	return handleVerificationRequest(async () => {
+		const token = pocketBase.authStore.token;
+		const record = pocketBase.authStore.record;
+
+		if (!pocketBase.authStore.isValid || !record) {
+			throw new VerificationError('Sesi Anda sudah berakhir. Silakan masuk kembali.');
+		}
+
+		// authRefresh saves automatically. Isolate it so an old response cannot replace
+		// a login from another tab or restore a session after logout.
+		const client = new PocketBase(pocketBase.baseURL, new BaseAuthStore());
+		client.authStore.save(token, record);
+		const response = await client.collection('users').authRefresh({ signal, requestKey: null });
+
+		if (
+			signal?.aborted ||
+			pocketBase.authStore.token !== token ||
+			pocketBase.authStore.record?.id !== record.id
+		) {
+			throw new VerificationError('Sesi akun berubah. Silakan muat ulang halaman.');
+		}
+
+		pocketBase.authStore.save(response.token, response.record);
+		return response;
+	}, 'refresh');
 }
 
 export function subscribeToEmailVerification(onVerified: () => void): Promise<() => Promise<void>> {

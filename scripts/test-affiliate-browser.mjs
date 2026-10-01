@@ -77,6 +77,7 @@ try {
 		fullPage: true
 	});
 	await page.goto(appUrl + '/user/dashboard');
+	await page.waitForLoadState('networkidle');
 	await page.waitForURL('**/affiliate/dashboard');
 	const affiliate = (
 		await api(
@@ -243,6 +244,8 @@ try {
 	await page.getByRole('button', { name: 'Masuk', exact: true }).click();
 	await page.waitForURL('**/upgrade');
 	await page.getByRole('button', { name: 'Lanjutkan pembayaran', exact: true }).click();
+	await page.getByRole('dialog', { name: 'Punya kode kupon?', exact: true }).waitFor();
+	await page.getByRole('button', { name: 'Lanjut tanpa kupon', exact: true }).click();
 	await page.waitForURL('**/test-checkout/**');
 	const retryRecord = await api(`/api/collections/users/records/${retryUser.id}`);
 	const originalInvoice = (
@@ -283,6 +286,7 @@ try {
 	assert.equal(couponInvoice?.amount, 45000);
 	assert.equal(couponInvoice?.coupon_code, affiliate.code);
 	await page.goto(appUrl + '/user/dashboard');
+	await page.waitForLoadState('networkidle');
 	await page.getByRole('button', { name: 'Buka menu profil', exact: true }).click();
 	await page.getByRole('menuitem', { name: 'Keluar', exact: true }).click();
 	await page.waitForURL('**/login');
@@ -314,6 +318,7 @@ try {
 	await page.getByRole('button', { name: 'Tambahkan', exact: true }).click();
 	await page.getByRole('button', { name: 'Terpasang', exact: true }).waitFor();
 	await page
+		.locator('main')
 		.getByText(/Rp\s*45\.000/)
 		.first()
 		.waitFor();

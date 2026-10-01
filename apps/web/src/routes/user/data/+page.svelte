@@ -1085,6 +1085,10 @@
 				stories = toEditableStories(updatedStories);
 			} else {
 				const formData = new FormData(form);
+				if (activeSection === 'Tema') {
+					// Filtering can unmount the selected radio without changing the selected theme.
+					formData.set('theme', selectedTheme);
+				}
 				formData.delete('music-option');
 				formData.delete('quote-preset');
 				removeEmptyFiles(formData);

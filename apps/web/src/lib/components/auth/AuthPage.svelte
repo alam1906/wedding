@@ -39,13 +39,13 @@
 	const content = $derived(
 		isLogin
 			? {
-					title: 'Selamat datang',
+					title: 'Login',
 					submitLabel: 'Masuk',
 					metaTitle: 'Masuk - Wedez',
 					metaDescription: 'Masuk ke akun Wedez untuk mengelola undangan atau affiliate.'
 				}
 			: {
-					title: 'Buat akun',
+					title: 'Register',
 					submitLabel: 'Daftar',
 					metaTitle: 'Daftar - Wedez',
 					metaDescription: 'Buat akun Wedez untuk undangan pernikahan atau program affiliate.'
