@@ -98,7 +98,7 @@ export async function testLogicRegressions({
 					.filter({ has: page.locator('input[name=theme][value=playful-1]') })
 					.click();
 				assert.ok(await page.locator('input[value=playful-1]').isChecked());
-				await page.getByRole('button', { name: 'Minimalist', exact: true }).click();
+				await page.getByRole('button', { name: 'Neobrutalism', exact: true }).click();
 				assert.equal(await page.locator('input[value=playful-1]').count(), 0);
 				await page.getByRole('button', { name: 'Simpan perubahan', exact: true }).click();
 				await page.getByText('Tema berhasil disimpan.', { exact: true }).waitFor();
@@ -353,7 +353,7 @@ export async function testLogicRegressions({
 		async () => {
 			const original = await pb.collection('weddings').getOne(fixture.wedding);
 			try {
-				for (const theme of ['minimalist-1', 'safira']) {
+				for (const theme of ['nocturne', 'safira']) {
 					await pb.collection('weddings').update(fixture.wedding, {
 						theme,
 						akad: '2026-10-10 03:00:00.000Z',

@@ -3,9 +3,6 @@ import type { Component } from 'svelte';
 import type { WeddingData } from '#lib/features/weddings/index.js';
 
 export const WEDDING_THEME_KEYS = [
-	'minimalist-1',
-	'minimalist-2',
-	'minimalist-3',
 	'neubrutalism-1',
 	'neubrutalism-2',
 	'neubrutalism-3',
@@ -16,14 +13,6 @@ export const WEDDING_THEME_KEYS = [
 	'3d-design-2',
 	'3d-design-3',
 	'nocturne',
-	'puspa-parahyangan',
-	'pinto-aceh',
-	'kawung-jawa',
-	'gorga-batak',
-	'lipa-sabbe-bugis',
-	'gigi-balang-betawi',
-	'gonjong-minang',
-	'tongkonan-toraja',
 	'kinetika',
 	'anomali',
 	'selaras',
@@ -59,10 +48,33 @@ export const WEDDING_THEME_KEYS = [
 	'jingga',
 	'peony',
 	'gardenia',
-	'aster'
+	'aster',
+	'minimalist-1',
+	'minimalist-2',
+	'minimalist-3',
+	'minimalist-4',
+	'minimalist-5',
+	'minimalist-6',
+	'minimalist-7',
+	'sumatera-utara',
+	'sulawesi-selatan',
+	'sumatera-barat',
+	'jakarta',
+	'jawa-barat',
+	'jawa-tengah',
+	'jawa-timur',
+	'bali',
+	'sunda',
+	'dayak',
+	'banjar'
 ] as const;
 
 export type WeddingThemeKey = (typeof WEDDING_THEME_KEYS)[number];
+
+export type CanvasWeddingThemeKey = Extract<
+	WeddingThemeKey,
+	'nocturne' | `neubrutalism-${number}` | `playful-${number}` | `3d-design-${number}`
+>;
 
 export type WeddingThemeProps = {
 	wedding: WeddingData;

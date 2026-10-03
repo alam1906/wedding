@@ -1,0 +1,927 @@
+/* Regional editions share wedding data, not their cover compositions. */
+.edition-theme.edition-adat.sumatera-utara {
+	--e-bg: #f2e4d0;
+	--e-surface: #fbf2e5;
+	--e-ink: #541d20;
+	--e-accent: #763039;
+	--e-border: #d2ae7280;
+}
+.edition-theme.edition-adat.sulawesi-selatan {
+	--e-bg: #ebf0e5;
+	--e-surface: #f7f7ee;
+	--e-ink: #173f36;
+	--e-accent: #245549;
+	--e-border: #a7ac6280;
+}
+.edition-theme.edition-adat.sumatera-barat {
+	--e-bg: #f6ede7;
+	--e-surface: #fff8f0;
+	--e-ink: #511f32;
+	--e-accent: #793348;
+	--e-border: #c09a5180;
+}
+.edition-theme.edition-adat.jakarta {
+	--e-bg: #f5e8da;
+	--e-surface: #fff6e9;
+	--e-ink: #5c2a20;
+	--e-accent: #963e2f;
+	--e-border: #d0a57880;
+}
+.edition-theme.edition-adat.jawa-barat {
+	--e-bg: #eef0e5;
+	--e-surface: #fbf9ef;
+	--e-ink: #324433;
+	--e-accent: #52634a;
+	--e-border: #a4946780;
+}
+.edition-theme.edition-adat.jawa-tengah {
+	--e-bg: #efe5d6;
+	--e-surface: #faf2e4;
+	--e-ink: #503322;
+	--e-accent: #765039;
+	--e-border: #b89b6280;
+}
+.edition-theme.edition-adat.jawa-timur {
+	--e-bg: #f9f4ef;
+	--e-surface: #fffcf7;
+	--e-ink: #490e1c;
+	--e-accent: #791e35;
+	--e-border: #cba27480;
+}
+.edition-theme.edition-adat.bali {
+	--e-bg: #e4eff5;
+	--e-surface: #fdfaf2;
+	--e-ink: #27354c;
+	--e-accent: #8a692f;
+	--e-border: #c49b5480;
+}
+.edition-theme.edition-adat.sunda {
+	--e-bg: #e1edf2;
+	--e-surface: #f7f9f8;
+	--e-ink: #285873;
+	--e-accent: #477f9b;
+	--e-border: #d45e8280;
+}
+.edition-theme.edition-adat.dayak {
+	--e-bg: #3f0d14;
+	--e-surface: #541720;
+	--e-ink: #f9e7c4;
+	--e-accent: #e1bd78;
+	--e-border: #ba858380;
+}
+.edition-theme.edition-adat.banjar {
+	--e-bg: #eee5d4;
+	--e-surface: #fcf5e7;
+	--e-ink: #443322;
+	--e-accent: #80683d;
+	--e-border: #bea66d80;
+}
+.edition-theme.edition-adat {
+	--e-outer: #fff;
+	--e-body: 'Edition Jost', sans-serif;
+	--e-serif: 'Edition Garamond', Georgia, serif;
+	--e-script: 'Edition Alex', cursive;
+	--e-muted: color-mix(in srgb, var(--e-ink) 82%, var(--e-bg));
+	--e-border: color-mix(in srgb, var(--e-accent) 45%, var(--e-bg));
+	--a-cover: #541d20;
+	--a-cover-ink: #f5deb0;
+	--a-button: #edcea1;
+	--a-button-ink: #392215;
+	--a-name-font: var(--e-script);
+	--a-panel: var(--a-cover);
+	--a-panel-border: #caa362;
+	font-size: 14px;
+}
+.edition-theme.edition-adat.edition-narrow .edition-content {
+	max-width: 420px;
+	box-shadow: 0 0 48px #4d3a2810;
+}
+.edition-theme.edition-adat .edition-cover {
+	padding: 0;
+	background: #fff;
+	overflow: hidden;
+}
+.edition-adat .adat-cover-shell {
+	position: relative;
+	isolation: isolate;
+	display: grid;
+	place-items: center;
+	width: 100%;
+	height: 100dvh;
+	background: var(--a-cover);
+	overflow: hidden;
+}
+.edition-adat.edition-narrow .adat-cover-shell {
+	max-width: 420px;
+}
+.edition-adat .adat-cover-scenery,
+.edition-adat .adat-cover-sides {
+	position: absolute;
+	inset: 0;
+	pointer-events: none;
+}
+.edition-adat .adat-cover-scenery {
+	opacity: 0.48;
+	mix-blend-mode: luminosity;
+}
+.edition-adat .adat-cover-scenery img {
+	height: 100%;
+	object-fit: cover;
+	filter: grayscale(1);
+}
+.edition-adat .adat-cover-panel {
+	position: absolute;
+	inset: 8% 24px 5%;
+	border: 1px solid var(--a-panel-border);
+	border-radius: 220px 220px 16px 16px;
+	background: var(--a-panel);
+	box-shadow: 0 18px 50px #140c101f;
+}
+.edition-theme.edition-adat .edition-cover-card {
+	width: min(88%, 354px);
+	min-height: 0;
+	max-width: none;
+	gap: clamp(7px, 1.5dvh, 16px);
+	padding: max(22px, env(safe-area-inset-top)) 10px max(22px, env(safe-area-inset-bottom));
+	color: var(--a-cover-ink);
+}
+.edition-adat .adat-cover-emblem {
+	width: min(100%, 290px);
+	height: clamp(100px, 26dvh, 230px);
+	flex-shrink: 1;
+	min-height: 0;
+}
+.edition-adat .adat-cover-emblem img {
+	height: 100%;
+	object-fit: contain;
+}
+.edition-theme.edition-adat .edition-cover-heading {
+	margin: 0;
+}
+.edition-theme.edition-adat .edition-cover-names {
+	font: 400 clamp(43px, 7.8dvh, 72px)/1.04 var(--a-name-font);
+	color: var(--a-cover-ink);
+	text-wrap: balance;
+}
+.edition-theme.edition-adat .edition-cover-names > * {
+	display: block;
+}
+.edition-theme.edition-adat .edition-cover-names i {
+	margin: 2px 0;
+	font:
+		italic 400 0.48em/1.2 'Edition Cormorant',
+		serif;
+	color: inherit;
+}
+.edition-theme.edition-adat .edition-cover-date {
+	margin: 4px 0;
+	color: var(--a-cover-ink);
+	font-size: 11px;
+	letter-spacing: 0.14em;
+}
+.edition-theme.edition-adat .edition-recipient {
+	color: var(--a-cover-ink);
+	font-size: 11px;
+}
+.edition-theme.edition-adat .edition-recipient-name {
+	color: inherit;
+	font-size: 20px;
+	font-style: normal;
+}
+.edition-theme.edition-adat .edition-open-button {
+	min-width: 162px;
+	margin: 4px 0 0;
+	border: 1px solid transparent;
+	border-radius: 6px;
+	background: var(--a-button);
+	color: var(--a-button-ink);
+	font-size: 11px;
+	font-weight: 500;
+	letter-spacing: 0.02em;
+	text-transform: none;
+	box-shadow: 0 5px 18px #160d0b18;
+}
+.edition-theme.edition-adat .edition-open-button:hover {
+	background: color-mix(in srgb, var(--a-button) 88%, #fff);
+}
+.edition-theme.edition-adat .edition-cover :focus-visible {
+	outline-color: var(--a-cover-ink);
+}
+.edition-adat .adat-cover-sides img {
+	position: absolute;
+	bottom: 0;
+	height: 66%;
+	width: 35%;
+	object-fit: contain;
+	object-position: bottom;
+}
+.edition-adat .adat-side-left {
+	left: -5%;
+}
+.edition-adat .adat-side-right {
+	right: -5%;
+	transform: scaleX(-1);
+}
+.edition-theme.edition-adat .edition-section {
+	padding-block: 64px;
+}
+.edition-theme.edition-adat .edition-heading h2 {
+	font-size: clamp(31px, 4vw, 40px);
+}
+.edition-theme.edition-adat .edition-content {
+	overflow: clip;
+}
+.edition-theme.edition-adat .edition-hero-arch {
+	padding: 52px 24px 40px;
+	background:
+		linear-gradient(180deg, transparent, var(--e-bg)),
+		url('/images/themes/adat/tropical-engraving.webp') center / cover;
+	background-blend-mode: normal, luminosity;
+}
+.edition-theme.edition-adat .edition-hero-arch .edition-hero-media {
+	width: min(100%, 340px);
+	aspect-ratio: auto;
+	margin: 0 auto 22px;
+	border: 0;
+	border-radius: 0;
+	box-shadow: none;
+	overflow: visible;
+}
+.edition-theme.edition-adat .edition-hero-names {
+	font: 400 46px/1.2 var(--a-name-font);
+	color: var(--e-ink);
+}
+.edition-theme.edition-adat .edition-hero-names i {
+	color: var(--e-ink);
+}
+.edition-theme.edition-adat .edition-hero-date {
+	margin-top: 14px;
+}
+.edition-theme.edition-adat .edition-quote-section {
+	padding-block: 72px;
+	background: var(--e-surface);
+}
+.edition-theme.edition-adat .edition-quote blockquote {
+	color: var(--e-ink);
+	font: italic 400 23px/1.6 var(--e-serif);
+}
+.edition-theme.edition-adat .edition-couple {
+	gap: 36px;
+}
+.edition-theme.edition-adat .edition-person h3 {
+	font-size: 31px;
+	margin-bottom: 8px;
+}
+.edition-theme.edition-adat .edition-person-copy {
+	position: relative;
+	z-index: 1;
+}
+.edition-theme.edition-adat .adat-portrait-frame {
+	position: relative;
+	width: min(100%, 290px);
+	aspect-ratio: 3 / 4;
+	margin: 0 auto 22px;
+}
+.edition-theme.edition-adat .adat-portrait-frame .edition-portrait {
+	position: absolute;
+	inset: 10% 12%;
+	width: auto;
+	height: auto;
+	margin: 0;
+	border: 0;
+	outline: 0;
+	border-radius: 50%;
+}
+.edition-theme.edition-adat .adat-frame-arch .edition-portrait {
+	inset: 12% 12% 6%;
+	border-radius: 48% 48% 0 0 / 28% 28% 0 0;
+}
+.edition-theme.edition-adat .adat-portrait-frame .adat-frame-ornament {
+	position: relative;
+	width: 100%;
+	height: 100%;
+	object-fit: fill;
+	pointer-events: none;
+}
+.edition-theme.edition-adat .edition-hero .adat-portrait-frame {
+	width: 100%;
+	margin-bottom: 0;
+}
+.edition-theme.edition-adat .edition-couple-ampersand {
+	font-family: var(--e-serif);
+	font-size: 36px;
+}
+.edition-theme.edition-adat .edition-events-section {
+	background: var(--e-surface);
+}
+.edition-adat .adat-section-ornament {
+	position: relative;
+	width: min(180px, 45%);
+	height: 130px;
+	margin: -10px auto 28px;
+	pointer-events: none;
+}
+.edition-adat .adat-section-ornament img {
+	height: 100%;
+	object-fit: contain;
+}
+.edition-theme.edition-adat .edition-countdown {
+	margin-bottom: 32px;
+	gap: 10px;
+}
+.edition-theme.edition-adat .edition-countdown > div {
+	border-block: 1px solid var(--e-border);
+	padding: 12px 4px;
+}
+.edition-theme.edition-adat .edition-countdown strong {
+	font-size: 28px;
+}
+.edition-theme.edition-adat .edition-event {
+	padding: 34px 22px;
+	border-radius: 110px 110px 10px 10px;
+	box-shadow: none;
+}
+.edition-theme.edition-adat .edition-event h3 {
+	color: var(--e-ink);
+	font: 400 28px/1.3 var(--e-serif);
+	text-transform: none;
+	letter-spacing: 0;
+}
+.edition-theme.edition-adat .edition-event-date {
+	font-size: 23px;
+}
+.edition-theme.edition-adat .edition-event .edition-outline,
+.edition-theme.edition-adat .edition-gift-section .edition-outline {
+	color: var(--e-ink);
+	border-color: var(--e-border);
+	border-radius: 6px;
+}
+.edition-theme.edition-adat .edition-outline:hover {
+	background: var(--e-ink);
+	color: var(--e-bg);
+}
+.edition-theme.edition-adat .edition-story-line {
+	width: 2px;
+	background: var(--e-border);
+}
+.edition-theme.edition-adat .edition-story-line span {
+	background: var(--e-accent);
+}
+.edition-theme.edition-adat .edition-story-date {
+	color: var(--e-muted);
+}
+.edition-theme.edition-adat .edition-stories-cards .edition-story,
+.edition-theme.edition-adat .edition-stories-timeline-cards .edition-story {
+	display: block;
+	padding: 0;
+	border: 1px solid var(--e-border);
+	border-radius: 12px;
+	overflow: hidden;
+	background: var(--e-surface);
+}
+.edition-theme.edition-adat .edition-stories-cards .edition-story-photo,
+.edition-theme.edition-adat .edition-stories-timeline-cards .edition-story-photo {
+	width: 100%;
+	height: auto;
+	aspect-ratio: 4 / 3;
+	border: 0;
+	border-radius: 0;
+}
+.edition-theme.edition-adat .edition-stories-cards .edition-story-copy,
+.edition-theme.edition-adat .edition-stories-timeline-cards .edition-story-copy {
+	border: 0;
+	border-radius: 0;
+	padding: 24px;
+}
+.edition-theme.edition-adat .edition-stories-timeline-cards {
+	padding-left: 24px;
+}
+.edition-theme.edition-adat .edition-stories-timeline-cards .edition-story-line {
+	left: 0;
+}
+.edition-theme.edition-adat .edition-stories-timeline .edition-story {
+	display: block;
+	padding-left: 24px;
+}
+.edition-theme.edition-adat .edition-stories-timeline .edition-story-photo {
+	width: 100%;
+	height: auto;
+	aspect-ratio: 4 / 3;
+	border: 0;
+	border-radius: 120px 120px 0 0;
+	margin-bottom: 16px;
+}
+.edition-theme.edition-adat .edition-stories-timeline .edition-story-copy {
+	padding: 0;
+	border: 0;
+	background: none;
+}
+.edition-theme.edition-adat .edition-stories-timeline .edition-story-line {
+	left: 0;
+}
+.edition-theme.edition-adat .edition-stories-timeline .edition-story-marker {
+	left: -5px;
+}
+.edition-theme.edition-adat .edition-gallery button {
+	border-radius: 6px;
+}
+.edition-theme.edition-adat .edition-response,
+.edition-theme.edition-adat .edition-wishes-card,
+.edition-theme.edition-adat .edition-gift {
+	border-radius: 10px;
+}
+.edition-theme.edition-adat .edition-wish-name {
+	color: var(--e-ink);
+}
+.edition-theme.edition-adat .edition-footer {
+	position: relative;
+	padding-top: 56px;
+	background: var(--e-surface);
+}
+.edition-theme.edition-adat .edition-footer-card {
+	padding-top: 28px;
+}
+.edition-theme.edition-adat .edition-footer-names {
+	font-family: var(--a-name-font);
+	color: var(--e-ink);
+}
+.edition-theme.edition-adat .edition-music {
+	border-radius: 6px;
+}
+
+/* Sumatera Utara: folded ulos composition, not an arch variant. */
+.edition-theme.edition-adat.sumatera-utara {
+	--a-cover: #54191c;
+	--a-cover-ink: #efd1a0;
+	--a-button: #ebc991;
+}
+.sumatera-utara .adat-cover-scenery {
+	opacity: 0.1;
+}
+.sumatera-utara .adat-cover-panel {
+	display: none;
+}
+.sumatera-utara .adat-envelope {
+	position: absolute;
+	inset: 0 0 auto;
+	height: 35%;
+	pointer-events: none;
+}
+.sumatera-utara .adat-envelope span {
+	position: absolute;
+	inset: 0;
+	background: linear-gradient(130deg, #f4dab1, #ba8652);
+	clip-path: polygon(0 0, 48% 0, 48% 70%, 0 100%);
+}
+.sumatera-utara .adat-envelope span + span {
+	transform: scaleX(-1);
+}
+.sumatera-utara .adat-ulos {
+	position: absolute;
+	width: 24%;
+	inset: 0 auto auto;
+	height: 28%;
+	border-inline: 5px double #e8cf9d;
+	background:
+		repeating-linear-gradient(45deg, transparent 0 8px, #e8cf9d 8px 10px, transparent 10px 18px),
+		repeating-linear-gradient(-45deg, #781e21 0 8px, #ead5ae 8px 10px, #252220 10px 18px);
+}
+.sumatera-utara .adat-cover-emblem {
+	filter: drop-shadow(0 5px 8px #180c0960);
+}
+.edition-theme.edition-adat.sumatera-utara .edition-couple-section {
+	background: linear-gradient(#f4e4cc, #e3cbb0);
+}
+.edition-theme.edition-adat.sumatera-utara .edition-event {
+	border-radius: 6px;
+	border-top: 4px double #965052;
+}
+/* South Sulawesi: elongated jade oval and Bugis stilt architecture. */
+.edition-theme.edition-adat.sulawesi-selatan {
+	--a-cover: #416957;
+	--a-panel: #0e403b;
+	--a-cover-ink: #f0d29e;
+	--a-panel-border: #b6b55e;
+	--a-button: #c6d56a;
+	--a-button-ink: #1c3823;
+	--a-name-font: 'Edition Garamond', Georgia, serif;
+}
+.sulawesi-selatan .adat-cover-panel {
+	border-radius: 50% / 25%;
+	inset-block: 5%;
+}
+.edition-theme.edition-adat.sulawesi-selatan .edition-cover-names {
+	font-size: clamp(40px, 6.7dvh, 60px);
+}
+.edition-theme.edition-adat.sulawesi-selatan .edition-couple-section {
+	border-radius: 200px 200px 0 0;
+	background: #dce6d7;
+}
+.edition-theme.edition-adat.sulawesi-selatan .edition-event {
+	border-radius: 50% 50% 12px 12px / 23% 23% 12px 12px;
+}
+/* West Sumatra: layered wine arch and gonjong roof. */
+.edition-theme.edition-adat.sumatera-barat {
+	--a-cover: #8c5969;
+	--a-panel: #491d30;
+	--a-cover-ink: #f5d091;
+	--a-button: #f0bb58;
+	--a-name-font: 'Edition Delafield', cursive;
+}
+.sumatera-barat .adat-cover-panel {
+	inset: 13% 22px -8%;
+	border-radius: 220px 220px 0 0;
+	outline: 1px solid #e2b77555;
+	outline-offset: 8px;
+}
+.sumatera-barat .adat-cover-emblem {
+	width: 105%;
+	height: clamp(100px, 24dvh, 210px);
+}
+.edition-theme.edition-adat.sumatera-barat .edition-cover-names {
+	font-size: clamp(52px, 8.5dvh, 78px);
+}
+.edition-theme.edition-adat.sumatera-barat .edition-events-section {
+	background: #ead6d6;
+}
+.edition-theme.edition-adat.sumatera-barat .edition-event {
+	border-radius: 140px 140px 8px 8px;
+}
+/* Jakarta: Monas against a terracotta oval. */
+.edition-theme.edition-adat.jakarta {
+	--a-cover: #9b5e4a;
+	--a-panel: #923e2f;
+	--a-cover-ink: #fff0d4;
+	--a-button: #f8e6c4;
+	--a-name-font: 'Edition Alex', cursive;
+}
+.jakarta .adat-cover-panel {
+	inset: 5% 26px;
+	border-radius: 50% / 24%;
+	border-color: #e9c9a0;
+}
+.jakarta .adat-cover-emblem {
+	height: clamp(95px, 24dvh, 208px);
+}
+.edition-theme.edition-adat.jakarta .edition-event {
+	border-radius: 4px;
+	border: 3px double #d4b18a;
+}
+.edition-theme.edition-adat.jakarta .adat-frame-ornament {
+	filter: sepia(0.5) saturate(0.8);
+}
+/* West Java: illustrated house above a forest-green rising arch. */
+.edition-theme.edition-adat.jawa-barat {
+	--a-cover: #a6b29b;
+	--a-panel: #304733;
+	--a-cover-ink: #faf1da;
+	--a-button: #d4bd82;
+}
+.jawa-barat .adat-cover-scenery {
+	opacity: 0.85;
+}
+.jawa-barat .adat-cover-panel {
+	inset: 35% 0 -10%;
+	border: 0;
+	border-radius: 220px 220px 0 0;
+}
+.jawa-barat .adat-cover-emblem {
+	filter: sepia(0.2) hue-rotate(25deg) saturate(0.6);
+}
+.edition-theme.edition-adat.jawa-barat .edition-couple-section {
+	background: #dce2d2;
+}
+/* Central Java: unobstructed sepia etching and a gold kayon. */
+.edition-theme.edition-adat.jawa-tengah {
+	--a-cover: #715544;
+	--a-cover-ink: #fff0d1;
+	--a-button: #d9ba7e;
+	--a-name-font: 'Edition Garamond', Georgia, serif;
+}
+.jawa-tengah .adat-cover-scenery {
+	opacity: 0.78;
+	mix-blend-mode: luminosity;
+}
+.jawa-tengah .adat-cover-panel {
+	inset: 0;
+	border: 0;
+	border-radius: 0;
+	background: linear-gradient(#412d1908, #4931237a 35%, #4e3423ed);
+}
+.jawa-tengah .adat-cover-emblem {
+	height: clamp(100px, 26dvh, 235px);
+}
+.edition-theme.edition-adat.jawa-tengah .edition-cover-names {
+	font-style: italic;
+	font-size: clamp(43px, 7dvh, 63px);
+}
+.edition-theme.edition-adat.jawa-tengah .edition-event {
+	border-radius: 5px;
+	outline: 1px solid var(--e-border);
+	outline-offset: -8px;
+}
+/* East Java deliberately remains full width, with photographic cover. */
+.edition-theme.edition-adat.jawa-timur {
+	--a-cover: #34141c;
+	--a-cover-ink: #fff9ef;
+	--a-button: #fff7e9;
+	--a-name-font: 'Edition Playfair', Georgia, serif;
+	--e-outer: #f9f4ef;
+}
+.jawa-timur .adat-cover-scenery {
+	opacity: 1;
+	mix-blend-mode: normal;
+}
+.jawa-timur .adat-cover-scenery img {
+	filter: none;
+}
+.jawa-timur .adat-cover-panel {
+	inset: 0;
+	border: 0;
+	border-radius: 0;
+	background: #1914147d;
+}
+.jawa-timur .adat-cover-sides img {
+	width: min(38%, 390px);
+	height: 96%;
+	bottom: -8%;
+	opacity: 0.7;
+	filter: grayscale(1) brightness(2.5);
+}
+.jawa-timur .adat-side-left {
+	left: -13%;
+}
+.jawa-timur .adat-side-right {
+	right: -13%;
+}
+.edition-theme.edition-adat.jawa-timur .edition-cover-card {
+	width: min(80%, 850px);
+	gap: clamp(14px, 2.5dvh, 24px);
+}
+.edition-theme.edition-adat.jawa-timur .edition-cover-names {
+	font-size: clamp(43px, 7vw, 88px);
+	text-transform: uppercase;
+	font-weight: 600;
+}
+.edition-theme.edition-adat.jawa-timur .edition-cover-date {
+	order: -1;
+}
+.edition-theme.edition-adat.jawa-timur .edition-hero-landscape {
+	width: 100%;
+	height: 90dvh;
+	max-height: 850px;
+}
+.edition-theme.edition-adat.jawa-timur .edition-couple-section {
+	background: linear-gradient(#75182d 0 48%, var(--e-bg) 48%);
+}
+.edition-theme.edition-adat.jawa-timur .edition-couple-section .edition-heading h2 {
+	color: #fff4dd;
+}
+.edition-theme.edition-adat.jawa-timur .edition-couple {
+	max-width: 850px;
+	margin: auto;
+	align-items: start;
+}
+.edition-theme.edition-adat.jawa-timur .edition-couple-ampersand {
+	color: #fff4dd;
+	align-self: center;
+}
+.edition-theme.edition-adat.jawa-timur .edition-portrait {
+	width: min(100%, 310px);
+	height: auto;
+	aspect-ratio: 3 / 4;
+	border: 0;
+	outline: 0;
+	border-radius: 160px 160px 24px 24px;
+}
+.edition-theme.edition-adat.jawa-timur .edition-person-copy {
+	background: var(--e-bg);
+	padding: 20px 12px;
+	border-radius: 10px;
+}
+/* Bali: porcelain-blue botanical ground, ivory card, Meru and penjor. */
+.edition-theme.edition-adat.bali {
+	--a-cover: #d5e5ee;
+	--a-panel: #fffcf4;
+	--a-cover-ink: #936a30;
+	--a-panel-border: #aabecb;
+	--a-button: #c79b54;
+	--a-button-ink: #251b0d;
+	--a-name-font: 'Edition Cinzel', Georgia, serif;
+}
+.bali .adat-cover-scenery {
+	opacity: 0.42;
+}
+.bali .adat-cover-panel {
+	inset: 7% 24px;
+	border-radius: 0;
+	border: 1px solid #aabecb;
+	outline: 4px solid #fffffaaa;
+	outline-offset: 5px;
+}
+.bali .adat-cover-emblem {
+	height: clamp(95px, 23dvh, 205px);
+}
+.bali .adat-cover-sides img {
+	height: 38%;
+	width: 28%;
+	bottom: 0;
+}
+.bali .adat-side-left {
+	left: -3%;
+}
+.bali .adat-side-right {
+	right: -3%;
+}
+.edition-theme.edition-adat.bali .edition-cover-names {
+	font-size: clamp(33px, 5.8dvh, 51px);
+}
+.edition-theme.edition-adat.bali .edition-cover-names i {
+	color: #647b92;
+}
+.edition-theme.edition-adat.bali .edition-hero-names {
+	font-size: 36px;
+}
+.edition-theme.edition-adat.bali .edition-event {
+	border-radius: 5px;
+	outline: 1px solid var(--e-border);
+	outline-offset: -7px;
+}
+/* Sunda: blue arched composition, tile-roof house and silver portraits. */
+.edition-theme.edition-adat.sunda {
+	--a-cover: #203f5b;
+	--a-panel: linear-gradient(#628eab, #2b5877);
+	--a-cover-ink: #fff3d5;
+	--a-button: #fc7195;
+	--a-button-ink: #3c1425;
+	--a-name-font: 'Edition Garamond', Georgia, serif;
+}
+.sunda .adat-cover-panel {
+	inset: 13% 20px -5%;
+	border: 0;
+	border-radius: 210px 210px 0 0;
+}
+.sunda .adat-cover-emblem {
+	width: 110%;
+	height: clamp(95px, 25dvh, 225px);
+}
+.edition-theme.edition-adat.sunda .edition-cover-names {
+	font-style: italic;
+	font-size: clamp(43px, 7dvh, 63px);
+}
+.edition-theme.edition-adat.sunda .adat-frame-ornament {
+	filter: grayscale(1) sepia(0.15) hue-rotate(165deg) brightness(0.83);
+}
+.edition-theme.edition-adat.sunda .edition-couple-section {
+	border-radius: 200px 200px 0 0;
+	background: #c9dfe9;
+}
+/* Dayak: pointed panel and the Talawang, rich wine throughout. */
+.edition-theme.edition-adat.dayak {
+	--a-cover: #965665;
+	--a-panel: #430c16ea;
+	--a-cover-ink: #ffebbd;
+	--a-button: #e9bf70;
+	--a-name-font: 'Edition Jost', sans-serif;
+}
+.dayak .adat-cover-panel {
+	inset: 5% 20px -8%;
+	border: 0;
+	border-radius: 0;
+	clip-path: polygon(50% 0, 100% 16%, 100% 100%, 0 100%, 0 16%);
+}
+.dayak .adat-cover-emblem {
+	height: clamp(110px, 26dvh, 235px);
+}
+.edition-theme.edition-adat.dayak .edition-cover-names {
+	font-size: clamp(36px, 5.7dvh, 49px);
+	font-weight: 500;
+}
+.edition-theme.edition-adat.dayak .edition-hero-names {
+	font-size: 37px;
+}
+.edition-theme.edition-adat.dayak .edition-event {
+	border-radius: 120px 120px 5px 5px;
+}
+/* Banjar: a high-peaked panel mirrors the Bubungan Tinggi. */
+.edition-theme.edition-adat.banjar {
+	--a-cover: #c4b890;
+	--a-panel: linear-gradient(#78572ae0, #48351dee);
+	--a-cover-ink: #f9dd94;
+	--a-button: #dbc38c;
+	--a-name-font: 'Edition Fraunces', Georgia, serif;
+}
+.banjar .adat-cover-panel {
+	inset: 4% 18px -8%;
+	border: 0;
+	border-radius: 0;
+	clip-path: polygon(50% 0, 100% 22%, 100% 100%, 0 100%, 0 22%);
+}
+.banjar .adat-cover-emblem {
+	width: 108%;
+	height: clamp(110px, 27dvh, 242px);
+}
+.edition-theme.edition-adat.banjar .edition-cover-names {
+	font-size: clamp(37px, 6.4dvh, 55px);
+	text-transform: uppercase;
+	font-weight: 600;
+}
+.edition-theme.edition-adat.banjar .edition-hero-names {
+	font-size: 38px;
+}
+.edition-theme.edition-adat.banjar .edition-event {
+	border-radius: 3px;
+	border-top: 4px double var(--e-border);
+}
+@media (max-width: 640px) {
+	.edition-theme.edition-adat.jawa-timur .edition-couple {
+		grid-template-columns: minmax(0, 1fr);
+	}
+	.edition-theme.edition-adat.jawa-timur .edition-couple-section {
+		background: linear-gradient(#75182d 0 32%, var(--e-bg) 32%);
+	}
+	.edition-theme.edition-adat.jawa-timur .edition-couple-ampersand {
+		color: var(--e-ink);
+	}
+	.edition-theme.edition-adat.jawa-timur .edition-cover-names {
+		font-size: clamp(37px, 9.5vw, 60px);
+	}
+}
+@media (max-height: 650px) {
+	.edition-theme.edition-adat .adat-cover-emblem {
+		height: 20dvh;
+	}
+	.edition-theme.edition-adat .edition-cover-names {
+		font-size: 43px;
+	}
+	.edition-theme.edition-adat:is(.bali, .dayak, .banjar) .edition-cover-names {
+		font-size: 33px;
+	}
+	.edition-theme.edition-adat.jawa-timur .edition-cover-names {
+		font-size: clamp(37px, 6vw, 60px);
+	}
+}
+@media (max-height: 440px) {
+	.edition-theme.edition-adat .adat-cover-emblem {
+		height: 14dvh;
+	}
+	.edition-theme.edition-adat .edition-cover-names {
+		font-size: 28px;
+	}
+	.edition-theme.edition-adat:is(.bali, .dayak, .banjar) .edition-cover-names {
+		font-size: 24px;
+	}
+	.edition-theme.edition-adat.jawa-timur .edition-cover-card {
+		gap: 8px;
+	}
+	.edition-theme.edition-adat.jawa-timur .edition-cover-names {
+		font-size: 35px;
+	}
+}
+
+@media (max-height: 650px) {
+	.edition-theme.edition-adat .edition-cover-card {
+		gap: 6px;
+		padding-block: 16px;
+	}
+	.edition-adat .adat-cover-emblem {
+		height: 21dvh;
+	}
+	.edition-theme.edition-adat .edition-cover-names {
+		font-size: clamp(36px, 7.3dvh, 47px);
+	}
+	.edition-theme.edition-adat .edition-cover-date {
+		margin: 2px 0;
+		font-size: 10px;
+	}
+	.edition-theme.edition-adat .edition-recipient-name {
+		font-size: 17px;
+	}
+}
+@media (max-height: 440px) {
+	.edition-theme.edition-adat .edition-cover-card {
+		gap: 4px;
+		padding-block: 12px;
+	}
+	.edition-adat .adat-cover-emblem {
+		height: 15dvh;
+	}
+	.edition-theme.edition-adat .edition-cover-names {
+		font-size: 28px;
+	}
+	.edition-theme.edition-adat .edition-cover-names i {
+		font-size: 17px;
+		line-height: 1;
+	}
+	.edition-theme.edition-adat .edition-recipient {
+		font-size: 10px;
+	}
+	.edition-theme.edition-adat .edition-recipient-name {
+		margin: 0;
+		font-size: 15px;
+	}
+	.edition-theme.edition-adat .edition-open-button {
+		min-height: 40px;
+		padding: 8px 20px;
+	}
+}

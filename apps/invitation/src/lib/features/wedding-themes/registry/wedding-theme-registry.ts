@@ -1,25 +1,115 @@
 import type { WeddingThemeDefinition, WeddingThemeKey } from '../model/wedding-theme.js';
 
-export const DEFAULT_WEDDING_THEME: WeddingThemeKey = 'minimalist-1';
+export const DEFAULT_WEDDING_THEME: WeddingThemeKey = 'nocturne';
 
 export const weddingThemes = [
 	{
+		key: 'sumatera-utara',
+		name: 'Sumatera Utara',
+		description: 'Rumah Bolon, tenun ulos, dan nuansa merah marun dengan aksen emas.',
+		load: () => import('../themes/adat/SumateraUtaraTheme.svelte')
+	},
+	{
+		key: 'sulawesi-selatan',
+		name: 'Sulawesi Selatan',
+		description: 'Rumah panggung Bugis, bingkai oval, dan warna hijau zamrud.',
+		load: () => import('../themes/adat/SulawesiSelatanTheme.svelte')
+	},
+	{
+		key: 'sumatera-barat',
+		name: 'Sumatera Barat',
+		description: 'Rumah Gadang dan bingkai lengkung dalam nuansa burgundy dan emas.',
+		load: () => import('../themes/adat/SumateraBaratTheme.svelte')
+	},
+	{
+		key: 'jakarta',
+		name: 'Jakarta',
+		description: 'Monas, ukiran klasik, dan palet terakota yang hangat.',
+		load: () => import('../themes/adat/JakartaTheme.svelte')
+	},
+	{
+		key: 'jawa-barat',
+		name: 'Jawa Barat',
+		description: 'Rumah Julang Ngapak dan lanskap hijau dengan bingkai gading.',
+		load: () => import('../themes/adat/JawaBaratTheme.svelte')
+	},
+	{
+		key: 'jawa-tengah',
+		name: 'Jawa Tengah',
+		description: 'Gunungan wayang, lanskap sepia, dan bingkai emas klasik.',
+		load: () => import('../themes/adat/JawaTengahTheme.svelte')
+	},
+	{
+		key: 'jawa-timur',
+		name: 'Jawa Timur',
+		description: 'Foto penuh dengan gunungan di sisi dan nuansa merah marun.',
+		load: () => import('../themes/adat/JawaTimurTheme.svelte')
+	},
+	{
+		key: 'bali',
+		name: 'Bali',
+		description: 'Meru, penjor, dan bingkai emas dalam nuansa biru porselen.',
+		load: () => import('../themes/adat/BaliTheme.svelte')
+	},
+	{
+		key: 'sunda',
+		name: 'Sunda',
+		description: 'Rumah Sunda, bingkai perak, dan gradasi biru dengan aksen merah muda.',
+		load: () => import('../themes/adat/SundaTheme.svelte')
+	},
+	{
+		key: 'dayak',
+		name: 'Dayak',
+		description: 'Talawang berornamen, potret oval, dan merah anggur dengan emas.',
+		load: () => import('../themes/adat/DayakTheme.svelte')
+	},
+	{
+		key: 'banjar',
+		name: 'Banjar',
+		description: 'Rumah Bubungan Tinggi, tekstur hangat, dan warna emas kecokelatan.',
+		load: () => import('../themes/adat/BanjarTheme.svelte')
+	},
+	{
 		key: 'minimalist-1',
-		name: 'Minimalist Romantic',
-		description: 'Romantis hangat dengan ruang lapang dan detail lembut.',
+		name: 'minimalist-1',
+		description: 'Foto bersudut potong, nuansa biru lembut, dan tipografi kaligrafi.',
 		load: () => import('../themes/minimalist/Minimalist1Theme.svelte')
 	},
 	{
 		key: 'minimalist-2',
-		name: 'Minimalist Elegant',
-		description: 'Hijau zaitun dan emas matang dalam komposisi formal yang bersih.',
+		name: 'minimalist-2',
+		description: 'Kertas ivory, dedaunan monstera, dan tipografi serif hijau sage.',
 		load: () => import('../themes/minimalist/Minimalist2Theme.svelte')
 	},
 	{
 		key: 'minimalist-3',
-		name: 'Minimalist Fresh',
-		description: 'Hijau kebiruan yang segar, modern, dan ringan.',
+		name: 'minimalist-3',
+		description: 'Komposisi editorial putih, huruf tegas, dan aksen aprikot.',
 		load: () => import('../themes/minimalist/Minimalist3Theme.svelte')
+	},
+	{
+		key: 'minimalist-4',
+		name: 'minimalist-4',
+		description: 'Bingkai lengkung asimetris, serif klasik, dan susunan tanggal vertikal.',
+		load: () => import('../themes/minimalist/Minimalist4Theme.svelte')
+	},
+	{
+		key: 'minimalist-5',
+		name: 'minimalist-5',
+		description: 'Fotografi monokrom gelap, tipografi ringan, dan garis minimal.',
+		load: () => import('../themes/minimalist/Minimalist5Theme.svelte')
+	},
+	{
+		key: 'minimalist-6',
+		name: 'minimalist-6',
+		description: 'Sampul foto hangat dengan potret besar yang disusun berselang.',
+		load: () => import('../themes/minimalist/Minimalist6Theme.svelte')
+	},
+	{
+		key: 'minimalist-7',
+		name: 'minimalist-7',
+		description: 'Judul vertikal, foto asimetris, dan bidang hitam putih.',
+		load: () => import('../themes/minimalist/Minimalist7Theme.svelte')
 	},
 	{
 		key: 'neubrutalism-1',
@@ -80,54 +170,6 @@ export const weddingThemes = [
 		name: 'Nocturne',
 		description: 'Romansa malam sinematik dengan cahaya emas dan gerak yang mengalir.',
 		load: () => import('../themes/nocturne/NocturneTheme.svelte')
-	},
-	{
-		key: 'puspa-parahyangan',
-		name: 'Puspa Parahyangan',
-		description: 'Keanggunan adat Sunda dengan siluet siger, sulur bunga, dan palet hijau-emas.',
-		load: () => import('../themes/sunda/PuspaParahyanganTheme.svelte')
-	},
-	{
-		key: 'pinto-aceh',
-		name: 'Pinto Aceh',
-		description: 'Gerbang berukir dan bungong jeumpa dalam nuansa merah-emas Aceh.',
-		load: () => import('../themes/aceh/PintoAcehTheme.svelte')
-	},
-	{
-		key: 'kawung-jawa',
-		name: 'Kawung Jawa',
-		description: 'Ritme batik kawung dan warna soga yang tenang.',
-		load: () => import('../themes/jawa/KawungJawaTheme.svelte')
-	},
-	{
-		key: 'gorga-batak',
-		name: 'Gorga Batak',
-		description: 'Geometri gorga dengan kontras merah, hitam, dan putih.',
-		load: () => import('../themes/batak/GorgaBatakTheme.svelte')
-	},
-	{
-		key: 'lipa-sabbe-bugis',
-		name: 'Lipa Sabbe Bugis',
-		description: 'Anyaman sutra berpola kotak dalam hijau zamrud dan emas.',
-		load: () => import('../themes/bugis/LipaSabbeBugisTheme.svelte')
-	},
-	{
-		key: 'gigi-balang-betawi',
-		name: 'Gigi Balang Betawi',
-		description: 'Lisplang bergerigi dan warna ceria khas rumah Betawi.',
-		load: () => import('../themes/betawi/GigiBalangBetawiTheme.svelte')
-	},
-	{
-		key: 'gonjong-minang',
-		name: 'Gonjong Minang',
-		description: 'Siluet atap Rumah Gadang dengan marun dan emas.',
-		load: () => import('../themes/minang/GonjongMinangTheme.svelte')
-	},
-	{
-		key: 'tongkonan-toraja',
-		name: 'Tongkonan Toraja',
-		description: 'Lengkung atap Tongkonan dan geometri tanah Toraja.',
-		load: () => import('../themes/toraja/TongkonanTorajaTheme.svelte')
 	},
 	{
 		key: 'kinetika',
@@ -357,7 +399,6 @@ const weddingThemeMap = Object.fromEntries(
 
 export function getWeddingTheme(theme: string): WeddingThemeDefinition {
 	const legacyAliases: Record<string, WeddingThemeKey> = {
-		minimalist: 'minimalist-1',
 		brutalism: 'neubrutalism-1',
 		playful: 'playful-1'
 	};

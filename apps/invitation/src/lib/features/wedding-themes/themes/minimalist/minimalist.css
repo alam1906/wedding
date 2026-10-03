@@ -1,0 +1,1222 @@
+/* Invee minimalist references 6–12. All copy comes from the shared wedding data. */
+.edition-minimalist {
+	--e-bg: #fff;
+	--e-surface: #fff;
+	--e-ink: #272927;
+	--e-muted: #686c68;
+	--e-accent: #596b73;
+	--e-border: #d9dddb;
+	--e-shadow: none;
+	--e-script: var(--e-serif);
+	--minimal-paper: #f3f5f3;
+}
+.edition-minimalist .edition-cover {
+	height: 100dvh;
+	min-height: 0;
+	padding: clamp(24px, 7dvh, 72px) clamp(24px, 8.8vw, 150px);
+	overflow: clip;
+	background: var(--e-bg);
+}
+.edition-minimalist .minimal-cover-art {
+	position: absolute;
+	inset: 0;
+	overflow: hidden;
+	background: var(--e-border);
+}
+.edition-minimalist .minimal-cover-art img {
+	height: 100%;
+	object-fit: cover;
+	object-position: center;
+}
+.edition-minimalist .minimal-cover-art::after {
+	position: absolute;
+	inset: 0;
+	content: '';
+}
+.edition-minimalist .minimal-cover-layout {
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+	max-width: 1200px;
+	min-width: 0;
+	gap: 18px;
+	margin: auto;
+}
+.edition-minimalist .edition-cover-heading {
+	width: 100%;
+	min-width: 0;
+}
+.edition-minimalist .edition-cover-names {
+	color: inherit;
+	font: 400 clamp(42px, 5.2vw, 76px)/1.12 var(--e-script);
+	overflow-wrap: anywhere;
+	text-wrap: balance;
+}
+.edition-minimalist .edition-cover-names i {
+	color: inherit;
+	font-size: 0.68em;
+	margin-inline: 0.12em;
+}
+.edition-minimalist .edition-cover-date {
+	color: inherit;
+	font-size: 12px;
+	letter-spacing: 0.12em;
+}
+.edition-minimalist .edition-recipient {
+	margin-top: 24px;
+	color: inherit;
+}
+.edition-minimalist .edition-recipient-name {
+	color: inherit;
+	font: 500 22px/1.4 var(--e-serif);
+}
+.edition-minimalist .edition-outline {
+	border-radius: 0;
+	min-height: 44px;
+	padding: 12px 25px;
+	font-size: 11px;
+	letter-spacing: 0.1em;
+}
+.edition-minimalist .edition-open-button {
+	margin-top: 10px;
+}
+.edition-minimalist .edition-container {
+	max-width: 1060px;
+}
+.edition-minimalist .edition-section {
+	position: relative;
+	padding: clamp(64px, 8vw, 112px) 28px;
+}
+.edition-minimalist .edition-heading {
+	margin-bottom: 48px;
+}
+.edition-minimalist .edition-heading h2 {
+	font-size: clamp(28px, 3.4vw, 44px);
+}
+.edition-minimalist .edition-hero-landscape {
+	max-width: none;
+	width: 100%;
+	height: min(90dvh, 900px);
+	margin: 0;
+	border-radius: 0;
+}
+.edition-minimalist .edition-hero-media {
+	border-radius: inherit;
+}
+.edition-minimalist .edition-hero-landscape::after {
+	background: linear-gradient(180deg, #10171318 25%, #101713a6);
+}
+.edition-minimalist .edition-hero-copy {
+	color: #fff;
+}
+.edition-minimalist .edition-hero-names {
+	font-size: clamp(40px, 6vw, 82px);
+	color: #fff;
+}
+.edition-minimalist .edition-hero-date {
+	color: inherit;
+	letter-spacing: 0.12em;
+	font-size: 12px;
+}
+.edition-minimalist .edition-hero-names i {
+	color: inherit;
+}
+.edition-minimalist .edition-quote-section {
+	display: grid;
+	place-items: center;
+	padding-block: clamp(64px, 9vw, 128px);
+}
+.edition-minimalist .edition-quote {
+	max-width: 780px;
+}
+.edition-minimalist .edition-quote blockquote {
+	font-size: clamp(20px, 2.2vw, 28px);
+	line-height: 1.7;
+}
+.edition-minimalist .edition-couple {
+	gap: clamp(18px, 5vw, 72px);
+	align-items: center;
+}
+.edition-minimalist .edition-person {
+	min-width: 0;
+}
+.edition-minimalist .edition-portrait {
+	width: min(100%, 330px);
+	height: auto;
+	aspect-ratio: 4 / 5;
+	border: 0;
+	border-radius: 0;
+	padding: 0;
+	box-shadow: none;
+	outline: none;
+	margin: 0 auto 28px;
+}
+.edition-minimalist .edition-portrait img {
+	height: 100%;
+	object-fit: cover;
+}
+.edition-minimalist .edition-person h3 {
+	font-size: clamp(26px, 3vw, 40px);
+}
+.edition-minimalist .edition-events-section {
+	background: var(--minimal-paper);
+}
+.edition-minimalist .edition-countdown {
+	width: min(100%, 400px);
+	margin: 0 auto 48px;
+}
+.edition-minimalist .edition-countdown > div {
+	border: 0;
+	border-right: 1px solid var(--e-border);
+	background: none;
+	border-radius: 0;
+}
+.edition-minimalist .edition-countdown > div:last-child {
+	border-right: 0;
+}
+.edition-minimalist .edition-countdown strong {
+	font: 400 clamp(28px, 3.5vw, 42px)/1.2 var(--e-serif);
+	color: var(--e-ink);
+}
+.edition-minimalist .edition-event {
+	border: 0;
+	border-top: 1px solid var(--e-border);
+	border-radius: 0;
+	background: transparent;
+	box-shadow: none;
+	padding: 40px 28px;
+}
+.edition-minimalist .edition-stories-cards {
+	max-width: none;
+	display: grid;
+	gap: 56px;
+}
+.edition-minimalist .edition-stories-cards .edition-story {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	align-items: center;
+	gap: 48px;
+	padding: 0;
+	border: 0;
+	background: none;
+	border-radius: 0;
+	box-shadow: none;
+}
+.edition-minimalist .edition-stories-cards .edition-story:nth-child(even) .edition-story-photo {
+	order: 2;
+}
+.edition-minimalist .edition-story-photo {
+	border-radius: 0;
+}
+.edition-minimalist .edition-stories-cards .edition-story-photo {
+	aspect-ratio: 4 / 3;
+}
+.edition-minimalist .edition-stories-cards .edition-story-copy {
+	padding: 0;
+	text-align: left;
+}
+.edition-minimalist .edition-story h3 {
+	font-size: clamp(24px, 2.6vw, 34px);
+}
+.edition-minimalist .edition-gallery {
+	gap: 16px;
+}
+.edition-minimalist .edition-gallery button {
+	border: 0;
+	border-radius: 0;
+	box-shadow: none;
+}
+.edition-minimalist .edition-gallery button:nth-child(3n + 2) {
+	aspect-ratio: 4 / 5;
+	align-self: center;
+}
+.edition-minimalist :is(.edition-response, .edition-wishes-card, .edition-gift) {
+	border-radius: 0;
+	box-shadow: none;
+}
+.edition-minimalist .edition-footer {
+	border-top: 1px solid var(--e-border);
+	background: var(--minimal-paper);
+}
+.edition-minimalist .edition-footer-card {
+	background: none;
+	border: 0;
+	box-shadow: none;
+	border-radius: 0;
+}
+
+/* 1 · Ice-blue photograph, clipped corners, signature typography. */
+.minimalist-1 {
+	--e-accent: #5b7783;
+	--e-border: #ccd9de;
+	--e-muted: #586b73;
+	--e-script: 'Edition Alex', cursive;
+	--e-serif: 'Edition Jost', Arial, sans-serif;
+	--minimal-paper: #eff4f6;
+}
+.minimalist-1 .minimal-cover-art {
+	inset: 7dvh 8.8vw;
+	clip-path: polygon(8% 0, 100% 0, 100% 88%, 92% 100%, 0 100%, 0 12%);
+}
+.minimalist-1 .minimal-cover-art::after {
+	background: linear-gradient(115deg, #2e4a561a, #1e3545b8);
+}
+.minimalist-1 .minimal-cover-layout {
+	max-width: none;
+	align-items: flex-end;
+	text-align: center;
+	padding: 0 6% 5dvh 46%;
+	align-self: end;
+	margin: 0;
+	color: #fff;
+}
+.minimalist-1 .edition-cover-names {
+	font-size: clamp(50px, 5.7vw, 84px);
+}
+.minimalist-1 .edition-cover-date {
+	align-self: center;
+}
+.minimalist-1 .edition-recipient {
+	align-self: center;
+}
+.minimalist-1 .edition-open-button {
+	align-self: center;
+	color: #fff;
+	background: #456370;
+	border-color: #8faab6;
+}
+.minimalist-1 .edition-heading h2 {
+	font-size: clamp(22px, 2.5vw, 32px);
+	text-transform: uppercase;
+	letter-spacing: 0.15em;
+}
+.minimalist-1 .edition-hero-landscape {
+	margin: 5vw auto 0;
+	width: 88%;
+	height: 78dvh;
+	clip-path: polygon(7% 0, 100% 0, 100% 89%, 93% 100%, 0 100%, 0 11%);
+}
+.minimalist-1 .edition-portrait {
+	clip-path: polygon(0 0, 100% 0, 100% 84%, 82% 100%, 0 100%);
+}
+.minimalist-1 .edition-person:nth-of-type(2) .edition-portrait {
+	clip-path: polygon(0 0, 100% 0, 100% 100%, 18% 100%, 0 84%);
+}
+.minimalist-1 .edition-person h3 {
+	font-family: var(--e-script);
+	font-size: 46px;
+}
+.minimalist-1 .edition-quote blockquote {
+	font-style: normal;
+	font-weight: 400;
+}
+
+/* 2 · Botanical paper, sage ink, a single original monstera leaf. */
+.minimalist-2 {
+	--e-bg: #f8f8f1;
+	--e-surface: #fdfdf8;
+	--e-ink: #3c4e3c;
+	--e-accent: #52654a;
+	--e-muted: #65725d;
+	--e-border: #cbd2c1;
+	--e-serif: 'Edition Fraunces', Georgia, serif;
+	--minimal-paper: #edf0e6;
+}
+.minimalist-2 .edition-cover,
+.minimalist-2 .edition-content {
+	background-image: repeating-linear-gradient(97deg, #42563d03 0 1px, transparent 1px 5px);
+}
+.minimalist-2 .minimal-cover-layout {
+	align-items: flex-start;
+	text-align: left;
+	padding-right: 52%;
+}
+.minimalist-2 .edition-cover-names {
+	font-weight: 600;
+	border-bottom: 1px solid var(--e-border);
+	padding-bottom: 28px;
+}
+.minimalist-2 .edition-recipient {
+	margin-top: clamp(20px, 6dvh, 72px);
+}
+.minimalist-2 .edition-open-button {
+	background: var(--e-accent);
+	color: #fff;
+}
+.edition-minimalist .minimal-botanical-leaf {
+	pointer-events: none;
+	object-fit: contain;
+}
+.minimalist-2 .minimal-cover-leaf {
+	position: absolute;
+	width: min(62vw, 830px);
+	top: -12%;
+	right: -13%;
+	transform-origin: 90% 10%;
+}
+.minimalist-2 .minimal-section-leaf {
+	position: absolute;
+	width: clamp(160px, 25vw, 330px);
+	right: -110px;
+	top: -100px;
+	opacity: 0.75;
+	transform-origin: 90% 10%;
+}
+.minimalist-2 .edition-couple-section {
+	overflow: clip;
+}
+.minimalist-2 .edition-couple {
+	position: relative;
+}
+.minimalist-2 .edition-portrait {
+	border-radius: 48% 48% 0 0;
+	border: 1px solid var(--e-border);
+	padding: 9px;
+	background: var(--e-surface);
+}
+.minimalist-2 .edition-portrait img {
+	border-radius: inherit;
+}
+.minimalist-2 .edition-person:nth-of-type(2) {
+	margin-top: 90px;
+}
+.minimalist-2 .edition-heading h2 {
+	font-weight: 600;
+}
+.minimalist-2 .edition-gallery button {
+	padding: 8px;
+	background: var(--e-surface);
+	border: 1px solid var(--e-border);
+}
+.minimalist-2 .edition-gallery button:nth-child(even) {
+	margin-top: 32px;
+}
+
+/* 3 · White editorial split, bold capitals and a restrained apricot accent. */
+.minimalist-3 {
+	--e-ink: #222323;
+	--e-accent: #aa5029;
+	--e-muted: #62605c;
+	--e-border: #e4d9d1;
+	--e-serif: 'Edition Jakarta', Arial, sans-serif;
+	--e-script: var(--e-serif);
+	--minimal-paper: #faf1e9;
+}
+.minimalist-3 .minimal-cover-art {
+	inset: 15dvh 8.8vw 15dvh 42%;
+}
+.minimalist-3 .minimal-cover-layout {
+	padding-right: 68%;
+	align-items: flex-start;
+	text-align: left;
+}
+.minimalist-3 .edition-cover-names {
+	text-transform: uppercase;
+	letter-spacing: 0.08em;
+	font-size: clamp(32px, 4vw, 60px);
+	font-weight: 600;
+}
+.minimalist-3 .edition-cover-names span {
+	display: block;
+}
+.minimalist-3 .edition-cover-names i {
+	display: block;
+	margin: 0.2em 0;
+	font-size: 0.5em;
+}
+.minimalist-3 .edition-open-button {
+	background: #fa9156;
+	color: #26160d;
+	border-color: #fa9156;
+}
+.minimalist-3 .edition-heading h2 {
+	font-size: clamp(25px, 2.9vw, 36px);
+	text-transform: uppercase;
+	font-weight: 600;
+	letter-spacing: 0.06em;
+}
+.minimalist-3 .edition-couple-section > .edition-container {
+	display: grid;
+	grid-template-columns: 220px 1fr;
+	gap: 48px;
+}
+.minimalist-3 .edition-couple-section .edition-heading {
+	text-align: left;
+}
+.minimalist-3 .edition-couple {
+	grid-template-columns: 1fr 1fr;
+	align-items: start;
+	gap: 28px;
+}
+.minimalist-3 .edition-couple-ampersand {
+	display: none;
+}
+.minimalist-3 .edition-person-copy {
+	text-align: left;
+}
+.minimalist-3 .edition-person h3 {
+	font-weight: 600;
+	font-size: 28px;
+}
+.minimalist-3 .edition-quote blockquote {
+	font-style: normal;
+	font-size: clamp(18px, 2vw, 24px);
+}
+.minimalist-3 .edition-hero-landscape {
+	height: 80dvh;
+}
+.minimalist-3 .edition-hero-copy {
+	text-align: left;
+}
+.minimalist-3 .edition-hero-names {
+	text-transform: uppercase;
+	font-size: clamp(40px, 5vw, 66px);
+	letter-spacing: 0.05em;
+}
+
+/* 4 · Quiet serif, asymmetric arch and stacked date. */
+.minimalist-4 {
+	--e-ink: #252623;
+	--e-accent: #5d625d;
+	--e-muted: #6e716b;
+	--e-border: #ddd9cf;
+	--e-serif: 'Edition Fraunces', Georgia, serif;
+	--minimal-paper: #f7f6f2;
+}
+.minimalist-4 .minimal-cover-art {
+	inset: 23dvh 12vw 10dvh 49%;
+	border-radius: 42% 0 0 0;
+}
+.minimalist-4 .minimal-cover-art::after {
+	inset: 14px;
+	border: 1px solid #ffffff9c;
+	border-radius: 42% 0 0 0;
+}
+.minimalist-4 .minimal-cover-layout {
+	padding-right: 62%;
+	align-items: flex-start;
+	text-align: left;
+}
+.minimalist-4 .edition-cover-names {
+	font-weight: 600;
+	font-size: clamp(42px, 5vw, 72px);
+}
+.minimalist-4 .edition-cover-names span {
+	display: block;
+}
+.minimalist-4 .edition-cover-names i {
+	display: block;
+	margin: 0.25em 0;
+	font-weight: 400;
+	font-size: 0.6em;
+}
+.minimalist-4 .edition-open-button {
+	color: var(--e-ink);
+	border-color: var(--e-ink);
+	background: transparent;
+}
+.minimalist-4 .minimal-date-digits {
+	position: absolute;
+	z-index: 1;
+	display: grid;
+	top: 14dvh;
+	right: 7vw;
+	font: 500 clamp(60px, 8vw, 118px)/1.08 var(--e-serif);
+	color: #84867d;
+	text-shadow: 0 1px 0 #fff;
+}
+.minimalist-4 .edition-portrait {
+	width: min(100%, 250px);
+	aspect-ratio: 3 / 5;
+	padding: 9px;
+	border-radius: 999px;
+	background: #e9e8e3;
+}
+.minimalist-4 .edition-portrait img {
+	border-radius: inherit;
+}
+.minimalist-4 .edition-hero-landscape {
+	width: min(88%, 1060px);
+	margin: 60px auto 0;
+	border-radius: 240px 0 0 0;
+}
+.minimalist-4 .edition-content {
+	background-image: repeating-linear-gradient(
+		90deg,
+		transparent 0 calc(25% - 1px),
+		#b6b0a322 calc(25% - 1px) 25%
+	);
+}
+.minimalist-4 .edition-person h3,
+.minimalist-4 .edition-heading h2 {
+	font-weight: 600;
+}
+
+/* 5 · Dark photographic minimalism, warm off-white type, fine rules. */
+.minimalist-5 {
+	--e-bg: #121313;
+	--e-surface: #1d1e1e;
+	--e-ink: #f5f4ee;
+	--e-muted: #bcbeb8;
+	--e-accent: #e5c7a0;
+	--e-border: #50524c;
+	--e-serif: 'Edition Jost', Arial, sans-serif;
+	--e-script: var(--e-serif);
+	--minimal-paper: #202221;
+}
+.minimalist-5 .minimal-cover-art::after {
+	background: #101313a6;
+}
+.minimalist-5 .minimal-cover-layout {
+	color: #fff;
+}
+.minimalist-5 .edition-cover-names {
+	font-size: clamp(42px, 5vw, 68px);
+	font-weight: 400;
+	letter-spacing: 0.025em;
+}
+.minimalist-5 .edition-recipient {
+	border-top: 1px solid #ffffff70;
+	padding-top: 26px;
+}
+.minimalist-5 .edition-open-button {
+	color: #1a1b19;
+	background: #fff;
+	border-color: #fff;
+}
+.minimalist-5 .edition-hero-landscape::after {
+	background: #10131380;
+}
+.minimalist-5 .edition-heading h2 {
+	font-weight: 400;
+	letter-spacing: 0.05em;
+}
+.minimalist-5 .edition-portrait {
+	filter: grayscale(1);
+}
+.minimalist-5 .edition-person:nth-of-type(2) {
+	margin-top: 100px;
+}
+.minimalist-5 .edition-quote blockquote {
+	font-style: normal;
+	font-weight: 400;
+}
+.minimalist-5 .edition-stories-cards .edition-story {
+	border-bottom: 1px solid var(--e-border);
+	padding-bottom: 56px;
+}
+.minimalist-5 .edition-story-photo img {
+	filter: grayscale(1);
+}
+.minimalist-5 .edition-gallery-section {
+	background: #0c0d0d;
+}
+.minimalist-5 .edition-outline {
+	color: var(--e-ink);
+}
+.minimalist-5 .edition-cover .edition-open-button {
+	color: #1a1b19;
+}
+
+/* 6 · Warm photographic cover and staggered, oversized portrait panels. */
+.minimalist-6 {
+	--e-bg: #f0f0ed;
+	--e-surface: #fff;
+	--e-ink: #242625;
+	--e-muted: #636660;
+	--e-accent: #4d514a;
+	--e-border: #cccec5;
+	--e-serif: 'Edition Jakarta', Arial, sans-serif;
+	--e-script: var(--e-serif);
+	--minimal-paper: #e4e6df;
+}
+.minimalist-6 .minimal-cover-art::after {
+	background: #30292385;
+}
+.minimalist-6 .minimal-cover-layout {
+	color: #fff;
+}
+.minimalist-6 .edition-cover-date {
+	order: -1;
+	font-size: 15px;
+	letter-spacing: 0.22em;
+	margin-bottom: 26px;
+}
+.minimalist-6 .edition-cover-names {
+	text-transform: uppercase;
+	font-weight: 600;
+	letter-spacing: 0.05em;
+	font-size: clamp(40px, 5.5vw, 80px);
+}
+.minimalist-6 .edition-open-button {
+	background: #fff;
+	color: #252625;
+	border-color: #fff;
+}
+.minimalist-6 .edition-heading h2 {
+	font-weight: 600;
+	letter-spacing: 0.04em;
+}
+.minimalist-6 .edition-hero-copy {
+	top: 0;
+	bottom: 0;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+}
+.minimalist-6 .edition-hero-landscape::after {
+	background: #2b231d7a;
+}
+.minimalist-6 .edition-couple {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: 0;
+}
+.minimalist-6 .edition-person {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 60px;
+	align-items: center;
+	text-align: left;
+}
+.minimalist-6 .edition-portrait {
+	max-width: none;
+	width: 100%;
+	border: 12px solid #fff;
+	margin: 0;
+}
+.minimalist-6 .edition-person:nth-of-type(2) .edition-portrait {
+	order: 2;
+}
+.minimalist-6 .edition-person:nth-of-type(2) .edition-person-copy {
+	text-align: right;
+}
+.minimalist-6 .edition-couple-ampersand {
+	justify-self: center;
+	z-index: 1;
+	width: 80px;
+	height: 80px;
+	display: grid;
+	place-items: center;
+	margin: -24px 0;
+	border-radius: 50%;
+	background: var(--e-surface);
+	font: 500 44px/1 var(--e-serif);
+}
+.minimalist-6 .edition-quote blockquote {
+	font-style: normal;
+}
+.minimalist-6 .edition-gallery {
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.minimalist-6 .edition-gallery button:nth-child(even) {
+	margin-top: 60px;
+}
+
+/* 7 · Vertical editorial rail, offset photographs, black recipient band. */
+.minimalist-7 {
+	--e-bg: #f5f6f5;
+	--e-surface: #fff;
+	--e-ink: #161817;
+	--e-muted: #646861;
+	--e-accent: #363c37;
+	--e-border: #c6cdc6;
+	--e-serif: 'Edition Jost', Arial, sans-serif;
+	--e-script: var(--e-serif);
+	--minimal-paper: #ebeeeb;
+}
+.minimalist-7 .edition-cover {
+	padding-block: 5dvh;
+}
+.minimalist-7 .edition-cover::before {
+	position: absolute;
+	inset: auto 0 0;
+	height: 28dvh;
+	background: #111512;
+	content: '';
+}
+.minimalist-7 .minimal-cover-art {
+	inset: 5dvh 8.8vw 32dvh 30%;
+}
+.minimalist-7 .minimal-cover-layout {
+	height: 100%;
+	display: grid;
+	grid-template-columns: 260px 1fr;
+	grid-template-rows: 1fr auto auto;
+	gap: 16px 60px;
+	align-items: center;
+	text-align: left;
+}
+.minimalist-7 .edition-cover-heading {
+	grid-row: 1;
+	grid-column: 1;
+	writing-mode: vertical-rl;
+	transform: rotate(180deg);
+	justify-self: center;
+	width: auto;
+	max-height: 55dvh;
+}
+.minimalist-7 .edition-cover-names {
+	font-size: clamp(34px, 4vw, 64px);
+	letter-spacing: 0.08em;
+}
+.minimalist-7 .edition-cover-date {
+	position: absolute;
+	top: 63dvh;
+	left: 0;
+	width: 260px;
+	margin: 0;
+	font-size: 10px;
+	text-align: center;
+}
+.minimalist-7 .edition-recipient {
+	grid-row: 3;
+	grid-column: 1;
+	color: #fff;
+	margin: 0;
+}
+.minimalist-7 .edition-open-button {
+	grid-row: 3;
+	grid-column: 2;
+	justify-self: start;
+	color: #fff;
+	border-color: #fff;
+	margin: 0;
+	background: transparent;
+}
+.minimalist-7 .edition-section > .edition-container {
+	display: grid;
+	grid-template-columns: 90px minmax(0, 1fr);
+	gap: 56px;
+	align-items: start;
+}
+.minimalist-7 .edition-container > .edition-heading {
+	grid-column: 1;
+	grid-row: 1 / span 3;
+	margin: 0;
+	height: 100%;
+	border-right: 1px solid var(--e-ink);
+	padding-right: 22px;
+}
+.minimalist-7 .edition-container > .edition-heading h2 {
+	writing-mode: vertical-rl;
+	transform: rotate(180deg);
+	font-size: 26px;
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+	margin-inline: auto;
+}
+.minimalist-7 .edition-container > :not(.edition-heading) {
+	grid-column: 2;
+}
+.minimalist-7 .edition-couple {
+	grid-template-columns: 1fr 1fr;
+	gap: 40px;
+	align-items: start;
+}
+.minimalist-7 .edition-couple-ampersand {
+	display: none;
+}
+.minimalist-7 .edition-portrait {
+	max-width: none;
+	width: 100%;
+	margin: 0;
+}
+.minimalist-7 .edition-person-copy {
+	padding: 22px;
+	background: var(--e-surface);
+	text-align: left;
+}
+.minimalist-7 .edition-person h3 {
+	font-size: 30px;
+}
+.minimalist-7 .edition-person:nth-of-type(2) {
+	margin-top: 90px;
+}
+.minimalist-7 .edition-person:nth-of-type(2) .edition-person-copy {
+	text-align: right;
+}
+.minimalist-7 .edition-hero-landscape {
+	width: 82%;
+	margin-left: 18%;
+	height: 85dvh;
+}
+.minimalist-7 .edition-hero-copy {
+	text-align: right;
+}
+.minimalist-7 .edition-quote blockquote {
+	font-style: normal;
+}
+.minimalist-7 .edition-countdown {
+	margin-bottom: 16px;
+}
+.minimalist-7 .edition-footer {
+	color: #fff;
+	background: #111512;
+}
+.minimalist-7 .edition-footer :is(p, a) {
+	color: inherit;
+}
+
+@media (max-width: 760px) {
+	.edition-minimalist .edition-cover {
+		padding: 32px 24px;
+	}
+	.edition-minimalist .minimal-cover-layout {
+		gap: 14px;
+	}
+	.edition-minimalist .edition-cover-names {
+		font-size: clamp(40px, 9vw, 60px);
+	}
+	.edition-minimalist .edition-cover-date {
+		font-size: 10px;
+	}
+	.edition-minimalist .edition-section {
+		padding: 64px 24px;
+	}
+	.edition-minimalist .edition-heading {
+		margin-bottom: 32px;
+	}
+	.edition-minimalist .edition-quote-section {
+		padding-block: 72px;
+	}
+	.edition-minimalist .edition-couple {
+		grid-template-columns: 1fr;
+		gap: 30px;
+	}
+	.edition-minimalist .edition-couple-ampersand {
+		font-size: 36px;
+	}
+	.edition-minimalist .edition-portrait {
+		width: min(80%, 320px);
+	}
+	.edition-minimalist .edition-events {
+		grid-template-columns: 1fr;
+	}
+	.edition-minimalist .edition-event {
+		padding: 32px 12px;
+	}
+	.edition-minimalist .edition-stories-cards .edition-story {
+		grid-template-columns: 1fr;
+		gap: 24px;
+	}
+	.edition-minimalist .edition-stories-cards .edition-story:nth-child(even) .edition-story-photo {
+		order: 0;
+	}
+	.edition-minimalist .edition-gallery {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 12px;
+	}
+	.edition-minimalist .edition-person:nth-of-type(2) {
+		margin-top: 0;
+	}
+	.minimalist-1 .minimal-cover-art {
+		inset: 22px;
+		clip-path: polygon(14% 0, 100% 0, 100% 93%, 86% 100%, 0 100%, 0 7%);
+	}
+	.minimalist-1 .minimal-cover-art::after {
+		background: linear-gradient(180deg, #2e4a5626, #1e3545b8);
+	}
+	.minimalist-1 .minimal-cover-layout {
+		padding: 0 24px 6dvh;
+	}
+	.minimalist-1 .edition-cover-names {
+		font-size: clamp(52px, 12vw, 72px);
+	}
+	.minimalist-1 .edition-recipient {
+		margin-top: 8px;
+	}
+	.minimalist-1 .edition-hero-landscape {
+		width: calc(100% - 36px);
+		height: 78dvh;
+		margin-top: 18px;
+	}
+	.minimalist-2 .minimal-cover-layout {
+		padding: 0;
+		align-self: end;
+		margin: 0 0 5dvh;
+		max-width: 460px;
+	}
+	.minimalist-2 .minimal-cover-leaf {
+		width: 96vw;
+		top: -8%;
+		right: -32%;
+	}
+	.minimalist-2 .edition-cover-heading {
+		max-width: 75%;
+	}
+	.minimalist-2 .edition-recipient {
+		margin-top: 10px;
+	}
+	.minimalist-2 .minimal-section-leaf {
+		right: -110px;
+		top: -60px;
+		width: 240px;
+	}
+	.minimalist-3 .minimal-cover-art {
+		inset: 24px 24px 42dvh 34%;
+	}
+	.minimalist-3 .minimal-cover-layout {
+		height: 100%;
+		padding: 0;
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		grid-template-rows: 1fr auto auto auto;
+		gap: 12px;
+		align-items: end;
+	}
+	.minimalist-3 .edition-cover-heading {
+		grid-column: 1 / -1;
+		grid-row: 2;
+	}
+	.minimalist-3 .edition-cover-names {
+		font-size: clamp(26px, 6.6vw, 45px);
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.2em;
+	}
+	.minimalist-3 .edition-cover-names i {
+		margin: 0;
+		font-size: 0.8em;
+		align-self: center;
+	}
+	.minimalist-3 .edition-cover-date {
+		grid-column: 1 / -1;
+		grid-row: 3;
+	}
+	.minimalist-3 .edition-recipient {
+		grid-column: 1 / -1;
+		grid-row: 4;
+		margin-top: 8px;
+	}
+	.minimalist-3 .edition-open-button {
+		grid-column: 1 / -1;
+		grid-row: 5;
+		justify-self: start;
+		margin-top: 4px;
+	}
+	.minimalist-3 .edition-couple-section > .edition-container {
+		display: block;
+	}
+	.minimalist-3 .edition-couple-section .edition-heading {
+		text-align: center;
+	}
+	.minimalist-3 .edition-portrait {
+		width: 100%;
+	}
+	.minimalist-4 .minimal-cover-art {
+		inset: 5dvh 24px 46dvh 28%;
+	}
+	.minimalist-4 .minimal-cover-layout {
+		padding: 0;
+		align-self: end;
+		margin: 0;
+		gap: 10px;
+	}
+	.minimalist-4 .edition-cover-names {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.2em;
+		font-size: clamp(32px, 8.5vw, 50px);
+	}
+	.minimalist-4 .edition-cover-names i {
+		margin: 0;
+		font-size: 0.65em;
+		align-self: center;
+	}
+	.minimalist-4 .edition-recipient {
+		margin-top: 8px;
+	}
+	.minimalist-4 .minimal-date-digits {
+		top: 4dvh;
+		left: 24px;
+		right: auto;
+		font-size: clamp(52px, 14vw, 84px);
+	}
+	.minimalist-4 .edition-hero-landscape {
+		width: calc(100% - 40px);
+		border-radius: 160px 0 0 0;
+		margin-top: 20px;
+		height: 75dvh;
+	}
+	.minimalist-4 .edition-portrait {
+		width: min(76%, 250px);
+	}
+	.minimalist-5 .minimal-cover-layout,
+	.minimalist-6 .minimal-cover-layout {
+		padding: 0 8px;
+	}
+	.minimalist-6 .edition-cover-date {
+		font-size: 12px;
+		margin-bottom: 12px;
+	}
+	.minimalist-6 .edition-cover-names span {
+		display: block;
+	}
+	.minimalist-6 .edition-cover-names i {
+		display: block;
+		margin: 12px 0;
+	}
+	.minimalist-6 .edition-person {
+		grid-template-columns: 1fr;
+		gap: 24px;
+		text-align: center;
+	}
+	.minimalist-6 .edition-portrait {
+		width: 100%;
+		max-width: 360px;
+		margin-inline: auto;
+	}
+	.minimalist-6 .edition-person:nth-of-type(2) .edition-portrait {
+		order: 0;
+	}
+	.minimalist-6 .edition-person:nth-of-type(2) .edition-person-copy {
+		text-align: center;
+	}
+	.minimalist-6 .edition-couple-ampersand {
+		margin: 0;
+		width: 64px;
+		height: 64px;
+	}
+	.minimalist-6 .edition-gallery button:nth-child(even) {
+		margin-top: 28px;
+	}
+	.minimalist-7 .edition-cover {
+		padding: 24px;
+	}
+	.minimalist-7 .minimal-cover-art {
+		inset: 24px 24px 34dvh 27%;
+	}
+	.minimalist-7 .minimal-cover-layout {
+		grid-template-columns: 22% 1fr;
+		grid-template-rows: 1fr auto auto;
+		gap: 14px;
+	}
+	.minimalist-7 .edition-cover-heading {
+		max-height: 60dvh;
+	}
+	.minimalist-7 .edition-cover-names {
+		font-size: clamp(28px, 7vw, 44px);
+	}
+	.minimalist-7 .edition-cover-date {
+		position: absolute;
+		top: 63dvh;
+		left: 26%;
+		width: 74%;
+		color: var(--e-ink);
+		margin: 0;
+		font-size: 9px;
+	}
+	.minimalist-7 .edition-recipient {
+		grid-row: 2;
+		grid-column: 1 / -1;
+	}
+	.minimalist-7 .edition-open-button {
+		grid-row: 3;
+		grid-column: 1 / -1;
+	}
+	.minimalist-7 .edition-section > .edition-container {
+		grid-template-columns: 30px minmax(0, 1fr);
+		gap: 20px;
+	}
+	.minimalist-7 .edition-container > .edition-heading {
+		padding-right: 8px;
+		margin: 0;
+	}
+	.minimalist-7 .edition-container > .edition-heading h2 {
+		font-size: 19px;
+	}
+	.minimalist-7 .edition-portrait {
+		width: 100%;
+	}
+	.minimalist-7 .edition-person-copy {
+		padding: 18px;
+	}
+	.minimalist-7 .edition-person h3 {
+		font-size: 26px;
+	}
+	.minimalist-7 .edition-hero-landscape {
+		width: 90%;
+		margin-left: 10%;
+		height: 75dvh;
+	}
+	.minimalist-7 .edition-countdown strong {
+		font-size: 26px;
+	}
+	.minimalist-7 .edition-gallery {
+		gap: 8px;
+	}
+}
+@media (max-height: 560px) and (min-width: 761px) {
+	.edition-minimalist .edition-cover {
+		padding-block: 24px;
+	}
+	.edition-minimalist .minimal-cover-layout {
+		gap: 10px;
+	}
+	.edition-minimalist .edition-cover-names {
+		font-size: 42px;
+	}
+	.edition-minimalist .edition-recipient {
+		margin-top: 6px;
+	}
+	.edition-minimalist .edition-open-button {
+		margin-top: 0;
+	}
+	.minimalist-1 .minimal-cover-layout {
+		padding-bottom: 2dvh;
+	}
+	.minimalist-6 .edition-cover-date {
+		margin-bottom: 0;
+	}
+	.minimalist-7 .edition-cover::before {
+		height: 30dvh;
+	}
+}
+@media (max-width: 760px) and (max-height: 640px) {
+	.edition-minimalist .edition-cover {
+		padding: 20px;
+	}
+	.edition-minimalist .minimal-cover-layout {
+		gap: 8px;
+	}
+	.edition-minimalist .edition-cover-names {
+		font-size: 36px;
+	}
+	.edition-minimalist .edition-recipient {
+		margin-top: 8px;
+	}
+	.edition-minimalist .edition-open-button {
+		margin-top: 0;
+	}
+	.minimalist-1 .minimal-cover-layout {
+		padding-bottom: 16px;
+	}
+	.minimalist-1 .edition-cover-names {
+		font-size: 50px;
+	}
+	.minimalist-2 .minimal-cover-layout {
+		margin-bottom: 0;
+	}
+	.minimalist-2 .minimal-cover-leaf {
+		width: 74vw;
+	}
+	.minimalist-3 .minimal-cover-art {
+		bottom: 47dvh;
+	}
+	.minimalist-3 .edition-cover-names {
+		font-size: 28px;
+	}
+	.minimalist-4 .minimal-cover-art {
+		bottom: 49dvh;
+	}
+	.minimalist-4 .edition-cover-names {
+		font-size: 30px;
+	}
+	.minimalist-6 .edition-cover-names i {
+		margin: 4px 0;
+	}
+	.minimalist-7 .edition-cover-names {
+		font-size: 28px;
+	}
+}

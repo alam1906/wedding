@@ -276,7 +276,7 @@ try {
 	await page.setViewportSize({ width: 390, height: 844 });
 	const realUrl = invitation + '/?slug=quality-wedding&rsvp=' + fixture.guest.rsvp_token;
 	await check('RSVP ignores double submission and stale message-list responses', async () => {
-		await pb.collection('weddings').update(fixture.wedding, { theme: 'minimalist-1' });
+		await pb.collection('weddings').update(fixture.wedding, { theme: 'nocturne' });
 		let release;
 		const held = new Promise((resolve) => {
 			release = resolve;
@@ -370,7 +370,7 @@ try {
 		'Animated theme lifecycle and reduced-motion toggling keep content accessible',
 		async () => {
 			await page.emulateMedia({ reducedMotion: 'no-preference' });
-			for (const theme of ['minimalist-1', 'sakura']) {
+			for (const theme of ['nocturne', 'sakura']) {
 				await visit(page, invitation + '/preview/' + theme);
 				await page
 					.getByRole('button', { name: /Buka Undangan/i })

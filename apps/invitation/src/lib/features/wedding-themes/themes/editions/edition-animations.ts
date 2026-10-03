@@ -12,6 +12,8 @@ export type EditionMotion = {
 
 export function mountEditionAnimations(root: HTMLElement, theme: EditionKey): EditionMotion {
 	const floral = root.classList.contains('edition-floral');
+	const minimalist = root.classList.contains('edition-minimalist');
+	const adat = root.classList.contains('edition-adat');
 	let disposed = false;
 	let opened = false;
 	let introPlayed = false;
@@ -90,6 +92,14 @@ export function mountEditionAnimations(root: HTMLElement, theme: EditionKey): Ed
 								.progress(index / petals.length)
 						);
 						const bulbs = root.querySelectorAll('.edition-string-lights span');
+						const leaf = root.querySelector('.minimal-cover-leaf');
+						const leafBreeze = leaf
+							? gsap.fromTo(
+									leaf,
+									{ rotation: -1 },
+									{ rotation: 1.2, duration: 6, repeat: -1, yoyo: true, ease: 'sine.inOut' }
+								)
+							: undefined;
 						const floralBreeze = floral
 							? Array.from(
 									root.querySelectorAll<HTMLElement>('.edition-cover [data-floral-spray]')
@@ -137,6 +147,7 @@ export function mountEditionAnimations(root: HTMLElement, theme: EditionKey): Ed
 							});
 						pauseAmbient = () => {
 							ambient?.paused(document.hidden);
+							leafBreeze?.paused(document.hidden || opened);
 							petalDrift.forEach((animation) => animation.paused(document.hidden));
 							floralBreeze.forEach((animation) => animation.paused(document.hidden || opened));
 						};
@@ -166,6 +177,66 @@ export function mountEditionAnimations(root: HTMLElement, theme: EditionKey): Ed
 											0.2
 										)
 								: undefined;
+						if (minimalist && intro) {
+							const art = root.querySelector('.minimal-cover-art img');
+							if (art)
+								intro.from(
+									art,
+									{ scale: 1.06, duration: 2, ease: 'power2.out', clearProps: 'transform' },
+									0
+								);
+							if (leaf)
+								intro.from(
+									leaf,
+									{
+										autoAlpha: 0,
+										xPercent: 8,
+										duration: 1.8,
+										ease: 'power2.out',
+										clearProps: 'opacity,visibility'
+									},
+									0
+								);
+						}
+						if (adat && intro) {
+							const emblem = root.querySelector('.adat-cover-emblem img');
+							if (emblem)
+								intro.from(
+									emblem,
+									{
+										y: 12,
+										scale: 0.94,
+										duration: 1.7,
+										ease: 'power2.out',
+										clearProps: 'transform'
+									},
+									0.1
+								);
+							intro.from(
+								'.adat-cover-scenery img',
+								{
+									scale: 1.045,
+									duration: 2.4,
+									ease: 'sine.out',
+									clearProps: 'transform'
+								},
+								0
+							);
+							const sides = root.querySelectorAll('.adat-cover-sides img');
+							if (sides.length)
+								intro.from(
+									sides,
+									{
+										y: 32,
+										autoAlpha: 0,
+										duration: 1.8,
+										stagger: 0.12,
+										ease: 'power2.out',
+										clearProps: 'transform,opacity,visibility'
+									},
+									0.1
+								);
+						}
 						introPlayed = true;
 						mediaContext.add('buildScenes', () => {
 							if (scenesBuilt || !opened) return;
@@ -174,6 +245,69 @@ export function mountEditionAnimations(root: HTMLElement, theme: EditionKey): Ed
 								if (content) smoother = createThemeScrollSmoother(root, content, ScrollSmoother);
 							});
 							scenesBuilt = true;
+							if (adat) {
+								root.querySelectorAll<HTMLElement>('[data-adat-ornament]').forEach((ornament) => {
+									gsap.fromTo(
+										ornament,
+										{ y: -12 },
+										{
+											y: 12,
+											ease: 'none',
+											scrollTrigger: {
+												trigger: ornament.parentElement,
+												start: 'top bottom',
+												end: 'bottom top',
+												scrub: 1
+											}
+										}
+									);
+								});
+								root.querySelectorAll<HTMLElement>('.adat-frame-ornament').forEach((frame) => {
+									gsap.from(frame, {
+										autoAlpha: 0,
+										duration: 1.5,
+										ease: 'sine.out',
+										clearProps: 'opacity,visibility',
+										scrollTrigger: { trigger: frame, start: 'top 94%', once: true }
+									});
+								});
+							}
+							if (minimalist) {
+								root
+									.querySelectorAll<HTMLElement>(
+										'.edition-portrait img, .edition-stories-cards .edition-story-photo img'
+									)
+									.forEach((frame) => {
+										gsap.fromTo(
+											frame,
+											{ clipPath: 'inset(0 0 100% 0)' },
+											{
+												clipPath: 'inset(0 0 0% 0)',
+												duration: 1.35,
+												ease: 'power3.inOut',
+												clearProps: 'clipPath',
+												scrollTrigger: { trigger: frame, start: 'top 92%', once: true }
+											}
+										);
+									});
+								const botanical = root.querySelector('.minimal-section-leaf');
+								if (botanical)
+									gsap.fromTo(
+										botanical,
+										{ yPercent: -8, rotation: -3 },
+										{
+											yPercent: 8,
+											rotation: 3,
+											ease: 'none',
+											scrollTrigger: {
+												trigger: botanical.closest('section'),
+												start: 'top bottom',
+												end: 'bottom top',
+												scrub: 1
+											}
+										}
+									);
+							}
 							if (floral) {
 								root
 									.querySelectorAll<HTMLElement>('.edition-content [data-floral-spray]')
@@ -322,7 +456,90 @@ export function mountEditionAnimations(root: HTMLElement, theme: EditionKey): Ed
 									}
 								});
 								finishOpening = () => opening.progress(1);
-								if (floral) {
+								if (adat) {
+									opening.to('.edition-cover-card', {
+										y: -22,
+										autoAlpha: 0,
+										duration: 0.55,
+										ease: 'power2.inOut'
+									});
+									if (theme === 'sumatera-utara') {
+										opening
+											.to(
+												'.adat-envelope span:first-child',
+												{ xPercent: -105, duration: 1.2, ease: 'power3.inOut' },
+												0.1
+											)
+											.to(
+												'.adat-envelope span:last-child',
+												{ xPercent: 105, duration: 1.2, ease: 'power3.inOut' },
+												0.1
+											)
+											.to(
+												'.adat-ulos',
+												{ yPercent: -100, duration: 1.1, ease: 'power3.inOut' },
+												0.1
+											);
+									} else if (theme === 'jawa-timur') {
+										opening
+											.to(
+												'.adat-side-left',
+												{ xPercent: -65, duration: 1.25, ease: 'power3.inOut' },
+												0
+											)
+											.to(
+												'.adat-side-right',
+												{ xPercent: 65, duration: 1.25, ease: 'power3.inOut' },
+												0
+											);
+									} else {
+										opening.to(
+											'.adat-cover-panel',
+											{ yPercent: -8, autoAlpha: 0, duration: 1.1, ease: 'power2.inOut' },
+											0.15
+										);
+									}
+									opening
+										.to(
+											'.adat-cover-scenery img',
+											{ scale: 1.05, duration: 1.3, ease: 'sine.inOut' },
+											0
+										)
+										.to(
+											'.edition-cover',
+											{ autoAlpha: 0, duration: 0.85, ease: 'sine.inOut' },
+											0.45
+										);
+								} else if (minimalist) {
+									opening.to('.edition-cover-card', {
+										y: -16,
+										autoAlpha: 0,
+										duration: 0.5,
+										ease: 'power2.inOut'
+									});
+									const art = root.querySelector('.minimal-cover-art img');
+									if (art) opening.to(art, { scale: 1.035, duration: 1.2, ease: 'sine.inOut' }, 0);
+									if (theme === 'minimalist-5' || theme === 'minimalist-6') {
+										opening.to(
+											'.edition-cover',
+											{ autoAlpha: 0, duration: 1, ease: 'sine.inOut' },
+											0.3
+										);
+									} else {
+										opening.to(
+											'.edition-cover',
+											{
+												clipPath:
+													theme === 'minimalist-3' || theme === 'minimalist-7'
+														? 'inset(0 0 0 100%)'
+														: 'inset(0 0 100% 0)',
+												duration: 1.15,
+												ease: 'power3.inOut'
+											},
+											0.2
+										);
+									}
+								} else if (floral) {
 									opening
 										.to('.edition-cover-card', {
 											y: -18,

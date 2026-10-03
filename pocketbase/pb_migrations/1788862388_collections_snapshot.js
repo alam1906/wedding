@@ -1520,9 +1520,6 @@ migrate(
 						system: false,
 						type: 'select',
 						values: [
-							'minimalist-1',
-							'minimalist-2',
-							'minimalist-3',
 							'neubrutalism-1',
 							'neubrutalism-2',
 							'neubrutalism-3',

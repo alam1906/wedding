@@ -29,6 +29,8 @@ export type EditionProfile = {
 	backdropPhoto?: boolean;
 	coverIllustration?: string;
 	decoration?: 'petals' | 'lights';
+	minimalist?: 1 | 2 | 3 | 4 | 5 | 6 | 7;
+	adat?: { motif: string; portrait: 'arch' | 'oval' | 'plain' };
 	floral?: {
 		frame: 'arch' | 'hexagon' | 'corners' | 'garland' | 'facets' | 'rustic';
 		ornament: string;
@@ -36,6 +38,143 @@ export type EditionProfile = {
 	};
 };
 export const EDITION_PROFILES = {
+	'sumatera-utara': {
+		reference: 'https://demo.invee.net/?template=sumatera-utara',
+		cover: 'illustration',
+		hero: 'arch',
+		story: 'timeline-cards',
+		narrow: true,
+		adat: { motif: 'rumah-bolon', portrait: 'arch' }
+	},
+	'sulawesi-selatan': {
+		reference: 'https://demo.invee.net/?template=sulawesi-selatan',
+		cover: 'illustration',
+		hero: 'arch',
+		story: 'cards',
+		narrow: true,
+		adat: { motif: 'saoraja', portrait: 'arch' }
+	},
+	'sumatera-barat': {
+		reference: 'https://demo.invee.net/?template=sumatera-barat',
+		cover: 'illustration',
+		hero: 'arch',
+		story: 'timeline',
+		narrow: true,
+		adat: { motif: 'rumah-gadang', portrait: 'arch' }
+	},
+	jakarta: {
+		reference: 'https://demo.invee.net/?template=jakarta',
+		cover: 'illustration',
+		hero: 'arch',
+		story: 'cards',
+		narrow: true,
+		adat: { motif: 'monas', portrait: 'arch' }
+	},
+	'jawa-barat': {
+		reference: 'https://demo.invee.net/?template=jawa-barat',
+		cover: 'illustration',
+		hero: 'arch',
+		story: 'timeline-cards',
+		narrow: true,
+		adat: { motif: 'julang-ngapak', portrait: 'arch' }
+	},
+	'jawa-tengah': {
+		reference: 'https://demo.invee.net/?template=jawa-tengah',
+		cover: 'illustration',
+		hero: 'arch',
+		story: 'timeline',
+		narrow: true,
+		adat: { motif: 'gunungan', portrait: 'arch' }
+	},
+	'jawa-timur': {
+		reference: 'https://demo.invee.net/?template=jawa-timur',
+		cover: 'photo',
+		hero: 'landscape',
+		story: 'cards',
+		narrow: false,
+		adat: { motif: 'gunungan', portrait: 'plain' }
+	},
+	bali: {
+		reference: 'https://demo.invee.net/?template=bali',
+		cover: 'illustration',
+		hero: 'arch',
+		story: 'cards',
+		narrow: true,
+		adat: { motif: 'meru', portrait: 'oval' }
+	},
+	sunda: {
+		reference: 'https://demo.invee.net/?template=sunda',
+		cover: 'illustration',
+		hero: 'arch',
+		story: 'timeline-cards',
+		narrow: true,
+		adat: { motif: 'imah-jolopong', portrait: 'oval' }
+	},
+	dayak: {
+		reference: 'https://demo.invee.net/?template=dayak',
+		cover: 'illustration',
+		hero: 'arch',
+		story: 'timeline',
+		narrow: true,
+		adat: { motif: 'talawang', portrait: 'oval' }
+	},
+	banjar: {
+		reference: 'https://demo.invee.net/?template=banjar',
+		cover: 'illustration',
+		hero: 'arch',
+		story: 'cards',
+		narrow: true,
+		adat: { motif: 'bubungan-tinggi', portrait: 'arch' }
+	},
+	'minimalist-1': {
+		reference: 'https://demo.invee.net/?template=minimalist-6',
+		cover: 'photo',
+		hero: 'landscape',
+		story: 'cards',
+		minimalist: 1
+	},
+	'minimalist-2': {
+		reference: 'https://demo.invee.net/?template=minimalist-7',
+		cover: 'illustration',
+		hero: 'none',
+		story: 'timeline-cards',
+		minimalist: 2
+	},
+	'minimalist-3': {
+		reference: 'https://demo.invee.net/?template=minimalist-8',
+		cover: 'photo',
+		hero: 'landscape',
+		story: 'cards',
+		minimalist: 3
+	},
+	'minimalist-4': {
+		reference: 'https://demo.invee.net/?template=minimalist-9',
+		cover: 'photo',
+		hero: 'landscape',
+		story: 'timeline',
+		minimalist: 4
+	},
+	'minimalist-5': {
+		reference: 'https://demo.invee.net/?template=minimalist-10',
+		cover: 'photo',
+		hero: 'landscape',
+		story: 'cards',
+		minimalist: 5
+	},
+	'minimalist-6': {
+		reference: 'https://demo.invee.net/?template=minimalist-11',
+		cover: 'photo',
+		hero: 'landscape',
+		story: 'cards',
+		minimalist: 6
+	},
+	'minimalist-7': {
+		reference: 'https://demo.invee.net/?template=minimalist-12',
+		cover: 'photo',
+		hero: 'landscape',
+		story: 'cards',
+		minimalist: 7
+	},
 	arunika: { reference: 8, cover: 'arch', hero: 'none', story: 'cards', quotePhoto: true },
 	zamrud: { reference: 9, cover: 'arch', hero: 'landscape', story: 'medallions', particles: true },
 	cendana: { reference: 7, cover: 'gate', hero: 'none', story: 'timeline' },

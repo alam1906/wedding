@@ -24,7 +24,7 @@ routerAdd(
 			var wedding = new Record(txApp.findCollectionByNameOrId('weddings'));
 			wedding.set('owner', userId);
 			wedding.set('slug', '');
-			wedding.set('theme', 'minimalist-1');
+			wedding.set('theme', 'nocturne');
 			wedding.set('plan_tier', 'free');
 			txApp.save(wedding);
 

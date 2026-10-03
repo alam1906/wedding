@@ -364,7 +364,7 @@ try {
 		});
 		const wedding = await api('/api/collections/weddings/records', 'POST', {
 			owner: customer.id,
-			theme: 'minimalist-1',
+			theme: 'nocturne',
 			plan_tier: 'free'
 		});
 		const order = `UI-${suffix}-${index}`;

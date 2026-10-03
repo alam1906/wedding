@@ -100,7 +100,7 @@ function toWeddingData(record: RecordModel, stories: WeddingStoryItem[]): Weddin
 	return {
 		id: record.id,
 		slug: typeof record.slug === 'string' ? record.slug : '',
-		theme: typeof record.theme === 'string' && record.theme ? record.theme : 'minimalist-1',
+		theme: typeof record.theme === 'string' && record.theme ? record.theme : 'nocturne',
 		music: typeof record.music === 'string' ? record.music : '',
 		plan_tier: record.plan_tier === 'pro' ? 'pro' : 'free',
 		gift_enabled: record.gift_enabled === true,

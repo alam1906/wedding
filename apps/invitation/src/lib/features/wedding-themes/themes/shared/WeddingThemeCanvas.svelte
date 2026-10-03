@@ -3,7 +3,7 @@
 	import { onMount, untrack } from 'svelte';
 
 	import { PublicRsvpForm } from '#lib/features/guests/index.js';
-	import type { WeddingThemeKey, WeddingThemeProps } from '../../model/wedding-theme.js';
+	import type { CanvasWeddingThemeKey, WeddingThemeProps } from '../../model/wedding-theme.js';
 	import { WEDDING_THEME_COLORS } from '../../model/wedding-theme-colors.js';
 	import { fitCoupleHeading } from '../../shared/fit-couple-heading.js';
 	import {
@@ -19,105 +19,31 @@
 	} from '../../shared/theme-utils.js';
 
 	type ThemeProfile = {
-		family:
-			| '3d-design'
-			| 'minimalist'
-			| 'neubrutalism'
-			| 'nocturne'
-			| 'playful'
-			| 'sunda'
-			| 'aceh'
-			| 'jawa'
-			| 'batak'
-			| 'bugis'
-			| 'betawi'
-			| 'minang'
-			| 'toraja';
-		name: string;
+		family: '3d-design' | 'neubrutalism' | 'nocturne' | 'playful';
 		variant: 1 | 2 | 3;
 	};
 
-	type CanvasThemeKey = Exclude<
-		WeddingThemeKey,
-		| 'kinetika'
-		| 'anomali'
-		| 'selaras'
-		| 'pramesti'
-		| 'seruni'
-		| 'arsir'
-		| 'kusuma'
-		| 'aurelia'
-		| 'arunika'
-		| 'zamrud'
-		| 'cendana'
-		| 'lentera'
-		| 'safira'
-		| 'renjana'
-		| 'monokrom'
-		| 'swarna'
-		| 'sonata'
-		| 'jelajah'
-		| 'folio'
-		| 'pusaka'
-		| 'sinema'
-		| 'adikara'
-		| 'komika'
-		| 'warta'
-		| 'retro'
-		| 'kristal'
-		| 'amerta'
-		| 'niskala'
-		| 'sakura'
-		| 'lazuardi'
-		| 'melati'
-		| 'eukaliptus'
-		| 'jingga'
-		| 'peony'
-		| 'gardenia'
-		| 'aster'
-	>;
+	type CanvasThemeKey = CanvasWeddingThemeKey;
 	type Props = WeddingThemeProps & {
 		theme: CanvasThemeKey;
 	};
 
 	const themeProfiles: Record<CanvasThemeKey, ThemeProfile> = {
-		'minimalist-1': { family: 'minimalist', name: 'Romantic Warm', variant: 1 },
-		'minimalist-2': { family: 'minimalist', name: 'Elegant', variant: 2 },
-		'minimalist-3': { family: 'minimalist', name: 'Fresh', variant: 3 },
-		'neubrutalism-1': { family: 'neubrutalism', name: 'Romantic Warm', variant: 1 },
-		'neubrutalism-2': { family: 'neubrutalism', name: 'Elegant', variant: 2 },
-		'neubrutalism-3': { family: 'neubrutalism', name: 'Fresh', variant: 3 },
-		'playful-1': { family: 'playful', name: 'Romantic Warm', variant: 1 },
-		'playful-2': { family: 'playful', name: 'Elegant', variant: 2 },
-		'playful-3': { family: 'playful', name: 'Fresh', variant: 3 },
-		'3d-design-1': { family: '3d-design', name: 'Romantic Warm', variant: 1 },
-		'3d-design-2': { family: '3d-design', name: 'Elegant', variant: 2 },
-		'3d-design-3': { family: '3d-design', name: 'Fresh', variant: 3 },
-		nocturne: { family: 'nocturne', name: 'Nocturne', variant: 1 },
-		'puspa-parahyangan': { family: 'sunda', name: 'Puspa Parahyangan', variant: 1 },
-		'pinto-aceh': { family: 'aceh', name: 'Pinto Aceh', variant: 1 },
-		'kawung-jawa': { family: 'jawa', name: 'Kawung Jawa', variant: 1 },
-		'gorga-batak': { family: 'batak', name: 'Gorga Batak', variant: 1 },
-		'lipa-sabbe-bugis': { family: 'bugis', name: 'Lipa Sabbe Bugis', variant: 1 },
-		'gigi-balang-betawi': { family: 'betawi', name: 'Gigi Balang Betawi', variant: 1 },
-		'gonjong-minang': { family: 'minang', name: 'Gonjong Minang', variant: 1 },
-		'tongkonan-toraja': { family: 'toraja', name: 'Tongkonan Toraja', variant: 1 }
-	};
-	const regionalOrnaments: Partial<Record<WeddingThemeKey, string>> = {
-		'pinto-aceh': '/images/themes/pinto-aceh-ornament.svg',
-		'kawung-jawa': '/images/themes/kawung-jawa-ornament.svg',
-		'gorga-batak': '/images/themes/gorga-batak-ornament.svg',
-		'lipa-sabbe-bugis': '/images/themes/lipa-sabbe-bugis-ornament.svg',
-		'gigi-balang-betawi': '/images/themes/gigi-balang-betawi-ornament.svg',
-		'gonjong-minang': '/images/themes/gonjong-minang-ornament.svg',
-		'tongkonan-toraja': '/images/themes/tongkonan-toraja-ornament.svg'
+		'neubrutalism-1': { family: 'neubrutalism', variant: 1 },
+		'neubrutalism-2': { family: 'neubrutalism', variant: 2 },
+		'neubrutalism-3': { family: 'neubrutalism', variant: 3 },
+		'playful-1': { family: 'playful', variant: 1 },
+		'playful-2': { family: 'playful', variant: 2 },
+		'playful-3': { family: 'playful', variant: 3 },
+		'3d-design-1': { family: '3d-design', variant: 1 },
+		'3d-design-2': { family: '3d-design', variant: 2 },
+		'3d-design-3': { family: '3d-design', variant: 3 },
+		nocturne: { family: 'nocturne', variant: 1 }
 	};
 
 	let { wedding, theme }: Props = $props();
 	const profile = $derived(themeProfiles[theme]);
 	const colors = $derived(WEDDING_THEME_COLORS[theme]);
-	const regionalOrnament = $derived(regionalOrnaments[theme]);
-	const isRegional = $derived(Boolean(regionalOrnament));
 	const groomName = $derived(formatPersonName(wedding.groom_name) || 'Mempelai Pria');
 	const brideName = $derived(formatPersonName(wedding.bride_name) || 'Mempelai Wanita');
 	const coupleName = $derived(groomName + ' & ' + brideName);
@@ -334,7 +260,6 @@
 <div class="theme-scroll-wrapper">
 	<main
 		class="theme-canvas family-{profile.family} variant-{profile.variant}"
-		class:regional-theme={isRegional}
 		style={'--color-background:' +
 			colors.background +
 			';--color-surface:' +
@@ -365,16 +290,6 @@
 			<div class="decoration decoration-two"></div>
 			<div class="hero-grid">
 				<div class="hero-copy" data-hero-content>
-					{#if regionalOrnament}
-						<img class="regional-ornament" src={regionalOrnament} alt="" />
-					{/if}
-					{#if theme === 'puspa-parahyangan'}
-						<img
-							class="sunda-ornament"
-							src="/images/themes/puspa-parahyangan-ornament.svg"
-							alt=""
-						/>
-					{/if}
 					<p class="eyebrow">Kepada Bapak/Ibu/Saudara/i,</p>
 					<h1 data-name-layout="stacked" aria-label={coupleName} {@attach fitCoupleHeading}>
 						<span class="hero-name">{groomName}</span><span class="hero-ampersand">&</span><span
@@ -456,12 +371,7 @@
 		</section>
 
 		<section class="quote-section section-shell">
-			<div
-				class="narrow-content"
-				data-reveal={theme === 'nocturne' || theme === 'puspa-parahyangan' || isRegional
-					? undefined
-					: ''}
-			>
+			<div class="narrow-content" data-reveal={theme === 'nocturne' ? undefined : ''}>
 				<blockquote>
 					<span class="quote-text"
 						>“{wedding.quote || 'Dua hati, satu perjalanan, dan satu janji untuk selamanya.'}”</span
@@ -608,13 +518,7 @@
 			</section>
 		{/if}
 
-		{#if isRegional}
-			<div class="regional-rsvp">
-				<PublicRsvpForm slug={wedding.slug} token={rsvpToken} />
-			</div>
-		{:else}
-			<PublicRsvpForm slug={wedding.slug} token={rsvpToken} />
-		{/if}
+		<PublicRsvpForm slug={wedding.slug} token={rsvpToken} />
 
 		<footer class="closing-section section-shell">
 			<div class="cover-frame" aria-hidden="true">
@@ -1276,58 +1180,6 @@
 		color: color-mix(in srgb, var(--color-surface) 68%, var(--color-text));
 		font-weight: 700;
 		text-align: center;
-	}
-
-	.family-minimalist .countdown-card,
-	.family-minimalist .event-card,
-	.family-minimalist .story-panel,
-	.family-minimalist .gift-grid article,
-	.family-minimalist .gallery-grid figure {
-		border: 0;
-		border-radius: 0.25rem;
-		box-shadow: 0 0.75rem 2rem color-mix(in srgb, var(--color-text) 8%, transparent);
-	}
-	.family-minimalist .hero-copy h1,
-	.family-minimalist .section-heading h2,
-	.family-minimalist blockquote {
-		font-family: 'Iowan Old Style', Georgia, serif;
-		font-weight: 500;
-	}
-	.family-minimalist .decoration {
-		border-radius: 999px;
-		opacity: 0.45;
-		filter: blur(1px);
-	}
-	.family-minimalist .cover-frame,
-	.family-minimalist .person-card {
-		border-radius: 1.75rem;
-	}
-	.family-minimalist .cover-frame img {
-		border-radius: 1.25rem;
-	}
-	.family-minimalist .person-card img,
-	.family-minimalist .person-placeholder {
-		border: 0;
-		border-radius: 1.25rem;
-		box-shadow: 0 1rem 2.5rem color-mix(in srgb, var(--color-text) 12%, transparent);
-	}
-	.family-minimalist.variant-2 .cover-frame,
-	.family-minimalist.variant-2 .person-card {
-		border-radius: 0;
-	}
-	.family-minimalist.variant-2 .cover-frame img,
-	.family-minimalist.variant-2 .person-card img,
-	.family-minimalist.variant-2 .person-placeholder {
-		border-radius: 0;
-		filter: grayscale(1);
-	}
-	.family-minimalist.variant-3 .cover-frame,
-	.family-minimalist.variant-3 .person-card {
-		border-radius: 48% 48% 2rem 2rem;
-	}
-	.family-minimalist.variant-3 .person-card img,
-	.family-minimalist.variant-3 .person-placeholder {
-		border-radius: 50%;
 	}
 
 	.family-neubrutalism {
@@ -2238,698 +2090,6 @@
 		font-size: clamp(2.5rem, 6vw, 5rem);
 	}
 
-	.family-sunda {
-		--color-muted: #597168;
-		font-family: 'Avenir Next', Avenir, sans-serif;
-	}
-	.family-sunda .hero {
-		box-sizing: border-box;
-		height: 100dvh;
-		min-height: 100dvh;
-		background: #12392f;
-		padding-block: clamp(0.75rem, 2dvh, 1.25rem);
-	}
-	.family-sunda .hero::after {
-		background: #102e29a3;
-	}
-	.family-sunda .hero > .cover-frame img {
-		filter: saturate(0.88);
-	}
-	.family-sunda .hero > .cover-frame .cover-placeholder {
-		background: radial-gradient(circle at 50% 35%, #5e8171, #14392e 72%);
-		color: #f9eed5;
-	}
-	.family-sunda .hero-grid {
-		padding-block: clamp(1.25rem, 3dvh, 2.5rem);
-		translate: 0 -3dvh;
-	}
-	.family-sunda .hero-copy {
-		max-width: 54rem;
-		text-shadow: 0 2px 18px #061a17a8;
-	}
-	.family-sunda .sunda-ornament {
-		display: block;
-		width: min(60%, 15rem);
-		height: auto;
-		margin: 0.25rem auto 0.5rem;
-		filter: drop-shadow(0 4px 10px #071e1aa8);
-	}
-	.family-sunda .hero-copy .eyebrow {
-		color: #f9eed5;
-		letter-spacing: 0.14em;
-	}
-	.family-sunda .hero-copy h1,
-	.family-sunda .section-heading h2,
-	.family-sunda .person-card h3,
-	.family-sunda .event-card h3,
-	.family-sunda .story-card h3,
-	.family-sunda blockquote,
-	.family-sunda .closing-section h2 {
-		font-family: 'Iowan Old Style', 'Baskerville', Georgia, serif;
-		font-weight: 400;
-		letter-spacing: -0.045em;
-	}
-	.family-sunda .hero-copy h1[data-name-layout='stacked'] {
-		margin-top: 0.4rem;
-		font-size: var(--hero-stacked-font-size, clamp(2.85rem, 7.6vw, 6.175rem));
-		line-height: 0.97;
-	}
-	.family-sunda .hero-copy h1 .hero-ampersand {
-		color: #e4c782;
-		font-size: 0.5em;
-		margin-block: 0.12em;
-	}
-	.family-sunda .hero-copy .hero-intro {
-		margin-top: 0.5rem;
-		color: #fff8e9;
-	}
-	.family-sunda .hero-countdown {
-		--countdown-gap: 0.5rem;
-		margin-top: 0.75rem;
-	}
-	.family-sunda .hero-countdown .countdown-card {
-		border: 1px solid #e5ca8fa3;
-		background: #10392fc7;
-		box-shadow:
-			0 10px 30px #051d1980,
-			inset 0 0 0 4px #ebd9ae1c;
-		color: #fff9ed;
-		backdrop-filter: blur(0.35rem);
-	}
-	.family-sunda .hero-countdown .countdown-card span {
-		color: #e8d19e;
-	}
-	.family-sunda .primary-button,
-	.family-sunda .hero .primary-button {
-		margin-top: 1rem;
-		border: 1px solid #b78a43;
-		border-radius: 0.3rem;
-		background: #f7eed9;
-		box-shadow: 0 5px 0 #b78a43;
-		padding: 0.95rem 1.8rem;
-		color: #173b31;
-		font-size: 0.85rem;
-		font-weight: 800;
-		letter-spacing: 0.15em;
-		text-transform: uppercase;
-		transition:
-			transform 180ms ease,
-			box-shadow 180ms ease;
-	}
-	.family-sunda .primary-button:hover {
-		transform: translateY(-3px);
-		box-shadow: 0 8px 0 #b78a43;
-	}
-	.family-sunda .primary-button:focus-visible {
-		outline: 3px solid #183c34;
-		outline-offset: 4px;
-	}
-	.family-sunda .hero .primary-button:focus-visible {
-		outline-color: #fff8e9;
-	}
-	.family-sunda > section.couple-section,
-	.family-sunda > section.story-section,
-	.family-sunda > section.gift-section {
-		background:
-			radial-gradient(circle at 8% 16%, #b2c6ac3b, transparent 27rem),
-			radial-gradient(circle at 94% 82%, #d6bc7b33, transparent 29rem), #f5f0e3;
-	}
-	.family-sunda > section.event-section,
-	.family-sunda > section.gallery-section {
-		background:
-			repeating-linear-gradient(130deg, transparent 0 32px, #d3b87209 32px 33px),
-			linear-gradient(145deg, #103b32, #1f4e3d 54%, #103b32);
-		color: #fff8e9;
-	}
-	.family-sunda > section.quote-section {
-		background: #e4e9db;
-		color: #183c34;
-	}
-	.family-sunda .section-heading::before {
-		display: block;
-		width: min(48vw, 14rem);
-		height: 2.8rem;
-		margin: 0 auto 1.25rem;
-		background: url('/images/themes/puspa-parahyangan-ornament.svg') center / contain no-repeat;
-		content: '';
-	}
-	.family-sunda .section-heading .eyebrow {
-		color: #9a713b;
-		letter-spacing: 0.27em;
-	}
-	.family-sunda .event-section .section-heading .eyebrow,
-	.family-sunda .gallery-section .section-heading .eyebrow {
-		color: #dfc887;
-	}
-	.family-sunda .section-heading h2 {
-		font-size: clamp(2.8rem, 6vw, 5.5rem);
-	}
-	.family-sunda .couple-grid {
-		gap: clamp(2rem, 5vw, 4rem);
-	}
-	.family-sunda .couple-grid::after {
-		color: #b78a43;
-		filter: none;
-	}
-	.family-sunda .person-card img,
-	.family-sunda .person-placeholder {
-		width: min(72%, 18rem);
-		aspect-ratio: 4 / 5;
-		border: 6px solid #fffaf0;
-		border-radius: 48% 48% 0.5rem 0.5rem;
-		box-shadow:
-			0 0 0 1px #b78a43,
-			0 20px 40px #27453930;
-	}
-	.family-sunda .person-placeholder {
-		background: #9db5a2;
-		color: #183c34;
-	}
-	.family-sunda .person-card h3 {
-		color: #183c34;
-		font-size: clamp(2.2rem, 4vw, 3.4rem);
-	}
-	.family-sunda .person-card p,
-	.family-sunda .story-card p {
-		color: #597168;
-	}
-	.family-sunda .event-card {
-		border: 1px solid #c3a46f;
-		border-radius: 48% 48% 0.5rem 0.5rem / 12% 12% 0.5rem 0.5rem;
-		background: #fff9ec;
-		box-shadow:
-			inset 0 0 0 7px #fff9ec,
-			inset 0 0 0 8px #c3a46f91,
-			0 22px 40px #09291f73;
-		padding: clamp(3.5rem, 6vw, 5rem) clamp(1.5rem, 4vw, 3rem) clamp(2rem, 4vw, 3rem);
-		color: #183c34;
-	}
-	.family-sunda .event-card .eyebrow {
-		color: #9a713b;
-	}
-	.family-sunda .event-card h3 {
-		font-size: clamp(2rem, 3.5vw, 2.8rem);
-	}
-	.family-sunda .event-card p {
-		color: #597168;
-	}
-	.family-sunda .divider {
-		background: #b78a43;
-	}
-	.family-sunda .quote-section {
-		min-height: 20rem;
-		border-block: 1px solid #b78a4366;
-	}
-	.family-sunda blockquote {
-		width: min(100%, 50rem);
-		font-size: clamp(1rem, 2.5vw, 1.875rem);
-		line-height: 1.45;
-	}
-	.family-sunda .story-list::before {
-		width: 2px;
-		background: #b78a43;
-		opacity: 1;
-	}
-	.family-sunda .story-marker {
-		border: 1px solid #b78a43;
-		background: #183c34;
-		color: #f8edcf;
-	}
-	.family-sunda .story-panel,
-	.family-sunda .gift-grid article {
-		border: 1px solid #c7ad79;
-		border-radius: 0.35rem;
-		background: #fffaf0;
-		box-shadow: 0 18px 40px #2745391c;
-	}
-	.family-sunda .story-copy {
-		padding: clamp(1.5rem, 3vw, 2.5rem);
-	}
-	.family-sunda .story-card h3 {
-		font-size: clamp(1.8rem, 3vw, 2.5rem);
-	}
-	.family-sunda .story-meta time,
-	.family-sunda .gift-grid small {
-		color: #9a713b;
-	}
-	.family-sunda .gallery-grid figure {
-		border: 6px solid #fff9ec;
-		background: #fff9ec;
-		box-shadow: 0 14px 30px #09291f88;
-	}
-	.family-sunda .gallery-grid img {
-		transition: transform 400ms ease;
-	}
-	.family-sunda .gallery-grid button:hover img,
-	.family-sunda .gallery-grid button:focus-visible img {
-		transform: scale(1.035);
-	}
-	.family-sunda .gallery-trigger:focus-visible {
-		outline-color: #dfc887;
-	}
-	.family-sunda .gift-grid article {
-		padding: clamp(1.5rem, 3vw, 2.5rem);
-	}
-	.family-sunda .gift-provider {
-		font-family: 'Iowan Old Style', Georgia, serif;
-		font-size: 1.55rem;
-	}
-	.family-sunda .closing-section {
-		min-height: 70svh;
-	}
-	.family-sunda .closing-section::after {
-		background: #102e29ad;
-	}
-	.family-sunda .closing-section p,
-	.family-sunda .closing-section h2,
-	.family-sunda .closing-section small {
-		color: #fff9ec;
-	}
-	.family-sunda .closing-section h2 {
-		font-size: clamp(2.5rem, 6vw, 5rem);
-	}
-	.regional-theme {
-		--color-muted: color-mix(in srgb, var(--color-text) 70%, var(--color-background));
-		font-family: 'Avenir Next', Avenir, sans-serif;
-	}
-	.regional-theme .hero {
-		box-sizing: border-box;
-		height: 100dvh;
-		min-height: 100dvh;
-		background: var(--regional-dark);
-		padding-block: clamp(0.75rem, 2dvh, 1.5rem);
-	}
-	.regional-theme .hero::after {
-		background: color-mix(in srgb, var(--regional-dark) 68%, transparent);
-	}
-	.regional-theme .hero > .cover-frame .cover-placeholder {
-		background: radial-gradient(circle at center, var(--color-accent), var(--regional-dark) 74%);
-		color: var(--regional-cream);
-	}
-	.regional-theme .hero-grid {
-		padding-block: 0.5rem;
-	}
-	.regional-theme .hero-copy {
-		max-width: 54rem;
-		text-shadow: 0 2px 18px #0009;
-	}
-	.regional-theme .regional-ornament {
-		display: block;
-		width: min(62%, 18rem);
-		height: clamp(2.6rem, 8dvh, 5.5rem);
-		margin: 0 auto 0.4rem;
-		object-fit: contain;
-		filter: drop-shadow(0 4px 10px #0007);
-	}
-	.regional-theme .hero-copy .eyebrow,
-	.regional-theme .hero-copy .hero-intro {
-		color: var(--regional-cream);
-	}
-	.regional-theme .hero-copy .eyebrow {
-		letter-spacing: 0.14em;
-	}
-	.regional-theme .hero-copy h1,
-	.regional-theme .section-heading h2,
-	.regional-theme .person-card h3,
-	.regional-theme .event-card h3,
-	.regional-theme .story-card h3,
-	.regional-theme blockquote,
-	.regional-theme .closing-section h2 {
-		font-family: 'Iowan Old Style', 'Baskerville', Georgia, serif;
-		font-weight: 400;
-		letter-spacing: -0.045em;
-	}
-	.regional-theme .hero-copy h1[data-name-layout='stacked'] {
-		margin-top: 0.4rem;
-		font-size: var(--hero-stacked-font-size, clamp(2.85rem, 7.6vw, 6.175rem));
-		line-height: 0.97;
-	}
-	.regional-theme .hero-copy h1 .hero-ampersand {
-		margin-block: 0.12em;
-		color: var(--regional-gold);
-		font-size: 0.5em;
-	}
-	.regional-theme .hero-copy .hero-intro {
-		margin-top: 0.5rem;
-	}
-	.regional-theme .hero-countdown {
-		--countdown-gap: 0.5rem;
-		margin-top: 0.75rem;
-	}
-	.regional-theme .hero-countdown .countdown-card {
-		border: 1px solid var(--regional-gold);
-		background: color-mix(in srgb, var(--regional-dark) 84%, transparent);
-		box-shadow:
-			0 10px 30px #0006,
-			inset 0 0 0 4px #fff1;
-		color: var(--regional-cream);
-		backdrop-filter: blur(0.35rem);
-	}
-	.regional-theme .countdown-card span {
-		color: var(--regional-gold);
-	}
-	.regional-theme .primary-button,
-	.regional-theme .hero .primary-button {
-		margin-top: 1rem;
-		border: 1px solid var(--regional-gold);
-		border-radius: var(--regional-button-radius, 0.25rem);
-		background: var(--regional-cream);
-		box-shadow: 0 5px 0 var(--regional-gold);
-		padding: 0.9rem 1.7rem;
-		color: var(--regional-dark);
-		font-size: 0.8rem;
-		font-weight: 900;
-		letter-spacing: 0.13em;
-		text-transform: uppercase;
-		transition:
-			transform 180ms ease,
-			box-shadow 180ms ease;
-	}
-	.regional-theme .primary-button:hover {
-		transform: translateY(-3px);
-		box-shadow: 0 8px 0 var(--regional-gold);
-	}
-	.regional-theme .primary-button:focus-visible {
-		outline: 3px solid var(--regional-dark);
-		outline-offset: 4px;
-	}
-	.regional-theme .hero .primary-button:focus-visible,
-	.regional-theme .event-section .primary-button:focus-visible {
-		outline-color: var(--regional-cream);
-	}
-	.regional-theme > section.couple-section,
-	.regional-theme > section.story-section,
-	.regional-theme > section.gift-section {
-		background: var(--color-background);
-	}
-	.regional-theme > section.event-section,
-	.regional-theme > section.gallery-section {
-		background: var(--regional-dark);
-		color: var(--regional-cream);
-	}
-	.regional-theme > section.quote-section {
-		border-block: 1px solid color-mix(in srgb, var(--color-primary) 48%, transparent);
-		background: color-mix(in srgb, var(--color-background) 74%, var(--color-accent));
-		color: var(--color-text);
-	}
-	.regional-theme .section-heading::before {
-		display: block;
-		width: min(52vw, 16rem);
-		height: 3.5rem;
-		margin: 0 auto 1.1rem;
-		background: var(--regional-ornament-image) center / contain no-repeat;
-		content: '';
-		filter: drop-shadow(0 2px 3px #0004);
-	}
-	.regional-theme .section-heading .eyebrow,
-	.regional-theme .story-meta time,
-	.regional-theme .gift-grid small {
-		color: var(--color-primary);
-	}
-	.regional-theme .event-section .section-heading .eyebrow,
-	.regional-theme .gallery-section .section-heading .eyebrow {
-		color: var(--regional-gold);
-	}
-	.regional-theme .couple-grid::after {
-		color: var(--color-primary);
-		filter: none;
-	}
-	.regional-theme .person-card img,
-	.regional-theme .person-placeholder {
-		width: min(72%, 18rem);
-		aspect-ratio: 4 / 5;
-		border: 6px solid var(--color-surface);
-		border-radius: var(--regional-portrait-radius, 45% 45% 0.35rem 0.35rem);
-		box-shadow:
-			0 0 0 2px var(--color-primary),
-			0 22px 45px #0002;
-	}
-	.regional-theme .person-placeholder {
-		background: var(--color-accent);
-		color: var(--color-text);
-	}
-	.regional-theme .person-card h3 {
-		font-size: clamp(2.2rem, 4vw, 3.4rem);
-	}
-	.regional-theme .event-card {
-		border: 1px solid var(--color-primary);
-		border-radius: var(--regional-card-radius, 0.35rem);
-		background: var(--color-surface);
-		box-shadow:
-			inset 0 0 0 6px var(--color-surface),
-			inset 0 0 0 7px var(--color-primary),
-			0 18px 40px #0004;
-		padding: clamp(2.5rem, 5vw, 4rem) clamp(1.5rem, 4vw, 3rem);
-		color: var(--color-text);
-	}
-	.regional-theme .event-card .eyebrow {
-		color: var(--color-primary);
-	}
-	.regional-theme blockquote {
-		font-size: clamp(1rem, 2.5vw, 1.875rem);
-		line-height: 1.45;
-	}
-	.regional-theme .story-list::before {
-		width: 3px;
-		background: var(--color-primary);
-		opacity: 1;
-	}
-	.regional-theme .story-marker {
-		border: 1px solid var(--color-primary);
-		background: var(--regional-dark);
-		color: var(--regional-cream);
-	}
-	.regional-theme .story-panel,
-	.regional-theme .gift-grid article {
-		border: 1px solid var(--color-primary);
-		border-radius: var(--regional-card-radius, 0.35rem);
-		background: var(--color-surface);
-		box-shadow: 0 16px 35px #0002;
-	}
-	.regional-theme .gallery-grid figure {
-		border: 5px solid var(--regional-cream);
-		background: var(--regional-cream);
-		box-shadow: 0 14px 30px #0007;
-	}
-	.regional-theme .gift-provider {
-		font-family: 'Iowan Old Style', Georgia, serif;
-		font-size: 1.5rem;
-		font-weight: 400;
-	}
-	.regional-theme .regional-rsvp :global(#rsvp) {
-		background: var(--color-background);
-		color: var(--color-text);
-	}
-	.regional-theme .regional-rsvp :global(#rsvp [data-reveal]) {
-		border-color: var(--color-primary);
-		border-radius: var(--regional-card-radius, 0.35rem);
-		background: var(--color-surface);
-		box-shadow: 0 20px 50px #0002;
-	}
-	.regional-theme .regional-rsvp :global(#rsvp h2),
-	.regional-theme .regional-rsvp :global(#rsvp h3),
-	.regional-theme .regional-rsvp :global(#rsvp legend),
-	.regional-theme .regional-rsvp :global(#rsvp label) {
-		color: var(--color-text);
-	}
-	.regional-theme .regional-rsvp :global(#rsvp header p) {
-		color: var(--color-primary);
-	}
-	.regional-theme .regional-rsvp :global(#rsvp button[type='submit']) {
-		border-radius: var(--regional-button-radius, 0.25rem);
-		background: var(--regional-dark);
-		color: var(--regional-cream);
-	}
-	.regional-theme .regional-rsvp :global(#rsvp textarea:focus) {
-		border-color: var(--color-primary);
-	}
-	.regional-theme .closing-section::after {
-		background: color-mix(in srgb, var(--regional-dark) 76%, transparent);
-	}
-	.regional-theme .closing-section p,
-	.regional-theme .closing-section h2,
-	.regional-theme .closing-section small {
-		color: var(--regional-cream);
-	}
-	.family-aceh {
-		--regional-dark: #35191e;
-		--regional-cream: #fff1d7;
-		--regional-gold: #e7bd76;
-		--regional-ornament-image: url('/images/themes/pinto-aceh-ornament.svg');
-		--regional-card-radius: 45% 45% 0.35rem 0.35rem / 12% 12% 0.35rem 0.35rem;
-	}
-	.family-aceh .event-card {
-		padding-top: clamp(3.5rem, 6vw, 5rem);
-	}
-	.family-aceh .couple-section,
-	.family-aceh .story-section {
-		background-image: radial-gradient(circle at 50% 0, #b83c4314, transparent 55%);
-	}
-	.family-jawa {
-		--regional-dark: #38281d;
-		--regional-cream: #f9ebcf;
-		--regional-gold: #ecd4a4;
-		--regional-ornament-image: url('/images/themes/kawung-jawa-ornament.svg');
-		--regional-portrait-radius: 50% 50% 0.2rem 0.2rem;
-		--regional-card-radius: 0.15rem;
-	}
-	.family-jawa .couple-section,
-	.family-jawa .story-section,
-	.family-jawa .gift-section {
-		background-image:
-			radial-gradient(ellipse 20px 35px at 25px 45px, #9865431a 35%, transparent 38%),
-			radial-gradient(ellipse 20px 35px at 65px 45px, #9865431a 35%, transparent 38%);
-		background-size: 90px 90px;
-	}
-	.family-jawa .event-card {
-		border-width: 2px;
-		box-shadow:
-			inset 0 0 0 6px var(--color-surface),
-			inset 0 0 0 8px #98654380,
-			0 18px 40px #0004;
-	}
-	.family-batak {
-		--regional-dark: #1f1d1b;
-		--regional-cream: #f7efe2;
-		--regional-gold: #f5e9cf;
-		--regional-ornament-image: url('/images/themes/gorga-batak-ornament.svg');
-		--regional-portrait-radius: 0.15rem;
-		--regional-card-radius: 0.15rem;
-		--regional-button-radius: 0;
-	}
-	.family-batak .hero::before,
-	.family-batak .event-section::before,
-	.family-batak .gallery-section::before {
-		position: absolute;
-		z-index: 2;
-		top: 0;
-		left: 0;
-		width: 100%;
-		height: 10px;
-		background: repeating-linear-gradient(
-			90deg,
-			#a82424 0 22px,
-			#f5e9cf 22px 28px,
-			#1f1d1b 28px 50px
-		);
-		content: '';
-		pointer-events: none;
-	}
-	.family-batak .event-card,
-	.family-batak .story-panel,
-	.family-batak .gift-grid article {
-		border: 2px solid #a82424;
-		box-shadow: 7px 7px 0 #1f1d1b;
-	}
-	.family-batak .story-list::before {
-		background: #a82424;
-	}
-	.family-bugis {
-		--regional-dark: #123b37;
-		--regional-cream: #fdf1d2;
-		--regional-gold: #e8d2a0;
-		--regional-ornament-image: url('/images/themes/lipa-sabbe-bugis-ornament.svg');
-		--regional-portrait-radius: 0.3rem;
-		--regional-card-radius: 0.15rem;
-	}
-	.family-bugis .event-section,
-	.family-bugis .gallery-section {
-		background-image:
-			linear-gradient(#e8d2a012 1px, transparent 1px),
-			linear-gradient(90deg, #e8d2a012 1px, transparent 1px);
-		background-size: 28px 28px;
-	}
-	.family-bugis .event-card,
-	.family-bugis .story-panel,
-	.family-bugis .gift-grid article {
-		clip-path: polygon(
-			0 0,
-			calc(100% - 16px) 0,
-			100% 16px,
-			100% 100%,
-			16px 100%,
-			0 calc(100% - 16px)
-		);
-	}
-	.family-betawi {
-		--regional-dark: #16463b;
-		--regional-cream: #fff4d8;
-		--regional-gold: #f8e9c5;
-		--regional-ornament-image: url('/images/themes/gigi-balang-betawi-ornament.svg');
-		--regional-portrait-radius: 47% 47% 0.4rem 0.4rem;
-		--regional-card-radius: 1.75rem 1.75rem 0.5rem 0.5rem;
-		--regional-button-radius: 0.35rem;
-	}
-	.family-betawi .hero::before,
-	.family-betawi .event-section::before,
-	.family-betawi .gallery-section::before {
-		position: absolute;
-		z-index: 2;
-		top: 0;
-		left: 0;
-		width: 100%;
-		height: 20px;
-		background: linear-gradient(135deg, var(--regional-cream) 50%, transparent 50%) 0 0 / 32px 20px
-			repeat-x;
-		content: '';
-		pointer-events: none;
-	}
-	.family-betawi .section-heading h2,
-	.family-betawi .person-card h3 {
-		color: var(--color-text);
-	}
-	.family-betawi .event-section .section-heading h2,
-	.family-betawi .gallery-section .section-heading h2 {
-		color: var(--regional-cream);
-	}
-	.family-minang {
-		--regional-dark: #441e29;
-		--regional-cream: #fff0d4;
-		--regional-gold: #eac980;
-		--regional-ornament-image: url('/images/themes/gonjong-minang-ornament.svg');
-		--regional-card-radius: 45% 45% 0.25rem 0.25rem / 10% 10% 0.25rem 0.25rem;
-	}
-	.family-minang .event-card {
-		padding-top: clamp(3.5rem, 6vw, 5rem);
-	}
-	.family-minang .hero-copy h1,
-	.family-minang .section-heading h2 {
-		font-style: italic;
-	}
-	.family-minang .couple-section,
-	.family-minang .story-section {
-		background-image: repeating-linear-gradient(135deg, transparent 0 22px, #b388380b 22px 24px);
-	}
-	.family-toraja {
-		--regional-dark: #32231f;
-		--regional-cream: #f7e8cc;
-		--regional-gold: #ebd9b9;
-		--regional-ornament-image: url('/images/themes/tongkonan-toraja-ornament.svg');
-		--regional-portrait-radius: 0.25rem;
-		--regional-card-radius: 0.25rem;
-		--regional-button-radius: 0.1rem;
-	}
-	.family-toraja .event-section,
-	.family-toraja .gallery-section {
-		background-image:
-			repeating-linear-gradient(45deg, transparent 0 46px, #b85f3b16 46px 48px),
-			repeating-linear-gradient(-45deg, transparent 0 46px, #b85f3b16 46px 48px);
-	}
-	.family-toraja .event-card,
-	.family-toraja .story-panel,
-	.family-toraja .gift-grid article {
-		border-left: 6px solid var(--color-primary);
-		border-right: 6px solid var(--color-primary);
-	}
-	.family-toraja .story-marker {
-		border-radius: 0.2rem;
-	}
-	@media (max-width: 40rem) {
-		.family-sunda .sunda-ornament {
-			width: min(60%, 14rem);
-		}
-	}
-
 	@media (max-width: 40rem) {
 		.family-nocturne .hero-grid {
 			padding-inline: 0.35rem;
@@ -2946,9 +2106,7 @@
 			transition: none;
 		}
 		.family-nocturne .primary-button,
-		.family-nocturne .gallery-grid img,
-		.family-sunda .primary-button,
-		.family-sunda .gallery-grid img {
+		.family-nocturne .gallery-grid img {
 			transition: none;
 		}
 	}
@@ -2959,15 +2117,6 @@
 		}
 		.theme-canvas .hero-copy h1[data-name-layout='stacked'] {
 			font-size: var(--hero-stacked-font-size, clamp(2.5rem, 10vw, 4rem));
-		}
-		.family-sunda .hero-copy h1[data-name-layout='stacked'] {
-			font-size: var(--hero-stacked-font-size, clamp(2.375rem, 9.5vw, 3.8rem));
-		}
-		.regional-theme .hero-copy h1[data-name-layout='stacked'] {
-			font-size: var(--hero-stacked-font-size, clamp(2.375rem, 9.5vw, 3.8rem));
-		}
-		.regional-theme .regional-ornament {
-			height: clamp(2.4rem, 6dvh, 3.5rem);
 		}
 		.theme-canvas .hero-copy h1,
 		.theme-canvas .hero .primary-button {

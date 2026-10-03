@@ -8,7 +8,7 @@ const asset = (name: string) => `/images/demo/${name}.jpg`;
 const demoWedding: WeddingData = {
 	id: 'theme-preview',
 	slug: DEMO_WEDDING_SLUG,
-	theme: 'minimalist-1',
+	theme: 'nocturne',
 	plan_tier: 'pro',
 	gift_enabled: true,
 	groom_name: 'Raka',

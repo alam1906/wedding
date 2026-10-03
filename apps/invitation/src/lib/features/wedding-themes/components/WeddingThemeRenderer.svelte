@@ -1,6 +1,10 @@
 <script lang="ts">
 	import { getWeddingTheme } from '../registry/wedding-theme-registry.js';
-	import type { WeddingThemeKey, WeddingThemeProps } from '../model/wedding-theme.js';
+	import type {
+		CanvasWeddingThemeKey,
+		WeddingThemeKey,
+		WeddingThemeProps
+	} from '../model/wedding-theme.js';
 	import KinetikaTheme from '../themes/kinetika/KinetikaTheme.svelte';
 	import WeddingThemeCanvas from '../themes/shared/WeddingThemeCanvas.svelte';
 
@@ -10,87 +14,15 @@
 
 	let { wedding, theme }: Props = $props();
 	let definition = $derived(getWeddingTheme(theme));
-	function isCanvasTheme(
-		key: WeddingThemeKey
-	): key is Exclude<
-		WeddingThemeKey,
-		| 'kinetika'
-		| 'anomali'
-		| 'selaras'
-		| 'pramesti'
-		| 'seruni'
-		| 'arsir'
-		| 'kusuma'
-		| 'aurelia'
-		| 'arunika'
-		| 'zamrud'
-		| 'cendana'
-		| 'lentera'
-		| 'safira'
-		| 'renjana'
-		| 'monokrom'
-		| 'swarna'
-		| 'sonata'
-		| 'jelajah'
-		| 'folio'
-		| 'pusaka'
-		| 'sinema'
-		| 'adikara'
-		| 'komika'
-		| 'warta'
-		| 'retro'
-		| 'kristal'
-		| 'amerta'
-		| 'niskala'
-		| 'sakura'
-		| 'lazuardi'
-		| 'melati'
-		| 'eukaliptus'
-		| 'jingga'
-		| 'peony'
-		| 'gardenia'
-		| 'aster'
-	> {
+	function isCanvasTheme(key: WeddingThemeKey): key is CanvasWeddingThemeKey {
 		return (
-			key !== 'kinetika' &&
-			key !== 'anomali' &&
-			key !== 'selaras' &&
-			key !== 'pramesti' &&
-			key !== 'seruni' &&
-			key !== 'arsir' &&
-			key !== 'kusuma' &&
-			key !== 'aurelia' &&
-			key !== 'arunika' &&
-			key !== 'zamrud' &&
-			key !== 'cendana' &&
-			key !== 'lentera' &&
-			key !== 'safira' &&
-			key !== 'renjana' &&
-			key !== 'monokrom' &&
-			key !== 'swarna' &&
-			key !== 'sonata' &&
-			key !== 'jelajah' &&
-			key !== 'folio' &&
-			key !== 'pusaka' &&
-			key !== 'sinema' &&
-			key !== 'adikara' &&
-			key !== 'komika' &&
-			key !== 'warta' &&
-			key !== 'retro' &&
-			key !== 'kristal' &&
-			key !== 'amerta' &&
-			key !== 'niskala' &&
-			key !== 'sakura' &&
-			key !== 'lazuardi' &&
-			key !== 'melati' &&
-			key !== 'eukaliptus' &&
-			key !== 'jingga' &&
-			key !== 'peony' &&
-			key !== 'gardenia' &&
-			key !== 'aster'
+			key === 'nocturne' ||
+			key.startsWith('neubrutalism-') ||
+			key.startsWith('playful-') ||
+			key.startsWith('3d-design-')
 		);
 	}
-	const canvasTheme = $derived(isCanvasTheme(definition.key) ? definition.key : 'minimalist-1');
+	const canvasTheme = $derived(isCanvasTheme(definition.key) ? definition.key : 'nocturne');
 </script>
 
 {#if definition.key === 'kinetika'}

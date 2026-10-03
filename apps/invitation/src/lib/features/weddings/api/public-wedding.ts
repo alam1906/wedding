@@ -93,7 +93,7 @@ function toWeddingData(
 	return {
 		id: record.id,
 		slug: typeof record.slug === 'string' ? record.slug : '',
-		theme: typeof record.theme === 'string' && record.theme ? record.theme : 'minimalist-1',
+		theme: typeof record.theme === 'string' && record.theme ? record.theme : 'nocturne',
 		plan_tier: record.plan_tier === 'pro' ? 'pro' : 'free',
 		gift_enabled: record.gift_enabled === true,
 		groom_name: typeof record.groom_name === 'string' ? record.groom_name : '',

@@ -21,7 +21,6 @@
 		type ImageOptimizationOptions
 	} from '#lib/shared/image/optimize-image.js';
 	import { getToastContext } from '#lib/features/toast/index.js';
-	import { WEDDING_THEME_COLORS } from '#lib/features/wedding-themes/index.js';
 	import {
 		THEME_CATEGORIES,
 		WEDDING_THEME_CATALOG,
@@ -82,409 +81,327 @@
 
 	const themes = [
 		{
-			key: 'minimalist-1',
-			family: 'minimalist',
-			name: 'Minimalist Romantic',
-			description: 'Romantis hangat dengan ruang lapang dan detail lembut.',
-			colors: WEDDING_THEME_COLORS['minimalist-1']
-		},
-		{
-			key: 'minimalist-2',
-			family: 'minimalist',
-			name: 'Minimalist Elegant',
-			description: 'Hijau zaitun dan emas matang dalam komposisi formal.',
-			colors: WEDDING_THEME_COLORS['minimalist-2']
-		},
-		{
-			key: 'minimalist-3',
-			family: 'minimalist',
-			name: 'Minimalist Fresh',
-			description: 'Hijau kebiruan yang segar, modern, dan ringan.',
-			colors: WEDDING_THEME_COLORS['minimalist-3']
-		},
-		{
 			key: 'neubrutalism-1',
-			family: 'neubrutalism',
 			name: 'Neobrutalism Romantic',
-			description: 'Coral dan kuning hangat dengan hard shadow.',
-			colors: WEDDING_THEME_COLORS['neubrutalism-1']
+			description: 'Coral dan kuning hangat dengan hard shadow.'
 		},
 		{
 			key: 'neubrutalism-2',
-			family: 'neubrutalism',
 			name: 'Neobrutalism Elegant',
-			description: 'Ungu formal dan pink dalam komposisi grafis berkelas.',
-			colors: WEDDING_THEME_COLORS['neubrutalism-2']
+			description: 'Ungu formal dan pink dalam komposisi grafis berkelas.'
 		},
 		{
 			key: 'neubrutalism-3',
-			family: 'neubrutalism',
 			name: 'Neobrutalism Fresh',
-			description: 'Toska dan orange segar dengan kontras tinggi.',
-			colors: WEDDING_THEME_COLORS['neubrutalism-3']
+			description: 'Toska dan orange segar dengan kontras tinggi.'
 		},
 		{
 			key: 'playful-1',
-			family: 'playful',
 			name: 'Playful Romantic',
-			description: 'Pink romantis dan kuning hangat dengan bentuk organik.',
-			colors: WEDDING_THEME_COLORS['playful-1']
+			description: 'Pink romantis dan kuning hangat dengan bentuk organik.'
 		},
 		{
 			key: 'playful-2',
-			family: 'playful',
 			name: 'Playful Elegant',
-			description: 'Lavender elegan dan cyan dalam suasana dreamy.',
-			colors: WEDDING_THEME_COLORS['playful-2']
+			description: 'Lavender elegan dan cyan dalam suasana dreamy.'
 		},
 		{
 			key: 'playful-3',
-			family: 'playful',
 			name: 'Playful Fresh',
-			description: 'Hijau mint dan coral dengan suasana segar yang ceria.',
-			colors: WEDDING_THEME_COLORS['playful-3']
+			description: 'Hijau mint dan coral dengan suasana segar yang ceria.'
 		},
 		{
 			key: '3d-design-1',
-			family: '3d-design',
 			name: '3D Romantic',
-			description: 'Pink hangat dan orange lembut dengan kedalaman tiga dimensi.',
-			colors: WEDDING_THEME_COLORS['3d-design-1']
+			description: 'Pink hangat dan orange lembut dengan kedalaman tiga dimensi.'
 		},
 		{
 			key: '3d-design-2',
-			family: '3d-design',
 			name: '3D Elegant',
-			description: 'Ungu gelap dan biru bercahaya dalam komposisi mewah.',
-			colors: WEDDING_THEME_COLORS['3d-design-2']
+			description: 'Ungu gelap dan biru bercahaya dalam komposisi mewah.'
 		},
 		{
 			key: '3d-design-3',
-			family: '3d-design',
 			name: '3D Fresh',
-			description: 'Biru cerah dan mint dengan kedalaman modern yang ringan.',
-			colors: WEDDING_THEME_COLORS['3d-design-3']
+			description: 'Biru cerah dan mint dengan kedalaman modern yang ringan.'
 		},
 		{
 			key: 'nocturne',
-			family: 'nocturne',
 			name: 'Nocturne',
-			description: 'Romansa malam sinematik dengan cahaya emas dan animasi lembut.',
-			colors: WEDDING_THEME_COLORS.nocturne
-		},
-		{
-			key: 'puspa-parahyangan',
-			family: 'sunda',
-			name: 'Puspa Parahyangan',
-			description: 'Nuansa adat Sunda dengan siluet siger, sulur bunga, dan hijau-emas.',
-			colors: WEDDING_THEME_COLORS['puspa-parahyangan']
-		},
-		{
-			key: 'pinto-aceh',
-			family: 'aceh',
-			name: 'Pinto Aceh',
-			description: 'Gerbang berukir dan bungong jeumpa dalam merah-emas.',
-			colors: WEDDING_THEME_COLORS['pinto-aceh']
-		},
-		{
-			key: 'kawung-jawa',
-			family: 'jawa',
-			name: 'Kawung Jawa',
-			description: 'Batik kawung dengan warna soga yang tenang.',
-			colors: WEDDING_THEME_COLORS['kawung-jawa']
-		},
-		{
-			key: 'gorga-batak',
-			family: 'batak',
-			name: 'Gorga Batak',
-			description: 'Geometri gorga dengan merah, hitam, dan putih.',
-			colors: WEDDING_THEME_COLORS['gorga-batak']
-		},
-		{
-			key: 'lipa-sabbe-bugis',
-			family: 'bugis',
-			name: 'Lipa Sabbe Bugis',
-			description: 'Pola tenun kotak dengan zamrud dan emas.',
-			colors: WEDDING_THEME_COLORS['lipa-sabbe-bugis']
-		},
-		{
-			key: 'gigi-balang-betawi',
-			family: 'betawi',
-			name: 'Gigi Balang Betawi',
-			description: 'Lisplang bergerigi dan warna ceria Betawi.',
-			colors: WEDDING_THEME_COLORS['gigi-balang-betawi']
-		},
-		{
-			key: 'gonjong-minang',
-			family: 'minang',
-			name: 'Gonjong Minang',
-			description: 'Siluet atap Rumah Gadang dalam marun dan emas.',
-			colors: WEDDING_THEME_COLORS['gonjong-minang']
-		},
-		{
-			key: 'tongkonan-toraja',
-			family: 'toraja',
-			name: 'Tongkonan Toraja',
-			description: 'Atap Tongkonan dan geometri tanah Toraja.',
-			colors: WEDDING_THEME_COLORS['tongkonan-toraja']
+			description: 'Romansa malam sinematik dengan cahaya emas dan animasi lembut.'
 		},
 		{
 			key: 'kinetika',
-			family: 'kinetika',
 			name: 'Buku Kita',
-			description: 'Sampul buku yang terbuka dan halaman undangan yang dapat dibalik.',
-			colors: WEDDING_THEME_COLORS.kinetika
+			description: 'Sampul buku yang terbuka dan halaman undangan yang dapat dibalik.'
 		},
 		{
 			key: 'anomali',
-			family: 'anomali',
 			name: 'Anomali',
-			description:
-				'Editorial ivory dan hijau dengan reveal sinematik serta animasi halus berlapis.',
-			colors: WEDDING_THEME_COLORS.anomali
+			description: 'Editorial ivory dan hijau dengan reveal sinematik serta animasi halus berlapis.'
 		},
 		{
 			key: 'selaras',
-			family: 'selaras',
 			name: 'Selaras',
 			description:
-				'Stacked cards pada cerita dan galeri horizontal dalam nuansa ivory dan burgundy.',
-			colors: WEDDING_THEME_COLORS.selaras
+				'Stacked cards pada cerita dan galeri horizontal dalam nuansa ivory dan burgundy.'
 		},
 		{
 			key: 'pramesti',
-			family: 'pramesti',
 			name: 'Pramesti',
-			description:
-				'Ivory dan emas dengan tipografi serif, galeri, dan timeline cerita yang elegan.',
-			colors: WEDDING_THEME_COLORS.pramesti
+			description: 'Ivory dan emas dengan tipografi serif, galeri, dan timeline cerita yang elegan.'
 		},
 		{
 			key: 'seruni',
-			family: 'seruni',
 			name: 'Seruni',
-			description:
-				'Foto layar penuh, kaligrafi, cerita polaroid, dan galeri oval bernuansa pastel.',
-			colors: WEDDING_THEME_COLORS.seruni
+			description: 'Foto layar penuh, kaligrafi, cerita polaroid, dan galeri oval bernuansa pastel.'
 		},
 		{
 			key: 'arsir',
-			family: 'arsir',
 			name: 'Arsir',
 			description:
-				'Gaya industrial hitam dan krem, aksen kuning, tipografi tegas, dan galeri monokrom.',
-			colors: WEDDING_THEME_COLORS.arsir
+				'Gaya industrial hitam dan krem, aksen kuning, tipografi tegas, dan galeri monokrom.'
 		},
 		{
 			key: 'kusuma',
-			family: 'kusuma',
 			name: 'Kusuma',
 			description:
-				'Sage dan pink pastel, panel transparan, foto bulat, dan kelopak yang bergerak lembut.',
-			colors: WEDDING_THEME_COLORS.kusuma
+				'Sage dan pink pastel, panel transparan, foto bulat, dan kelopak yang bergerak lembut.'
 		},
 		{
 			key: 'aurelia',
-			family: 'aurelia',
 			name: 'Aurelia',
-			description: 'Champagne dan emas, sampul oval, kartu organik, dan transisi yang lembut.',
-			colors: WEDDING_THEME_COLORS.aurelia
+			description: 'Champagne dan emas, sampul oval, kartu organik, dan transisi yang lembut.'
 		},
 		{
 			key: 'arunika',
-			family: 'arunika',
 			name: 'Arunika',
-			description: 'Beige lembut, foto lengkung, kaligrafi, dan cerita dalam kartu foto.',
-			colors: WEDDING_THEME_COLORS.arunika
+			description: 'Beige lembut, foto lengkung, kaligrafi, dan cerita dalam kartu foto.'
 		},
 		{
 			key: 'zamrud',
-			family: 'zamrud',
 			name: 'Zamrud',
-			description: 'Hijau zamrud gelap, bingkai emas, medali foto, dan cahaya yang lembut.',
-			colors: WEDDING_THEME_COLORS.zamrud
+			description: 'Hijau zamrud gelap, bingkai emas, medali foto, dan cahaya yang lembut.'
 		},
 		{
 			key: 'cendana',
-			family: 'cendana',
 			name: 'Cendana',
-			description: 'Krem dan terakota, sampul gerbang, kartu miring, dan timeline organik.',
-			colors: WEDDING_THEME_COLORS.cendana
+			description: 'Krem dan terakota, sampul gerbang, kartu miring, dan timeline organik.'
 		},
 		{
 			key: 'lentera',
-			family: 'lentera',
 			name: 'Lentera',
-			description: 'Lembaran perkamen, bingkai oval, hijau tua, dan kisah bergaya scrapbook.',
-			colors: WEDDING_THEME_COLORS.lentera
+			description: 'Lembaran perkamen, bingkai oval, hijau tua, dan kisah bergaya scrapbook.'
 		},
 		{
 			key: 'safira',
-			family: 'safira',
 			name: 'Safira',
-			description: 'Biru kabut dan navy, potret besar, kaligrafi, dan kartu tanggal editorial.',
-			colors: WEDDING_THEME_COLORS.safira
+			description: 'Biru kabut dan navy, potret besar, kaligrafi, dan kartu tanggal editorial.'
 		},
 		{
 			key: 'renjana',
-			family: 'renjana',
 			name: 'Renjana',
-			description: 'Layout ramping biru-abu, foto lengkung, dan transisi yang tenang.',
-			colors: WEDDING_THEME_COLORS.renjana
+			description: 'Layout ramping biru-abu, foto lengkung, dan transisi yang tenang.'
 		},
 		{
 			key: 'monokrom',
-			family: 'monokrom',
 			name: 'Monokrom',
-			description: 'Hitam dan putih, layout ramping, potret lengkung, dan detail minimal.',
-			colors: WEDDING_THEME_COLORS.monokrom
+			description: 'Hitam dan putih, layout ramping, potret lengkung, dan detail minimal.'
 		},
 		{
 			key: 'swarna',
-			family: 'swarna',
 			name: 'Swarna',
-			description: 'Hitam dan emas, potret lengkung, detail sudut, dan komposisi yang intim.',
-			colors: WEDDING_THEME_COLORS.swarna
+			description: 'Hitam dan emas, potret lengkung, detail sudut, dan komposisi yang intim.'
 		},
 		{
 			key: 'sonata',
-			family: 'sonata',
 			name: 'Sonata',
-			description: 'Album vinil, tipografi tegas, dan aksen jingga.',
-			colors: WEDDING_THEME_COLORS.sonata
+			description: 'Album vinil, tipografi tegas, dan aksen jingga.'
 		},
 		{
 			key: 'jelajah',
-			family: 'jelajah',
 			name: 'Jelajah',
-			description: 'Tiket perjalanan dengan biru navy dan detail airmail.',
-			colors: WEDDING_THEME_COLORS.jelajah
+			description: 'Tiket perjalanan dengan biru navy dan detail airmail.'
 		},
 		{
 			key: 'folio',
-			family: 'folio',
 			name: 'Folio',
-			description: 'Editorial hitam putih dengan tipografi kontras.',
-			colors: WEDDING_THEME_COLORS.folio
+			description: 'Editorial hitam putih dengan tipografi kontras.'
 		},
 		{
 			key: 'pusaka',
-			family: 'pusaka',
 			name: 'Pusaka',
-			description: 'Galeri klasik dengan bingkai antik dan kuningan.',
-			colors: WEDDING_THEME_COLORS.pusaka
+			description: 'Galeri klasik dengan bingkai antik dan kuningan.'
 		},
 		{
 			key: 'sinema',
-			family: 'sinema',
 			name: 'Sinema',
-			description: 'Nuansa sinematik dengan bingkai film dan aksen merah.',
-			colors: WEDDING_THEME_COLORS.sinema
+			description: 'Nuansa sinematik dengan bingkai film dan aksen merah.'
 		},
 		{
 			key: 'adikara',
-			family: 'adikara',
 			name: 'Adikara',
-			description: 'Undangan kerajaan burgundy dengan segel emas.',
-			colors: WEDDING_THEME_COLORS.adikara
+			description: 'Undangan kerajaan burgundy dengan segel emas.'
 		},
 		{
 			key: 'komika',
-			family: 'komika',
 			name: 'Komika',
-			description: 'Panel komik, halftone, dan warna pop yang ekspresif.',
-			colors: WEDDING_THEME_COLORS.komika
+			description: 'Panel komik, halftone, dan warna pop yang ekspresif.'
 		},
 		{
 			key: 'warta',
-			family: 'warta',
 			name: 'Warta',
-			description: 'Surat kabar klasik, tekstur perkamen, dan foto sepia.',
-			colors: WEDDING_THEME_COLORS.warta
+			description: 'Surat kabar klasik, tekstur perkamen, dan foto sepia.'
 		},
 		{
 			key: 'retro',
-			family: 'retro',
 			name: 'Retro',
-			description: 'Polaroid retro, merah diner, dan pola kotak klasik.',
-			colors: WEDDING_THEME_COLORS.retro
+			description: 'Polaroid retro, merah diner, dan pola kotak klasik.'
 		},
 		{
 			key: 'kristal',
-			family: 'kristal',
 			name: 'Kristal',
-			description: 'Bingkai kristal, lapisan kaca, dan kilau lembut.',
-			colors: WEDDING_THEME_COLORS.kristal
+			description: 'Bingkai kristal, lapisan kaca, dan kilau lembut.'
 		},
 		{
 			key: 'amerta',
-			family: 'amerta',
 			name: 'Amerta',
-			description: 'Potret sinematik hangat, detail tipis, dan cerita dalam album.',
-			colors: WEDDING_THEME_COLORS.amerta
+			description: 'Potret sinematik hangat, detail tipis, dan cerita dalam album.'
 		},
 		{
 			key: 'niskala',
-			family: 'niskala',
 			name: 'Niskala',
-			description: 'Editorial gelap dengan potret penuh dan tipografi romantis.',
-			colors: WEDDING_THEME_COLORS.niskala
+			description: 'Editorial gelap dengan potret penuh dan tipografi romantis.'
 		},
 		{
 			key: 'sakura',
-			family: 'sakura',
 			name: 'Sakura',
-			description: 'Lanskap cat air, bunga sakura, dan warna merah muda lembut.',
-			colors: WEDDING_THEME_COLORS.sakura
+			description: 'Lanskap cat air, bunga sakura, dan warna merah muda lembut.'
 		},
 		{
 			key: 'lazuardi',
-			family: 'lazuardi',
 			name: 'Lazuardi',
-			description: 'Ilustrasi taman biru, lampu hangat, dan bingkai lengkung.',
-			colors: WEDDING_THEME_COLORS.lazuardi
+			description: 'Ilustrasi taman biru, lampu hangat, dan bingkai lengkung.'
 		},
 		{
 			key: 'melati',
-			family: 'melati',
 			name: 'Floral Melati',
-			description: 'Bunga putih dan sage dengan bingkai lengkung yang hangat.',
-			colors: WEDDING_THEME_COLORS.melati
+			description: 'Bunga putih dan sage dengan bingkai lengkung yang hangat.'
 		},
 		{
 			key: 'eukaliptus',
-			family: 'eukaliptus',
 			name: 'Floral Eukaliptus',
-			description: 'Eukaliptus biru, bingkai heksagonal, dan aksen emas tipis.',
-			colors: WEDDING_THEME_COLORS.eukaliptus
+			description: 'Eukaliptus biru, bingkai heksagonal, dan aksen emas tipis.'
 		},
 		{
 			key: 'jingga',
-			family: 'jingga',
 			name: 'Floral Jingga',
-			description: 'Bunga peach, potret oval, dan lengkung aprikot yang lembut.',
-			colors: WEDDING_THEME_COLORS.jingga
+			description: 'Bunga peach, potret oval, dan lengkung aprikot yang lembut.'
 		},
 		{
 			key: 'peony',
-			family: 'peony',
 			name: 'Floral Peony',
-			description: 'Peony merah muda, nuansa mauve, dan bingkai berlekuk.',
-			colors: WEDDING_THEME_COLORS.peony
+			description: 'Peony merah muda, nuansa mauve, dan bingkai berlekuk.'
 		},
 		{
 			key: 'gardenia',
-			family: 'gardenia',
 			name: 'Floral Gardenia',
-			description: 'Mawar ivory, bingkai geometris berlapis, dan potret berselang.',
-			colors: WEDDING_THEME_COLORS.gardenia
+			description: 'Mawar ivory, bingkai geometris berlapis, dan potret berselang.'
 		},
 		{
 			key: 'aster',
-			family: 'aster',
 			name: 'Floral Aster',
-			description: 'Dedaunan rustic, bunga kapas, dan tekstur linen bernuansa hangat.',
-			colors: WEDDING_THEME_COLORS.aster
+			description: 'Dedaunan rustic, bunga kapas, dan tekstur linen bernuansa hangat.'
+		},
+		{
+			key: 'minimalist-1',
+			name: 'minimalist-1',
+			description: 'Foto bersudut potong, nuansa biru lembut, dan tipografi kaligrafi.'
+		},
+		{
+			key: 'minimalist-2',
+			name: 'minimalist-2',
+			description: 'Kertas ivory, dedaunan monstera, dan tipografi serif hijau sage.'
+		},
+		{
+			key: 'minimalist-3',
+			name: 'minimalist-3',
+			description: 'Komposisi editorial putih, huruf tegas, dan aksen aprikot.'
+		},
+		{
+			key: 'minimalist-4',
+			name: 'minimalist-4',
+			description: 'Bingkai lengkung asimetris, serif klasik, dan susunan tanggal vertikal.'
+		},
+		{
+			key: 'minimalist-5',
+			name: 'minimalist-5',
+			description: 'Fotografi monokrom gelap, tipografi ringan, dan garis minimal.'
+		},
+		{
+			key: 'minimalist-6',
+			name: 'minimalist-6',
+			description: 'Sampul foto hangat dengan potret besar yang disusun berselang.'
+		},
+		{
+			key: 'minimalist-7',
+			name: 'minimalist-7',
+			description: 'Judul vertikal, foto asimetris, dan bidang hitam putih.'
+		},
+		{
+			key: 'sumatera-utara',
+			name: 'Sumatera Utara',
+			description: 'Rumah Bolon, tenun ulos, dan nuansa merah marun dengan aksen emas.'
+		},
+		{
+			key: 'sulawesi-selatan',
+			name: 'Sulawesi Selatan',
+			description: 'Rumah panggung Bugis, bingkai oval, dan warna hijau zamrud.'
+		},
+		{
+			key: 'sumatera-barat',
+			name: 'Sumatera Barat',
+			description: 'Rumah Gadang dan bingkai lengkung dalam nuansa burgundy dan emas.'
+		},
+		{
+			key: 'jakarta',
+			name: 'Jakarta',
+			description: 'Monas, ukiran klasik, dan palet terakota yang hangat.'
+		},
+		{
+			key: 'jawa-barat',
+			name: 'Jawa Barat',
+			description: 'Rumah Julang Ngapak dan lanskap hijau dengan bingkai gading.'
+		},
+		{
+			key: 'jawa-tengah',
+			name: 'Jawa Tengah',
+			description: 'Gunungan wayang, lanskap sepia, dan bingkai emas klasik.'
+		},
+		{
+			key: 'jawa-timur',
+			name: 'Jawa Timur',
+			description: 'Foto penuh dengan gunungan di sisi dan nuansa merah marun.'
+		},
+		{
+			key: 'bali',
+			name: 'Bali',
+			description: 'Meru, penjor, dan bingkai emas dalam nuansa biru porselen.'
+		},
+		{
+			key: 'sunda',
+			name: 'Sunda',
+			description: 'Rumah Sunda, bingkai perak, dan gradasi biru dengan aksen merah muda.'
+		},
+		{
+			key: 'dayak',
+			name: 'Dayak',
+			description: 'Talawang berornamen, potret oval, dan merah anggur dengan emas.'
+		},
+		{
+			key: 'banjar',
+			name: 'Banjar',
+			description: 'Rumah Bubungan Tinggi, tekstur hangat, dan warna emas kecokelatan.'
 		}
 	] as const;
 
@@ -528,7 +445,6 @@
 
 	function normalizeTheme(value: string): ThemeKey {
 		const legacyThemes: Record<string, ThemeKey> = {
-			minimalist: 'minimalist-1',
 			brutalism: 'neubrutalism-1',
 			playful: 'playful-1'
 		};
@@ -536,7 +452,7 @@
 
 		return themes.some((theme) => theme.key === normalizedValue)
 			? (normalizedValue as ThemeKey)
-			: 'minimalist-1';
+			: 'nocturne';
 	}
 
 	type SectionName = (typeof sections)[number]['title'];

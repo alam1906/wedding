@@ -15,6 +15,10 @@
 	import FloralFrame from '../floral/FloralFrame.svelte';
 	import FloralOrnaments from '../floral/FloralOrnaments.svelte';
 	import FloralPortrait from '../floral/FloralPortrait.svelte';
+	import MinimalistCover from '../minimalist/MinimalistCover.svelte';
+	import AdatCover from '../adat/AdatCover.svelte';
+	import AdatPortrait from '../adat/AdatPortrait.svelte';
+	import AdatOrnament from '../adat/AdatOrnament.svelte';
 	import { mountEditionAnimations, type EditionMotion } from './edition-animations.js';
 	import './edition.css';
 
@@ -245,6 +249,8 @@
 	class:edition-narrow={profile.narrow}
 	class:edition-concept={profile.concept}
 	class:edition-floral={!!profile.floral}
+	class:edition-minimalist={!!profile.minimalist}
+	class:edition-adat={!!profile.adat}
 	bind:this={root}
 >
 	<div class="edition-backdrop" aria-hidden="true">
@@ -266,76 +272,102 @@
 	{/if}
 	{#if coverVisible}
 		<section class="edition-cover" aria-label="Sampul undangan">
-			{#if profile.decoration === 'lights'}
-				<div class="edition-string-lights" aria-hidden="true">
-					{#each [0, 1, 2, 3, 4, 5, 6, 7, 8] as index (index)}<span style:--index={index}
-						></span>{/each}
-				</div>
-			{/if}
-			{#if profile.cover === 'cinematic' || profile.cover === 'photo'}
-				<div class="edition-cover-backdrop" aria-hidden="true">
-					{#if cover}<img src={cover} alt="" fetchpriority="high" decoding="async" />{/if}
-				</div>
-			{/if}
-			{#if profile.cover === 'gate'}<div class="edition-gates" aria-hidden="true">
-					<span></span><span></span>
-				</div>{/if}
-			{#if profile.floral && profile.floral.frame !== 'hexagon'}
-				<FloralOrnaments
-					src={profile.floral.ornament}
-					placement={['arch', 'rustic', 'garland'].includes(profile.floral.frame)
-						? 'bottom'
-						: 'corners'}
-					eager
+			{#if profile.minimalist}
+				<MinimalistCover
+					variant={profile.minimalist}
+					{cover}
+					{couple}
+					{names}
+					date={eventDate.date}
+					dateValue={wedding.reception || wedding.akad}
+					{recipient}
+					{opening}
+					onopen={openInvitation}
 				/>
-			{/if}
-			<div class="edition-cover-card">
-				{#if profile.floral?.frame === 'facets'}<FloralFrame facets />{/if}
-				{#if profile.coverIllustration}<div class="edition-cover-illustration" aria-hidden="true">
-						<img
-							src={profile.coverIllustration}
-							alt=""
-							width="1280"
-							height="1280"
-							fetchpriority="high"
-							decoding="async"
-						/>
-					</div>{/if}
-				{#if cover && (profile.cover === 'arch' || profile.cover === 'cinematic' || profile.cover === 'album' || profile.cover === 'polaroid')}
-					<div class="edition-cover-photo">
-						<img
-							src={cover}
-							alt={couple}
-							width="360"
-							height="480"
-							fetchpriority="high"
-							decoding="async"
-						/>
+			{:else if profile.adat}
+				<AdatCover
+					{theme}
+					motif={profile.adat.motif}
+					{cover}
+					{couple}
+					{names}
+					date={eventDate.date}
+					{recipient}
+					{opening}
+					onopen={openInvitation}
+				/>
+			{:else}
+				{#if profile.decoration === 'lights'}
+					<div class="edition-string-lights" aria-hidden="true">
+						{#each [0, 1, 2, 3, 4, 5, 6, 7, 8] as index (index)}<span style:--index={index}
+							></span>{/each}
 					</div>
 				{/if}
-				<div class="edition-cover-heading">
-					{#if profile.floral?.frame === 'hexagon'}
-						<FloralFrame />
-						<FloralOrnaments src={profile.floral.ornament} placement="sides" eager />
+				{#if profile.cover === 'cinematic' || profile.cover === 'photo'}
+					<div class="edition-cover-backdrop" aria-hidden="true">
+						{#if cover}<img src={cover} alt="" fetchpriority="high" decoding="async" />{/if}
+					</div>
+				{/if}
+				{#if profile.cover === 'gate'}<div class="edition-gates" aria-hidden="true">
+						<span></span><span></span>
+					</div>{/if}
+				{#if profile.floral && profile.floral.frame !== 'hexagon'}
+					<FloralOrnaments
+						src={profile.floral.ornament}
+						placement={['arch', 'rustic', 'garland'].includes(profile.floral.frame)
+							? 'bottom'
+							: 'corners'}
+						eager
+					/>
+				{/if}
+				<div class="edition-cover-card">
+					{#if profile.floral?.frame === 'facets'}<FloralFrame facets />{/if}
+					{#if profile.coverIllustration}<div class="edition-cover-illustration" aria-hidden="true">
+							<img
+								src={profile.coverIllustration}
+								alt=""
+								width="1280"
+								height="1280"
+								fetchpriority="high"
+								decoding="async"
+							/>
+						</div>{/if}
+					{#if cover && (profile.cover === 'arch' || profile.cover === 'cinematic' || profile.cover === 'album' || profile.cover === 'polaroid')}
+						<div class="edition-cover-photo">
+							<img
+								src={cover}
+								alt={couple}
+								width="360"
+								height="480"
+								fetchpriority="high"
+								decoding="async"
+							/>
+						</div>
 					{/if}
-					<h1 class="edition-cover-names" aria-label={couple}>{@render names()}</h1>
+					<div class="edition-cover-heading">
+						{#if profile.floral?.frame === 'hexagon'}
+							<FloralFrame />
+							<FloralOrnaments src={profile.floral.ornament} placement="sides" eager />
+						{/if}
+						<h1 class="edition-cover-names" aria-label={couple}>{@render names()}</h1>
+					</div>
+					<p class="edition-cover-date">{eventDate.date}</p>
+					<div class="edition-recipient">
+						<p>Kepada Bapak/Ibu/Saudara/i,</p>
+						{#if recipient}<p class="edition-recipient-name">{recipient}</p>{/if}
+					</div>
+					{#if targetDate && !profile.narrow && !profile.floral?.countdownAtEvents}{@render timer()}{/if}
+					<button
+						type="button"
+						class="edition-outline edition-open-button"
+						onclick={openInvitation}
+						disabled={opening}
+						>{#if profile.cover === 'seal'}<span class="edition-seal" aria-hidden="true"
+								>{groom.charAt(0)}&amp;{bride.charAt(0)}</span
+							>{/if}<span>Buka Undangan</span></button
+					>
 				</div>
-				<p class="edition-cover-date">{eventDate.date}</p>
-				<div class="edition-recipient">
-					<p>Kepada Bapak/Ibu/Saudara/i,</p>
-					{#if recipient}<p class="edition-recipient-name">{recipient}</p>{/if}
-				</div>
-				{#if targetDate && !profile.narrow && !profile.floral?.countdownAtEvents}{@render timer()}{/if}
-				<button
-					type="button"
-					class="edition-outline edition-open-button"
-					onclick={openInvitation}
-					disabled={opening}
-					>{#if profile.cover === 'seal'}<span class="edition-seal" aria-hidden="true"
-							>{groom.charAt(0)}&amp;{bride.charAt(0)}</span
-						>{/if}<span>Buka Undangan</span></button
-				>
-			</div>
+			{/if}
 		</section>
 	{/if}
 
@@ -344,12 +376,18 @@
 			<div class="edition-content" data-theme-scroll-content inert={coverVisible} tabindex="-1">
 				{#if profile.hero !== 'none'}
 					<section class={'edition-hero edition-hero-' + profile.hero} aria-label={couple}>
-						{#if cover}<div class="edition-hero-media">
+						{#if profile.adat && profile.adat.portrait !== 'plain'}
+							<div class="edition-hero-media" data-edition-reveal>
+								<AdatPortrait photo={cover} name={couple} frame={profile.adat.portrait} eager />
+							</div>
+						{:else if cover}<div class="edition-hero-media">
 								<img src={cover} alt={couple} decoding="async" width="1200" height="900" />
 							</div>{/if}
 						<div class="edition-hero-copy">
 							<p class="edition-hero-names" aria-label={couple}>{@render names()}</p>
-							{#if profile.narrow || profile.floral}<p class="edition-hero-date">
+							{#if profile.narrow || profile.floral || profile.minimalist || profile.adat}<p
+									class="edition-hero-date"
+								>
 									{eventDate.date}
 								</p>{/if}
 						</div>
@@ -383,6 +421,15 @@
 					class="edition-section edition-couple-section"
 					aria-labelledby="edition-couple-title"
 				>
+					{#if profile.minimalist === 2}<img
+							class="minimal-botanical-leaf minimal-section-leaf"
+							src="/images/themes/minimalist/monstera.webp"
+							alt=""
+							aria-hidden="true"
+							loading="lazy"
+							width="800"
+							height="800"
+						/>{/if}
 					{#if profile.floral}<FloralOrnaments
 							src={profile.floral.ornament}
 							placement="sides"
@@ -402,6 +449,12 @@
 											photo={person.photo}
 											name={person.name}
 											ornament={profile.floral.ornament}
+										/>
+									{:else if profile.adat && profile.adat.portrait !== 'plain'}
+										<AdatPortrait
+											photo={person.photo}
+											name={person.name}
+											frame={profile.adat.portrait}
 										/>
 									{:else}
 										<div class="edition-portrait">
@@ -437,6 +490,7 @@
 					class="edition-section edition-events-section"
 					aria-labelledby="edition-events-title"
 				>
+					{#if profile.adat}<AdatOrnament motif={profile.adat.motif} />{/if}
 					{#if profile.floral}<FloralOrnaments
 							src={profile.floral.ornament}
 							placement="corners"
@@ -445,7 +499,7 @@
 						<header class="edition-heading" data-edition-reveal>
 							<h2 id="edition-events-title">Waktu &amp; Tempat</h2>
 						</header>
-						{#if profile.floral?.countdownAtEvents && targetDate}{@render timer()}{/if}
+						{#if (profile.floral?.countdownAtEvents || profile.minimalist || profile.adat) && targetDate}{@render timer()}{/if}
 						<div class="edition-events">
 							{#each events as event (event.label)}
 								<article class="edition-event edition-panel" data-edition-reveal>
@@ -470,7 +524,7 @@
 						</div>
 					</div>
 				</section>
-				{#if profile.narrow && theme !== 'swarna'}{@render countdownSection()}{/if}
+				{#if profile.narrow && theme !== 'swarna' && !profile.adat}{@render countdownSection()}{/if}
 				{#if wedding.stories.length}
 					<section
 						class="edition-section edition-stories-section"
@@ -596,6 +650,7 @@
 				{/if}
 
 				<footer class="edition-footer">
+					{#if profile.adat}<AdatOrnament motif={profile.adat.motif} />{/if}
 					<div class="edition-footer-card" data-edition-reveal>
 						<p class="edition-footer-names">{couple}</p>
 						<p class="edition-footer-date">{eventDate.date}</p>

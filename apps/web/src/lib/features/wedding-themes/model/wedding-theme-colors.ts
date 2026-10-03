@@ -9,26 +9,131 @@ export type WeddingThemeColors = {
 };
 
 export const WEDDING_THEME_COLORS = {
+	'sumatera-utara': {
+		background: '#F2E4D0',
+		surface: '#FBF2E5',
+		text: '#541D20',
+		primary: '#763039',
+		accent: '#D2AE72'
+	},
+	'sulawesi-selatan': {
+		background: '#EBF0E5',
+		surface: '#F7F7EE',
+		text: '#173F36',
+		primary: '#245549',
+		accent: '#A7AC62'
+	},
+	'sumatera-barat': {
+		background: '#F6EDE7',
+		surface: '#FFF8F0',
+		text: '#511F32',
+		primary: '#793348',
+		accent: '#C09A51'
+	},
+	jakarta: {
+		background: '#F5E8DA',
+		surface: '#FFF6E9',
+		text: '#5C2A20',
+		primary: '#963E2F',
+		accent: '#D0A578'
+	},
+	'jawa-barat': {
+		background: '#EEF0E5',
+		surface: '#FBF9EF',
+		text: '#324433',
+		primary: '#52634A',
+		accent: '#A49467'
+	},
+	'jawa-tengah': {
+		background: '#EFE5D6',
+		surface: '#FAF2E4',
+		text: '#503322',
+		primary: '#765039',
+		accent: '#B89B62'
+	},
+	'jawa-timur': {
+		background: '#F9F4EF',
+		surface: '#FFFCF7',
+		text: '#490E1C',
+		primary: '#791E35',
+		accent: '#CBA274'
+	},
+	bali: {
+		background: '#E4EFF5',
+		surface: '#FDFAF2',
+		text: '#27354C',
+		primary: '#8A692F',
+		accent: '#C49B54'
+	},
+	sunda: {
+		background: '#E1EDF2',
+		surface: '#F7F9F8',
+		text: '#285873',
+		primary: '#477F9B',
+		accent: '#D45E82'
+	},
+	dayak: {
+		background: '#3F0D14',
+		surface: '#541720',
+		text: '#F9E7C4',
+		primary: '#E1BD78',
+		accent: '#BA8583'
+	},
+	banjar: {
+		background: '#EEE5D4',
+		surface: '#FCF5E7',
+		text: '#443322',
+		primary: '#80683D',
+		accent: '#BEA66D'
+	},
 	'minimalist-1': {
-		background: '#FAF7F2',
+		background: '#FFFFFF',
 		surface: '#FFFFFF',
-		text: '#332D2A',
-		primary: '#B77878',
-		accent: '#D8B4A0'
+		text: '#272927',
+		primary: '#5B7783',
+		accent: '#CCD9DE'
 	},
 	'minimalist-2': {
-		background: '#F4F1EA',
-		surface: '#FFFFFF',
-		text: '#252722',
-		primary: '#66705A',
-		accent: '#B49A68'
+		background: '#F8F8F1',
+		surface: '#FDFDF8',
+		text: '#3C4E3C',
+		primary: '#52654A',
+		accent: '#CBD2C1'
 	},
 	'minimalist-3': {
-		background: '#F3F8F7',
+		background: '#FFFFFF',
 		surface: '#FFFFFF',
-		text: '#263332',
-		primary: '#4F7C78',
-		accent: '#A8C9C5'
+		text: '#222323',
+		primary: '#AA5029',
+		accent: '#FA9156'
+	},
+	'minimalist-4': {
+		background: '#FFFFFF',
+		surface: '#FFFFFF',
+		text: '#252623',
+		primary: '#5D625D',
+		accent: '#DDD9CF'
+	},
+	'minimalist-5': {
+		background: '#121313',
+		surface: '#1D1E1E',
+		text: '#F5F4EE',
+		primary: '#E5C7A0',
+		accent: '#BCBEB8'
+	},
+	'minimalist-6': {
+		background: '#F0F0ED',
+		surface: '#FFFFFF',
+		text: '#242625',
+		primary: '#4D514A',
+		accent: '#CCCEC5'
+	},
+	'minimalist-7': {
+		background: '#F5F6F5',
+		surface: '#FFFFFF',
+		text: '#161817',
+		primary: '#363C37',
+		accent: '#C6CDC6'
 	},
 	'neubrutalism-1': {
 		background: '#FFF1E6',
@@ -99,62 +204,6 @@ export const WEDDING_THEME_COLORS = {
 		text: '#F7F0E1',
 		primary: '#D9B77B',
 		accent: '#8EADAA'
-	},
-	'puspa-parahyangan': {
-		background: '#F5F0E3',
-		surface: '#FFFCF4',
-		text: '#183C34',
-		primary: '#B78A43',
-		accent: '#8BA795'
-	},
-	'pinto-aceh': {
-		background: '#F5EBDC',
-		surface: '#FFF8EA',
-		text: '#421E24',
-		primary: '#A56A36',
-		accent: '#B83C43'
-	},
-	'kawung-jawa': {
-		background: '#F0E5D1',
-		surface: '#FFF9EB',
-		text: '#463126',
-		primary: '#986543',
-		accent: '#BCA27B'
-	},
-	'gorga-batak': {
-		background: '#F1EDE4',
-		surface: '#FFFCF4',
-		text: '#201D1B',
-		primary: '#A82424',
-		accent: '#CEAD84'
-	},
-	'lipa-sabbe-bugis': {
-		background: '#E8F1EA',
-		surface: '#FCF9E9',
-		text: '#143C36',
-		primary: '#B58A42',
-		accent: '#5B9384'
-	},
-	'gigi-balang-betawi': {
-		background: '#F7F2DF',
-		surface: '#FFFBEF',
-		text: '#17483F',
-		primary: '#C35A38',
-		accent: '#81A863'
-	},
-	'gonjong-minang': {
-		background: '#F6EFE4',
-		surface: '#FFFAF0',
-		text: '#4B1F2C',
-		primary: '#B38838',
-		accent: '#9E3441'
-	},
-	'tongkonan-toraja': {
-		background: '#F1E8DB',
-		surface: '#FFF9EB',
-		text: '#382522',
-		primary: '#B85F3B',
-		accent: '#8B7956'
 	},
 	kinetika: {
 		background: '#EEE6D8',

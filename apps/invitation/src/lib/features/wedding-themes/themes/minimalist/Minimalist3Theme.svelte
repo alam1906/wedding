@@ -1,7 +1,8 @@
 <script lang="ts">
 	import type { WeddingThemeProps } from '../../model/wedding-theme.js';
-	import WeddingThemeCanvas from '../shared/WeddingThemeCanvas.svelte';
+	import EditionTheme from '../editions/EditionTheme.svelte';
+	import './minimalist.css';
 	let { wedding }: WeddingThemeProps = $props();
 </script>
 
-<WeddingThemeCanvas theme="minimalist-3" {wedding} />
+<EditionTheme {wedding} theme="minimalist-3" />
