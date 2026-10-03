@@ -1,6 +1,8 @@
 // Numeric references: https://pixelmemori.id/preview.php?template=template{reference}
 // Other providers use an explicit URL so their template numbers are not conflated.
 // Shared data behavior, distinct compositions and styles in each theme directory.
+import type { OccasionVariant } from '../occasions/occasion-types.js';
+
 export type EditionProfile = {
 	reference: number | string;
 	cover: 'arch' | 'gate' | 'cinematic' | 'photo' | 'album' | 'seal' | 'polaroid' | 'illustration';
@@ -30,6 +32,8 @@ export type EditionProfile = {
 	coverIllustration?: string;
 	decoration?: 'petals' | 'lights';
 	minimalist?: 1 | 2 | 3 | 4 | 5 | 6 | 7;
+	overlayShadow?: 1 | 2 | 3;
+	occasion?: OccasionVariant;
 	adat?: { motif: string; portrait: 'arch' | 'oval' | 'plain' };
 	floral?: {
 		frame: 'arch' | 'hexagon' | 'corners' | 'garland' | 'facets' | 'rustic';
@@ -38,6 +42,90 @@ export type EditionProfile = {
 	};
 };
 export const EDITION_PROFILES = {
+	'post-wedding-1': {
+		reference: 'https://demo.invee.net/?template=post-wedding-1&ui=true&cover=image',
+		cover: 'photo',
+		hero: 'editorial',
+		story: 'scrapbook',
+		occasion: 'post-wedding-1'
+	},
+	'wedding-anniversary-1': {
+		reference: 'https://demo.invee.net/?template=wedding-anniversary-1&ui=true&cover=image',
+		cover: 'photo',
+		hero: 'editorial',
+		story: 'cards',
+		occasion: 'wedding-anniversary-1'
+	},
+	'islamic-1': {
+		reference: 'https://demo.invee.net/?template=islamic-1&ui=true&cover=image',
+		cover: 'photo',
+		hero: 'editorial',
+		story: 'cards',
+		occasion: 'islamic-1'
+	},
+	'islamic-2': {
+		reference: 'https://demo.invee.net/?template=islamic-2&ui=true&cover=image',
+		cover: 'photo',
+		hero: 'editorial',
+		story: 'cards',
+		occasion: 'islamic-2'
+	},
+	'luxury-2': {
+		reference: 'https://demo.invee.net/?template=luxury-2',
+		cover: 'photo',
+		hero: 'editorial',
+		story: 'scrapbook',
+		occasion: 'luxury-2'
+	},
+	'luxury-1': {
+		reference: 'https://demo.invee.net/?template=luxury-1',
+		cover: 'photo',
+		hero: 'editorial',
+		story: 'scrapbook',
+		occasion: 'luxury-1'
+	},
+	'wedding-shower-1': {
+		reference: 'https://demo.invee.net/?template=wedding-shower-1',
+		cover: 'photo',
+		hero: 'editorial',
+		story: 'cards',
+		occasion: 'wedding-shower-1'
+	},
+	'bachelorette-1': {
+		reference: 'https://demo.invee.net/?template=bachelorette-1',
+		cover: 'photo',
+		hero: 'editorial',
+		story: 'cards',
+		occasion: 'bachelorette-1'
+	},
+	'rehearsal-dinner-1': {
+		reference: 'https://demo.invee.net/?template=rehearsal-dinner-1',
+		cover: 'photo',
+		hero: 'editorial',
+		story: 'scrapbook',
+		occasion: 'rehearsal-dinner-1'
+	},
+	'overlay-shadow-1': {
+		reference: 'https://demo.invee.net/?template=overlay-shadow-1',
+		cover: 'photo',
+		hero: 'editorial',
+		story: 'cards',
+		overlayShadow: 1
+	},
+	'overlay-shadow-2': {
+		reference: 'https://demo.invee.net/?template=overlay-shadow-2',
+		cover: 'polaroid',
+		hero: 'editorial',
+		story: 'scrapbook',
+		overlayShadow: 2
+	},
+	'overlay-shadow-3': {
+		reference: 'https://demo.invee.net/?template=overlay-shadow-3',
+		cover: 'illustration',
+		hero: 'editorial',
+		story: 'cards',
+		overlayShadow: 3
+	},
 	'sumatera-utara': {
 		reference: 'https://demo.invee.net/?template=sumatera-utara',
 		cover: 'illustration',

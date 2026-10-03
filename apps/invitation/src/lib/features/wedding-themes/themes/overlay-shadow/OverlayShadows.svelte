@@ -1,0 +1,22 @@
+<div class="overlay-shadows" aria-hidden="true">
+	<span
+		><img
+			class="overlay-shadow-leaf"
+			src="/images/themes/overlay-shadow/palm-shadow.svg"
+			alt=""
+			width="800"
+			height="800"
+			decoding="async"
+		/></span
+	>
+	<span
+		><img
+			class="overlay-shadow-leaf"
+			src="/images/themes/overlay-shadow/palm-shadow.svg"
+			alt=""
+			width="800"
+			height="800"
+			decoding="async"
+		/></span
+	>
+</div>

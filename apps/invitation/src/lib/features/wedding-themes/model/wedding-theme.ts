@@ -66,7 +66,19 @@ export const WEDDING_THEME_KEYS = [
 	'bali',
 	'sunda',
 	'dayak',
-	'banjar'
+	'banjar',
+	'overlay-shadow-1',
+	'overlay-shadow-2',
+	'overlay-shadow-3',
+	'post-wedding-1',
+	'wedding-anniversary-1',
+	'islamic-1',
+	'islamic-2',
+	'luxury-2',
+	'luxury-1',
+	'wedding-shower-1',
+	'bachelorette-1',
+	'rehearsal-dinner-1'
 ] as const;
 
 export type WeddingThemeKey = (typeof WEDDING_THEME_KEYS)[number];

@@ -9,6 +9,90 @@ export type WeddingThemeColors = {
 };
 
 export const WEDDING_THEME_COLORS = {
+	'post-wedding-1': {
+		background: '#FFFFFF',
+		surface: '#F8F4EF',
+		text: '#574433',
+		primary: '#8C6C4A',
+		accent: '#B29674'
+	},
+	'wedding-anniversary-1': {
+		background: '#FFFFFF',
+		surface: '#F3F3F2',
+		text: '#424649',
+		primary: '#7B868B',
+		accent: '#C47770'
+	},
+	'islamic-1': {
+		background: '#FFFFFF',
+		surface: '#FFF9EB',
+		text: '#574322',
+		primary: '#AA741B',
+		accent: '#CD9127'
+	},
+	'islamic-2': {
+		background: '#FFFFFF',
+		surface: '#F5F9F6',
+		text: '#244C39',
+		primary: '#2D7751',
+		accent: '#B99143'
+	},
+	'luxury-2': {
+		background: '#F2EDDA',
+		surface: '#F8F3E5',
+		text: '#59402E',
+		primary: '#A7522E',
+		accent: '#38685C'
+	},
+	'luxury-1': {
+		background: '#FFFFFF',
+		surface: '#F8F4EE',
+		text: '#282F3D',
+		primary: '#926728',
+		accent: '#C7A467'
+	},
+	'wedding-shower-1': {
+		background: '#FFFFFF',
+		surface: '#F4F0ED',
+		text: '#5C514C',
+		primary: '#A56548',
+		accent: '#CE8461'
+	},
+	'bachelorette-1': {
+		background: '#FFFFFF',
+		surface: '#FFF9F5',
+		text: '#253D2D',
+		primary: '#CE3931',
+		accent: '#6F722F'
+	},
+	'rehearsal-dinner-1': {
+		background: '#FFFFFF',
+		surface: '#FAF6F2',
+		text: '#263B2C',
+		primary: '#626954',
+		accent: '#929A84'
+	},
+	'overlay-shadow-1': {
+		background: '#E7D7B7',
+		surface: '#F6EEDC',
+		text: '#424530',
+		primary: '#51573B',
+		accent: '#826343'
+	},
+	'overlay-shadow-2': {
+		background: '#E9DAB7',
+		surface: '#FFFDF7',
+		text: '#29241B',
+		primary: '#6E4933',
+		accent: '#E4C379'
+	},
+	'overlay-shadow-3': {
+		background: '#DEDCD7',
+		surface: '#FAF9F5',
+		text: '#4E3027',
+		primary: '#794E39',
+		accent: '#9E664B'
+	},
 	'sumatera-utara': {
 		background: '#F2E4D0',
 		surface: '#FBF2E5',

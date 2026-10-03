@@ -4,6 +4,78 @@ export const DEFAULT_WEDDING_THEME: WeddingThemeKey = 'nocturne';
 
 export const weddingThemes = [
 	{
+		key: 'post-wedding-1',
+		name: 'Post Wedding 1',
+		description: 'Foto panorama, tipografi serif berjarak, dan bunga kering bernuansa hangat.',
+		load: () => import('../themes/occasions/PostWedding1Theme.svelte')
+	},
+	{
+		key: 'wedding-anniversary-1',
+		name: 'Wedding Anniversary 1',
+		description: 'Foto abu-abu lembut, potret melingkar, dan aksen bunga peach.',
+		load: () => import('../themes/occasions/WeddingAnniversary1Theme.svelte')
+	},
+	{
+		key: 'islamic-1',
+		name: 'Islamic 1',
+		description: 'Lentera emas, siluet kubah, dan bidang putih yang lapang.',
+		load: () => import('../themes/occasions/Islamic1Theme.svelte')
+	},
+	{
+		key: 'islamic-2',
+		name: 'Islamic 2',
+		description: 'Geometri Islami, lengkung mihrab, dan warna hijau zamrud.',
+		load: () => import('../themes/occasions/Islamic2Theme.svelte')
+	},
+	{
+		key: 'luxury-2',
+		name: 'Luxury 2',
+		description: 'Komposisi editorial krem, potret oval, dan aksen terakota.',
+		load: () => import('../themes/occasions/Luxury2Theme.svelte')
+	},
+	{
+		key: 'luxury-1',
+		name: 'Luxury 1',
+		description: 'Garis emas mengalir, foto biru malam, dan potret lengkung klasik.',
+		load: () => import('../themes/occasions/Luxury1Theme.svelte')
+	},
+	{
+		key: 'wedding-shower-1',
+		name: 'Wedding Shower 1',
+		description: 'Foto penuh, serif elegan, dan nuansa rose-beige yang lembut.',
+		load: () => import('../themes/occasions/WeddingShower1Theme.svelte')
+	},
+	{
+		key: 'bachelorette-1',
+		name: 'Bachelorette 1',
+		description: 'Foto editorial, serif italic, dan perpaduan koral dengan hijau zaitun.',
+		load: () => import('../themes/occasions/Bachelorette1Theme.svelte')
+	},
+	{
+		key: 'rehearsal-dinner-1',
+		name: 'Rehearsal Dinner 1',
+		description: 'Foto besar, tipografi serif italic, dan nuansa sage yang tenang.',
+		load: () => import('../themes/occasions/RehearsalDinner1Theme.svelte')
+	},
+	{
+		key: 'overlay-shadow-1',
+		name: 'Overlay Shadow 1',
+		description: 'Foto tetap, panel kertas berbayang, dan warna zaitun yang hangat.',
+		load: () => import('../themes/overlay-shadow/OverlayShadow1Theme.svelte')
+	},
+	{
+		key: 'overlay-shadow-2',
+		name: 'Overlay Shadow 2',
+		description: 'Album foto dengan bingkai kertas, jepitan, dan bidang warna oker.',
+		load: () => import('../themes/overlay-shadow/OverlayShadow2Theme.svelte')
+	},
+	{
+		key: 'overlay-shadow-3',
+		name: 'Overlay Shadow 3',
+		description: 'Bayangan daun palem, tepi kertas, dan warna terakota.',
+		load: () => import('../themes/overlay-shadow/OverlayShadow3Theme.svelte')
+	},
+	{
 		key: 'sumatera-utara',
 		name: 'Sumatera Utara',
 		description: 'Rumah Bolon, tenun ulos, dan nuansa merah marun dengan aksen emas.',

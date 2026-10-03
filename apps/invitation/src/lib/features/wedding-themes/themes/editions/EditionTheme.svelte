@@ -19,6 +19,10 @@
 	import AdatCover from '../adat/AdatCover.svelte';
 	import AdatPortrait from '../adat/AdatPortrait.svelte';
 	import AdatOrnament from '../adat/AdatOrnament.svelte';
+	import OverlayScene from '../overlay-shadow/OverlayScene.svelte';
+	import OverlayShadows from '../overlay-shadow/OverlayShadows.svelte';
+	import OccasionScene from '../occasions/OccasionScene.svelte';
+	import OccasionOrnaments from '../occasions/OccasionOrnaments.svelte';
 	import { mountEditionAnimations, type EditionMotion } from './edition-animations.js';
 	import './edition.css';
 
@@ -251,8 +255,26 @@
 	class:edition-floral={!!profile.floral}
 	class:edition-minimalist={!!profile.minimalist}
 	class:edition-adat={!!profile.adat}
+	class:edition-overlay-shadow={!!profile.overlayShadow}
+	class:edition-occasion={!!profile.occasion}
 	bind:this={root}
 >
+	{#if profile.overlayShadow === 1}
+		<div class="overlay-fixed-photo" aria-hidden="true">
+			{#if cover}<img
+					src={cover}
+					alt=""
+					width="1200"
+					height="1200"
+					fetchpriority="high"
+					decoding="async"
+				/>{/if}
+			<div class="overlay-photo-caption">
+				<p>{couple}</p>
+				<span>{eventDate.date}</span>
+			</div>
+		</div>
+	{/if}
 	<div class="edition-backdrop" aria-hidden="true">
 		{#if profile.backdropPhoto && cover}<img src={cover} alt="" decoding="async" />{/if}
 	</div>
@@ -272,7 +294,30 @@
 	{/if}
 	{#if coverVisible}
 		<section class="edition-cover" aria-label="Sampul undangan">
-			{#if profile.minimalist}
+			{#if profile.occasion}
+				<OccasionScene
+					variant={profile.occasion}
+					{cover}
+					{couple}
+					{names}
+					date={eventDate.date}
+					{recipient}
+					{opening}
+					onopen={openInvitation}
+				/>
+			{:else if profile.overlayShadow}
+				<OverlayScene
+					variant={profile.overlayShadow}
+					{cover}
+					{couple}
+					{names}
+					date={eventDate.date}
+					{recipient}
+					timer={targetDate ? timer : undefined}
+					{opening}
+					onopen={openInvitation}
+				/>
+			{:else if profile.minimalist}
 				<MinimalistCover
 					variant={profile.minimalist}
 					{cover}
@@ -374,7 +419,28 @@
 	{#if opened}
 		<div class="edition-scroll-wrapper">
 			<div class="edition-content" data-theme-scroll-content inert={coverVisible} tabindex="-1">
-				{#if profile.hero !== 'none'}
+				{#if profile.occasion}
+					<section class="edition-hero occasion-hero" aria-label={couple}>
+						<OccasionScene
+							variant={profile.occasion}
+							{cover}
+							{couple}
+							{names}
+							date={eventDate.date}
+						/>
+					</section>
+				{:else if profile.overlayShadow}
+					<section class="edition-hero overlay-hero" aria-label={couple}>
+						<OverlayScene
+							variant={profile.overlayShadow}
+							{cover}
+							{couple}
+							{names}
+							date={eventDate.date}
+							timer={targetDate ? timer : undefined}
+						/>
+					</section>
+				{:else if profile.hero !== 'none'}
 					<section class={'edition-hero edition-hero-' + profile.hero} aria-label={couple}>
 						{#if profile.adat && profile.adat.portrait !== 'plain'}
 							<div class="edition-hero-media" data-edition-reveal>
@@ -421,6 +487,8 @@
 					class="edition-section edition-couple-section"
 					aria-labelledby="edition-couple-title"
 				>
+					{#if profile.overlayShadow === 3}<OverlayShadows />{/if}
+					{#if profile.occasion}<OccasionOrnaments variant={profile.occasion} />{/if}
 					{#if profile.minimalist === 2}<img
 							class="minimal-botanical-leaf minimal-section-leaf"
 							src="/images/themes/minimalist/monstera.webp"
@@ -490,6 +558,8 @@
 					class="edition-section edition-events-section"
 					aria-labelledby="edition-events-title"
 				>
+					{#if profile.overlayShadow === 3}<OverlayShadows />{/if}
+					{#if profile.occasion}<OccasionOrnaments variant={profile.occasion} />{/if}
 					{#if profile.adat}<AdatOrnament motif={profile.adat.motif} />{/if}
 					{#if profile.floral}<FloralOrnaments
 							src={profile.floral.ornament}
@@ -499,7 +569,7 @@
 						<header class="edition-heading" data-edition-reveal>
 							<h2 id="edition-events-title">Waktu &amp; Tempat</h2>
 						</header>
-						{#if (profile.floral?.countdownAtEvents || profile.minimalist || profile.adat) && targetDate}{@render timer()}{/if}
+						{#if (profile.floral?.countdownAtEvents || profile.minimalist || profile.adat || profile.overlayShadow || profile.occasion) && targetDate}{@render timer()}{/if}
 						<div class="edition-events">
 							{#each events as event (event.label)}
 								<article class="edition-event edition-panel" data-edition-reveal>

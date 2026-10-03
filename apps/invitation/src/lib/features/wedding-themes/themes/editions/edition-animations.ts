@@ -1,5 +1,10 @@
 import type { EditionKey } from './edition-profiles.js';
 import {
+	createOccasionIntro,
+	mountOccasionScenes,
+	openOccasionCover
+} from '../occasions/occasion-animations.js';
+import {
 	createThemeScrollSmoother,
 	type ThemeScrollSmoother
 } from '../../shared/theme-scroll-smoother.js';
@@ -14,6 +19,8 @@ export function mountEditionAnimations(root: HTMLElement, theme: EditionKey): Ed
 	const floral = root.classList.contains('edition-floral');
 	const minimalist = root.classList.contains('edition-minimalist');
 	const adat = root.classList.contains('edition-adat');
+	const overlayShadow = root.classList.contains('edition-overlay-shadow');
+	const occasion = root.classList.contains('edition-occasion');
 	let disposed = false;
 	let opened = false;
 	let introPlayed = false;
@@ -92,6 +99,19 @@ export function mountEditionAnimations(root: HTMLElement, theme: EditionKey): Ed
 								.progress(index / petals.length)
 						);
 						const bulbs = root.querySelectorAll('.edition-string-lights span');
+						const shadowBreeze = Array.from(
+							root.querySelectorAll<HTMLElement>('.edition-cover .overlay-shadow-leaf')
+						).map((shadow, index) =>
+							gsap.to(shadow, {
+								x: index ? -10 : 12,
+								y: 8,
+								rotation: index ? -1 : 1.2,
+								duration: 12 + index * 2,
+								repeat: -1,
+								yoyo: true,
+								ease: 'sine.inOut'
+							})
+						);
 						const leaf = root.querySelector('.minimal-cover-leaf');
 						const leafBreeze = leaf
 							? gsap.fromTo(
@@ -150,32 +170,35 @@ export function mountEditionAnimations(root: HTMLElement, theme: EditionKey): Ed
 							leafBreeze?.paused(document.hidden || opened);
 							petalDrift.forEach((animation) => animation.paused(document.hidden));
 							floralBreeze.forEach((animation) => animation.paused(document.hidden || opened));
+							shadowBreeze.forEach((animation) => animation.paused(document.hidden || opened));
 						};
 						pauseAmbient();
 						const intro =
 							!opened && !introPlayed
-								? gsap
-										.timeline()
-										.from('.edition-cover-card', {
-											y: 32,
-											scale: 0.97,
-											autoAlpha: 0,
-											duration: 1.4,
-											ease: 'power2.out',
-											clearProps: 'transform,opacity,visibility'
-										})
-										.from(
-											'.edition-cover-card > *',
-											{
-												y: 18,
+								? occasion
+									? createOccasionIntro(root, gsap)
+									: gsap
+											.timeline()
+											.from('.edition-cover-card', {
+												y: 32,
+												scale: 0.97,
 												autoAlpha: 0,
-												duration: 1.1,
-												stagger: 0.14,
+												duration: 1.4,
 												ease: 'power2.out',
 												clearProps: 'transform,opacity,visibility'
-											},
-											0.2
-										)
+											})
+											.from(
+												'.edition-cover-card > *',
+												{
+													y: 18,
+													autoAlpha: 0,
+													duration: 1.1,
+													stagger: 0.14,
+													ease: 'power2.out',
+													clearProps: 'transform,opacity,visibility'
+												},
+												0.2
+											)
 								: undefined;
 						if (minimalist && intro) {
 							const art = root.querySelector('.minimal-cover-art img');
@@ -237,6 +260,34 @@ export function mountEditionAnimations(root: HTMLElement, theme: EditionKey): Ed
 									0.1
 								);
 						}
+						if (overlayShadow && intro) {
+							const print = root.querySelector('.edition-cover .overlay-scene-photo');
+							if (print)
+								intro.from(
+									print,
+									{
+										y: 26,
+										rotation: -2,
+										autoAlpha: 0,
+										duration: 1.65,
+										ease: 'power3.out',
+										clearProps: 'transform,opacity,visibility'
+									},
+									0.1
+								);
+							const shadows = root.querySelector('.edition-cover .overlay-shadows');
+							if (shadows)
+								intro.from(
+									shadows,
+									{
+										opacity: 0,
+										duration: 2.2,
+										ease: 'sine.out',
+										clearProps: 'opacity'
+									},
+									0
+								);
+						}
 						introPlayed = true;
 						mediaContext.add('buildScenes', () => {
 							if (scenesBuilt || !opened) return;
@@ -245,6 +296,41 @@ export function mountEditionAnimations(root: HTMLElement, theme: EditionKey): Ed
 								if (content) smoother = createThemeScrollSmoother(root, content, ScrollSmoother);
 							});
 							scenesBuilt = true;
+							if (occasion) mountOccasionScenes(root, gsap);
+							if (overlayShadow) {
+								root
+									.querySelectorAll<HTMLElement>('.edition-content .overlay-shadow-leaf')
+									.forEach((shadow, index) => {
+										gsap.fromTo(
+											shadow,
+											{ y: -18, rotation: -1 },
+											{
+												y: 22,
+												rotation: index % 2 ? -2 : 2,
+												ease: 'none',
+												scrollTrigger: {
+													trigger: shadow.closest('section'),
+													start: 'top bottom',
+													end: 'bottom top',
+													scrub: 1.1
+												}
+											}
+										);
+									});
+								root
+									.querySelectorAll<HTMLElement>(
+										'.edition-content .overlay-scene-photo img, .edition-stories .edition-story-photo img'
+									)
+									.forEach((photo) => {
+										gsap.from(photo, {
+											scale: 1.055,
+											duration: 1.6,
+											ease: 'power2.out',
+											clearProps: 'transform',
+											scrollTrigger: { trigger: photo, start: 'top 94%', once: true }
+										});
+									});
+							}
 							if (adat) {
 								root.querySelectorAll<HTMLElement>('[data-adat-ornament]').forEach((ornament) => {
 									gsap.fromTo(
@@ -456,7 +542,50 @@ export function mountEditionAnimations(root: HTMLElement, theme: EditionKey): Ed
 									}
 								});
 								finishOpening = () => opening.progress(1);
-								if (adat) {
+								if (occasion) {
+									openOccasionCover(root, opening);
+								} else if (overlayShadow) {
+									opening.to('.edition-cover-card', {
+										y: -18,
+										autoAlpha: 0,
+										duration: 0.5,
+										ease: 'power2.inOut'
+									});
+									const print = root.querySelector('.edition-cover .overlay-scene-photo');
+									if (print)
+										opening.to(
+											print,
+											{
+												y: -24,
+												rotation: 1.4,
+												scale: 1.025,
+												duration: 1.1,
+												ease: 'power2.inOut'
+											},
+											0
+										);
+									if (theme === 'overlay-shadow-1') {
+										opening.to(
+											'.edition-cover',
+											{
+												clipPath: 'inset(0 0 100% 0)',
+												duration: 1.15,
+												ease: 'power3.inOut'
+											},
+											0.18
+										);
+									} else {
+										opening.to(
+											'.edition-cover',
+											{
+												autoAlpha: 0,
+												duration: 0.9,
+												ease: 'sine.inOut'
+											},
+											0.3
+										);
+									}
+								} else if (adat) {
 									opening.to('.edition-cover-card', {
 										y: -22,
 										autoAlpha: 0,

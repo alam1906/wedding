@@ -753,10 +753,6 @@
 	min-width: 70px;
 	padding: 10px;
 }
-.aster .edition-story-copy {
-	background: var(--e-bg);
-}
-
 @media (max-width: 680px) {
 	.edition-theme.edition-floral {
 		--f-corner: min(45vw, 230px);

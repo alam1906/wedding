@@ -19,6 +19,18 @@ type ThemeMetadata = {
 
 // Exhaustive by theme key, so new themes cannot silently disappear from the catalog.
 const metadata = {
+	'post-wedding-1': { name: 'Post Wedding 1', category: 'other' },
+	'wedding-anniversary-1': { name: 'Wedding Anniversary 1', category: 'other' },
+	'islamic-1': { name: 'Islamic 1', category: 'other' },
+	'islamic-2': { name: 'Islamic 2', category: 'other' },
+	'luxury-2': { name: 'Luxury 2', category: 'other' },
+	'luxury-1': { name: 'Luxury 1', category: 'other' },
+	'wedding-shower-1': { name: 'Wedding Shower 1', category: 'other' },
+	'bachelorette-1': { name: 'Bachelorette 1', category: 'other' },
+	'rehearsal-dinner-1': { name: 'Rehearsal Dinner 1', category: 'other' },
+	'overlay-shadow-1': { name: 'Overlay Shadow 1', category: 'other' },
+	'overlay-shadow-2': { name: 'Overlay Shadow 2', category: 'other' },
+	'overlay-shadow-3': { name: 'Overlay Shadow 3', category: 'other' },
 	'sumatera-utara': { name: 'Sumatera Utara', category: 'adat' },
 	'sulawesi-selatan': { name: 'Sulawesi Selatan', category: 'adat' },
 	'sumatera-barat': { name: 'Sumatera Barat', category: 'adat' },
