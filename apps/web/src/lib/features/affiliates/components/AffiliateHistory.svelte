@@ -83,19 +83,19 @@
 		content="noindex"
 	/></svelte:head
 >
-<h2 class="text-2xl font-bold tracking-tight">
+<h2 class="text-2xl font-extrabold tracking-tight">
 	{isPayout ? 'Pencairan komisi' : 'Riwayat komisi'}
 </h2>
-<p class="mt-2 text-sm text-gray-500">
+<p class="mt-2 text-sm text-[#5c554e]">
 	{isPayout
 		? 'Ajukan pencairan dan pantau status transfermu.'
 		: 'Komisi dicatat setelah pembayaran pengantin terverifikasi berhasil.'}
 </p>
 {#if isPayout && overview.affiliate}
-	<section class="mt-6 rounded-2xl border border-gray-200 bg-white p-6">
-		<p class="text-sm text-gray-500">Saldo tersedia</p>
+	<section class="ws-panel mt-6 p-6">
+		<p class="text-sm text-[#5c554e]">Saldo tersedia</p>
 		<p class="mt-2 text-3xl font-bold">{rupiah(overview.totals.available)}</p>
-		<p class="mt-3 text-sm text-gray-500">
+		<p class="mt-3 text-sm text-[#5c554e]">
 			Minimum pencairan {rupiah(overview.minimum_payout)}. Seluruh saldo tersedia akan diajukan.
 		</p>
 		{#if !bankComplete}<p class="mt-3 text-sm">
@@ -110,7 +110,7 @@
 				Keanggotaan affiliate harus aktif untuk mengajukan pencairan.
 			</p>{/if}
 		{#if confirmation && canWithdraw}
-			<div class="mt-5 rounded-xl bg-violet-50 p-4 text-sm">
+			<div class="mt-5 border-2 border-[#191919] bg-[#e2d2ff] p-4 text-sm">
 				<p>
 					Ajukan {rupiah(overview.totals.available)} ke {overview.affiliate.bank_name}
 					{overview.affiliate.account_number} atas nama {overview.affiliate.account_name}?
@@ -120,13 +120,13 @@
 						type="button"
 						disabled={busy}
 						onclick={withdraw}
-						class="cursor-pointer rounded-lg bg-linear-to-r from-[#9400ff] to-[#7200e8] px-4 py-2.5 font-semibold text-white disabled:opacity-50"
+						class="ws-button ws-button--primary cursor-pointer px-4 py-2.5 disabled:opacity-50"
 						>{busy ? 'Mengajukan...' : 'Konfirmasi pencairan'}</button
 					><button
 						type="button"
 						disabled={busy}
 						onclick={() => (confirmation = false)}
-						class="cursor-pointer rounded-lg px-4 py-2.5 font-medium text-gray-600">Batal</button
+						class="ws-button cursor-pointer px-4 py-2.5">Batal</button
 					>
 				</div>
 			</div>
@@ -135,14 +135,14 @@
 				type="button"
 				disabled={!canWithdraw || busy}
 				onclick={() => (confirmation = true)}
-				class="mt-5 cursor-pointer rounded-xl bg-linear-to-r from-[#9400ff] to-[#7200e8] px-5 py-3 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:bg-gray-200 disabled:bg-none disabled:text-gray-500"
+				class="ws-button ws-button--primary mt-5 cursor-pointer px-5 py-3 text-sm disabled:cursor-not-allowed"
 				>Ajukan pencairan</button
 			>
 		{/if}
 	</section>
 {/if}
-<section class="mt-6 overflow-hidden rounded-2xl border border-gray-200 bg-white">
-	<div class="flex items-center justify-between border-b border-gray-100 px-5 py-4">
+<section class="ws-panel mt-6 overflow-hidden">
+	<div class="flex items-center justify-between border-b border-[#191919] px-5 py-4">
 		<h2 class="font-semibold">{isPayout ? 'Riwayat pencairan' : 'Komisi masuk'}</h2>
 		<button
 			type="button"
@@ -152,40 +152,39 @@
 				void invalidate('wedez:affiliate');
 			}}
 			aria-label={isPayout ? 'Segarkan riwayat pencairan' : 'Segarkan riwayat komisi'}
-			class="group grid size-10 shrink-0 cursor-pointer place-items-center rounded-full border border-violet-200 bg-violet-50 text-violet-700 shadow-sm transition hover:border-violet-300 hover:bg-violet-100 hover:shadow-violet-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-600 active:scale-95 disabled:pointer-events-none disabled:opacity-50"
+			class="ws-button ws-button--icon group grid size-10 shrink-0 cursor-pointer place-items-center transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-600 disabled:pointer-events-none disabled:opacity-50"
 		>
 			<RefreshIcon />
 		</button>
 	</div>
 	{#if error}<p role="alert" class="px-5 py-4 text-sm text-red-600">{error}</p>{/if}
-	{#if loading}<p role="status" class="px-5 py-10 text-sm text-gray-500">Memuat riwayat...</p>
-	{:else if !records.length}<p class="px-5 py-10 text-sm text-gray-500">
+	{#if loading}<p role="status" class="px-5 py-10 text-sm text-[#5c554e]">Memuat riwayat...</p>
+	{:else if !records.length}<p class="px-5 py-10 text-sm text-[#5c554e]">
 			{isPayout
 				? 'Belum ada pengajuan pencairan.'
 				: 'Belum ada komisi. Bagikan kode kuponmu setelah keanggotaan aktif.'}
 		</p>
 	{:else}
 		<div class="overflow-x-auto">
-			<table class="w-full text-left text-sm">
-				<thead class="bg-gray-50 text-xs text-gray-500"
-					><tr
-						><th class="px-5 py-3 font-medium">Tanggal</th><th class="px-5 py-3 font-medium"
-							>Nominal</th
-						><th class="px-5 py-3 font-medium">Status</th><th class="px-5 py-3 font-medium"
-							>Keterangan</th
-						></tr
-					></thead
-				>
-				<tbody class="divide-y divide-gray-100"
-					>{#each records as record (record.id)}<tr>
+			<table class="ws-table w-full text-left text-sm">
+				<thead class="border-b-2 border-[#191919] bg-[#e2d2ff] text-sm tracking-normal normal-case">
+					<tr class="divide-x-2 divide-[#191919]">
+						<th scope="col" class="px-5 py-3.5 font-bold whitespace-nowrap">Tanggal</th>
+						<th scope="col" class="px-5 py-3.5 font-bold whitespace-nowrap">Nominal</th>
+						<th scope="col" class="px-5 py-3.5 font-bold whitespace-nowrap">Status</th>
+						<th scope="col" class="px-5 py-3.5 font-bold whitespace-nowrap">Keterangan</th>
+					</tr>
+				</thead>
+				<tbody class="divide-y divide-[#191919]/15"
+					>{#each records as record (record.id)}<tr class="divide-x divide-[#191919]/15">
 							<td class="px-5 py-4 whitespace-nowrap">{shortDate(record.created)}</td><td
 								class="px-5 py-4 font-semibold whitespace-nowrap">{rupiah(record.amount)}</td
 							><td class="px-5 py-4 whitespace-nowrap"
-								><span class="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium"
+								><span data-status={record.status} class="ws-badge px-3 py-1 text-xs font-medium"
 									>{statusLabels[record.status]}</span
 								></td
 							>
-							<td class="min-w-48 px-5 py-4 text-gray-500"
+							<td class="min-w-48 px-5 py-4 text-[#5c554e]"
 								>{#if 'bank_name' in record}<p>{record.bank_name} · {record.account_number}</p>
 									<p class="mt-1 text-xs">
 										{record.transfer_reference || record.note || 'Menunggu proses admin'}
@@ -204,18 +203,20 @@
 		</div>
 	{/if}
 	{#if totalPages > 1}<div
-			class="flex items-center justify-between border-t border-gray-100 px-5 py-4 text-sm"
+			class="flex items-center justify-between border-t border-[#191919] px-5 py-4 text-sm"
 		>
 			<button
 				type="button"
 				disabled={loading || currentPage === 1}
 				onclick={() => load(currentPage - 1)}
-				class="cursor-pointer font-medium text-violet-700 disabled:text-gray-300">Sebelumnya</button
-			><span class="text-gray-500">{currentPage} / {totalPages}</span><button
+				class="ws-link cursor-pointer font-medium text-violet-700 disabled:text-gray-300"
+				>Sebelumnya</button
+			><span class="text-[#5c554e]">{currentPage} / {totalPages}</span><button
 				type="button"
 				disabled={loading || currentPage >= totalPages}
 				onclick={() => load(currentPage + 1)}
-				class="cursor-pointer font-medium text-violet-700 disabled:text-gray-300">Berikutnya</button
+				class="ws-link cursor-pointer font-medium text-violet-700 disabled:text-gray-300"
+				>Berikutnya</button
 			>
 		</div>{/if}
 </section>

@@ -45,7 +45,7 @@
 	type="button"
 	onclick={openProof}
 	aria-haspopup="dialog"
-	class="mt-3 cursor-pointer rounded-lg border border-violet-200 bg-violet-50 px-3 py-2 text-xs font-semibold text-violet-700 transition hover:border-violet-300 hover:bg-violet-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-600"
+	class="ws-button ws-button--small mt-3 cursor-pointer px-3 py-2 text-xs transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-600"
 >
 	Lihat bukti transfer
 </button>
@@ -55,26 +55,28 @@
 	onclose={resetProof}
 	onclick={(event) => event.target === event.currentTarget && dialog.close()}
 	aria-labelledby={`${id}-title`}
-	class="m-auto max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-xl overflow-y-auto rounded-2xl border border-gray-200 bg-white p-0 text-gray-900 shadow-xl backdrop:bg-gray-950/50"
+	class="ws-dialog m-auto max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-xl overflow-y-auto p-0 text-[#191919] backdrop:bg-gray-950/50"
 >
 	<div class="p-5 sm:p-6">
-		<h2 id={`${id}-title`} class="text-lg font-bold">Bukti transfer</h2>
-		<p class="mt-2 text-sm leading-6 text-gray-600">
+		<h2 id={`${id}-title`} class="text-lg font-extrabold">Bukti transfer</h2>
+		<p class="mt-2 text-sm leading-6 text-[#5c554e]">
 			{rupiah(payout.amount)} ke {payout.bank_name}
 			{payout.account_number}, atas nama {payout.account_name}.
 		</p>
 		{#if payout.paid_at}
-			<p class="mt-1 text-xs text-gray-500">Dibayar {shortDate(payout.paid_at)}</p>
+			<p class="mt-1 text-xs text-[#5c554e]">Dibayar {shortDate(payout.paid_at)}</p>
 		{/if}
 		{#if payout.transfer_reference}
-			<p class="mt-1 text-xs break-words text-gray-500">Referensi: {payout.transfer_reference}</p>
+			<p class="mt-1 text-xs break-words text-[#5c554e]">Referensi: {payout.transfer_reference}</p>
 		{/if}
 
 		{#if loading}
-			<p role="status" class="mt-5 text-sm text-gray-500">Memuat bukti transfer…</p>
+			<p role="status" class="mt-5 text-sm text-[#5c554e]">Memuat bukti transfer…</p>
 		{/if}
 		{#if error}
-			<p role="alert" class="mt-5 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p>
+			<p role="alert" class="ws-alert ws-alert--error mt-5 px-4 py-3 text-sm text-red-700">
+				{error}
+			</p>
 		{:else if proofUrl}
 			<img
 				src={proofUrl}
@@ -85,7 +87,7 @@
 					error = 'Bukti transfer tidak dapat dimuat. Silakan coba lagi.';
 				}}
 				class:hidden={loading}
-				class="mx-auto mt-5 max-h-[60dvh] max-w-full rounded-xl object-contain"
+				class="mx-auto mt-5 max-h-[60dvh] max-w-full border-2 border-[#191919] object-contain"
 			/>
 		{/if}
 
@@ -94,14 +96,14 @@
 				<button
 					type="button"
 					onclick={loadProof}
-					class="cursor-pointer rounded-xl bg-violet-700 px-4 py-2.5 text-sm font-semibold text-white hover:bg-violet-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-600"
+					class="ws-button ws-button--primary cursor-pointer px-4 py-2.5 text-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-600"
 					>Coba lagi</button
 				>
 			{/if}
 			<button
 				type="button"
 				onclick={() => dialog.close()}
-				class="cursor-pointer rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-600"
+				class="ws-button cursor-pointer px-4 py-2.5 text-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-600"
 				>Tutup</button
 			>
 		</div>

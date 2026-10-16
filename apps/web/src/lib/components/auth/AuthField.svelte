@@ -35,7 +35,7 @@
 
 <div>
 	<div class="mb-2 flex items-center justify-between gap-4">
-		<label for={id} class="text-sm font-medium text-gray-700">{label}</label>
+		<label for={id} class="form-label">{label}</label>
 		{#if labelAction}
 			{@render labelAction()}
 		{/if}
@@ -52,7 +52,7 @@
 			{oninput}
 			aria-invalid={error ? 'true' : undefined}
 			aria-describedby={error ? errorId : undefined}
-			class="w-full rounded-xl border border-[#cbd5e1] bg-white px-4 py-3 text-sm text-gray-900 transition outline-none placeholder:text-gray-400 focus:border-[#9400ff] focus:ring-0 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-500"
+			class="form-control"
 			class:pr-12={isPasswordField}
 		/>
 		{#if isPasswordField}
@@ -63,7 +63,7 @@
 				onclick={() => (isPasswordVisible = !isPasswordVisible)}
 				aria-label={isPasswordVisible ? 'Sembunyikan kata sandi' : 'Tampilkan kata sandi'}
 				aria-pressed={isPasswordVisible}
-				class="absolute top-1/2 right-2 grid size-7 -translate-y-1/2 place-items-center rounded-md text-[#8500e8] transition hover:bg-purple-50 focus-visible:ring-2 focus-visible:ring-[#9400ff] focus-visible:outline-none disabled:cursor-not-allowed disabled:text-gray-400"
+				class="absolute top-1/2 right-2 grid size-8 -translate-y-1/2 place-items-center text-[#8500e8] hover:bg-[#ffd1e6] disabled:cursor-not-allowed disabled:text-gray-400"
 			>
 				{#if isPasswordVisible}
 					<svg
@@ -103,6 +103,6 @@
 		{/if}
 	</div>
 	{#if error}
-		<p id={errorId} class="mt-2 text-sm text-red-600">{error}</p>
+		<p id={errorId} class="mt-2 text-sm leading-6 text-rose-700">{error}</p>
 	{/if}
 </div>

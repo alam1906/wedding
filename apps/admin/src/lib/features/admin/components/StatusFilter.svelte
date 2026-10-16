@@ -40,7 +40,7 @@
 	}
 </script>
 
-<div class="relative z-20 w-45 shrink-0" bind:this={container}>
+<div class="relative z-20 w-full shrink-0 sm:w-48" bind:this={container}>
 	<button
 		bind:this={trigger}
 		type="button"
@@ -48,7 +48,7 @@
 		aria-expanded={open}
 		aria-controls={open ? 'admin-status-options' : undefined}
 		onclick={() => (open = !open)}
-		class="flex h-11 w-full items-center justify-between gap-3 rounded-xl border border-violet-500 bg-white px-4 text-left text-sm font-medium text-gray-800 transition hover:bg-violet-50"
+		class="admin-button h-full w-full justify-between gap-3 text-left"
 	>
 		<span class="truncate">{selectedLabel}</span>
 		<svg
@@ -70,16 +70,14 @@
 			id="admin-status-options"
 			role="group"
 			aria-label="Pilihan status"
-			class="absolute top-full right-0 z-30 mt-2 w-full rounded-xl border border-gray-200 bg-white p-1.5 shadow-lg"
+			class="admin-menu absolute top-full right-0 z-30 mt-3 w-full p-1.5"
 		>
 			{#each [{ value: '', label: 'Semua status' }, ...options.map( (option) => ({ value: option, label: labels[option] ?? option }) )] as option (option.value)}
 				<button
 					type="button"
 					aria-pressed={value === option.value}
 					onclick={() => select(option.value)}
-					class="flex min-h-10 w-full items-center justify-between gap-2 rounded-lg px-3 py-2 text-left text-sm text-gray-800 transition hover:bg-gray-100"
-					class:bg-gray-100={value === option.value}
-					class:font-semibold={value === option.value}
+					class="admin-menu-option"
 				>
 					<span>{option.label}</span>
 					{#if value === option.value}

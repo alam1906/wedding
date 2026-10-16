@@ -33,10 +33,7 @@
 	);
 
 	function navClass(href: string) {
-		const base = 'flex items-center gap-3 rounded-xl px-4 py-3 text-sm transition';
-		return page.url.pathname === href
-			? `${base} bg-linear-to-r from-[#9400ff] to-[#7200e8] font-semibold text-white`
-			: `${base} font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900`;
+		return `ws-nav-button${page.url.pathname === href ? ' is-active' : ''}`;
 	}
 
 	const attachProfile: Attachment<HTMLDivElement> = (element) => {
@@ -85,7 +82,9 @@
 	}
 </script>
 
-<div class="min-h-screen bg-gray-100 text-gray-900">
+<svelte:head><meta name="theme-color" content="#fffaf1" /></svelte:head>
+
+<div class="workspace min-h-screen">
 	<button
 		type="button"
 		aria-label="Tutup menu"
@@ -96,18 +95,14 @@
 
 	<aside
 		class:open={menuOpen}
-		class="sidebar fixed inset-y-0 left-0 z-50 w-57.5 border-r border-gray-200 bg-white"
+		class="sidebar fixed inset-y-0 left-0 z-50 w-64 border-r-2 border-[#191919] bg-[#fffaf1]"
 	>
-		<div class="flex h-full flex-col px-5 py-7">
-			<div class="relative flex items-center justify-center px-3">
-				<a
-					href="/affiliate/dashboard"
-					class="bg-linear-to-r from-[#9400ff] to-[#7200e8] bg-clip-text text-xl font-bold tracking-tight text-transparent"
-					>WEDEZ</a
-				>
+		<div class="flex h-full flex-col overflow-y-auto px-5 py-7">
+			<div class="flex justify-center border-b-2 border-[#191919] pb-6">
+				<a href="/affiliate/dashboard" class="text-2xl font-black tracking-[-0.06em]">WEDEZ</a>
 			</div>
 
-			<nav class="mt-7.5 flex flex-col gap-1" aria-label="Navigasi affiliate">
+			<nav class="mt-6 flex flex-col gap-3" aria-label="Navigasi affiliate">
 				{#each navigation as item (item.href)}
 					<a
 						href={item.href}
@@ -145,9 +140,9 @@
 		</div>
 	</aside>
 
-	<div class="min-w-0 md:ml-57.5">
+	<div class="min-w-0 md:ml-64">
 		<header
-			class="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-gray-200 bg-white px-4 lg:px-10"
+			class="sticky top-0 z-30 flex h-18 items-center gap-3 border-b-2 border-[#191919] bg-[#fffaf1] px-4 lg:px-10"
 		>
 			<button
 				type="button"
@@ -157,7 +152,7 @@
 					menuOpen = true;
 					profileOpen = false;
 				}}
-				class="grid size-10 place-items-center rounded-xl bg-gray-100 text-gray-700 transition hover:bg-gray-200 md:hidden"
+				class="ws-button ws-button--icon md:hidden"
 			>
 				<span class="flex w-5 flex-col gap-1.5" aria-hidden="true">
 					<span class="h-0.5 w-full rounded-full bg-current"></span>
@@ -165,7 +160,7 @@
 					<span class="h-0.5 w-full rounded-full bg-current"></span>
 				</span>
 			</button>
-			<h1 class="text-xl font-bold tracking-tight text-gray-900">{currentMenuTitle}</h1>
+			<h1 class="text-xl font-black tracking-tight sm:text-2xl">{currentMenuTitle}</h1>
 
 			<div {@attach attachProfile} class="relative ml-auto">
 				<button
@@ -175,19 +170,20 @@
 					aria-haspopup="menu"
 					aria-expanded={profileOpen}
 					aria-controls={profileOpen ? 'affiliate-profile-menu' : undefined}
-					class="grid size-10 cursor-pointer place-items-center rounded-full bg-linear-to-br from-[#9400ff] to-[#7200e8] text-sm font-bold text-white"
-					>{initial}</button
+					class="ws-button ws-button--icon bg-[#ff96ca]">{initial}</button
 				>
 				{#if profileOpen}
 					<div
 						id="affiliate-profile-menu"
 						role="menu"
 						aria-label="Menu profil"
-						class="absolute top-full right-0 z-40 mt-2 w-62 rounded-xl border border-gray-200 bg-white p-3 shadow-xl"
+						class="ws-inset absolute top-full right-0 z-40 mt-2 w-62 p-3"
 					>
 						<div class="px-2 pt-1 pb-3">
-							<p class="truncate text-sm font-bold text-gray-900">{name || 'Pengguna Wedez'}</p>
-							<p class="mt-1 truncate text-sm text-gray-500">{email || 'Email tidak tersedia'}</p>
+							<p class="truncate text-sm font-bold text-[#191919] capitalize">
+								{name || 'Pengguna Wedez'}
+							</p>
+							<p class="mt-1 truncate text-sm text-[#5c554e]">{email || 'Email tidak tersedia'}</p>
 						</div>
 						<button
 							type="button"
@@ -195,7 +191,7 @@
 							disabled={isSwitchingArea}
 							aria-busy={isSwitchingArea}
 							onclick={switchToWedding}
-							class="flex w-full cursor-pointer items-center rounded-lg px-2 py-2.5 text-left text-sm font-medium text-gray-800 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+							class="ws-menu-option flex w-full cursor-pointer items-center px-2 py-2.5 text-left text-sm font-medium text-[#191919] disabled:cursor-not-allowed disabled:opacity-50"
 							>{hasWedding ? 'Beralih ke Undangan' : 'Buat Undangan'}</button
 						>
 						<button
@@ -204,7 +200,7 @@
 							disabled={isLoggingOut}
 							aria-busy={isLoggingOut}
 							onclick={signOut}
-							class="flex w-full cursor-pointer items-center rounded-lg px-2 py-2.5 text-left text-sm font-medium text-red-500 hover:bg-red-50 disabled:opacity-50"
+							class="ws-menu-option flex w-full cursor-pointer items-center px-2 py-2.5 text-left text-sm font-medium text-red-500 disabled:opacity-50"
 							>{isLoggingOut ? 'Sedang keluar...' : 'Keluar'}</button
 						>
 					</div>

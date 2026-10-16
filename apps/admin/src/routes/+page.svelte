@@ -105,10 +105,7 @@
 	);
 
 	function navClass(id: Section) {
-		const base = 'flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left text-sm transition';
-		return section === id
-			? `${base} bg-linear-to-r from-[#9400ff] to-[#7200e8] font-semibold text-white`
-			: `${base} font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900`;
+		return `admin-nav-button${section === id ? ' is-active' : ''}`;
 	}
 
 	const attachProfile: Attachment<HTMLDivElement> = (element) => {
@@ -358,90 +355,88 @@
 <svelte:head>
 	<title>Admin Wedez</title>
 	<meta name="description" content="Dashboard internal Wedez" />
+	<meta name="theme-color" content="#fffaf1" />
 </svelte:head>
 
 {#if !authenticated}
-	<main class="flex min-h-screen items-center justify-center bg-gray-100 px-4 py-12">
-		<section class="w-full max-w-sm rounded-2xl border border-gray-200 bg-white p-8 shadow-sm">
-			<div class="flex flex-col items-center">
-				<img
-					src="/logo-wedez.webp"
-					alt="Wedez"
-					width="256"
-					height="256"
-					class="size-20 object-contain"
-				/>
-				<h1 class="mt-4 text-2xl font-bold tracking-tight text-gray-900">Selamat datang</h1>
-			</div>
-			<form class="mt-8 space-y-5" onsubmit={signIn}>
-				<div>
-					<label for="email" class="mb-2 block text-sm font-medium text-gray-700">Email</label>
-					<input
-						id="email"
-						type="email"
-						autocomplete="username"
-						required
-						bind:value={email}
-						class="admin-input w-full px-4 py-3 text-sm"
-						placeholder="nama@email.com"
-					/>
-				</div>
-				<div>
-					<label for="password" class="mb-2 block text-sm font-medium text-gray-700"
-						>Kata sandi</label
-					>
-					<div class="relative">
+	<main class="flex min-h-dvh items-center justify-center bg-[#fffaf1] px-6 py-12">
+		<section class="admin-panel w-full max-w-md shadow-[7px_7px_0_#191919]">
+			<div class="p-6 sm:p-8">
+				<span class="admin-badge bg-[#e5fa94]">Panel admin</span>
+				<h1 class="mt-5 text-3xl font-black tracking-tight">Selamat datang.</h1>
+				<p class="mt-3 text-sm leading-6 text-[#5c554e]">
+					Masuk untuk mengelola operasional Wedez.
+				</p>
+				<form class="mt-7 space-y-5" onsubmit={signIn}>
+					<div>
+						<label for="email" class="mb-2 block text-sm font-medium text-[#191919]">Email</label>
 						<input
-							id="password"
-							type={showPassword ? 'text' : 'password'}
-							autocomplete="current-password"
+							id="email"
+							type="email"
+							autocomplete="username"
 							required
-							bind:value={password}
-							class="admin-input w-full px-4 py-3 pr-12 text-sm"
-							placeholder="Masukkan kata sandi"
+							bind:value={email}
+							class="admin-input admin-login-input h-11 w-full px-3 py-2.5 text-sm"
+							placeholder="nama@email.com"
 						/>
-						<button
-							type="button"
-							aria-label={showPassword ? 'Sembunyikan kata sandi' : 'Tampilkan kata sandi'}
-							aria-pressed={showPassword}
-							onclick={() => (showPassword = !showPassword)}
-							class="absolute inset-y-0 right-2 flex items-center justify-center px-2 text-violet-600 hover:text-violet-800"
-						>
-							<svg
-								aria-hidden="true"
-								viewBox="0 0 24 24"
-								fill="none"
-								stroke="currentColor"
-								stroke-width="1.8"
-								class="size-5"
-							>
-								<path
-									stroke-linecap="round"
-									stroke-linejoin="round"
-									d="M2.25 12s3.5-6 9.75-6 9.75 6 9.75 6-3.5 6-9.75 6-9.75-6Z"
-								/>
-								<circle cx="12" cy="12" r="2.75" />
-								{#if showPassword}<path stroke-linecap="round" d="m3 21 18-18" />{/if}
-							</svg>
-						</button>
 					</div>
-				</div>
-				{#if loginError}
-					<p role="alert" class="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">
-						{loginError}
-					</p>
-				{/if}
-				<button
-					type="submit"
-					disabled={loginBusy}
-					class="w-full rounded-xl bg-linear-to-r from-[#9400ff] to-[#7200e8] px-5 py-3 text-sm font-semibold text-white transition hover:brightness-110 disabled:opacity-60"
-					>{loginBusy ? 'Sedang masuk…' : 'Masuk'}</button
-				>
-			</form>
+					<div>
+						<label for="password" class="mb-2 block text-sm font-medium text-[#191919]"
+							>Kata sandi</label
+						>
+						<div class="relative">
+							<input
+								id="password"
+								type={showPassword ? 'text' : 'password'}
+								autocomplete="current-password"
+								required
+								bind:value={password}
+								class="admin-input admin-login-input h-11 w-full px-3 py-2.5 pr-12 text-sm"
+								placeholder="Masukkan kata sandi"
+							/>
+							<button
+								type="button"
+								aria-label={showPassword ? 'Sembunyikan kata sandi' : 'Tampilkan kata sandi'}
+								aria-pressed={showPassword}
+								onclick={() => (showPassword = !showPassword)}
+								class="absolute inset-y-0 right-2 flex items-center justify-center px-2 text-[#191919]"
+							>
+								<svg
+									aria-hidden="true"
+									viewBox="0 0 24 24"
+									fill="none"
+									stroke="currentColor"
+									stroke-width="1.8"
+									class="size-5"
+								>
+									<path
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										d="M2.25 12s3.5-6 9.75-6 9.75 6 9.75 6-3.5 6-9.75 6-9.75-6Z"
+									/>
+									<circle cx="12" cy="12" r="2.75" />
+									{#if showPassword}<path stroke-linecap="round" d="m3 21 18-18" />{/if}
+								</svg>
+							</button>
+						</div>
+					</div>
+					{#if loginError}
+						<p role="alert" class="admin-alert admin-alert--error">
+							{loginError}
+						</p>
+					{/if}
+					<button
+						type="submit"
+						disabled={loginBusy}
+						class="admin-button admin-button--primary w-full px-5 py-3 text-sm"
+						>{loginBusy ? 'Sedang masuk…' : 'Masuk'}</button
+					>
+				</form>
+			</div>
 		</section>
 	</main>
 {:else}
-	<div class="min-h-screen bg-gray-100 text-gray-900">
+	<div class="min-h-screen bg-[#fffaf1] text-[#191919]">
 		<button
 			type="button"
 			aria-label="Tutup menu"
@@ -452,18 +447,17 @@
 
 		<aside
 			class:open={menuOpen}
-			class="sidebar fixed inset-y-0 left-0 z-50 w-57.5 border-r border-gray-200 bg-white"
+			class="sidebar fixed inset-y-0 left-0 z-50 w-64 border-r-2 border-[#191919] bg-[#fffaf1]"
 		>
-			<div class="flex h-full flex-col px-5 py-7">
-				<div class="relative flex items-center justify-center px-3">
+			<div class="flex h-full flex-col overflow-y-auto px-5 py-7">
+				<div class="flex items-center justify-center border-b-2 border-[#191919] pb-6">
 					<button
 						type="button"
 						onclick={() => navigate('overview')}
-						class="bg-linear-to-r from-[#9400ff] to-[#7200e8] bg-clip-text text-xl font-bold tracking-tight text-transparent"
-						>WEDEZ</button
+						class="text-2xl font-black tracking-[-0.06em]">WEDEZ</button
 					>
 				</div>
-				<nav class="mt-7.5 flex flex-col gap-1" aria-label="Navigasi admin">
+				<nav class="mt-6 mb-8 flex flex-col gap-3" aria-label="Navigasi admin">
 					{#each navigation as item (item.id)}
 						<button
 							type="button"
@@ -504,9 +498,9 @@
 			</div>
 		</aside>
 
-		<div class="min-w-0 md:ml-57.5">
+		<div class="min-w-0 md:ml-64">
 			<header
-				class="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-gray-200 bg-white px-4 lg:px-10"
+				class="sticky top-0 z-30 flex h-18 items-center gap-4 border-b-2 border-[#191919] bg-[#fffaf1] px-5 lg:px-10"
 			>
 				<button
 					type="button"
@@ -516,7 +510,7 @@
 						menuOpen = true;
 						profileOpen = false;
 					}}
-					class="grid size-10 place-items-center rounded-xl bg-gray-100 text-gray-700 transition hover:bg-gray-200 md:hidden"
+					class="admin-button admin-button--icon md:hidden"
 				>
 					<span class="flex w-5 flex-col gap-1.5" aria-hidden="true"
 						><span class="h-0.5 w-full rounded-full bg-current"></span><span
@@ -524,7 +518,7 @@
 						></span><span class="h-0.5 w-full rounded-full bg-current"></span></span
 					>
 				</button>
-				<h1 class="text-xl font-bold tracking-tight">{selectedLabel}</h1>
+				<h1 class="text-xl font-black tracking-tight sm:text-2xl">{selectedLabel}</h1>
 				<div {@attach attachProfile} class="relative ml-auto">
 					<button
 						type="button"
@@ -533,42 +527,37 @@
 						aria-haspopup="menu"
 						aria-expanded={profileOpen}
 						aria-controls={profileOpen ? 'admin-profile-menu' : undefined}
-						class="grid size-10 cursor-pointer place-items-center rounded-full bg-linear-to-br from-[#9400ff] to-[#7200e8] text-sm font-bold text-white"
-						>{profileInitial}</button
+						class="admin-button admin-button--icon bg-[#ff96ca]">{profileInitial}</button
 					>
 					{#if profileOpen}
 						<div
 							id="admin-profile-menu"
 							role="menu"
 							aria-label="Menu profil admin"
-							class="absolute top-full right-0 z-40 mt-2 w-62 rounded-xl border border-gray-200 bg-white p-3 shadow-xl"
+							class="admin-menu absolute top-full right-0 z-40 mt-3 w-62 max-w-[calc(100vw-2.5rem)] p-3"
 						>
 							<div class="px-2 pt-1 pb-3">
 								<p class="text-sm font-bold">Administrator</p>
-								<p class="mt-1 truncate text-sm text-gray-500">{adminEmail()}</p>
+								<p class="mt-1 truncate text-sm text-[#5c554e]">{adminEmail()}</p>
 							</div>
 							<button
 								type="button"
 								role="menuitem"
 								onclick={signOut}
-								class="flex w-full cursor-pointer items-center rounded-lg px-2 py-2.5 text-left text-sm font-medium text-red-500 hover:bg-red-50"
-								>Keluar</button
+								class="admin-menu-option text-red-700 hover:bg-[#ffe5db]">Keluar</button
 							>
 						</div>
 					{/if}
 				</div>
 			</header>
-			<main class="px-4 py-8 sm:px-6 lg:px-10 lg:py-10">
+			<main class="px-5 py-8 sm:px-7 lg:px-10 lg:py-10">
 				<div class="mx-auto w-full max-w-6xl min-w-0">
-					{#if notice}<p
-							role="status"
-							class="mb-5 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800"
-						>
+					{#if notice}<p role="status" class="admin-alert mb-6">
 							{notice}
 						</p>{/if}
 					{#if error}<div
 							role="alert"
-							class="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+							class="admin-alert admin-alert--error mb-6 flex flex-wrap items-center justify-between gap-3"
 						>
 							<span>{error}</span><button
 								type="button"
@@ -577,7 +566,16 @@
 							>
 						</div>{/if}
 					{#if section === 'overview'}
-						{#if loading}<p role="status" class="py-8 text-sm text-gray-500">
+						<div class="mb-7">
+							<p class="admin-eyebrow">Pusat kendali</p>
+							<h2 class="mt-3 text-3xl font-black tracking-[-0.04em] sm:text-4xl">
+								Ringkasan Wedez.
+							</h2>
+							<p class="mt-3 text-sm leading-6 text-[#5c554e]">
+								Pantau pengguna, undangan, pembayaran, dan aktivitas afiliasi.
+							</p>
+						</div>
+						{#if loading}<p role="status" class="py-8 text-sm text-[#5c554e]">
 								Memuat ringkasan…
 							</p>{:else if overviewLoaded}
 							<div class="grid w-full min-w-0 gap-5 lg:grid-cols-2">
@@ -585,11 +583,9 @@
 									<button
 										type="button"
 										onclick={() => navigate(card.target)}
-										class="flex min-w-0 items-center rounded-2xl border border-gray-200 bg-white p-5 text-left transition hover:border-violet-300"
+										class="admin-panel admin-stat-card"
 									>
-										<span
-											class="grid size-10 shrink-0 place-items-center rounded-xl bg-gray-100 text-gray-600"
-										>
+										<span class="admin-stat-icon">
 											<svg
 												aria-hidden="true"
 												class="size-5"
@@ -605,19 +601,18 @@
 											</svg>
 										</span>
 										<span class="ml-3 min-w-0"
-											><span class="block text-sm font-medium text-gray-500">{card.label}</span
-											><span class="mt-1 block text-xl font-bold text-gray-900"
-												>{card.value.toLocaleString('id-ID')}</span
+											><span class="block text-sm font-medium text-[#5c554e]">{card.label}</span
+											><span class="admin-stat-value">{card.value.toLocaleString('id-ID')}</span
 											></span
 										>
 									</button>
 								{/each}
 							</div>
-							<section class="mt-5 rounded-2xl border border-gray-200 bg-white p-5 sm:p-6">
+							<section class="admin-panel admin-task-panel mt-7 p-5 sm:p-6">
 								<div class="flex flex-wrap items-start justify-between gap-4">
 									<div>
-										<h2 class="text-sm font-medium text-gray-500">Perlu ditindaklanjuti</h2>
-										<p class="mt-2 text-2xl font-bold text-gray-900">
+										<h2 class="admin-eyebrow">Perlu ditindaklanjuti</h2>
+										<p class="mt-3 text-2xl font-black tracking-tight sm:text-3xl">
 											{(
 												(counts.pendingAffiliates ?? 0) + (counts.requestedPayouts ?? 0)
 											).toLocaleString('id-ID')} tugas menunggu
@@ -629,7 +624,7 @@
 										disabled={loading}
 										aria-label="Perbarui data"
 										title="Perbarui data"
-										class="group grid size-10 shrink-0 place-items-center rounded-xl border border-violet-500 text-violet-700 transition hover:bg-violet-50 disabled:opacity-50"
+										class="admin-button admin-button--icon group"
 									>
 										<svg
 											aria-hidden="true"
@@ -652,47 +647,47 @@
 									<button
 										type="button"
 										onclick={() => navigate('affiliates')}
-										class="flex items-center justify-between rounded-xl border border-gray-200 px-4 py-3 text-left transition hover:bg-gray-50"
-										><span class="text-sm font-medium text-gray-600"
+										class="admin-button justify-between gap-3 text-left"
+										><span class="text-sm font-medium text-[#5c554e]"
 											>Afiliasi menunggu persetujuan</span
-										><span
-											class="rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-600"
-											>{counts.pendingAffiliates ?? 0}</span
+										><span class="admin-badge bg-[#e5fa94]">{counts.pendingAffiliates ?? 0}</span
 										></button
 									>
 									<button
 										type="button"
 										onclick={() => navigate('payouts')}
-										class="flex items-center justify-between rounded-xl border border-gray-200 px-4 py-3 text-left transition hover:bg-gray-50"
-										><span class="text-sm font-medium text-gray-600">Pencairan diajukan</span><span
-											class="rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-600"
-											>{counts.requestedPayouts ?? 0}</span
+										class="admin-button justify-between gap-3 text-left"
+										><span class="text-sm font-medium text-[#5c554e]">Pencairan diajukan</span><span
+											class="admin-badge bg-[#e5fa94]">{counts.requestedPayouts ?? 0}</span
 										></button
 									>
 								</div>
 							</section>
-							<section class="mt-5 rounded-2xl border border-gray-200 bg-white p-5">
-								<h2 class="font-bold text-gray-900">Ringkasan operasional</h2>
+							<section class="admin-panel mt-7 p-5 sm:p-6">
+								<h2 class="text-lg font-extrabold tracking-tight">Ringkasan operasional</h2>
 								<div class="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
 									{#each [{ label: 'Pembayaran berhasil', value: counts.paid ?? 0, target: 'payments' as Section }, { label: 'Undangan Pro', value: counts.proWeddings ?? 0, target: 'weddings' as Section }, { label: 'Afiliasi aktif', value: counts.activeAffiliates ?? 0, target: 'affiliates' as Section }] as metric (metric.target)}
 										<button
 											type="button"
 											onclick={() => navigate(metric.target)}
-											class="min-w-0 rounded-xl border border-gray-200 bg-white p-4 text-left transition hover:border-violet-300"
-											><span class="block text-sm font-medium text-gray-500">{metric.label}</span
-											><span class="mt-3 block text-2xl font-bold text-gray-900"
+											class="admin-metric"
+											><span class="block text-sm font-medium text-[#5c554e]">{metric.label}</span
+											><span class="mt-3 block text-2xl font-bold text-[#191919]"
 												>{metric.value.toLocaleString('id-ID')}</span
 											></button
 										>
 									{/each}
 								</div>
 							</section>
-						{:else}<p class="py-8 text-sm text-gray-500">Ringkasan belum tersedia.</p>{/if}
+						{:else}<p class="py-8 text-sm text-[#5c554e]">Ringkasan belum tersedia.</p>{/if}
 					{:else}
 						<div class="mb-6 flex flex-wrap items-end justify-between gap-4">
 							<div>
-								<h2 class="text-xl font-semibold">Daftar {selectedLabel.toLowerCase()}</h2>
-								<p class="mt-1 text-sm text-gray-500">
+								<p class="admin-eyebrow">Kelola data</p>
+								<h2 class="mt-2 text-2xl font-black tracking-tight">
+									Daftar {selectedLabel.toLowerCase()}
+								</h2>
+								<p class="mt-1 text-sm text-[#5c554e]">
 									{totalItems.toLocaleString('id-ID')} data ditemukan.
 								</p>
 							</div>
@@ -702,7 +697,7 @@
 								disabled={loading}
 								aria-label="Perbarui data"
 								title="Perbarui data"
-								class="group grid size-10 shrink-0 place-items-center rounded-xl border border-gray-200 bg-white text-gray-600 transition hover:border-violet-300 hover:bg-violet-50 hover:text-violet-700 disabled:opacity-60"
+								class="admin-button admin-button--icon group"
 							>
 								<svg
 									aria-hidden="true"
@@ -731,9 +726,7 @@
 									bind:value={search}
 									placeholder="Cari {selectedLabel.toLowerCase()}…"
 									class="admin-input min-w-0 flex-1 px-4 py-3 text-sm"
-								/><button
-									type="submit"
-									class="rounded-xl bg-linear-to-r from-[#9400ff] to-[#7200e8] px-4 py-3 text-sm font-semibold text-white"
+								/><button type="submit" class="admin-button admin-button--primary px-4 py-3 text-sm"
 									>Cari</button
 								>
 							</form>
@@ -748,17 +741,18 @@
 								{/key}
 							{/if}
 						</div>
-						<div class="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
-							{#if loading}<p role="status" class="p-10 text-center text-sm text-gray-500">
+						<div class="admin-panel overflow-hidden">
+							{#if loading}<p role="status" class="p-10 text-center text-sm text-[#5c554e]">
 									Memuat data…
 								</p>
-							{:else if currentItems.length === 0}<p class="p-10 text-center text-sm text-gray-500">
+							{:else if currentItems.length === 0}<p
+									class="p-10 text-center text-sm text-[#5c554e]"
+								>
 									Belum ada data untuk pilihan ini.
 								</p>
 							{:else}<div class="overflow-x-auto">
-									<table class="w-full min-w-180 text-left text-sm">
-										<thead
-											class="border-b border-gray-100 bg-gray-50 text-xs font-semibold tracking-wide text-gray-500 uppercase"
+									<table class="admin-table min-w-180">
+										<thead class="text-left"
 											><tr>
 												{#if section === 'users'}<th class="px-5 py-4">Pengguna</th><th
 														class="px-5 py-4">Verifikasi</th
@@ -780,20 +774,19 @@
 														class="px-5 py-4 text-right">Tindakan</th
 													>{/if}
 											</tr></thead
-										><tbody class="divide-y divide-gray-100">
+										><tbody class="align-middle">
 											{#if section === 'users'}{#each users as item (item.id)}<tr
 														><td class="px-5 py-4"
 															><p class="font-medium">{item.name || 'Tanpa nama'}</p>
-															<p class="mt-0.5 text-xs text-gray-500">{item.email}</p></td
+															<p class="mt-0.5 text-xs text-[#5c554e]">{item.email}</p></td
 														><td class="px-5 py-4"
 															><span
-																class:!bg-emerald-50={item.verified}
-																class:!text-emerald-700={item.verified}
-																class="rounded-full bg-amber-50 px-3 py-1 text-xs font-medium text-amber-700"
+																data-status={item.verified ? 'verified' : 'pending'}
+																class="admin-badge"
 																>{item.verified ? 'Terverifikasi' : 'Belum'}</span
 															></td
-														><td class="px-5 py-4 text-gray-600">{item.home_area || '—'}</td><td
-															class="px-5 py-4 whitespace-nowrap text-gray-500"
+														><td class="px-5 py-4 text-[#5c554e]">{item.home_area || '—'}</td><td
+															class="px-5 py-4 whitespace-nowrap text-[#5c554e]"
 															>{dateTime(item.created)}</td
 														></tr
 													>{/each}
@@ -808,19 +801,16 @@
 																	rel="noopener noreferrer"
 																	class="mt-0.5 inline-block text-xs text-violet-700 hover:underline"
 																	>{item.slug}.wedez.id ↗</a
-																>{:else}<p class="mt-0.5 text-xs text-gray-400">
+																>{:else}<p class="mt-0.5 text-xs text-[#5c554e]">
 																	Belum diterbitkan
 																</p>{/if}</td
-														><td class="px-5 py-4 text-gray-600"
+														><td class="px-5 py-4 text-[#5c554e]"
 															>{item.expand?.owner?.email || item.owner || '—'}</td
 														><td class="px-5 py-4"
-															><span
-																class:!bg-emerald-50={item.plan_tier === 'pro'}
-																class:!text-emerald-700={item.plan_tier === 'pro'}
-																class="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-600"
+															><span data-status={item.plan_tier} class="admin-badge"
 																>{item.plan_tier?.toUpperCase() || 'FREE'}</span
 															></td
-														><td class="px-5 py-4 whitespace-nowrap text-gray-500"
+														><td class="px-5 py-4 whitespace-nowrap text-[#5c554e]"
 															>{dateTime(item.created)}</td
 														></tr
 													>{/each}
@@ -829,18 +819,15 @@
 															><p class="font-medium">
 																{item.expand?.wedding?.slug || item.wedding}
 															</p>
-															<p class="mt-0.5 font-mono text-xs text-gray-500">
+															<p class="mt-0.5 font-mono text-xs text-[#5c554e]">
 																{item.provider_transaction_id}
 															</p></td
 														><td class="px-5 py-4 font-medium">{rupiah(item.amount)}</td><td
 															class="px-5 py-4"
-															><span
-																class:!bg-emerald-50={item.status === 'paid'}
-																class:!text-emerald-700={item.status === 'paid'}
-																class="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-600"
+															><span data-status={item.status} class="admin-badge"
 																>{statusLabels[item.status] || item.status}</span
 															></td
-														><td class="px-5 py-4 whitespace-nowrap text-gray-500"
+														><td class="px-5 py-4 whitespace-nowrap text-[#5c554e]"
 															>{dateTime(item.created)}</td
 														></tr
 													>{/each}
@@ -849,15 +836,12 @@
 															><p class="font-medium">
 																{item.expand?.user?.name || item.expand?.user?.email || item.user}
 															</p>
-															<p class="mt-0.5 font-mono text-xs text-gray-500">{item.code}</p></td
+															<p class="mt-0.5 font-mono text-xs text-[#5c554e]">{item.code}</p></td
 														><td class="px-5 py-4"
-															><span
-																class:!bg-emerald-50={item.status === 'active'}
-																class:!text-emerald-700={item.status === 'active'}
-																class="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-600"
+															><span data-status={item.status} class="admin-badge"
 																>{statusLabels[item.status] || item.status}</span
 															></td
-														><td class="px-5 py-4 whitespace-nowrap text-gray-500"
+														><td class="px-5 py-4 whitespace-nowrap text-[#5c554e]"
 															>{dateTime(item.created)}</td
 														><td class="px-5 py-4"
 															><div class="flex flex-wrap justify-end gap-2">
@@ -865,20 +849,18 @@
 																		type="button"
 																		onclick={() => openAffiliate(item, 'active')}
 																		disabled={actionBusy}
-																		class="rounded-lg bg-linear-to-r from-[#9400ff] to-[#7200e8] px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-50"
+																		class="admin-button admin-button--primary admin-button--small px-3 py-1.5 text-xs"
 																		>Aktifkan</button
 																	>{/if}{#if item.status === 'pending'}<button
 																		type="button"
 																		onclick={() => openAffiliate(item, 'rejected')}
 																		disabled={actionBusy}
-																		class="rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium disabled:opacity-50"
-																		>Tolak</button
+																		class="admin-button admin-button--small">Tolak</button
 																	>{/if}{#if item.status === 'active'}<button
 																		type="button"
 																		onclick={() => openAffiliate(item, 'suspended')}
 																		disabled={actionBusy}
-																		class="rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium disabled:opacity-50"
-																		>Tangguhkan</button
+																		class="admin-button admin-button--small">Tangguhkan</button
 																	>{/if}
 															</div></td
 														></tr
@@ -886,47 +868,45 @@
 											{:else}{#each payouts as item (item.id)}<tr
 														><td class="px-5 py-4"
 															><p class="font-medium">{rupiah(item.amount)}</p>
-															<p class="mt-0.5 text-xs text-gray-500">
+															<p class="mt-0.5 text-xs text-[#5c554e]">
 																{item.expand?.affiliate?.code || item.affiliate} · {statusLabels[
 																	item.status
 																] || item.status}
 															</p></td
 														><td class="px-5 py-4"
 															><p>{item.bank_name} · {item.account_number}</p>
-															<p class="mt-0.5 text-xs text-gray-500">{item.account_name}</p></td
-														><td class="px-5 py-4 whitespace-nowrap text-gray-500"
+															<p class="mt-0.5 text-xs text-[#5c554e]">{item.account_name}</p></td
+														><td class="px-5 py-4 whitespace-nowrap text-[#5c554e]"
 															>{dateTime(item.created)}</td
 														><td class="px-5 py-4 align-middle whitespace-nowrap"
 															><div class="flex items-center justify-end gap-3">
 																{#if item.status === 'requested'}<button
 																		type="button"
 																		onclick={() => openPayout(item, 'processing')}
-																		class="rounded-lg bg-linear-to-r from-[#9400ff] to-[#7200e8] px-3 py-1.5 text-xs font-semibold text-white"
+																		class="admin-button admin-button--primary admin-button--small px-3 py-1.5 text-xs"
 																		>Proses</button
 																	><button
 																		type="button"
 																		onclick={() => openPayout(item, 'rejected')}
-																		class="rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium"
-																		>Tolak</button
+																		class="admin-button admin-button--small">Tolak</button
 																	>{:else if item.status === 'processing'}<button
 																		type="button"
 																		onclick={() => openPayout(item, 'paid')}
-																		class="rounded-lg bg-linear-to-r from-[#9400ff] to-[#7200e8] px-3 py-1.5 text-xs font-semibold text-white"
+																		class="admin-button admin-button--primary admin-button--small px-3 py-1.5 text-xs"
 																		>Tandai dibayar</button
 																	><button
 																		type="button"
 																		onclick={() => openPayout(item, 'failed')}
-																		class="rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium"
-																		>Gagal</button
+																		class="admin-button admin-button--small">Gagal</button
 																	>{:else}<span
-																		class="inline-flex h-8 shrink-0 items-center text-xs font-medium text-gray-500"
+																		class="inline-flex h-8 shrink-0 items-center text-xs font-medium text-[#5c554e]"
 																		>Selesai</span
 																	>{/if}
 																{#if item.transfer_proof}
 																	<button
 																		type="button"
 																		onclick={() => openTransferProof(item)}
-																		class="inline-flex h-8 shrink-0 items-center justify-center rounded-lg border border-gray-200 bg-white px-3 text-xs font-medium text-gray-700 transition-colors hover:bg-gray-50"
+																		class="admin-button admin-button--small h-8 shrink-0"
 																		>Lihat bukti</button
 																	>
 																{/if}
@@ -940,20 +920,18 @@
 						{#if !loading && totalPages > 1}<div
 								class="mt-5 flex items-center justify-between gap-4 text-sm"
 							>
-								<p class="text-gray-500">Halaman {page} dari {totalPages}</p>
+								<p class="text-[#5c554e]">Halaman {page} dari {totalPages}</p>
 								<div class="flex gap-2">
 									<button
 										type="button"
 										onclick={() => changePage(page - 1)}
 										disabled={page <= 1}
-										class="rounded-lg border border-gray-200 bg-white px-3 py-2 disabled:opacity-40"
-										>Sebelumnya</button
+										class="admin-button admin-button--small">Sebelumnya</button
 									><button
 										type="button"
 										onclick={() => changePage(page + 1)}
 										disabled={page >= totalPages}
-										class="rounded-lg border border-gray-200 bg-white px-3 py-2 disabled:opacity-40"
-										>Berikutnya</button
+										class="admin-button admin-button--small">Berikutnya</button
 									>
 								</div>
 							</div>{/if}
@@ -971,38 +949,38 @@
 	oncancel={(event) => actionBusy && event.preventDefault()}
 	aria-labelledby="affiliate-dialog-title"
 	aria-describedby="affiliate-dialog-description"
-	class="admin-dialog m-auto max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-lg overflow-y-auto rounded-2xl border border-gray-200 bg-white p-0 shadow-xl"
+	class="admin-dialog m-auto max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-lg overflow-y-auto p-0"
 >
 	{#if pendingAffiliate}
 		<form onsubmit={updateAffiliate} class="p-6 sm:p-8">
-			<h2 id="affiliate-dialog-title" class="text-lg font-bold text-gray-900">
+			<p class="admin-eyebrow mb-3">Afiliasi</p>
+			<h2 id="affiliate-dialog-title" class="text-2xl font-black tracking-tight">
 				Ubah status afiliasi?
 			</h2>
-			<p id="affiliate-dialog-description" class="mt-3 text-sm leading-6 text-gray-600">
-				Status afiliasi <strong class="font-semibold text-gray-900"
+			<p id="affiliate-dialog-description" class="mt-3 text-sm leading-6 text-[#5c554e]">
+				Status afiliasi <strong class="font-semibold text-[#191919]"
 					>{pendingAffiliate.record.code}</strong
 				>
 				akan diubah menjadi
-				<strong class="font-semibold text-gray-900">{statusLabels[pendingAffiliate.status]}</strong
+				<strong class="font-semibold text-[#191919]">{statusLabels[pendingAffiliate.status]}</strong
 				>.
 			</p>
 			{#if actionError}
-				<p role="alert" class="mt-4 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">
+				<p role="alert" class="admin-alert admin-alert--error mt-4">
 					{actionError}
 				</p>
 			{/if}
-			<div class="mt-6 flex justify-end gap-3">
+			<div class="mt-6 flex flex-wrap justify-end gap-3 border-t-2 border-[#191919] pt-5">
 				<button
 					type="button"
 					onclick={() => affiliateDialog.close()}
 					disabled={actionBusy}
-					class="rounded-xl border border-gray-300 bg-white px-5 py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 disabled:opacity-50"
-					>Batal</button
+					class="admin-button">Batal</button
 				>
 				<button
 					type="submit"
 					disabled={actionBusy}
-					class="rounded-xl bg-linear-to-r from-[#9400ff] to-[#7200e8] px-5 py-2.5 text-sm font-semibold text-white transition hover:brightness-110 disabled:opacity-50"
+					class="admin-button admin-button--primary px-5 py-2.5 text-sm"
 					>{actionBusy ? 'Menyimpan…' : 'Ubah status'}</button
 				>
 			</div>
@@ -1016,17 +994,20 @@
 	oncancel={(event) => actionBusy && event.preventDefault()}
 	aria-labelledby="payout-dialog-title"
 	aria-describedby="payout-dialog-description"
-	class="admin-dialog m-auto max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-lg overflow-y-auto rounded-2xl border border-gray-200 bg-white p-0 shadow-xl"
+	class="admin-dialog m-auto max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-lg overflow-y-auto p-0"
 >
 	{#if pendingPayout}<form onsubmit={updatePayout} class="p-6 sm:p-8">
-			<h2 id="payout-dialog-title" class="text-lg font-bold text-gray-900">Konfirmasi pencairan</h2>
-			<p id="payout-dialog-description" class="mt-3 text-sm leading-6 text-gray-600">
+			<p class="admin-eyebrow mb-3">Pencairan</p>
+			<h2 id="payout-dialog-title" class="text-2xl font-black tracking-tight">
+				Konfirmasi pencairan
+			</h2>
+			<p id="payout-dialog-description" class="mt-3 text-sm leading-6 text-[#5c554e]">
 				{rupiah(pendingPayout.record.amount)} ke {pendingPayout.record.bank_name}
 				{pendingPayout.record.account_number}. Status baru: {statusLabels[pendingPayout.status]}.
 			</p>
 			{#if pendingPayout.status === 'paid' || pendingPayout.status === 'rejected' || pendingPayout.status === 'failed'}<label
 					for="action-detail"
-					class="mt-5 block text-sm font-medium text-gray-700"
+					class="mt-5 block text-sm font-medium text-[#191919]"
 					>{pendingPayout.status === 'paid' ? 'Referensi transfer' : 'Alasan'}</label
 				><input
 					id="action-detail"
@@ -1041,23 +1022,19 @@
 					<TransferProofInput bind:file={transferProof} disabled={actionBusy} />
 				{/key}
 			{/if}
-			{#if actionError}<p
-					role="alert"
-					class="mt-4 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700"
-				>
+			{#if actionError}<p role="alert" class="admin-alert admin-alert--error mt-4">
 					{actionError}
 				</p>{/if}
-			<div class="mt-6 flex justify-end gap-3">
+			<div class="mt-6 flex flex-wrap justify-end gap-3 border-t-2 border-[#191919] pt-5">
 				<button
 					type="button"
 					onclick={() => actionDialog.close()}
 					disabled={actionBusy}
-					class="rounded-xl border border-gray-300 bg-white px-5 py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 disabled:opacity-50"
-					>Batal</button
+					class="admin-button">Batal</button
 				><button
 					type="submit"
 					disabled={actionBusy}
-					class="rounded-xl bg-linear-to-r from-[#9400ff] to-[#7200e8] px-5 py-2.5 text-sm font-semibold text-white transition hover:brightness-110 disabled:opacity-50"
+					class="admin-button admin-button--primary px-5 py-2.5 text-sm"
 					>{actionBusy ? 'Menyimpan…' : 'Simpan status'}</button
 				>
 			</div>
@@ -1069,11 +1046,12 @@
 	onclick={(event) => event.target === event.currentTarget && proofDialog.close()}
 	aria-labelledby="proof-dialog-title"
 	aria-describedby="proof-dialog-description"
-	class="admin-dialog m-auto max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-lg overflow-y-auto rounded-2xl border border-gray-200 bg-white p-0 shadow-xl"
+	class="admin-dialog m-auto max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-lg overflow-y-auto p-0"
 >
 	<div class="p-6 sm:p-8">
-		<h2 id="proof-dialog-title" class="text-lg font-bold text-gray-900">Bukti transfer</h2>
-		<p id="proof-dialog-description" class="mt-3 text-sm leading-6 text-gray-600">
+		<p class="admin-eyebrow mb-3">Pencairan</p>
+		<h2 id="proof-dialog-title" class="text-2xl font-black tracking-tight">Bukti transfer</h2>
+		<p id="proof-dialog-description" class="mt-3 text-sm leading-6 text-[#5c554e]">
 			{#if proofRecord}
 				{rupiah(proofRecord.amount)} ke {proofRecord.bank_name}
 				{proofRecord.account_number}
@@ -1081,9 +1059,9 @@
 			{/if}
 		</p>
 		{#if proofLoading}
-			<p role="status" class="mt-5 text-sm text-gray-500">Memuat bukti transfer…</p>
+			<p role="status" class="mt-5 text-sm text-[#5c554e]">Memuat bukti transfer…</p>
 		{:else if proofError}
-			<p role="alert" class="mt-5 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">
+			<p role="alert" class="admin-alert admin-alert--error mt-5">
 				{proofError}
 			</p>
 		{:else if proofUrl}
@@ -1091,16 +1069,11 @@
 				src={proofUrl}
 				alt="Bukti transfer pencairan affiliate"
 				onerror={() => (proofError = 'Bukti transfer tidak dapat dimuat. Tutup lalu buka kembali.')}
-				class="mx-auto mt-5 max-h-[55dvh] rounded-xl object-contain"
+				class="mx-auto mt-5 max-h-[55dvh] border-2 border-[#191919] object-contain"
 			/>
 		{/if}
 		<div class="mt-6 flex justify-end">
-			<button
-				type="button"
-				onclick={() => proofDialog.close()}
-				class="rounded-xl border border-gray-300 bg-white px-5 py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-50"
-				>Tutup</button
-			>
+			<button type="button" onclick={() => proofDialog.close()} class="admin-button">Tutup</button>
 		</div>
 	</div>
 </dialog>

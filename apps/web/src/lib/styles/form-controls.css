@@ -1,0 +1,27 @@
+@layer components {
+	.form-label {
+		@apply text-sm font-extrabold text-[#191919];
+	}
+
+	.form-control {
+		@apply min-h-12 w-full rounded-none border-2 border-[#191919] bg-white px-3 py-3 text-sm font-normal text-[#191919] shadow-[3px_3px_0_#191919] outline-none placeholder:text-stone-400 focus:border-[#191919] focus:shadow-none focus:ring-0 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-500 aria-invalid:border-rose-700;
+	}
+
+	.form-control-group {
+		@apply min-h-12 w-full border-2 border-[#191919] bg-white shadow-[3px_3px_0_#191919] focus-within:shadow-none;
+	}
+
+	.form-control-group__input {
+		@apply min-h-11 min-w-0 flex-1 border-0 bg-transparent px-3 py-3 text-sm font-normal text-[#191919] outline-none placeholder:text-stone-400 focus:ring-0;
+	}
+}
+
+/* Keep the login focus treatment inside the dashboard's workspace focus scope. */
+.form-control:focus,
+.form-control:focus-visible,
+.form-control-group:focus-within,
+.form-control-group__input:focus,
+.form-control-group__input:focus-visible {
+	outline: none;
+	box-shadow: none;
+}

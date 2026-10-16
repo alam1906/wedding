@@ -686,33 +686,33 @@
 		<dialog
 			{@attach attachGuestDialog}
 			onclick={(event) => event.target === event.currentTarget && closeDialog()}
-			class="guest-dialog m-auto max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-2xl overflow-y-auto rounded-2xl border border-gray-200 bg-white p-0 shadow-xl"
+			class="ws-dialog guest-dialog m-auto max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-2xl overflow-y-auto p-0"
 		>
 			<form onsubmit={saveGuest} class="p-5 sm:p-6">
 				<div>
-					<h2 class="text-lg font-bold text-gray-900">
+					<h2 class="text-lg font-extrabold text-[#191919]">
 						{editingId === null ? 'Tambah tamu' : 'Edit tamu'}
 					</h2>
 				</div>
 
 				<div class="mt-5 grid gap-4 sm:grid-cols-2">
-					<label class="block text-sm font-medium text-gray-700">
+					<label class="block text-sm font-medium text-[#191919]">
 						Nama tamu
 						<input
 							bind:value={form.name}
 							required
-							class="field mt-2 w-full rounded-xl border border-gray-700 px-4 py-3 text-sm"
+							class="ws-input field mt-2 w-full px-4 py-3 text-sm"
 							placeholder="Nama lengkap"
 						/>
 					</label>
-					<label class="block text-sm font-medium text-gray-700">
+					<label class="block text-sm font-medium text-[#191919]">
 						Nomor WhatsApp
 						<input
 							bind:value={form.whatsapp}
 							inputmode="tel"
 							autocomplete="tel"
 							required
-							class="field mt-2 w-full rounded-xl border border-gray-700 px-4 py-3 text-sm"
+							class="ws-input field mt-2 w-full px-4 py-3 text-sm"
 							placeholder="0812 3456 7890"
 						/>
 					</label>
@@ -723,7 +723,7 @@
 						type="button"
 						onclick={closeDialog}
 						disabled={isSaving}
-						class="cursor-pointer rounded-xl border border-gray-300 bg-white px-5 py-3 text-sm font-semibold text-gray-700 transition disabled:cursor-not-allowed disabled:opacity-60"
+						class="ws-button cursor-pointer px-5 py-3 text-sm transition disabled:cursor-not-allowed disabled:opacity-60"
 					>
 						Batal
 					</button>
@@ -731,7 +731,7 @@
 						type="submit"
 						disabled={isSaving}
 						aria-busy={isSaving}
-						class="cursor-pointer rounded-xl bg-linear-to-r from-[#9400ff] to-[#7200e8] px-5 py-3 text-sm font-semibold text-white transition disabled:cursor-not-allowed disabled:opacity-60"
+						class="ws-button ws-button--primary cursor-pointer px-5 py-3 text-sm transition disabled:cursor-not-allowed disabled:opacity-60"
 					>
 						{isSaving
 							? 'Sedang menyimpan...'
@@ -747,52 +747,50 @@
 			{@attach attachCsvDialog}
 			onclick={(event) => event.target === event.currentTarget && closeCsvDialog()}
 			oncancel={(event) => (isReadingCsv || isImportingCsv) && event.preventDefault()}
-			class="guest-dialog m-auto max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-3xl overflow-y-auto rounded-2xl border border-gray-200 bg-white p-0 shadow-xl"
+			class="ws-dialog guest-dialog m-auto max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-3xl overflow-y-auto p-0"
 		>
 			<form onsubmit={importCsvGuests}>
-				<div class="border-b border-gray-200 p-5 sm:p-6">
-					<h2 class="text-lg font-bold text-gray-900">Impor tamu dari CSV</h2>
-					<p class="mt-2 text-sm leading-6 text-gray-500">
-						Gunakan kolom <strong class="font-semibold text-gray-700">name</strong> dan
-						<strong class="font-semibold text-gray-700">whatsapp</strong>. Maksimal 50 tamu per
+				<div class="border-b border-[#191919] p-5 sm:p-6">
+					<h2 class="text-lg font-extrabold text-[#191919]">Impor tamu dari CSV</h2>
+					<p class="mt-2 text-sm leading-6 text-[#5c554e]">
+						Gunakan kolom <strong class="font-semibold text-[#191919]">name</strong> dan
+						<strong class="font-semibold text-[#191919]">whatsapp</strong>. Maksimal 50 tamu per
 						impor.
 					</p>
 				</div>
 
 				<div class="space-y-5 p-5 sm:p-6">
 					<div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-						<label class="block min-w-0 flex-1 text-sm font-medium text-gray-700">
+						<label class="block min-w-0 flex-1 text-sm font-medium text-[#191919]">
 							Pilih file CSV
 							<input
 								type="file"
 								accept=".csv,text/csv"
 								onchange={readCsvFile}
 								disabled={isReadingCsv || isImportingCsv}
-								class="mt-2 block w-full rounded-xl border border-gray-700 bg-white text-sm text-gray-500 file:mr-4 file:border-0 file:border-r file:border-gray-200 file:bg-gray-50 file:px-4 file:py-3 file:font-semibold file:text-gray-700 hover:file:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-60"
+								class="ws-input mt-2 block w-full text-sm text-[#5c554e] file:mr-4 file:border-0 file:border-r file:border-gray-200 file:bg-gray-50 file:px-4 file:py-3 file:font-semibold file:text-gray-700 hover:file:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-60"
 							/>
 						</label>
 					</div>
 
 					<div aria-live="polite">
 						{#if isReadingCsv}
-							<p class="rounded-xl bg-gray-50 px-4 py-3 text-sm text-gray-600">
+							<p class="border-2 border-[#191919] bg-[#fffaf1] px-4 py-3 text-sm text-[#5c554e]">
 								Membaca file CSV...
 							</p>
 						{:else if csvError}
-							<p class="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">{csvError}</p>
+							<p class="ws-alert ws-alert--error px-4 py-3 text-sm text-red-700">{csvError}</p>
 						{:else if csvRows.length > 0}
 							<div class="flex flex-wrap items-center justify-between gap-2">
-								<p class="text-sm font-semibold text-gray-900">{csvFileName}</p>
-								<p class="text-xs text-gray-500">
+								<p class="text-sm font-semibold text-[#191919]">{csvFileName}</p>
+								<p class="text-xs text-[#5c554e]">
 									{importableCsvRows.length} siap diimpor · {rejectedCsvRows.length} dilewati
 								</p>
 							</div>
 
-							<div class="mt-3 max-h-72 overflow-auto rounded-xl border border-gray-200">
-								<table class="w-full min-w-144 text-left">
-									<thead
-										class="sticky top-0 bg-gray-50 text-xs font-semibold tracking-wide text-gray-500 uppercase"
-									>
+							<div class="ws-inset mt-3 max-h-72 overflow-auto">
+								<table class="ws-table w-full min-w-144 text-left">
+									<thead class="sticky top-0 text-xs font-extrabold tracking-wide uppercase">
 										<tr>
 											<th class="px-4 py-3">Baris</th>
 											<th class="px-4 py-3">Nama</th>
@@ -803,9 +801,10 @@
 									<tbody class="divide-y divide-gray-200 text-sm">
 										{#each csvRows as row (row.rowNumber)}
 											<tr class:opacity-60={row.issue}>
-												<td class="px-4 py-3 text-gray-500">{row.rowNumber}</td>
-												<td class="px-4 py-3 font-medium text-gray-900">{row.input.name || '—'}</td>
-												<td class="px-4 py-3 text-gray-600">{row.input.whatsapp || '—'}</td>
+												<td class="px-4 py-3 text-[#5c554e]">{row.rowNumber}</td>
+												<td class="px-4 py-3 font-medium text-[#191919]">{row.input.name || '—'}</td
+												>
+												<td class="px-4 py-3 text-[#5c554e]">{row.input.whatsapp || '—'}</td>
 												<td class="px-4 py-3">
 													{#if row.issue}
 														<span class="text-xs font-semibold text-red-600">{row.issue}</span>
@@ -822,12 +821,12 @@
 					</div>
 				</div>
 
-				<div class="flex justify-end gap-3 border-t border-gray-200 px-5 py-4 sm:px-6">
+				<div class="flex justify-end gap-3 border-t border-[#191919] px-5 py-4 sm:px-6">
 					<button
 						type="button"
 						onclick={closeCsvDialog}
 						disabled={isReadingCsv || isImportingCsv}
-						class="cursor-pointer rounded-xl border border-gray-300 bg-white px-5 py-3 text-sm font-semibold text-gray-700 disabled:cursor-not-allowed disabled:opacity-60"
+						class="ws-button cursor-pointer px-5 py-3 text-sm disabled:cursor-not-allowed disabled:opacity-60"
 					>
 						Batal
 					</button>
@@ -835,7 +834,7 @@
 						type="submit"
 						disabled={isReadingCsv || isImportingCsv || importableCsvRows.length === 0}
 						aria-busy={isImportingCsv}
-						class="cursor-pointer rounded-xl bg-linear-to-r from-[#9400ff] to-[#7200e8] px-5 py-3 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
+						class="ws-button ws-button--primary cursor-pointer px-5 py-3 text-sm disabled:cursor-not-allowed disabled:opacity-50"
 					>
 						{isImportingCsv
 							? 'Mengimpor...'
@@ -852,13 +851,13 @@
 			onclick={(event) => event.target === event.currentTarget && closeDeleteDialog()}
 			oncancel={(event) => isDeletingGuest && event.preventDefault()}
 			onclose={() => (guestPendingDeletion = null)}
-			class="guest-dialog m-auto w-[calc(100%-2rem)] max-w-md rounded-2xl border border-gray-200 bg-white p-0 shadow-xl"
+			class="ws-dialog guest-dialog m-auto w-[calc(100%-2rem)] max-w-md p-0"
 		>
 			<form onsubmit={confirmDeleteGuest} class="p-5 sm:p-6">
-				<h2 class="text-lg font-bold text-gray-900">Hapus tamu?</h2>
-				<p class="mt-3 text-sm leading-6 text-gray-500">
+				<h2 class="text-lg font-extrabold text-[#191919]">Hapus tamu?</h2>
+				<p class="mt-3 text-sm leading-6 text-[#5c554e]">
 					{#if guestPendingDeletion}
-						<strong class="font-semibold text-gray-900">{guestPendingDeletion.name}</strong> akan dihapus
+						<strong class="font-semibold text-[#191919]">{guestPendingDeletion.name}</strong> akan dihapus
 						dari daftar tamu.
 					{/if}
 				</p>
@@ -867,7 +866,7 @@
 						type="button"
 						onclick={closeDeleteDialog}
 						disabled={isDeletingGuest}
-						class="cursor-pointer rounded-xl border border-gray-300 bg-white px-5 py-3 text-sm font-semibold text-gray-700 transition disabled:cursor-not-allowed disabled:opacity-60"
+						class="ws-button cursor-pointer px-5 py-3 text-sm transition disabled:cursor-not-allowed disabled:opacity-60"
 					>
 						Batal
 					</button>
@@ -875,7 +874,7 @@
 						type="submit"
 						disabled={isDeletingGuest || !guestPendingDeletion}
 						aria-busy={isDeletingGuest}
-						class="cursor-pointer rounded-xl bg-red-600 px-5 py-3 text-sm font-semibold text-white transition disabled:cursor-not-allowed disabled:opacity-60"
+						class="ws-button ws-button--danger cursor-pointer px-5 py-3 text-sm transition disabled:cursor-not-allowed disabled:opacity-60"
 					>
 						{isDeletingGuest ? 'Sedang menghapus...' : 'Hapus'}
 					</button>
@@ -886,13 +885,13 @@
 		<dialog
 			{@attach attachTemplateDialog}
 			onclick={(event) => event.target === event.currentTarget && closeTemplateDialog()}
-			class="guest-dialog m-auto max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-5xl overflow-y-auto rounded-2xl border border-gray-200 bg-white p-0 shadow-xl"
+			class="ws-dialog guest-dialog m-auto max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-5xl overflow-y-auto p-0"
 		>
 			<form onsubmit={saveWhatsappTemplate}>
-				<div class="relative border-b border-gray-200 p-5 pr-16 sm:p-6 sm:pr-16">
+				<div class="relative border-b border-[#191919] p-5 pr-16 sm:p-6 sm:pr-16">
 					<div class="flex flex-wrap items-center gap-3">
-						<h1 class="text-lg font-bold text-gray-900">Template</h1>
-						<span class="rounded-full bg-gray-100 px-3 py-1.5 text-xs font-semibold text-gray-500">
+						<h1 class="text-lg font-extrabold text-[#191919]">Template</h1>
+						<span class="ws-badge px-3 py-1.5 text-xs font-semibold">
 							{templateIsDirty ? 'Belum disimpan' : 'Tersimpan'}
 						</span>
 					</div>
@@ -900,7 +899,7 @@
 						type="button"
 						onclick={closeTemplateDialog}
 						aria-label="Tutup template"
-						class="absolute top-4 right-4 grid size-9 cursor-pointer place-items-center rounded-xl text-gray-500 transition sm:top-5 sm:right-5"
+						class="ws-button ws-button--icon absolute top-4 right-4 grid size-9 cursor-pointer place-items-center transition sm:top-5 sm:right-5"
 					>
 						<svg
 							aria-hidden="true"
@@ -917,23 +916,23 @@
 
 				<div class="grid gap-6 p-5 sm:p-6 lg:grid-cols-[1.08fr_0.92fr]">
 					<div>
-						<div class="mt-3 flex flex-wrap gap-2 rounded-xl border border-gray-200 bg-gray-50 p-2">
+						<div class="ws-inset mt-3 flex flex-wrap gap-2 bg-[#fffaf1] p-2">
 							<button
 								type="button"
 								onclick={() => insertTemplateVariable('{nama}')}
-								class="cursor-pointer rounded-full border border-green-200 bg-green-50 px-3 py-1.5 font-mono text-xs font-semibold text-green-800"
+								class="ws-button ws-button--small cursor-pointer border-green-200 px-3 py-1.5 font-mono text-xs text-green-800"
 								>+ {`{nama}`}</button
 							>
 							<button
 								type="button"
 								onclick={() => insertTemplateVariable('{link}')}
-								class="cursor-pointer rounded-full border border-green-200 bg-green-50 px-3 py-1.5 font-mono text-xs font-semibold text-green-800"
+								class="ws-button ws-button--small cursor-pointer border-green-200 px-3 py-1.5 font-mono text-xs text-green-800"
 								>+ {`{link}`}</button
 							>
 							<button
 								type="button"
 								onclick={() => insertTemplateVariable('{jumlah}')}
-								class="cursor-pointer rounded-full border border-green-200 bg-green-50 px-3 py-1.5 font-mono text-xs font-semibold text-green-800"
+								class="ws-button ws-button--small cursor-pointer border-green-200 px-3 py-1.5 font-mono text-xs text-green-800"
 								>+ {`{jumlah}`}</button
 							>
 						</div>
@@ -946,17 +945,18 @@
 							aria-multiline="true"
 							aria-label="Isi template pesan WhatsApp"
 							spellcheck="true"
-							class="field rich-template mt-3 min-h-80 w-full overflow-y-auto rounded-2xl border border-gray-700 bg-white px-4 py-4 text-sm leading-6 text-gray-800"
+							class="ws-input field rich-template mt-3 min-h-80 w-full overflow-y-auto px-4 py-4 text-sm leading-6 text-[#191919]"
 						></div>
-						<div class="mt-2 flex items-center justify-between gap-4 text-xs text-gray-400">
-							<span>Variabel <strong class="text-gray-600">{`{link}`}</strong> wajib tersedia.</span
+						<div class="mt-2 flex items-center justify-between gap-4 text-xs text-[#5c554e]">
+							<span
+								>Variabel <strong class="text-[#5c554e]">{`{link}`}</strong> wajib tersedia.</span
 							>
 							<span>{templateTextLength} karakter pesan</span>
 						</div>
 					</div>
 
 					<div>
-						<p class="text-xs font-bold tracking-[0.16em] text-gray-500 uppercase">Pratinjau</p>
+						<p class="text-xs font-bold tracking-[0.16em] text-[#5c554e] uppercase">Pratinjau</p>
 						<div class="mt-3 overflow-hidden rounded-3xl border border-[#d5ddd7] bg-[#efeae2]">
 							<div class="flex items-center gap-3 bg-[#075e54] px-4 py-3 text-white">
 								<span
@@ -970,7 +970,7 @@
 							</div>
 							<div class="min-h-80 p-4">
 								<div
-									class="ml-auto max-w-[94%] rounded-2xl rounded-tr-sm bg-[#d9fdd3] p-3 text-[13px] leading-5 whitespace-pre-wrap text-gray-800 shadow-sm"
+									class="ml-auto max-w-[94%] rounded-2xl rounded-tr-sm bg-[#d9fdd3] p-3 text-[13px] leading-5 whitespace-pre-wrap text-[#191919] shadow-sm"
 								>
 									{#each templatePreviewParts as part, index (`${index}-${part.text}`)}
 										{#if part.href}
@@ -984,7 +984,7 @@
 											{part.text}
 										{/if}
 									{/each}
-									<span class="mt-1 block text-right text-[10px] text-gray-500">sekarang</span>
+									<span class="mt-1 block text-right text-[10px] text-[#5c554e]">sekarang</span>
 								</div>
 							</div>
 						</div>
@@ -992,20 +992,20 @@
 				</div>
 
 				<div
-					class="flex flex-col-reverse gap-3 border-t border-gray-200 px-5 py-4 sm:flex-row sm:justify-end sm:px-6"
+					class="flex flex-col-reverse gap-3 border-t border-[#191919] px-5 py-4 sm:flex-row sm:justify-end sm:px-6"
 				>
 					<button
 						type="button"
 						onclick={resetWhatsappTemplate}
 						disabled={isSavingTemplate}
-						class="cursor-pointer rounded-xl border border-gray-300 bg-white px-5 py-3 text-sm font-semibold text-gray-700 disabled:cursor-not-allowed disabled:opacity-50"
+						class="ws-button cursor-pointer px-5 py-3 text-sm disabled:cursor-not-allowed disabled:opacity-50"
 						>Gunakan template awal</button
 					>
 					<button
 						type="submit"
 						disabled={isSavingTemplate || !templateIsDirty}
 						aria-busy={isSavingTemplate}
-						class="cursor-pointer rounded-xl bg-linear-to-r from-[#9400ff] to-[#7200e8] px-5 py-3 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
+						class="ws-button ws-button--primary cursor-pointer px-5 py-3 text-sm disabled:cursor-not-allowed disabled:opacity-50"
 					>
 						{isSavingTemplate ? 'Menyimpan...' : 'Simpan template'}
 					</button>
@@ -1013,8 +1013,8 @@
 			</form>
 		</dialog>
 
-		<div class="rounded-2xl border border-gray-200 bg-white">
-			<div class="border-b border-gray-200 p-5 sm:p-6">
+		<div class="ws-panel">
+			<div class="border-b border-[#191919] p-5 sm:p-6">
 				<div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
 					<div class="flex min-w-0 items-center gap-3">
 						<label class="relative block min-w-0 flex-1 sm:max-w-56">
@@ -1032,7 +1032,7 @@
 							</svg>
 							<input
 								bind:value={search}
-								class="field search-field w-full rounded-xl border border-gray-400 py-3 pr-4 pl-12 text-sm placeholder:text-gray-300"
+								class="ws-input field search-field w-full py-3 pr-4 pl-12 text-sm shadow-[3px_3px_0_#191919] placeholder:text-gray-300"
 								placeholder="Cari"
 							/>
 						</label>
@@ -1043,11 +1043,11 @@
 								type="button"
 								aria-label="Filter status tamu"
 								aria-haspopup="listbox"
-								aria-controls="guest-status-options"
+								aria-controls={statusMenuOpen ? 'guest-status-options' : undefined}
 								aria-expanded={statusMenuOpen}
 								onclick={() => (statusMenuOpen = !statusMenuOpen)}
-								data-form-control
-								class="flex w-full cursor-pointer items-center justify-between rounded-xl border border-gray-400 bg-white py-3 pr-3.5 pl-4 text-left text-sm font-medium text-gray-700"
+								class="ws-button status-filter w-full justify-between gap-2 px-3 text-left sm:gap-3 sm:px-4"
+								class:bg-[#e2d2ff]={statusMenuOpen}
 							>
 								<span class="truncate">{selectedGuestStatusLabel}</span>
 								<svg
@@ -1058,7 +1058,7 @@
 									viewBox="0 0 24 24"
 									fill="none"
 									stroke="currentColor"
-									stroke-width="1.8"
+									stroke-width="2"
 									stroke-linecap="round"
 									stroke-linejoin="round"
 								>
@@ -1071,7 +1071,7 @@
 									id="guest-status-options"
 									role="listbox"
 									aria-label="Status tamu"
-									class="absolute top-full left-0 z-30 mt-2 w-full overflow-hidden rounded-xl border border-gray-200 bg-white p-1.5 shadow-lg"
+									class="ws-menu absolute top-full right-0 z-30 mt-3 w-full min-w-44 p-1.5"
 								>
 									{#each guestStatusOptions as option (option.value)}
 										<button
@@ -1079,16 +1079,13 @@
 											role="option"
 											aria-selected={guestStatusFilter === option.value}
 											onclick={() => selectGuestStatus(option.value)}
-											class="flex w-full cursor-pointer items-center justify-between rounded-lg px-3 py-2.5 text-left text-sm transition hover:bg-gray-100 {guestStatusFilter ===
-											option.value
-												? 'bg-gray-100 font-semibold text-gray-900'
-												: 'font-medium text-gray-700'}"
+											class="ws-menu-option"
 										>
 											<span>{option.label}</span>
 											{#if guestStatusFilter === option.value}
 												<svg
 													aria-hidden="true"
-													class="size-4 text-gray-700"
+													class="size-4 shrink-0"
 													viewBox="0 0 24 24"
 													fill="none"
 													stroke="currentColor"
@@ -1111,75 +1108,69 @@
 							type="button"
 							onclick={openTemplateDialog}
 							title="Template pesan"
-							class="group inline-flex size-11 cursor-pointer items-center justify-center rounded-xl bg-linear-to-r from-[#9400ff] to-[#7200e8] p-px text-sm font-semibold lg:h-auto lg:w-auto"
+							class="ws-button group inline-flex size-11 cursor-pointer items-center justify-center p-0 text-sm lg:h-auto lg:w-auto"
 						>
 							<span
-								class="inline-flex size-full items-center justify-center rounded-[11px] bg-white transition group-hover:bg-gray-100 lg:h-auto lg:w-auto lg:px-5 lg:py-3"
+								class="inline-flex size-full items-center justify-center lg:h-auto lg:w-auto lg:px-5 lg:py-3"
 							>
 								<svg
 									aria-hidden="true"
 									class="size-5 lg:hidden"
 									viewBox="0 0 24 24"
 									fill="none"
-									stroke="url(#template-icon-gradient)"
+									stroke="currentColor"
 									stroke-width="1.8"
 									stroke-linecap="round"
 									stroke-linejoin="round"
 								>
 									<defs>
 										<linearGradient id="template-icon-gradient" x2="1" y2="0">
-											<stop stop-color="#9400ff"></stop>
-											<stop offset="1" stop-color="#7200e8"></stop>
+											<stop stop-color="#191919"></stop>
+											<stop offset="1" stop-color="#191919"></stop>
 										</linearGradient>
 									</defs>
 									<path d="M7 3h7l3 3v15H7z"></path>
 									<path d="M10 11h4M10 15h4"></path>
 								</svg>
-								<span
-									class="sr-only bg-linear-to-r from-[#9400ff] to-[#7200e8] bg-clip-text text-transparent lg:not-sr-only"
-									>Template</span
-								>
+								<span class="sr-only lg:not-sr-only">Template</span>
 							</span>
 						</button>
 						<button
 							type="button"
 							onclick={openCsvDialog}
 							title="Impor tamu dari CSV"
-							class="group inline-flex size-11 cursor-pointer items-center justify-center rounded-xl bg-linear-to-r from-[#9400ff] to-[#7200e8] p-px text-sm font-semibold lg:h-auto lg:w-auto"
+							class="ws-button group inline-flex size-11 cursor-pointer items-center justify-center p-0 text-sm lg:h-auto lg:w-auto"
 						>
 							<span
-								class="inline-flex size-full items-center justify-center rounded-[11px] bg-white transition group-hover:bg-gray-100 lg:h-auto lg:w-auto lg:px-5 lg:py-3"
+								class="inline-flex size-full items-center justify-center lg:h-auto lg:w-auto lg:px-5 lg:py-3"
 							>
 								<svg
 									aria-hidden="true"
 									class="size-5 lg:hidden"
 									viewBox="0 0 24 24"
 									fill="none"
-									stroke="url(#csv-icon-gradient)"
+									stroke="currentColor"
 									stroke-width="1.8"
 									stroke-linecap="round"
 									stroke-linejoin="round"
 								>
 									<defs>
 										<linearGradient id="csv-icon-gradient" x2="1" y2="0">
-											<stop stop-color="#9400ff"></stop>
-											<stop offset="1" stop-color="#7200e8"></stop>
+											<stop stop-color="#191919"></stop>
+											<stop offset="1" stop-color="#191919"></stop>
 										</linearGradient>
 									</defs>
 									<path d="M12 16V4M8 8l4-4 4 4"></path>
 									<path d="M5 14v5h14v-5"></path>
 								</svg>
-								<span
-									class="sr-only bg-linear-to-r from-[#9400ff] to-[#7200e8] bg-clip-text text-transparent lg:not-sr-only"
-									>Impor CSV</span
-								>
+								<span class="sr-only lg:not-sr-only">Impor CSV</span>
 							</span>
 						</button>
 						<button
 							type="button"
 							onclick={openCreateForm}
 							title="Tambah tamu"
-							class="inline-flex size-11 cursor-pointer items-center justify-center rounded-xl bg-linear-to-r from-[#9400ff] to-[#7200e8] text-sm font-semibold text-white transition lg:h-auto lg:w-auto lg:px-5 lg:py-3"
+							class="ws-button ws-button--icon ws-button--primary inline-flex size-11 cursor-pointer items-center justify-center text-sm transition lg:h-auto lg:w-auto lg:px-5 lg:py-3"
 						>
 							<svg
 								aria-hidden="true"
@@ -1202,13 +1193,13 @@
 			</div>
 
 			<div class="hidden overflow-x-auto sm:block">
-				<table class="w-full min-w-200 text-left">
-					<thead class="bg-gray-50 text-xs font-semibold tracking-wide text-gray-500 uppercase">
-						<tr>
+				<table class="ws-table w-full min-w-200 text-left">
+					<thead class="bg-[#e2d2ff] text-xs font-extrabold tracking-wide uppercase">
+						<tr class="divide-x-2 divide-[#191919]">
 							<th class="px-6 py-4" aria-sort={guestSortAria('name')}>
 								<button
 									type="button"
-									class="inline-flex cursor-pointer items-center gap-2"
+									class="ws-link inline-flex cursor-pointer items-center gap-2"
 									onclick={() => toggleGuestSort('name')}
 									title="Urutkan berdasarkan nama tamu"
 								>
@@ -1243,7 +1234,7 @@
 							<th class="px-6 py-4" aria-sort={guestSortAria('created_at')}>
 								<button
 									type="button"
-									class="inline-flex cursor-pointer items-center gap-2"
+									class="ws-link inline-flex cursor-pointer items-center gap-2"
 									onclick={() => toggleGuestSort('created_at')}
 									title="Urutkan berdasarkan tanggal ditambahkan"
 								>
@@ -1276,21 +1267,19 @@
 							<th class="px-6 py-4 text-right">Aksi</th>
 						</tr>
 					</thead>
-					<tbody class="divide-y divide-gray-200">
+					<tbody class="divide-y divide-[#191919]/15 bg-white">
 						{#each filteredGuests as guest (guest.id)}
-							<tr class="hover:bg-gray-50">
+							<tr class="divide-x divide-[#191919]/15">
 								<td class="px-6 py-4">
-									<p class="text-sm font-semibold text-gray-900">{guest.name}</p>
+									<p class="text-sm font-semibold text-[#191919]">{guest.name}</p>
 								</td>
-								<td class="px-6 py-4 text-sm text-gray-500">{guest.whatsapp || '-'}</td>
+								<td class="px-6 py-4 text-sm text-[#5c554e]">{guest.whatsapp || '-'}</td>
 								<td class="px-6 py-4">
-									<span
-										class="rounded-full px-3 py-1 text-xs font-semibold {statusClass(
-											guest.rsvp_status
-										)}">{statusLabel(guest.rsvp_status)}</span
+									<span class="ws-badge {statusClass(guest.rsvp_status)}"
+										>{statusLabel(guest.rsvp_status)}</span
 									>
 								</td>
-								<td class="px-6 py-4 text-sm whitespace-nowrap text-gray-500">
+								<td class="px-6 py-4 text-sm whitespace-nowrap text-[#5c554e]">
 									{formatGuestDate(guest.created_at)}
 								</td>
 								<td class="px-6 py-4">
@@ -1305,7 +1294,7 @@
 											aria-controls={guestActionMenuGuest?.id === guest.id
 												? 'guest-action-menu'
 												: undefined}
-											class="grid size-9 cursor-pointer place-items-center rounded-lg bg-violet-100 text-[#9400ff] transition"
+											class="ws-button ws-button--icon grid size-9 cursor-pointer place-items-center text-[#191919] transition"
 										>
 											<svg
 												aria-hidden="true"
@@ -1323,7 +1312,7 @@
 							</tr>
 						{:else}
 							<tr
-								><td colspan="5" class="px-6 py-12 text-center text-sm text-gray-500"
+								><td colspan="5" class="px-6 py-12 text-center text-sm text-[#5c554e]"
 									>Tamu tidak ditemukan.</td
 								></tr
 							>
@@ -1337,14 +1326,12 @@
 					<article class="p-5">
 						<div class="flex items-start justify-between gap-3">
 							<div class="min-w-0">
-								<h2 class="truncate font-semibold text-gray-900">{guest.name}</h2>
-								<p class="mt-1 text-sm text-gray-500">{guest.whatsapp || '-'}</p>
-								<p class="mt-1 text-xs text-gray-400">{formatGuestDate(guest.created_at)}</p>
+								<h2 class="truncate font-semibold text-[#191919]">{guest.name}</h2>
+								<p class="mt-1 text-sm text-[#5c554e]">{guest.whatsapp || '-'}</p>
+								<p class="mt-1 text-xs text-[#5c554e]">{formatGuestDate(guest.created_at)}</p>
 							</div>
-							<span
-								class="shrink-0 rounded-full px-3 py-1 text-xs font-semibold {statusClass(
-									guest.rsvp_status
-								)}">{statusLabel(guest.rsvp_status)}</span
+							<span class="ws-badge shrink-0 {statusClass(guest.rsvp_status)}"
+								>{statusLabel(guest.rsvp_status)}</span
 							>
 						</div>
 						<div class="mt-4 flex justify-end">
@@ -1358,7 +1345,7 @@
 								aria-controls={guestActionMenuGuest?.id === guest.id
 									? 'guest-action-menu'
 									: undefined}
-								class="grid size-10 cursor-pointer place-items-center rounded-xl bg-violet-100 text-[#9400ff]"
+								class="ws-button ws-button--icon grid size-10 cursor-pointer place-items-center text-[#191919]"
 							>
 								<svg aria-hidden="true" class="size-5" viewBox="0 0 24 24" fill="currentColor">
 									<circle cx="12" cy="5" r="1.7"></circle>
@@ -1369,7 +1356,7 @@
 						</div>
 					</article>
 				{:else}
-					<p class="p-10 text-center text-sm text-gray-500">Tamu tidak ditemukan.</p>
+					<p class="p-10 text-center text-sm text-[#5c554e]">Tamu tidak ditemukan.</p>
 				{/each}
 			</div>
 		</div>
@@ -1382,7 +1369,7 @@
 			id="guest-action-menu"
 			role="menu"
 			aria-label={`Aksi untuk ${selectedGuest.name}`}
-			class="fixed z-50 w-41 rounded-xl border border-gray-200 bg-white p-1.5 shadow-xl"
+			class="ws-inset fixed z-50 w-41 p-1.5"
 			style:top={`${guestActionMenuPosition.top}px`}
 			style:left={`${guestActionMenuPosition.left}px`}
 		>
@@ -1390,7 +1377,7 @@
 				type="button"
 				role="menuitem"
 				onclick={() => runGuestAction('share', selectedGuest)}
-				class="flex w-full cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm font-medium text-gray-800 hover:bg-gray-50"
+				class="ws-menu-option flex w-full cursor-pointer items-center gap-3 px-3 py-2.5 text-left text-sm font-medium text-[#191919]"
 			>
 				<svg
 					aria-hidden="true"
@@ -1411,7 +1398,7 @@
 				type="button"
 				role="menuitem"
 				onclick={() => runGuestAction('copy', selectedGuest)}
-				class="flex w-full cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm font-medium text-gray-800 hover:bg-gray-50"
+				class="ws-menu-option flex w-full cursor-pointer items-center gap-3 px-3 py-2.5 text-left text-sm font-medium text-[#191919]"
 			>
 				<svg
 					aria-hidden="true"
@@ -1430,7 +1417,7 @@
 				type="button"
 				role="menuitem"
 				onclick={() => runGuestAction('edit', selectedGuest)}
-				class="flex w-full cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm font-medium text-gray-800 hover:bg-gray-50"
+				class="ws-menu-option flex w-full cursor-pointer items-center gap-3 px-3 py-2.5 text-left text-sm font-medium text-[#191919]"
 			>
 				<svg
 					aria-hidden="true"
@@ -1450,7 +1437,7 @@
 				type="button"
 				role="menuitem"
 				onclick={() => runGuestAction('preview', selectedGuest)}
-				class="flex w-full cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm font-medium text-gray-800 hover:bg-gray-50"
+				class="ws-menu-option flex w-full cursor-pointer items-center gap-3 px-3 py-2.5 text-left text-sm font-medium text-[#191919]"
 			>
 				<svg
 					aria-hidden="true"
@@ -1472,7 +1459,7 @@
 				role="menuitem"
 				disabled={deletingIds.includes(selectedGuest.id)}
 				onclick={() => runGuestAction('delete', selectedGuest)}
-				class="flex w-full cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm font-medium text-red-600 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
+				class="ws-menu-option flex w-full cursor-pointer items-center gap-3 px-3 py-2.5 text-left text-sm font-medium text-red-600 disabled:cursor-not-allowed disabled:opacity-50"
 			>
 				<svg
 					aria-hidden="true"
@@ -1493,6 +1480,22 @@
 </section>
 
 <style>
+	input.search-field:focus,
+	button.status-filter:focus {
+		border-color: #191919;
+		outline: none;
+		transform: none;
+	}
+
+	input.search-field:focus,
+	button.status-filter[aria-expanded='true'] {
+		box-shadow: none;
+	}
+
+	button.status-filter[aria-expanded='false']:focus {
+		box-shadow: 3px 3px 0 #191919;
+	}
+
 	.rich-template :global(p + p) {
 		margin-top: 0.75rem;
 	}

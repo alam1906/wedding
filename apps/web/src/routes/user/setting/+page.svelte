@@ -177,7 +177,7 @@
 		onclick={(event) => event.target === event.currentTarget && closeDeleteAccountDialog()}
 		oncancel={(event) => isDeletingAccount && event.preventDefault()}
 		onclose={resetDeleteAccountDialog}
-		class="account-dialog m-auto w-[calc(100%-2rem)] max-w-md rounded-3xl border border-red-200 bg-white p-0 shadow-2xl"
+		class="ws-dialog account-dialog m-auto w-[calc(100%-2rem)] max-w-md p-0"
 	>
 		<form onsubmit={handleDeleteAccount}>
 			<div class="border-b border-red-100 bg-red-50 px-5 py-6 sm:px-6">
@@ -186,7 +186,7 @@
 						<p class="text-xs font-semibold tracking-wider text-red-600 uppercase">
 							Zona berbahaya
 						</p>
-						<h2 id="delete-account-title" class="mt-2 text-2xl font-bold text-gray-950">
+						<h2 id="delete-account-title" class="mt-2 text-2xl font-extrabold text-[#191919]">
 							Hapus akun?
 						</h2>
 					</div>
@@ -195,7 +195,7 @@
 						onclick={closeDeleteAccountDialog}
 						disabled={isDeletingAccount}
 						aria-label="Tutup dialog hapus akun"
-						class="grid size-10 shrink-0 cursor-pointer place-items-center rounded-full bg-white text-gray-500 shadow-sm disabled:opacity-50"
+						class="ws-button ws-button--icon grid size-10 shrink-0 cursor-pointer place-items-center disabled:opacity-50"
 					>
 						<svg
 							aria-hidden="true"
@@ -212,12 +212,12 @@
 			</div>
 
 			<div class="p-5 sm:p-6">
-				<p id="delete-account-description" class="text-sm leading-6 text-gray-600">
+				<p id="delete-account-description" class="text-sm leading-6 text-[#5c554e]">
 					Tindakan ini permanen. Akun, undangan pernikahan, cerita, daftar tamu, RSVP, dan file akan
 					dihapus. Catatan pembayaran dan affiliate tetap disimpan untuk rekonsiliasi. Pembayaran,
 					komisi, atau pencairan yang belum selesai harus diselesaikan terlebih dahulu.
 				</p>
-				<label class="mt-5 block text-sm font-medium text-gray-800">
+				<label class="form-label mt-5 block">
 					Ketik <strong>{ACCOUNT_DELETE_CONFIRMATION}</strong> untuk melanjutkan
 					<input
 						bind:value={deleteConfirmation}
@@ -226,11 +226,11 @@
 						spellcheck="false"
 						disabled={isDeletingAccount}
 						placeholder={ACCOUNT_DELETE_CONFIRMATION}
-						class="field mt-2 w-full rounded-xl border border-gray-700 bg-white px-4 py-3 text-sm"
+						class="form-control mt-2"
 					/>
 				</label>
 				{#if deleteAccountError}
-					<p class="mt-4 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700" role="alert">
+					<p class="ws-alert ws-alert--error mt-4 px-4 py-3 text-sm text-red-700" role="alert">
 						{deleteAccountError}
 					</p>
 				{/if}
@@ -239,14 +239,13 @@
 						type="button"
 						onclick={closeDeleteAccountDialog}
 						disabled={isDeletingAccount}
-						class="cursor-pointer rounded-xl border border-gray-300 bg-white px-5 py-3 text-sm font-semibold text-gray-700 disabled:opacity-50"
-						>Batal</button
+						class="ws-button cursor-pointer px-5 py-3 text-sm disabled:opacity-50">Batal</button
 					>
 					<button
 						type="submit"
 						disabled={!canDeleteAccount || isDeletingAccount}
 						aria-busy={isDeletingAccount}
-						class="cursor-pointer rounded-xl bg-red-600 px-5 py-3 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
+						class="ws-button ws-button--danger cursor-pointer px-5 py-3 text-sm disabled:cursor-not-allowed disabled:opacity-50"
 					>
 						{isDeletingAccount ? 'Menghapus akun...' : 'Hapus akun permanen'}
 					</button>
@@ -257,10 +256,10 @@
 
 	<div class="mx-auto flex w-full max-w-6xl flex-col gap-5 lg:grid lg:grid-cols-2 lg:items-start">
 		<div class="contents lg:block lg:space-y-5">
-			<section class="order-1 rounded-2xl border border-gray-200 bg-white p-5 sm:p-6">
+			<section class="ws-panel order-1 p-5 sm:p-6">
 				<form onsubmit={handleSaveProfile}>
 					<div
-						class="flex flex-col gap-5 border-b border-gray-200 pb-6 min-[420px]:flex-row min-[420px]:items-center"
+						class="flex flex-col gap-5 border-b border-[#191919] pb-6 min-[420px]:flex-row min-[420px]:items-center"
 					>
 						<div
 							class="grid size-20 shrink-0 place-items-center rounded-full bg-gray-900 text-2xl font-bold text-white"
@@ -272,27 +271,27 @@
 							{/if}
 						</div>
 						<div>
-							<h1 class="text-xl font-bold text-gray-900">Profil akun</h1>
+							<h1 class="text-xl font-extrabold text-[#191919]">Profil akun</h1>
 							<input
 								bind:this={avatarInput}
 								type="file"
 								accept={OPTIMIZABLE_IMAGE_ACCEPT}
 								onchange={handleAvatar}
 								aria-label="Pilih foto profil"
-								class="hidden"
+								class="ws-input hidden"
 								disabled={isSavingAvatar}
 							/>
 							<button
 								type="button"
 								onclick={() => avatarInput.click()}
 								disabled={isSavingAvatar}
-								class="mt-3 cursor-pointer text-sm font-semibold text-gray-900 disabled:opacity-50"
+								class="ws-link mt-3 cursor-pointer text-sm font-semibold text-[#191919] disabled:opacity-50"
 								>{isSavingAvatar ? 'Menyimpan foto...' : 'Ganti foto'}</button
 							>
 						</div>
 					</div>
 					<div class="mt-6 grid gap-5">
-						<label class="block text-sm font-medium text-gray-700">
+						<label class="form-label block">
 							Nama lengkap
 							<input
 								bind:value={profileName}
@@ -301,17 +300,17 @@
 								disabled={isSavingProfile}
 								aria-invalid={profileError ? 'true' : undefined}
 								aria-describedby={profileError ? 'profile-name-error' : undefined}
-								class="field mt-2 w-full rounded-xl border border-gray-700 bg-white px-4 py-3 text-sm"
+								class="form-control mt-2"
 							/>
 						</label>
-						<label class="block text-sm font-medium text-gray-700">
+						<label class="form-label block">
 							Email
 							<input
 								type="email"
 								autocomplete="email"
 								value={profileEmail}
 								readonly
-								class="field mt-2 w-full rounded-xl border border-gray-700 bg-gray-100 px-4 py-3 text-sm text-gray-500"
+								class="form-control mt-2"
 							/>
 						</label>
 					</div>
@@ -327,7 +326,7 @@
 							type="submit"
 							disabled={isSavingProfile}
 							aria-busy={isSavingProfile}
-							class="cursor-pointer rounded-xl bg-linear-to-r from-[#9400ff] to-[#7200e8] px-5 py-3 text-sm font-semibold text-white"
+							class="ws-button ws-button--primary cursor-pointer px-5 py-3 text-sm"
 						>
 							{isSavingProfile ? 'Menyimpan...' : 'Simpan profil'}
 						</button>
@@ -335,26 +334,26 @@
 				</form>
 			</section>
 
-			<section class="order-3 rounded-2xl border border-red-200 bg-red-50/30 p-5 sm:p-6">
-				<h2 class="text-lg font-bold text-gray-900">Hapus akun</h2>
-				<p class="mt-2 text-sm leading-6 text-gray-500">
+			<section class="ws-panel order-3 p-5 sm:p-6">
+				<h2 class="text-lg font-extrabold text-[#191919]">Hapus akun</h2>
+				<p class="mt-2 text-sm leading-6 text-[#5c554e]">
 					Semua undangan dan data tamu akan dihapus secara permanen.
 				</p>
 				<button
 					type="button"
 					onclick={openDeleteAccountDialog}
-					class="mt-5 w-full cursor-pointer rounded-xl bg-red-600 px-4 py-3 text-sm font-semibold text-white"
+					class="ws-button ws-button--danger mt-5 w-full cursor-pointer px-4 py-3 text-sm"
 					>Hapus akun</button
 				>
 			</section>
 		</div>
 
 		<div class="contents lg:block">
-			<section class="order-2 rounded-2xl border border-gray-200 bg-white p-5 sm:p-6">
-				<h2 class="text-lg font-bold text-gray-900">Keamanan</h2>
-				<p class="mt-1 text-sm text-gray-500">Perbarui kata sandi akun secara berkala.</p>
-				<form class="mt-5 space-y-4" onsubmit={handleChangePassword}>
-					<label class="block text-sm font-medium text-gray-700"
+			<section class="ws-panel order-2 p-5 sm:p-6">
+				<h2 class="text-lg font-extrabold text-[#191919]">Keamanan</h2>
+				<p class="mt-1 text-sm text-[#5c554e]">Perbarui kata sandi akun secara berkala.</p>
+				<form class="mt-5 space-y-5" onsubmit={handleChangePassword}>
+					<label class="form-label block"
 						>Kata sandi saat ini<input
 							bind:value={currentPassword}
 							name="oldPassword"
@@ -362,10 +361,10 @@
 							autocomplete="current-password"
 							required
 							disabled={isChangingPassword}
-							class="field mt-2 w-full rounded-xl border border-gray-700 px-4 py-3 text-sm"
+							class="form-control mt-2"
 						/></label
 					>
-					<label class="block text-sm font-medium text-gray-700"
+					<label class="form-label block"
 						>Kata sandi baru<input
 							bind:value={newPassword}
 							name="password"
@@ -373,10 +372,10 @@
 							autocomplete="new-password"
 							required
 							disabled={isChangingPassword}
-							class="field mt-2 w-full rounded-xl border border-gray-700 px-4 py-3 text-sm"
+							class="form-control mt-2"
 						/></label
 					>
-					<label class="block text-sm font-medium text-gray-700"
+					<label class="form-label block"
 						>Konfirmasi kata sandi baru<input
 							bind:value={passwordConfirm}
 							name="passwordConfirm"
@@ -384,11 +383,11 @@
 							autocomplete="new-password"
 							required
 							disabled={isChangingPassword}
-							class="field mt-2 w-full rounded-xl border border-gray-700 px-4 py-3 text-sm"
+							class="form-control mt-2"
 						/></label
 					>
 					{#if passwordError}
-						<p class="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700" role="alert">
+						<p class="ws-alert ws-alert--error px-4 py-3 text-sm text-red-700" role="alert">
 							{passwordError}
 						</p>
 					{/if}
@@ -396,7 +395,7 @@
 						type="submit"
 						disabled={isChangingPassword}
 						aria-busy={isChangingPassword}
-						class="mt-5 w-full cursor-pointer rounded-xl bg-linear-to-r from-[#9400ff] to-[#7200e8] px-4 py-3 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
+						class="ws-button ws-button--primary mt-5 w-full cursor-pointer px-4 py-3 text-sm disabled:cursor-not-allowed disabled:opacity-60"
 						>{isChangingPassword ? 'Mengubah kata sandi...' : 'Ubah kata sandi'}</button
 					>
 				</form>

@@ -18,6 +18,7 @@
 	} from '#lib/features/auth/index.js';
 	import { getToastContext } from '#lib/features/toast/index.js';
 	import AuthField from './AuthField.svelte';
+	import AuthFrame from './AuthFrame.svelte';
 	import {
 		postLoginDestination,
 		safeDestination,
@@ -39,13 +40,13 @@
 	const content = $derived(
 		isLogin
 			? {
-					title: 'Login',
+					title: 'Masuk',
 					submitLabel: 'Masuk',
 					metaTitle: 'Masuk - Wedez',
 					metaDescription: 'Masuk ke akun Wedez untuk mengelola undangan atau affiliate.'
 				}
 			: {
-					title: 'Register',
+					title: 'Daftar',
 					submitLabel: 'Daftar',
 					metaTitle: 'Daftar - Wedez',
 					metaDescription: 'Buat akun Wedez untuk undangan pernikahan atau program affiliate.'
@@ -167,138 +168,111 @@
 	<meta name="description" content={content.metaDescription} />
 </svelte:head>
 
-<main class="grid min-h-screen place-items-center bg-gray-100 px-4 py-12">
-	<section class="w-full max-w-sm rounded-2xl border border-gray-200 bg-white p-8 shadow-sm">
-		<div class="text-center">
-			<a href="/" class="inline-flex" aria-label="Wedez, kembali ke beranda">
-				<img
-					class="size-20 object-contain"
-					src="/images/hero/logo-wedez.webp"
-					alt=""
-					width="256"
-					height="256"
-				/>
-			</a>
-			<h1 class="text-2xl font-bold tracking-tight text-gray-900">{content.title}</h1>
-		</div>
-
-		<form class="mt-8 space-y-5" onsubmit={submitAuth}>
-			{#if !isLogin}
-				<AuthField
-					id="name"
-					name="name"
-					label="Nama"
-					autocomplete="name"
-					placeholder="Nama lengkap"
-					disabled={isSubmitting}
-					error={registerFieldErrors.name}
-					oninput={() => clearRegisterFeedback('name')}
-					required
-				/>
-			{/if}
-
+<AuthFrame title={content.title}>
+	<form class="mt-8 space-y-5" onsubmit={submitAuth}>
+		{#if !isLogin}
 			<AuthField
-				id="email"
-				name="email"
-				label="Email"
-				type="email"
-				autocomplete="email"
-				placeholder="nama@email.com"
+				id="name"
+				name="name"
+				label="Nama"
+				autocomplete="name"
+				placeholder="Nama lengkap"
 				disabled={isSubmitting}
-				error={isLogin ? loginFieldErrors.email : registerFieldErrors.email}
-				oninput={isLogin ? () => clearLoginFeedback('email') : () => clearRegisterFeedback('email')}
+				error={registerFieldErrors.name}
+				oninput={() => clearRegisterFeedback('name')}
 				required
 			/>
-
-			<AuthField
-				id="password"
-				name="password"
-				label="Kata sandi"
-				type="password"
-				autocomplete={isLogin ? 'current-password' : 'new-password'}
-				placeholder={isLogin ? 'Masukkan kata sandi' : 'Buat kata sandi'}
-				disabled={isSubmitting}
-				error={isLogin ? loginFieldErrors.password : registerFieldErrors.password}
-				oninput={isLogin
-					? () => clearLoginFeedback('password')
-					: () => clearRegisterFeedback('password')}
-				required
-			>
-				{#snippet labelAction()}
-					{#if isLogin}
-						<a
-							href="/forgot-password"
-							class="auth-focus text-sm font-medium text-gray-600 hover:text-gray-900"
-						>
-							Lupa kata sandi?
-						</a>
-					{/if}
-				{/snippet}
-			</AuthField>
-
-			{#if !isLogin}
-				<AuthField
-					id="passwordConfirm"
-					name="passwordConfirm"
-					label="Konfirmasi kata sandi"
-					type="password"
-					autocomplete="new-password"
-					placeholder="Ulangi kata sandi"
-					disabled={isSubmitting}
-					error={registerFieldErrors.passwordConfirm}
-					oninput={() => clearRegisterFeedback('passwordConfirm')}
-					required
-				/>
-			{/if}
-
-			<button
-				type="submit"
-				disabled={isSubmitting}
-				aria-busy={isSubmitting}
-				class="auth-focus w-full cursor-pointer rounded-xl bg-linear-to-r from-[#9400ff] to-[#7200e8] px-4 py-3 text-sm font-semibold text-white transition disabled:cursor-not-allowed disabled:opacity-60"
-			>
-				{isSubmitting ? (isLogin ? 'Sedang masuk...' : 'Sedang mendaftar...') : content.submitLabel}
-			</button>
-		</form>
-
-		{#if isLogin}
-			<div class="my-6 flex items-center gap-3" aria-hidden="true">
-				<div class="h-px flex-1 bg-gray-200"></div>
-				<span class="text-xs font-medium text-gray-400">atau</span>
-				<div class="h-px flex-1 bg-gray-200"></div>
-			</div>
-
-			<button
-				type="button"
-				disabled
-				title="Login Google belum tersedia"
-				class="flex w-full cursor-not-allowed items-center justify-center gap-3 rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm font-semibold text-gray-500 opacity-60"
-			>
-				<span
-					aria-hidden="true"
-					class="grid size-5 place-items-center rounded-full bg-white text-sm font-bold text-blue-600"
-				>
-					G
-				</span>
-				Masuk dengan Google
-			</button>
 		{/if}
 
-		<p class="mt-6 text-center text-sm text-gray-500">
-			{isLogin ? 'Belum punya akun?' : 'Sudah punya akun?'}
-			<a
-				href={`${isLogin ? '/register' : '/login'}?next=${encodeURIComponent(destination)}`}
-				class="auth-focus font-semibold text-gray-900 hover:text-gray-600"
-			>
-				{isLogin ? 'Daftar' : 'Masuk'}
-			</a>
-		</p>
-	</section>
-</main>
+		<AuthField
+			id="email"
+			name="email"
+			label="Email"
+			type="email"
+			autocomplete="email"
+			placeholder="nama@email.com"
+			disabled={isSubmitting}
+			error={isLogin ? loginFieldErrors.email : registerFieldErrors.email}
+			oninput={isLogin ? () => clearLoginFeedback('email') : () => clearRegisterFeedback('email')}
+			required
+		/>
 
-<style>
-	.auth-focus:focus-visible {
-		outline: 2px solid #9400ff;
-		outline-offset: 3px;
-	}
-</style>
+		<AuthField
+			id="password"
+			name="password"
+			label="Kata sandi"
+			type="password"
+			autocomplete={isLogin ? 'current-password' : 'new-password'}
+			placeholder={isLogin ? 'Masukkan kata sandi' : 'Buat kata sandi'}
+			disabled={isSubmitting}
+			error={isLogin ? loginFieldErrors.password : registerFieldErrors.password}
+			oninput={isLogin
+				? () => clearLoginFeedback('password')
+				: () => clearRegisterFeedback('password')}
+			required
+		>
+			{#snippet labelAction()}
+				{#if isLogin}
+					<a href="/forgot-password" class="auth-link text-xs sm:text-sm"> Lupa kata sandi? </a>
+				{/if}
+			{/snippet}
+		</AuthField>
+
+		{#if !isLogin}
+			<AuthField
+				id="passwordConfirm"
+				name="passwordConfirm"
+				label="Konfirmasi kata sandi"
+				type="password"
+				autocomplete="new-password"
+				placeholder="Ulangi kata sandi"
+				disabled={isSubmitting}
+				error={registerFieldErrors.passwordConfirm}
+				oninput={() => clearRegisterFeedback('passwordConfirm')}
+				required
+			/>
+		{/if}
+
+		<button
+			type="submit"
+			disabled={isSubmitting}
+			aria-busy={isSubmitting}
+			class="auth-button auth-button-pink w-full"
+		>
+			{isSubmitting ? (isLogin ? 'Sedang masuk...' : 'Sedang mendaftar...') : content.submitLabel}
+		</button>
+	</form>
+
+	{#if isLogin}
+		<div class="my-6 flex items-center gap-3" aria-hidden="true">
+			<div class="h-px flex-1 bg-[#191919]"></div>
+			<span class="text-xs font-bold text-[#57534e]">atau</span>
+			<div class="h-px flex-1 bg-[#191919]"></div>
+		</div>
+
+		<button
+			type="button"
+			disabled
+			title="Masuk dengan Google belum tersedia"
+			class="auth-button auth-button-neutral w-full"
+		>
+			<span
+				aria-hidden="true"
+				class="grid size-5 place-items-center rounded-full bg-white text-sm font-bold text-blue-600"
+			>
+				G
+			</span>
+			Masuk dengan Google
+		</button>
+	{/if}
+
+	<p class="mt-6 text-center text-sm leading-6 text-[#57534e]">
+		{isLogin ? 'Belum punya akun?' : 'Sudah punya akun?'}
+		<a
+			href={`${isLogin ? '/register' : '/login'}?next=${encodeURIComponent(destination)}`}
+			class="auth-link"
+		>
+			{isLogin ? 'Daftar' : 'Masuk'}
+		</a>
+	</p>
+</AuthFrame>

@@ -111,13 +111,11 @@
 
 <section class="px-4 py-8 sm:px-6 lg:px-10 lg:py-10">
 	<div class="mx-auto w-full max-w-6xl">
-		<div class="grid w-full min-w-0 gap-5 lg:grid-cols-2">
-			<article class="flex min-w-0 items-center rounded-2xl border border-gray-200 bg-white p-5">
+		<div class="ws-highlights grid w-full min-w-0 gap-5 lg:grid-cols-2">
+			<article class="ws-panel flex min-w-0 items-center p-5">
 				<div class="flex w-full min-w-0 items-center justify-between gap-4">
 					<div class="flex min-w-0 items-center gap-3">
-						<span
-							class="grid size-10 shrink-0 place-items-center rounded-xl bg-gray-100 text-gray-600"
-						>
+						<span class="ws-icon grid size-10 shrink-0 place-items-center">
 							<svg
 								aria-hidden="true"
 								class="size-5"
@@ -131,13 +129,13 @@
 							</svg>
 						</span>
 						<div class="min-w-0">
-							<p class="text-sm font-medium text-gray-500">Link pernikahan</p>
+							<p class="text-sm font-medium text-[#5c554e]">Link pernikahan</p>
 							{#if weddingURL}
 								<a
 									href={weddingURL}
 									target="_blank"
 									rel="noreferrer"
-									class="mt-1 block truncate text-lg font-bold text-gray-900 hover:text-gray-600"
+									class="mt-1 block truncate text-lg font-bold text-[#191919] hover:text-gray-600"
 								>
 									{weddingHost}
 								</a>
@@ -152,7 +150,7 @@
 						href="/user/data"
 						aria-label="Edit link pernikahan"
 						title="Edit link pernikahan"
-						class="grid size-10 shrink-0 place-items-center rounded-xl border border-gray-200 bg-gray-50 text-gray-600 transition hover:border-gray-300 hover:bg-gray-100 hover:text-gray-900"
+						class="ws-button ws-button--icon grid size-10 shrink-0 place-items-center transition"
 					>
 						<svg
 							aria-hidden="true"
@@ -171,11 +169,11 @@
 				</div>
 			</article>
 
-			<article class="flex min-w-0 items-center rounded-2xl border border-gray-200 bg-white p-5">
+			<article class="ws-panel flex min-w-0 items-center p-5">
 				<div class="flex w-full flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
 					<div>
-						<p class="text-sm font-medium text-gray-500">Paket aktif</p>
-						<h2 class="mt-2 text-2xl font-bold tracking-tight text-gray-900">
+						<p class="text-sm font-medium text-[#5c554e]">Paket aktif</p>
+						<h2 class="mt-2 text-2xl font-extrabold tracking-tight text-[#191919]">
 							{weddingPlanTier === 'pro'
 								? 'Paket Pro'
 								: weddingPlanTier === 'free'
@@ -186,7 +184,7 @@
 					{#if weddingPlanTier === 'free'}
 						<a
 							href="/upgrade"
-							class="inline-flex shrink-0 items-center justify-center rounded-xl border border-gray-300 bg-white px-5 py-3 text-sm font-semibold text-gray-700 transition hover:bg-gray-100"
+							class="ws-button inline-flex shrink-0 items-center justify-center px-5 py-3 text-sm transition"
 						>
 							Upgrade
 						</a>
@@ -195,15 +193,15 @@
 			</article>
 		</div>
 
-		<article class="mt-5 w-full rounded-2xl border border-gray-200 bg-white p-6">
+		<article class="ws-panel mt-5 w-full p-6">
 			<div class="grid gap-5 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start">
 				<div>
-					<p class="text-sm font-medium text-gray-500">Kelengkapan undangan</p>
-					<h2 class="mt-2 text-2xl font-bold tracking-tight text-gray-900">
+					<p class="text-sm font-medium text-[#5c554e]">Kelengkapan undangan</p>
+					<h2 class="mt-2 text-2xl font-extrabold tracking-tight text-[#191919]">
 						{progressPercentage}% selesai
 					</h2>
 					{#if weddingProgress}
-						<p class="mt-2 text-sm text-gray-500">
+						<p class="mt-2 text-sm text-[#5c554e]">
 							{weddingProgress.completedFields} dari {weddingProgress.totalFields} data utama telah diisi.
 						</p>
 					{:else}
@@ -213,7 +211,7 @@
 					{/if}
 				</div>
 				<div
-					class="h-3 overflow-hidden rounded-full bg-gray-100 sm:col-span-2 sm:row-start-2"
+					class="ws-progress h-3 overflow-hidden bg-[#fffaf1] sm:col-span-2 sm:row-start-2"
 					role="progressbar"
 					aria-label="Kelengkapan data undangan"
 					aria-valuemin="0"
@@ -221,34 +219,28 @@
 					aria-valuenow={progressPercentage}
 				>
 					<div
-						class="h-full rounded-full bg-linear-to-r from-[#9400ff] to-[#7200e8] transition-[width] duration-500"
+						class="h-full bg-[#ff96ca] transition-[width] duration-500"
 						style:width={`${progressPercentage}%`}
 					></div>
 				</div>
 				<a
 					href="/user/data"
-					class="group inline-flex w-full shrink-0 items-center justify-center rounded-xl bg-linear-to-r from-[#9400ff] to-[#7200e8] p-px text-sm font-semibold sm:col-start-2 sm:row-start-1 sm:w-auto"
+					class="ws-button ws-button--primary w-full shrink-0 sm:col-start-2 sm:row-start-1 sm:w-auto"
 				>
-					<span
-						class="inline-flex w-full items-center justify-center rounded-[11px] bg-white px-5 py-3 transition group-hover:bg-gray-100"
-					>
-						<span class="bg-linear-to-r from-[#9400ff] to-[#7200e8] bg-clip-text text-transparent">
-							Lengkapi data
-						</span>
-					</span>
+					Lengkapi data
 				</a>
 			</div>
 		</article>
 
-		<article class="mt-5 w-full rounded-2xl border border-gray-200 bg-white p-5">
-			<h2 class="text-lg font-bold text-gray-900">Tamu</h2>
-			<div class="mt-4 grid grid-cols-1 gap-3 min-[420px]:grid-cols-2 lg:grid-cols-4">
+		<article class="ws-panel mt-5 w-full p-5">
+			<h2 class="text-lg font-extrabold text-[#191919]">Tamu</h2>
+			<div class="ws-metrics mt-4 grid grid-cols-1 gap-3 min-[420px]:grid-cols-2 lg:grid-cols-4">
 				{#each stats as stat (stat.label)}
-					<div class="min-w-0 rounded-xl border border-gray-200 bg-white p-3.5">
-						<p class="text-sm font-medium text-gray-500">{stat.label}</p>
+					<div class="ws-inset min-w-0 p-3.5">
+						<p class="text-sm font-medium text-[#5c554e]">{stat.label}</p>
 						<div class="mt-4 flex items-end justify-between gap-3">
-							<p class="text-4xl font-bold tracking-tight text-gray-900">{stat.value}</p>
-							<span class="rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-500">
+							<p class="text-4xl font-bold tracking-tight text-[#191919]">{stat.value}</p>
+							<span class="ws-badge px-3 py-1 text-xs font-semibold">
 								{stat.badge}
 							</span>
 						</div>

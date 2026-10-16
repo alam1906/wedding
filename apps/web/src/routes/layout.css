@@ -1,4 +1,6 @@
 @import 'tailwindcss';
+@import '../lib/styles/workspace.css';
+@import '../lib/styles/form-controls.css';
 @plugin '@tailwindcss/forms';
 @plugin '@tailwindcss/typography';
 

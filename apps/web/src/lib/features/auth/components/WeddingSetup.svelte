@@ -3,6 +3,7 @@
 	import { chooseAffiliateHome } from '#lib/features/auth/api/choose-home.js';
 	import { hasWedding, type AccountIntent } from '#lib/features/auth/model/navigation.js';
 	import { pocketBase } from '#lib/infrastructure/pocketbase/index.js';
+	import AuthFrame from '#lib/components/auth/AuthFrame.svelte';
 	let busy = $state<AccountIntent | null>(null);
 	let error = $state('');
 	async function createWedding() {
@@ -35,46 +36,52 @@
 </script>
 
 <svelte:head><title>Pilih tujuan akun - Wedez</title></svelte:head>
-<main class="grid min-h-screen place-items-center bg-gray-100 px-4 py-12">
-	<section class="w-full max-w-xl rounded-2xl border border-gray-200 bg-white p-8">
-		<a href="/" class="text-sm font-bold text-violet-700">WEDEZ</a>
-		<h1 class="mt-6 text-2xl font-bold tracking-tight text-gray-900">Mau mulai dari mana?</h1>
-		<p class="mt-3 text-sm leading-6 text-gray-500">
-			Pilih tujuan akunmu. Pilihan ini disimpan untuk login berikutnya, dan kamu bisa mengubahnya
-			nanti.
-		</p>
-		{#if error}<p role="alert" class="mt-4 text-sm text-red-600">{error}</p>{/if}
-		<div class="mt-7 grid gap-4 sm:grid-cols-2">
-			<div class="flex flex-col rounded-xl border border-gray-200 p-5">
-				<h2 class="text-lg font-semibold text-gray-900">Buat undangan</h2>
-				<p class="mt-2 flex-1 text-sm leading-6 text-gray-600">
-					Siapkan undangan pernikahan gratis, kelola tamu, dan pilih tema.
-				</p>
-				<button
-					type="button"
-					onclick={createWedding}
-					disabled={busy !== null}
-					class="mt-5 w-full cursor-pointer rounded-xl bg-violet-700 px-4 py-3 text-sm font-semibold text-white disabled:opacity-50"
-					>{busy === 'wedding'
-						? 'Menyiapkan undangan...'
-						: hasWedding()
-							? 'Masuk ke undangan'
-							: 'Buat undangan gratis'}</button
-				>
-			</div>
-			<div class="flex flex-col rounded-xl border border-gray-200 p-5">
-				<h2 class="text-lg font-semibold text-gray-900">Jadi affiliate</h2>
-				<p class="mt-2 flex-1 text-sm leading-6 text-gray-600">
-					Bagikan kode kupon dan dapatkan komisi dari pembayaran yang berhasil.
-				</p>
-				<button
-					type="button"
-					onclick={chooseAffiliate}
-					disabled={busy !== null}
-					class="mt-5 w-full cursor-pointer rounded-xl border border-violet-200 px-4 py-3 text-sm font-semibold text-violet-700 hover:bg-violet-50 disabled:opacity-50"
-					>{busy === 'affiliate' ? 'Menyimpan pilihan...' : 'Masuk ke affiliate'}</button
-				>
-			</div>
+<AuthFrame
+	title="Mau mulai dari mana?"
+	description="Pilih tujuan akunmu. Pilihan ini disimpan untuk login berikutnya, dan kamu bisa mengubahnya nanti."
+	wide
+>
+	{#if error}<p role="alert" class="auth-notice auth-notice-error mt-6">{error}</p>{/if}
+	<div class="mt-8 grid gap-5 sm:grid-cols-2">
+		<div class="flex flex-col border-2 border-[#191919] bg-white p-5 shadow-[3px_3px_0_#191919]">
+			<span
+				class="mb-5 grid size-10 place-items-center border-2 border-[#191919] bg-[#ff96ca] text-xs font-black"
+				aria-hidden="true">01</span
+			>
+			<h2 class="text-xl font-black tracking-tight">Buat undangan</h2>
+			<p class="mt-3 flex-1 text-sm leading-6 text-[#57534e]">
+				Siapkan undangan pernikahan gratis, kelola tamu, dan pilih tema.
+			</p>
+			<button
+				type="button"
+				onclick={createWedding}
+				disabled={busy !== null}
+				aria-busy={busy === 'wedding'}
+				class="auth-button auth-button-pink mt-6 w-full"
+				>{busy === 'wedding'
+					? 'Menyiapkan undangan...'
+					: hasWedding()
+						? 'Masuk ke undangan'
+						: 'Buat undangan gratis'}</button
+			>
 		</div>
-	</section>
-</main>
+		<div class="flex flex-col border-2 border-[#191919] bg-white p-5 shadow-[3px_3px_0_#191919]">
+			<span
+				class="mb-5 grid size-10 place-items-center border-2 border-[#191919] bg-[#e5fa94] text-xs font-black"
+				aria-hidden="true">02</span
+			>
+			<h2 class="text-xl font-black tracking-tight">Jadi affiliate</h2>
+			<p class="mt-3 flex-1 text-sm leading-6 text-[#57534e]">
+				Bagikan kode kupon dan dapatkan komisi dari pembayaran yang berhasil.
+			</p>
+			<button
+				type="button"
+				onclick={chooseAffiliate}
+				disabled={busy !== null}
+				aria-busy={busy === 'affiliate'}
+				class="auth-button mt-6 w-full"
+				>{busy === 'affiliate' ? 'Menyimpan pilihan...' : 'Masuk ke affiliate'}</button
+			>
+		</div>
+	</div>
+</AuthFrame>

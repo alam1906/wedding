@@ -8,7 +8,7 @@
 		name="description"
 		content="Lihat semua tema undangan pernikahan Wedez dan buka preview dengan data contoh."
 	/>
-	<meta name="theme-color" content="#ffffff" />
+	<meta name="theme-color" content="#fffaf1" />
 </svelte:head>
 
 <ThemeCatalog />

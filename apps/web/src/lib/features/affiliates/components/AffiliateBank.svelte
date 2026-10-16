@@ -27,36 +27,36 @@
 			busy = false;
 		}
 	}
-	const fieldClass =
-		'mt-2 block w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm focus:border-violet-600 focus:ring-violet-600';
 </script>
 
 <svelte:head
 	><title>Rekening Affiliate - Wedez</title><meta name="robots" content="noindex" /></svelte:head
 >
-<h2 class="text-2xl font-bold tracking-tight">Rekening pencairan</h2>
-<p class="mt-2 text-sm text-gray-500">
+<h2 class="text-2xl font-extrabold tracking-tight">Rekening pencairan</h2>
+<p class="mt-2 text-sm text-[#5c554e]">
 	Pastikan rekening dan nama penerima sudah benar sebelum mengajukan pencairan.
 </p>
 {#if affiliate}
 	<form
 		onsubmit={save}
-		class="mt-8 max-w-xl space-y-5 rounded-2xl border border-gray-200 bg-white p-6"
+		class="mt-8 w-full max-w-md space-y-5 border-2 border-[#191919] bg-white p-6 shadow-[7px_7px_0_#191919] sm:p-8"
 	>
-		<label class="block text-sm font-medium" for="bank-name"
-			>Nama bank<input
+		<div>
+			<label class="form-label mb-2 block" for="bank-name">Nama bank</label>
+			<input
 				id="bank-name"
 				name="bank_name"
 				value={affiliate.bank_name}
 				required
 				maxlength="80"
 				placeholder="Contoh: BCA"
-				class={fieldClass}
+				class="form-control"
 				disabled={busy}
-			/></label
-		>
-		<label class="block text-sm font-medium" for="account-number"
-			>Nomor rekening<input
+			/>
+		</div>
+		<div>
+			<label class="form-label mb-2 block" for="account-number">Nomor rekening</label>
+			<input
 				id="account-number"
 				name="account_number"
 				value={affiliate.account_number}
@@ -64,36 +64,45 @@
 				pattern={'[0-9]{5,40}'}
 				inputmode="numeric"
 				maxlength="40"
-				class={fieldClass}
+				class="form-control"
 				disabled={busy}
-			/></label
-		>
-		<label class="block text-sm font-medium" for="account-name"
-			>Nama pemilik rekening<input
+			/>
+		</div>
+		<div>
+			<label class="form-label mb-2 block" for="account-name">Nama pemilik rekening</label>
+			<input
 				id="account-name"
 				name="account_name"
 				value={affiliate.account_name}
 				required
 				maxlength="120"
 				autocomplete="name"
-				class={fieldClass}
+				class="form-control"
 				disabled={busy}
-			/></label
-		>
-		<p class="text-xs leading-5 text-gray-500">
+			/>
+		</div>
+		<p class="text-xs leading-5 text-[#5c554e]">
 			Perubahan rekening berlaku untuk pengajuan berikutnya. Rekening pada pengajuan yang sudah
 			dibuat tetap sama.
 		</p>
-		{#if error}<p role="alert" class="text-sm text-red-600">{error}</p>{/if}
+		{#if error}
+			<p
+				role="alert"
+				class="border-2 border-[#191919] bg-[#fff1f2] px-4 py-3 text-sm leading-7 text-rose-800"
+			>
+				{error}
+			</p>
+		{/if}
 		<button
 			type="submit"
 			disabled={busy}
-			class="cursor-pointer rounded-xl bg-linear-to-r from-[#9400ff] to-[#7200e8] px-5 py-3 text-sm font-semibold text-white disabled:opacity-50"
+			aria-busy={busy}
+			class="inline-flex min-h-12 w-full cursor-pointer items-center justify-center border-2 border-[#191919] bg-[#ff96ca] px-[18px] py-3 text-sm leading-normal font-extrabold text-[#191919] shadow-[4px_4px_0_#191919] transition-[translate,box-shadow] duration-150 disabled:cursor-not-allowed disabled:opacity-55 motion-safe:enabled:hover:translate-x-0.5 motion-safe:enabled:hover:translate-y-0.5 motion-safe:enabled:hover:shadow-[2px_2px_0_#191919]"
 			>{busy ? 'Menyimpan...' : 'Simpan rekening'}</button
 		>
 	</form>
 {:else}
-	<p class="mt-8 text-sm text-gray-600">
+	<p class="mt-8 text-sm text-[#5c554e]">
 		Daftar affiliate terlebih dahulu melalui <a
 			href="/affiliate/dashboard"
 			class="font-semibold text-violet-700 underline">halaman ringkasan</a
