@@ -15,6 +15,12 @@
 	} from '../model/landing-content.js';
 
 	const featuredKeys: WeddingThemeKey[] = ['neubrutalism-1', 'sakura', 'retro', 'kinetika'];
+	const socialLinks = [
+		{ label: 'Facebook', href: 'https://www.facebook.com/profile.php?id=61595590375457' },
+		{ label: 'Instagram', href: 'https://www.instagram.com/wedez.id/' },
+		{ label: 'Threads', href: 'https://www.threads.com/@wedez.id' },
+		{ label: 'TikTok', href: 'https://www.tiktok.com/' }
+	];
 	const themes = featuredKeys.flatMap((key) =>
 		WEDDING_THEME_CATALOG.filter((theme) => theme.key === key)
 	);
@@ -100,7 +106,7 @@
 	<main id="main-content" bind:this={root}>
 		<section id="beranda" class="section-anchor bg-[#fffaf1]">
 			<div
-				class="nb-container grid items-center gap-14 py-12 sm:py-16 lg:min-h-[720px] lg:grid-cols-2 lg:gap-14 lg:py-20"
+				class="hero-layout nb-container grid min-h-[calc(100dvh-79px)] items-center gap-14 py-12 sm:py-16 lg:grid-cols-2 lg:gap-14"
 			>
 				<div class="relative min-w-0">
 					<h1 data-reveal class="hero-title">
@@ -152,13 +158,6 @@
 						height="1024"
 						fetchpriority="high"
 					/>
-					<div
-						class="absolute -bottom-5 left-0 rotate-[-6deg] border-2 border-[#191919] bg-[#ff96ca] px-5 py-3 shadow-[4px_4px_0_#191919] sm:right-5 sm:left-auto"
-					>
-						<p class="text-3xl leading-none font-black tracking-tight">
-							50+ <span class="text-sm font-bold">tema pilihan</span>
-						</p>
-					</div>
 				</div>
 			</div>
 		</section>
@@ -412,10 +411,82 @@
 			</div>
 		</section>
 	</main>
-	<footer
-		class="flex min-h-24 items-center justify-center border-t-[3px] border-[#191919] bg-[#fffaf1] px-6 py-8 text-center text-[#191919]"
-	>
-		<p class="text-sm">© 2026 Wedez</p>
+	<footer class="border-t-2 border-[#191919] bg-[#fffaf1] text-[#191919]">
+		<div class="nb-container pt-12 sm:pt-14">
+			<div class="grid grid-cols-2 gap-x-6 gap-y-10 md:grid-cols-[1.6fr_0.8fr_0.8fr] md:gap-16">
+				<div class="col-span-2 md:col-span-1">
+					<a
+						href="#beranda"
+						onclick={handleSectionClick}
+						aria-label="Wedez, kembali ke beranda"
+						class="inline-flex items-center gap-2"
+					>
+						<img
+							src="/images/hero/logo-wedez.webp"
+							alt=""
+							width="256"
+							height="256"
+							class="size-11 object-contain"
+						/>
+						<span class="text-[23px] font-black tracking-[-0.06em]"
+							>wedez<span class="text-[#8030e4]">.id</span></span
+						>
+					</a>
+					<p class="mt-4 max-w-sm text-sm leading-6 text-[#47433f]">
+						Undangan pernikahan digital yang personal, mudah dibuat, dan praktis dibagikan.
+					</p>
+				</div>
+				<nav aria-labelledby="footer-navigation-title">
+					<h2
+						id="footer-navigation-title"
+						class="font-mono text-xs font-bold tracking-[0.16em] uppercase"
+					>
+						Navigasi
+					</h2>
+					<ul class="mt-5 space-y-3 text-sm font-medium">
+						<li>
+							<a
+								class="underline-offset-4 hover:underline"
+								href="#beranda"
+								onclick={handleSectionClick}>Beranda</a
+							>
+						</li>
+						<li>
+							<a
+								class="underline-offset-4 hover:underline"
+								href="#tema"
+								onclick={handleSectionClick}>Tema</a
+							>
+						</li>
+						<li>
+							<a
+								class="underline-offset-4 hover:underline"
+								href="#harga"
+								onclick={handleSectionClick}>Harga</a
+							>
+						</li>
+					</ul>
+				</nav>
+				<div>
+					<h2 class="font-mono text-xs font-bold tracking-[0.16em] uppercase">Ikuti Kami</h2>
+					<ul class="mt-5 space-y-3 text-sm font-medium">
+						{#each socialLinks as platform (platform.href)}
+							<li>
+								<a
+									class="underline-offset-4 hover:underline"
+									href={platform.href}
+									target="_blank"
+									rel="noopener noreferrer">{platform.label}</a
+								>
+							</li>
+						{/each}
+					</ul>
+				</div>
+			</div>
+			<div class="mt-10 flex h-14 items-center justify-center border-t border-[#191919] sm:mt-12">
+				<p class="text-center font-mono text-xs leading-6 sm:text-sm">© 2026 Wedez</p>
+			</div>
+		</div>
 	</footer>
 	<WhatsAppButton phoneNumber="+6281292464061" />
 </div>
@@ -514,8 +585,13 @@
 		}
 	}
 	@media (min-width: 1024px) {
+		.hero-layout {
+			height: calc(100dvh - 79px);
+			min-height: min-content;
+			padding-block: clamp(24px, 5dvh, 64px);
+		}
 		.hero-title {
-			font-size: clamp(3.5rem, 6.2vw, 6rem);
+			font-size: min(6.2vw, 10dvh, 6rem);
 		}
 	}
 	.stat-cell:nth-child(even) {
