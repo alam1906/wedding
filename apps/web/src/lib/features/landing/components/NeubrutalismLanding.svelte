@@ -108,11 +108,13 @@
 			<div
 				class="hero-layout nb-container grid min-h-[calc(100dvh-79px)] items-center gap-14 py-12 sm:py-16 lg:grid-cols-2 lg:gap-14"
 			>
-				<div class="relative min-w-0">
-					<h1 data-reveal class="hero-title">
-						<span class="block">Wedding</span>
-						<span class="mt-1 block">made <span class="hero-highlight">Ez</span></span>
-						<span class="mt-3 block whitespace-nowrap"
+				<div class="relative order-2 min-w-0 lg:order-1">
+					<h1 data-reveal class="hero-title flex flex-col gap-[0.12em]">
+						<span class="flex h-[1.1em] items-center">Wedding</span>
+						<span class="flex h-[1.1em] items-center gap-[0.12em] whitespace-nowrap"
+							>made <span class="hero-highlight">Ez</span></span
+						>
+						<span class="flex h-[1.1em] items-center gap-[0.12em] whitespace-nowrap"
 							>for Gen <span class="hero-highlight">Z</span></span
 						>
 					</h1>
@@ -149,7 +151,7 @@
 						>
 					</div>
 				</div>
-				<div data-reveal class="relative mx-auto w-full max-w-xl min-w-0">
+				<div data-reveal class="relative order-1 mx-auto w-full max-w-xl min-w-0 lg:order-2">
 					<img
 						class="h-auto w-full object-contain drop-shadow-[0_16px_20px_rgba(25,25,25,0.12)]"
 						src="/images/hero/digital-wedding-invitation.webp"
