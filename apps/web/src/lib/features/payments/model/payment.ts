@@ -14,11 +14,28 @@ export type ProPayment = {
 	currency: 'IDR';
 	expires_at: string;
 	checkout_url: string;
+	order_id: string;
+	method: string;
+	method_name: string;
+	kind: '' | 'qris' | 'va';
+	fee: number;
+	total: number;
+	va_number: string;
+	qr_string: string;
 };
 
 export type ProPaymentState = {
 	plan_tier: WeddingPlanTier;
 	payment: ProPayment;
+	environment: 'sandbox' | 'production';
+	server_time: string;
+};
+
+export type PaymentMethod = { code: string; name: string; kind: 'qris' | 'va'; fee: number };
+export type PaymentMethods = {
+	environment: 'sandbox' | 'production';
+	quote: PaymentQuote;
+	methods: PaymentMethod[];
 };
 
 export type PaymentQuote = {

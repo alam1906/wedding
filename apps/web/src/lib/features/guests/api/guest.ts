@@ -2,6 +2,7 @@ import { ClientResponseError, type RecordModel } from 'pocketbase';
 
 import { pocketBase } from '#lib/infrastructure/pocketbase/index.js';
 import type { Guest, GuestInput } from '../model/guest.js';
+import { INVALID_GUEST_WHATSAPP_MESSAGE, normalizeGuestWhatsapp } from '../model/guest-form.js';
 
 const GUEST_FIELDS = [
 	'id',
@@ -109,19 +110,9 @@ async function handleGuestRequest<T>(request: () => Promise<T>): Promise<T> {
 }
 
 function normalizeWhatsapp(value: string): string {
-	const digits = value.replace(/\D/g, '');
-	let normalized = '';
-
-	if (digits.startsWith('0')) {
-		normalized = `+62${digits.slice(1)}`;
-	} else if (digits.startsWith('62')) {
-		normalized = `+${digits}`;
-	} else if (digits.startsWith('8')) {
-		normalized = `+62${digits}`;
-	}
-
-	if (!/^\+[1-9][0-9]{7,14}$/.test(normalized)) {
-		throw new GuestDataError('Nomor WhatsApp tidak valid. Gunakan nomor Indonesia yang aktif.');
+	const normalized = normalizeGuestWhatsapp(value);
+	if (!normalized) {
+		throw new GuestDataError(INVALID_GUEST_WHATSAPP_MESSAGE);
 	}
 
 	return normalized;

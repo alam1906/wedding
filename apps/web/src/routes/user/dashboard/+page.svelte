@@ -183,7 +183,7 @@
 					</div>
 					{#if weddingPlanTier === 'free'}
 						<a
-							href="/upgrade"
+							href="/payment"
 							class="ws-button inline-flex shrink-0 items-center justify-center px-5 py-3 text-sm transition"
 						>
 							Upgrade

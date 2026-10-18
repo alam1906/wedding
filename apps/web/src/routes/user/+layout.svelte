@@ -131,8 +131,10 @@
 		class:open={menuOpen}
 		class="sidebar fixed inset-y-0 left-0 z-50 w-64 border-r-2 border-[#191919] bg-[#fffaf1]"
 	>
-		<div class="flex h-full flex-col overflow-y-auto px-5 py-7">
-			<div class="flex items-center justify-center border-b-2 border-[#191919] pb-6">
+		<div class="flex h-full flex-col overflow-y-auto px-5 pb-7">
+			<div
+				class="flex h-18 w-4/5 shrink-0 items-center justify-center self-center border-b-2 border-[#191919]"
+			>
 				<a href="/user/dashboard" class="text-2xl font-black tracking-[-0.06em]"> WEDEZ </a>
 			</div>
 
@@ -240,22 +242,8 @@
 							disabled={isLoggingOut}
 							aria-busy={isLoggingOut}
 							onclick={handleLogout}
-							class="ws-menu-option flex w-full cursor-pointer items-center gap-3 px-2 py-2.5 text-left text-sm font-medium text-red-500 transition disabled:cursor-not-allowed disabled:opacity-50"
+							class="ws-menu-option flex w-full cursor-pointer items-center px-2 py-2.5 text-left text-sm font-medium text-red-500 disabled:cursor-not-allowed disabled:opacity-50"
 						>
-							<svg
-								aria-hidden="true"
-								class="size-5 shrink-0"
-								viewBox="0 0 24 24"
-								fill="none"
-								stroke="currentColor"
-								stroke-width="1.8"
-								stroke-linecap="round"
-								stroke-linejoin="round"
-							>
-								<path d="M14 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h7a2 2 0 0 0 2-2v-3"
-								></path>
-								<path d="M10 12h11M18 9l3 3-3 3"></path>
-							</svg>
 							{isLoggingOut ? 'Sedang keluar...' : 'Keluar'}
 						</button>
 					</div>

@@ -97,8 +97,10 @@
 		class:open={menuOpen}
 		class="sidebar fixed inset-y-0 left-0 z-50 w-64 border-r-2 border-[#191919] bg-[#fffaf1]"
 	>
-		<div class="flex h-full flex-col overflow-y-auto px-5 py-7">
-			<div class="flex justify-center border-b-2 border-[#191919] pb-6">
+		<div class="flex h-full flex-col overflow-y-auto px-5 pb-7">
+			<div
+				class="flex h-18 w-4/5 shrink-0 items-center justify-center self-center border-b-2 border-[#191919]"
+			>
 				<a href="/affiliate/dashboard" class="text-2xl font-black tracking-[-0.06em]">WEDEZ</a>
 			</div>
 

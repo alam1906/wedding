@@ -7,6 +7,9 @@
 		GuestDataError,
 		GuestCsvError,
 		parseGuestCsv,
+		sanitizeGuestWhatsappInput,
+		validateGuestForm,
+		type GuestFormFieldErrors,
 		type Guest,
 		type GuestCsvRow,
 		type GuestInput,
@@ -69,6 +72,8 @@
 	let editingId = $state<string | null>(null);
 	let guestPendingDeletion = $state<Guest | null>(null);
 	let form = $state<GuestInput>(emptyGuestForm());
+	let guestFieldErrors = $state<GuestFormFieldErrors>({});
+	let guestFormError = $state('');
 	let isSaving = $state(false);
 	let csvRows = $state<GuestCsvRow[]>([]);
 	let csvFileName = $state('');
@@ -279,12 +284,14 @@
 	};
 
 	function openCreateForm() {
+		resetGuestFeedback();
 		editingId = null;
 		form = emptyGuestForm();
 		guestDialog?.showModal();
 	}
 
 	function openEditForm(guest: Guest) {
+		resetGuestFeedback();
 		editingId = guest.id;
 		form = {
 			name: guest.name,
@@ -298,6 +305,26 @@
 
 	function closeDialog() {
 		guestDialog?.close();
+	}
+
+	function resetGuestFeedback() {
+		guestFieldErrors = {};
+		guestFormError = '';
+	}
+
+	function clearGuestFieldError(field: keyof GuestFormFieldErrors) {
+		guestFieldErrors[field] = undefined;
+		guestFormError = '';
+	}
+
+	function handleGuestWhatsappInput(event: Event) {
+		const input = event.currentTarget;
+		if (!(input instanceof HTMLInputElement)) return;
+		const sanitized = sanitizeGuestWhatsappInput(input.value);
+		// Update the DOM even when filtering leaves the reactive value unchanged.
+		input.value = sanitized;
+		form.whatsapp = sanitized;
+		clearGuestFieldError('whatsapp');
 	}
 
 	function openCsvDialog() {
@@ -444,8 +471,15 @@
 			return;
 		}
 
-		isSaving = true;
 		const guestInput = { ...form, name: normalizeGuestName(form.name) };
+		guestFormError = '';
+		guestFieldErrors = validateGuestForm(guestInput);
+		if (guestFieldErrors.name || guestFieldErrors.whatsapp) {
+			const field = guestFieldErrors.name ? 'name' : 'whatsapp';
+			guestDialog?.querySelector<HTMLInputElement>(`input[name="${field}"]`)?.focus();
+			return;
+		}
+		isSaving = true;
 
 		try {
 			if (editingId === null) {
@@ -458,7 +492,8 @@
 
 			closeDialog();
 		} catch (error) {
-			toast.error(error instanceof GuestDataError ? error.message : 'Data tamu gagal disimpan.');
+			guestFormError =
+				error instanceof GuestDataError ? error.message : 'Data tamu gagal disimpan.';
 		} finally {
 			isSaving = false;
 		}
@@ -686,9 +721,10 @@
 		<dialog
 			{@attach attachGuestDialog}
 			onclick={(event) => event.target === event.currentTarget && closeDialog()}
+			onclose={resetGuestFeedback}
 			class="ws-dialog guest-dialog m-auto max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-2xl overflow-y-auto p-0"
 		>
-			<form onsubmit={saveGuest} class="p-5 sm:p-6">
+			<form onsubmit={saveGuest} novalidate class="p-5 sm:p-6">
 				<div>
 					<h2 class="text-lg font-extrabold text-[#191919]">
 						{editingId === null ? 'Tambah tamu' : 'Edit tamu'}
@@ -700,23 +736,48 @@
 						Nama tamu
 						<input
 							bind:value={form.name}
+							name="name"
+							oninput={() => clearGuestFieldError('name')}
+							disabled={isSaving}
+							aria-invalid={!!guestFieldErrors.name}
+							aria-describedby={guestFieldErrors.name ? 'guest-name-error' : undefined}
 							required
 							class="ws-input field mt-2 w-full px-4 py-3 text-sm"
 							placeholder="Nama lengkap"
 						/>
+						{#if guestFieldErrors.name}
+							<p id="guest-name-error" role="alert" class="mt-2 text-sm text-red-700">
+								{guestFieldErrors.name}
+							</p>
+						{/if}
 					</label>
 					<label class="block text-sm font-medium text-[#191919]">
 						Nomor WhatsApp
 						<input
-							bind:value={form.whatsapp}
+							value={form.whatsapp}
+							oninput={handleGuestWhatsappInput}
+							name="whatsapp"
+							type="tel"
+							disabled={isSaving}
+							aria-invalid={!!guestFieldErrors.whatsapp}
+							aria-describedby={guestFieldErrors.whatsapp ? 'guest-whatsapp-error' : undefined}
 							inputmode="tel"
 							autocomplete="tel"
 							required
 							class="ws-input field mt-2 w-full px-4 py-3 text-sm"
 							placeholder="0812 3456 7890"
 						/>
+						{#if guestFieldErrors.whatsapp}
+							<p id="guest-whatsapp-error" role="alert" class="mt-2 text-sm text-red-700">
+								{guestFieldErrors.whatsapp}
+							</p>
+						{/if}
 					</label>
 				</div>
+
+				{#if guestFormError}
+					<p role="alert" class="mt-4 text-sm text-red-700">{guestFormError}</p>
+				{/if}
 
 				<div class="mt-5 flex justify-end gap-3">
 					<button
@@ -768,7 +829,7 @@
 								accept=".csv,text/csv"
 								onchange={readCsvFile}
 								disabled={isReadingCsv || isImportingCsv}
-								class="ws-input mt-2 block w-full text-sm text-[#5c554e] file:mr-4 file:border-0 file:border-r file:border-gray-200 file:bg-gray-50 file:px-4 file:py-3 file:font-semibold file:text-gray-700 hover:file:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-60"
+								class="ws-input csv-file-field mt-2 block w-full cursor-pointer text-sm text-[#191919] shadow-[3px_3px_0_#191919] file:mr-4 file:cursor-pointer file:border-0 file:border-r-2 file:border-[#191919] file:bg-white file:px-4 file:py-3 file:font-semibold file:text-[#191919] hover:file:bg-[#fffaf1] disabled:cursor-not-allowed disabled:opacity-60"
 							/>
 						</label>
 					</div>
@@ -1481,6 +1542,7 @@
 
 <style>
 	input.search-field:focus,
+	input.csv-file-field:focus,
 	button.status-filter:focus {
 		border-color: #191919;
 		outline: none;
@@ -1488,6 +1550,7 @@
 	}
 
 	input.search-field:focus,
+	input.csv-file-field:focus,
 	button.status-filter[aria-expanded='true'] {
 		box-shadow: none;
 	}

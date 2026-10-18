@@ -110,12 +110,13 @@
 			>
 				<div class="relative order-2 min-w-0 lg:order-1">
 					<h1 data-reveal class="hero-title flex flex-col gap-[0.12em]">
+						<span
+							class="flex h-[1.1em] items-center bg-linear-to-r from-[#b026ff] via-[#8030e4] to-[#4c168c] bg-clip-text text-transparent"
+							>Wedez</span
+						>
 						<span class="flex h-[1.1em] items-center">Wedding</span>
 						<span class="flex h-[1.1em] items-center gap-[0.12em] whitespace-nowrap"
 							>made <span class="hero-highlight">Ez</span></span
-						>
-						<span class="flex h-[1.1em] items-center gap-[0.12em] whitespace-nowrap"
-							>for Gen <span class="hero-highlight">Z</span></span
 						>
 					</h1>
 					<svg

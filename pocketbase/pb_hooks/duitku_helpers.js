@@ -69,6 +69,10 @@ function getConfig() {
 		merchantCode: merchantCode,
 		apiKey: apiKey,
 		apiUrl: apiUrl,
+		merchantApiUrl:
+			environment === 'production'
+				? 'https://passport.duitku.com/webapi/api/merchant'
+				: 'https://sandbox.duitku.com/webapi/api/merchant',
 		statusUrl: expectedStatusUrl,
 		callbackUrl: callbackUrl,
 		returnUrl: returnUrl,
@@ -126,26 +130,88 @@ function sendDuitkuRequest(app, request, action) {
 }
 
 function createInvoice(app, config, invoice) {
-	var timestamp = String(Date.now());
-	var signature = $security.hs256(config.merchantCode + timestamp, config.apiKey);
+	invoice.merchantCode = config.merchantCode;
+	invoice.signature = $security.hs256(
+		config.merchantCode + invoice.merchantOrderId + invoice.paymentAmount,
+		config.apiKey
+	);
 
 	return sendDuitkuRequest(
 		app,
 		{
-			url: config.apiUrl + '/api/merchant/createInvoice',
+			url: config.merchantApiUrl + '/v2/inquiry',
 			method: 'POST',
 			timeout: 20,
 			headers: {
 				Accept: 'application/json',
-				'Content-Type': 'application/json',
-				'x-duitku-timestamp': timestamp,
-				'x-duitku-signature': signature,
-				'x-duitku-merchantcode': config.merchantCode
+				'Content-Type': 'application/json'
 			},
 			body: JSON.stringify(invoice)
 		},
 		'create-invoice'
 	);
+}
+
+function paymentKind(code) {
+	if (['SP', 'NQ', 'SQ'].indexOf(code) >= 0) return 'qris';
+	if (
+		['BC', 'M2', 'VA', 'I1', 'B1', 'BT', 'A1', 'AG', 'NC', 'BR', 'S1', 'DM', 'BV'].indexOf(code) >=
+		0
+	)
+		return 'va';
+	return '';
+}
+
+function getPaymentMethods(app, config, amount) {
+	// Duitku expects a wall-clock datetime; use WIB independent of the server timezone.
+	var datetime = new Date(Date.now() + 7 * 60 * 60 * 1000)
+		.toISOString()
+		.slice(0, 19)
+		.replace('T', ' ');
+	var response = sendDuitkuRequest(
+		app,
+		{
+			url: config.merchantApiUrl + '/paymentmethod/getpaymentmethod',
+			method: 'POST',
+			timeout: 20,
+			headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
+			body: JSON.stringify({
+				merchantcode: config.merchantCode,
+				amount: amount,
+				datetime: datetime,
+				signature: $security.hs256(config.merchantCode + amount + datetime, config.apiKey)
+			})
+		},
+		'payment-methods'
+	);
+	if (response.responseCode !== '00' || !Array.isArray(response.paymentFee))
+		throw new ApiError(502, 'Metode pembayaran belum dapat dimuat. Silakan coba lagi.');
+	var seen = {};
+	return response.paymentFee
+		.filter(function (method) {
+			var code = String(method.paymentMethod || '');
+			var fee = Number(method.totalFee);
+			if (
+				!paymentKind(code) ||
+				seen[code] ||
+				method.totalFee === null ||
+				method.totalFee === '' ||
+				!Number.isSafeInteger(fee) ||
+				fee < 0 ||
+				!String(method.paymentName || '').trim()
+			)
+				return false;
+			seen[code] = true;
+			return true;
+		})
+		.map(function (method) {
+			return {
+				code: String(method.paymentMethod),
+				name: String(method.paymentName),
+				kind: paymentKind(method.paymentMethod),
+				fee: Number(method.totalFee)
+			};
+		});
 }
 
 function checkTransaction(app, config, merchantOrderId, expectedAmount) {
@@ -251,11 +317,13 @@ function syncPaymentFromStatus(app, payment, response) {
 	var expectedOrderId = String(payment.get('provider_transaction_id') || '');
 	var receivedAmount = Number(response.amount);
 	var expectedAmount = Number(payment.get('amount'));
+	var expectedReference = payment.getString('provider_reference');
 
 	if (
 		!merchantOrderId ||
 		merchantOrderId !== expectedOrderId ||
-		receivedAmount !== expectedAmount
+		receivedAmount !== expectedAmount ||
+		(expectedReference && response.reference && expectedReference !== String(response.reference))
 	) {
 		throw new BadRequestError('Data pembayaran Duitku tidak sesuai.');
 	}
@@ -264,6 +332,22 @@ function syncPaymentFromStatus(app, payment, response) {
 	var status = statusCode === '00' ? 'paid' : statusCode === '02' ? 'failed' : 'pending';
 
 	return applyPaymentStatus(app, payment, status, String(response.reference || ''));
+}
+
+function reconcilePayment(app, config, payment) {
+	var transaction = checkTransaction(
+		app,
+		config,
+		payment.getString('provider_transaction_id'),
+		payment.getInt('amount')
+	);
+	var status = syncPaymentFromStatus(app, payment, transaction);
+	payment = app.findRecordById('payments', payment.id);
+	if (status === 'pending' && paymentHasExpired(payment)) {
+		applyPaymentStatus(app, payment, 'expired', '');
+		payment = app.findRecordById('payments', payment.id);
+	}
+	return payment;
 }
 
 function paymentResponse(app, weddingId, payment) {
@@ -277,6 +361,8 @@ function paymentResponse(app, weddingId, payment) {
 
 	return {
 		plan_tier: String(wedding.get('plan_tier') || 'free'),
+		environment: config.environment,
+		server_time: new Date().toISOString(),
 		payment: payment
 			? {
 					id: payment.id,
@@ -287,6 +373,14 @@ function paymentResponse(app, weddingId, payment) {
 					coupon_code: String(payment.get('coupon_code') || ''),
 					currency: String(payment.get('currency') || 'IDR'),
 					expires_at: String(payment.get('expires_at') || ''),
+					order_id: payment.getString('provider_transaction_id'),
+					method: payment.getString('payment_method'),
+					method_name: payment.getString('payment_method_name'),
+					kind: payment.getString('payment_kind'),
+					fee: payment.getInt('payment_fee'),
+					total: payment.getInt('amount') + payment.getInt('payment_fee'),
+					va_number: status === 'pending' ? payment.getString('va_number') : '',
+					qr_string: status === 'pending' ? payment.getString('qr_string') : '',
 					checkout_url: status === 'pending' ? String(payment.get('checkout_url') || '') : ''
 				}
 			: {
@@ -298,6 +392,14 @@ function paymentResponse(app, weddingId, payment) {
 					coupon_code: '',
 					currency: 'IDR',
 					expires_at: '',
+					order_id: '',
+					method: '',
+					method_name: '',
+					kind: '',
+					fee: 0,
+					total: config.price,
+					va_number: '',
+					qr_string: '',
 					checkout_url: ''
 				}
 	};
@@ -308,8 +410,11 @@ module.exports = {
 	checkTransaction: checkTransaction,
 	createInvoice: createInvoice,
 	getConfig: getConfig,
+	getPaymentMethods: getPaymentMethods,
+	paymentKind: paymentKind,
 	getWeddingForAuth: getWeddingForAuth,
 	paymentHasExpired: paymentHasExpired,
 	paymentResponse: paymentResponse,
+	reconcilePayment: reconcilePayment,
 	syncPaymentFromStatus: syncPaymentFromStatus
 };

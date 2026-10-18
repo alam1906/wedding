@@ -5,7 +5,6 @@
 
 	let { children }: LayoutProps = $props();
 	const wedding = setWeddingContext(new WeddingState());
-
 	onDestroy(() => wedding.reset());
 </script>
 

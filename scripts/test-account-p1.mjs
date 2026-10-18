@@ -332,7 +332,7 @@ try {
 		DUITKU_API_KEY: apiKey,
 		WEDEZ_PRO_PRICE: '50000',
 		DUITKU_CALLBACK_URL: 'https://example.test/callback',
-		DUITKU_RETURN_URL: `${appUrl}/upgrade`
+		DUITKU_RETURN_URL: `${appUrl}/payment`
 	};
 	const setup = spawnSync(
 		binary,

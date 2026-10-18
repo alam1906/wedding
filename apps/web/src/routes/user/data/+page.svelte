@@ -543,6 +543,8 @@
 	let akadValue = $state(toDateTimeLocal(initialWedding.akad));
 	let receptionValue = $state(toDateTimeLocal(initialWedding.reception));
 	let selectedTheme = $state<ThemeKey>(normalizeTheme(initialWedding.theme));
+	let selectedThemeName = $derived(themes.find((theme) => theme.key === selectedTheme)?.name ?? '');
+	let themeHasChanges = $derived(selectedTheme !== normalizeTheme(wedding.theme));
 	let selectedMusic = $state(initialWedding.music);
 	let musicEnabled = $state(initialWedding.music !== '');
 	let giftEnabled = $state(initialWedding.gift_enabled);
@@ -1173,7 +1175,11 @@
 	<meta name="description" content="Kelola data pernikahan dan detail acara di Wedez." />
 </svelte:head>
 
-<section class="px-4 py-8 sm:px-6 lg:px-10 lg:py-10">
+<section
+	class={activeSection === 'Tema'
+		? 'px-4 pt-8 pb-48 sm:px-6 lg:px-10 lg:pt-10'
+		: 'px-4 py-8 sm:px-6 lg:px-10 lg:py-10'}
+>
 	<div class="mx-auto w-full max-w-6xl">
 		{#if activeSection === null}
 			<div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
@@ -2008,19 +2014,37 @@
 					{/if}
 				</div>
 
-				<div class="mt-7 flex justify-end border-t border-[#191919] pt-5">
-					<button
-						type="submit"
-						disabled={isSaving || isOptimizingImages}
-						aria-busy={isSaving || isOptimizingImages}
-						class="ws-button ws-button--primary cursor-pointer px-5 py-3 text-sm transition disabled:cursor-not-allowed disabled:opacity-60"
+				<div
+					class={activeSection === 'Tema'
+						? 'fixed inset-x-0 bottom-0 z-20 border-t-2 border-[#191919] bg-white px-4 pt-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:px-6 md:left-64 lg:px-10'
+						: 'mt-7 border-t border-[#191919] pt-5'}
+				>
+					<div
+						class={activeSection === 'Tema'
+							? 'mx-auto flex w-full max-w-6xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between'
+							: 'flex justify-end'}
 					>
-						{isOptimizingImages
-							? 'Mengoptimalkan gambar...'
-							: isSaving
-								? 'Sedang menyimpan...'
-								: 'Simpan perubahan'}
-					</button>
+						{#if activeSection === 'Tema'}
+							<p aria-live="polite" class="min-w-0 text-sm text-[#5c554e]">
+								Tema terpilih:
+								<strong class="font-extrabold text-[#191919]">{selectedThemeName}</strong>
+							</p>
+						{/if}
+						<button
+							type="submit"
+							disabled={isSaving ||
+								isOptimizingImages ||
+								(activeSection === 'Tema' && !themeHasChanges)}
+							aria-busy={isSaving || isOptimizingImages}
+							class="ws-button ws-button--primary shrink-0 cursor-pointer px-5 py-3 text-sm transition disabled:cursor-not-allowed disabled:opacity-60"
+						>
+							{isOptimizingImages
+								? 'Mengoptimalkan gambar...'
+								: isSaving
+									? 'Sedang menyimpan...'
+									: 'Simpan perubahan'}
+						</button>
+					</div>
 				</div>
 			</form>
 		{/if}

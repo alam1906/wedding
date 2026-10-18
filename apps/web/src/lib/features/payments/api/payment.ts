@@ -1,7 +1,12 @@
 import { ClientResponseError } from 'pocketbase';
 
 import { pocketBase } from '#lib/infrastructure/pocketbase/index.js';
-import { PAYMENT_STATUSES, type ProPaymentState, type PaymentQuote } from '../model/payment.js';
+import {
+	PAYMENT_STATUSES,
+	type ProPaymentState,
+	type PaymentQuote,
+	type PaymentMethods
+} from '../model/payment.js';
 
 export class PaymentError extends Error {
 	constructor(message: string, options?: ErrorOptions) {
@@ -24,6 +29,11 @@ function isProPaymentState(value: unknown): value is ProPaymentState {
 
 	return (
 		(value.plan_tier === 'free' || value.plan_tier === 'pro') &&
+		'environment' in value &&
+		(value.environment === 'sandbox' || value.environment === 'production') &&
+		'server_time' in value &&
+		typeof value.server_time === 'string' &&
+		Number.isFinite(Date.parse(value.server_time)) &&
 		typeof payment === 'object' &&
 		payment !== null &&
 		'status' in payment &&
@@ -38,7 +48,21 @@ function isProPaymentState(value: unknown): value is ProPaymentState {
 		'coupon_code' in payment &&
 		typeof payment.coupon_code === 'string' &&
 		'checkout_url' in payment &&
-		typeof payment.checkout_url === 'string'
+		typeof payment.checkout_url === 'string' &&
+		['id', 'expires_at', 'order_id', 'method', 'method_name', 'va_number', 'qr_string'].every(
+			(key) => key in payment && typeof (payment as Record<string, unknown>)[key] === 'string'
+		) &&
+		'kind' in payment &&
+		['', 'qris', 'va'].includes(String(payment.kind)) &&
+		'fee' in payment &&
+		Number.isSafeInteger(payment.fee) &&
+		Number(payment.fee) >= 0 &&
+		'total' in payment &&
+		Number.isSafeInteger(payment.total) &&
+		payment.total === payment.amount + Number(payment.fee) &&
+		Number.isSafeInteger(payment.amount) &&
+		payment.amount > 0 &&
+		payment.original_amount - payment.discount_amount === payment.amount
 	);
 }
 
@@ -59,7 +83,7 @@ function paymentErrorMessage(error: ClientResponseError): string {
 async function paymentRequest(
 	path: string,
 	method: 'GET' | 'POST',
-	body?: Record<string, string>
+	body?: Record<string, string | number>
 ): Promise<ProPaymentState> {
 	try {
 		const response = await pocketBase.send<unknown>(path, { method, body });
@@ -83,8 +107,65 @@ async function paymentRequest(
 	}
 }
 
-export function createProPaymentSession(couponCode = ''): Promise<ProPaymentState> {
-	return paymentRequest('/api/wedez/payments/session', 'POST', { couponCode });
+export function createProPaymentSession(
+	couponCode: string,
+	paymentMethod: string,
+	expectedAmount: number,
+	expectedFee: number
+): Promise<ProPaymentState> {
+	return paymentRequest('/api/wedez/payments/session', 'POST', {
+		couponCode,
+		paymentMethod,
+		expectedAmount,
+		expectedFee
+	});
+}
+
+function isPaymentQuote(result: PaymentQuote): boolean {
+	return Boolean(
+		result &&
+		Number.isSafeInteger(result.original_amount) &&
+		Number.isSafeInteger(result.amount) &&
+		Number.isSafeInteger(result.discount_amount) &&
+		result.amount > 0 &&
+		result.discount_amount >= 0 &&
+		result.original_amount - result.discount_amount === result.amount &&
+		typeof result.coupon_code === 'string'
+	);
+}
+
+export async function getPaymentMethods(couponCode: string): Promise<PaymentMethods> {
+	try {
+		const result = await pocketBase.send<PaymentMethods>('/api/wedez/payments/methods', {
+			method: 'POST',
+			body: { couponCode }
+		});
+		if (
+			!result ||
+			!isPaymentQuote(result.quote) ||
+			!['sandbox', 'production'].includes(result.environment) ||
+			!Array.isArray(result.methods) ||
+			!result.methods.every(
+				(method) =>
+					method &&
+					typeof method.code === 'string' &&
+					typeof method.name === 'string' &&
+					['qris', 'va'].includes(method.kind) &&
+					Number.isSafeInteger(method.fee) &&
+					method.fee >= 0
+			)
+		)
+			throw new PaymentError('Daftar metode pembayaran tidak valid. Silakan coba lagi.');
+		return result;
+	} catch (error) {
+		if (error instanceof PaymentError) throw error;
+		throw new PaymentError(
+			error instanceof ClientResponseError
+				? paymentErrorMessage(error)
+				: 'Metode pembayaran belum dapat dimuat.',
+			{ cause: error }
+		);
+	}
 }
 
 export async function getPaymentQuote(couponCode: string): Promise<PaymentQuote> {
@@ -93,16 +174,7 @@ export async function getPaymentQuote(couponCode: string): Promise<PaymentQuote>
 			method: 'POST',
 			body: { couponCode }
 		});
-		if (
-			!result ||
-			!Number.isSafeInteger(result.original_amount) ||
-			!Number.isSafeInteger(result.amount) ||
-			!Number.isSafeInteger(result.discount_amount) ||
-			result.amount <= 0 ||
-			result.discount_amount < 0 ||
-			result.original_amount - result.discount_amount !== result.amount ||
-			typeof result.coupon_code !== 'string'
-		) {
+		if (!isPaymentQuote(result)) {
 			throw new PaymentError('Respons harga tidak valid. Silakan muat ulang halaman.');
 		}
 		return result;

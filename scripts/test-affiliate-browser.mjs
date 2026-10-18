@@ -144,7 +144,7 @@ try {
 		name: 'Wedding Starter'
 	});
 	await api(`/api/collections/users/records/${weddingStarter.id}`, 'PATCH', { verified: true });
-	await page.goto(appUrl + '/login?next=/upgrade');
+	await page.goto(appUrl + '/login?next=/payment');
 	await page.waitForLoadState('networkidle');
 	await page.getByLabel('Email', { exact: true }).fill(weddingEmail);
 	await page.getByLabel('Kata sandi', { exact: true }).fill(password);
@@ -237,12 +237,12 @@ try {
 		''
 	);
 	await api('/api/wedez/account/provision', 'POST', undefined, retryAuth.token);
-	await page.goto(appUrl + '/login?next=/upgrade');
+	await page.goto(appUrl + '/login?next=/payment');
 	await page.waitForLoadState('networkidle');
 	await page.getByLabel('Email', { exact: true }).fill(retryEmail);
 	await page.getByLabel('Kata sandi', { exact: true }).fill(password);
 	await page.getByRole('button', { name: 'Masuk', exact: true }).click();
-	await page.waitForURL('**/upgrade');
+	await page.waitForURL('**/payment');
 	await page.getByRole('button', { name: 'Lanjutkan pembayaran', exact: true }).click();
 	await page.getByRole('dialog', { name: 'Punya kode kupon?', exact: true }).waitFor();
 	await page.getByRole('button', { name: 'Lanjut tanpa kupon', exact: true }).click();
@@ -255,7 +255,7 @@ try {
 		)
 	).items[0];
 	assert.equal(originalInvoice.amount, 50000);
-	await page.goto(appUrl + '/upgrade?resultCode=02');
+	await page.goto(appUrl + '/payment?resultCode=02');
 	await page.getByRole('heading', { name: 'Tagihan sebelumnya masih aktif' }).waitFor();
 	assert.equal(await page.getByText('Pembayaran dibatalkan.', { exact: false }).count(), 0);
 	await page.getByRole('button', { name: 'Punya kode kupon?', exact: true }).click();
@@ -307,12 +307,12 @@ try {
 		''
 	);
 	await api('/api/wedez/account/provision', 'POST', undefined, buyerAuth.token);
-	await page.goto(appUrl + '/login?next=/upgrade');
+	await page.goto(appUrl + '/login?next=/payment');
 	await page.waitForLoadState('networkidle');
 	await page.getByLabel('Email', { exact: true }).fill(buyerEmail);
 	await page.getByLabel('Kata sandi', { exact: true }).fill(password);
 	await page.getByRole('button', { name: 'Masuk', exact: true }).click();
-	await page.waitForURL('**/upgrade');
+	await page.waitForURL('**/payment');
 	await page.getByRole('button', { name: 'Punya kode kupon?', exact: true }).click();
 	await page.locator('#desktop-coupon-form-code').fill(affiliate.code.toLowerCase());
 	await page.getByRole('button', { name: 'Tambahkan', exact: true }).click();
@@ -336,7 +336,7 @@ try {
 	assert.equal(payment.commission_amount, 9000);
 	assert.equal(payment.coupon_code, affiliate.code);
 	await page.setViewportSize({ width: 390, height: 844 });
-	await page.goto(appUrl + '/upgrade');
+	await page.goto(appUrl + '/payment');
 	await page.getByRole('button', { name: 'Terpasang', exact: true }).waitFor();
 	await page.waitForFunction(() =>
 		[...document.querySelectorAll('button')].some(

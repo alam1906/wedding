@@ -29,13 +29,41 @@ const apiKey = 'fake-duitku-test-key';
 const merchant = 'TEST';
 let invoices = 0;
 let rejectInvoice = false;
+let malformedInvoice = false;
 const transactions = new Map();
 const mock = createServer(async (request, response) => {
 	let raw = '';
 	for await (const chunk of request) raw += chunk;
 	const data = JSON.parse(raw || '{}');
 	response.setHeader('Content-Type', 'application/json');
-	if (request.url === '/api/merchant/createInvoice') {
+	if (request.url === '/paymentmethod/getpaymentmethod') {
+		assert.equal(data.merchantcode, merchant);
+		assert.equal(
+			data.signature,
+			createHmac('sha256', apiKey)
+				.update(merchant + data.amount + data.datetime)
+				.digest('hex')
+		);
+		response.end(
+			JSON.stringify({
+				responseCode: '00',
+				paymentFee: [
+					{ paymentMethod: 'SP', paymentName: 'QRIS ShopeePay', totalFee: '0' },
+					{ paymentMethod: 'BC', paymentName: 'BCA Virtual Account', totalFee: '3500' },
+					{ paymentMethod: 'VC', paymentName: 'Credit card', totalFee: '1000' },
+					{ paymentMethod: 'BR', paymentName: 'Invalid fee', totalFee: '-1' }
+				]
+			})
+		);
+	} else if (request.url === '/v2/inquiry') {
+		assert.equal(data.merchantCode, merchant);
+		assert.equal(
+			data.signature,
+			createHmac('sha256', apiKey)
+				.update(merchant + data.merchantOrderId + data.paymentAmount)
+				.digest('hex')
+		);
+		assert.ok(['SP', 'BC'].includes(data.paymentMethod));
 		invoices++;
 		if (rejectInvoice) {
 			response.writeHead(503);
@@ -48,7 +76,13 @@ const mock = createServer(async (request, response) => {
 				statusCode: '00',
 				paymentUrl: `${base}/test-checkout/${data.merchantOrderId}`,
 				reference: `ref-${data.merchantOrderId}`,
-				merchantCode: merchant
+				merchantCode: merchant,
+				amount: data.paymentAmount,
+				vaNumber: !malformedInvoice && data.paymentMethod === 'BC' ? '7007014001444348' : '',
+				qrString:
+					!malformedInvoice && data.paymentMethod === 'SP'
+						? '000201010212-WEDEZ-TEST-' + data.merchantOrderId
+						: ''
 			})
 		);
 	} else {
@@ -81,6 +115,7 @@ await writeFile(
 			'https://sandbox.duitku.com/webapi/api/merchant/transactionStatus',
 			`${mockBase}/status`
 		)
+		.replaceAll('https://sandbox.duitku.com/webapi/api/merchant', mockBase)
 );
 const binary = path.join(root, 'pocketbase/pocketbase');
 const args = [
@@ -95,7 +130,7 @@ const env = {
 	DUITKU_API_KEY: apiKey,
 	DUITKU_API_URL: mockBase,
 	DUITKU_CALLBACK_URL: 'https://example.test/callback',
-	DUITKU_RETURN_URL: 'http://127.0.0.1:5190/upgrade',
+	DUITKU_RETURN_URL: 'http://127.0.0.1:5190/payment',
 	WEDEZ_PRO_PRICE: '50000'
 };
 // Never reuse a running server, and never point this script at the project's pb_data.
@@ -119,6 +154,8 @@ server.stderr.on('data', (chunk) => {
 let admin = '';
 let checks = 0;
 async function request(route, { token = '', method = 'GET', body, status = 200 } = {}) {
+	if (route === '/api/wedez/payments/session' && body && !('paymentMethod' in body))
+		body = { ...body, paymentMethod: 'SP' };
 	const multipart = body instanceof FormData;
 	const response = await fetch(base + route, {
 		method,
@@ -242,16 +279,27 @@ try {
 			body: { identity: 'affiliate-admin@example.test', password }
 		})
 	).data.token;
-	// Only relax unrelated login throttles in this disposable fixture. Keep the
-	// actual coupon/payment/payout rate limits enabled for the scenarios below.
+	// Keep throttling enabled. The expanded financial suite makes many legitimate
+	// calls from one test IP in seconds, so allow a larger session/status burst only
+	// in this disposable fixture; retain the real coupon/payout limits.
 	const settings = (await request('/api/settings', { token: admin })).data;
+	for (const route of [
+		'POST /api/wedez/payments/session',
+		'POST /api/wedez/payments/methods',
+		'GET /api/wedez/payments/status'
+	])
+		assert.equal(settings.rateLimits.rules.find((rule) => rule.label === route)?.maxRequests, 30);
 	await request('/api/settings', {
 		token: admin,
 		method: 'PATCH',
 		body: {
 			rateLimits: {
 				...settings.rateLimits,
-				rules: settings.rateLimits.rules.filter((rule) => rule.label.includes('/api/wedez/'))
+				rules: settings.rateLimits.rules
+					.filter((rule) => rule.label.includes('/api/wedez/'))
+					.map((rule) =>
+						/\/payments\/(session|status)$/.test(rule.label) ? { ...rule, maxRequests: 90 } : rule
+					)
 			}
 		}
 	});
@@ -260,6 +308,166 @@ try {
 	let firstBuyer;
 	let firstPayment;
 	let firstWedding;
+	await check(
+		'direct methods are authenticated, priced on the server and limited to QRIS/VA',
+		async () => {
+			await request('/api/wedez/payments/methods', { method: 'POST', body: {}, status: 401 });
+			const buyer = await createUser('direct-methods');
+			await provision(buyer);
+			const result = (
+				await request('/api/wedez/payments/methods', {
+					token: buyer.token,
+					method: 'POST',
+					body: { amount: 1 }
+				})
+			).data;
+			assert.deepEqual(
+				result.methods.map((method) => method.code),
+				['SP', 'BC']
+			);
+			assert.equal(result.quote.amount, 50000);
+			assert.equal(result.methods[1].fee, 3500);
+			assert.equal(result.environment, 'sandbox');
+			assert.equal(result.quote.affiliate, undefined);
+			for (const code of ['', 'VC', 'BR'])
+				await request('/api/wedez/payments/session', {
+					token: buyer.token,
+					method: 'POST',
+					body: { paymentMethod: code },
+					status: 400
+				});
+			await request('/api/wedez/payments/session', {
+				token: buyer.token,
+				method: 'POST',
+				body: { paymentMethod: 'BC', expectedAmount: 1, expectedFee: 3500 },
+				status: 409
+			});
+			await request('/api/wedez/payments/session', {
+				token: buyer.token,
+				method: 'POST',
+				body: { paymentMethod: 'BC', expectedAmount: 50000, expectedFee: 0 },
+				status: 409
+			});
+			assert.equal(
+				(
+					await records(
+						'payments',
+						`wedding = '${(await records('weddings', `owner = '${buyer.id}'`))[0].id}'`
+					)
+				).length,
+				0
+			);
+		}
+	);
+	await check(
+		'VA details, fee and order survive reload; another owner cannot retrieve them',
+		async () => {
+			const buyer = await createUser('direct-va');
+			await provision(buyer);
+			const payment = (
+				await request('/api/wedez/payments/session', {
+					token: buyer.token,
+					method: 'POST',
+					body: { paymentMethod: 'BC', expectedAmount: 50000, expectedFee: 3500 },
+					status: 201
+				})
+			).data.payment;
+			assert.equal(payment.va_number, '7007014001444348');
+			assert.equal(payment.qr_string, '');
+			assert.equal(payment.kind, 'va');
+			assert.equal(payment.total, 53500);
+			assert.equal(payment.amount, 50000);
+			assert.equal(payment.fee, 3500);
+			const resumed = (await request('/api/wedez/payments/status', { token: buyer.token })).data;
+			assert.equal(resumed.payment.order_id, payment.order_id);
+			assert.equal(resumed.payment.va_number, payment.va_number);
+			assert.ok(Date.parse(resumed.server_time));
+			const outsider = await createUser('direct-outsider');
+			await provision(outsider);
+			assert.equal(
+				(await request(`/api/wedez/payments/status?id=${payment.id}`, { token: outsider.token }))
+					.data.payment.id,
+				''
+			);
+			await request('/api/wedez/payments/session', {
+				token: buyer.token,
+				method: 'POST',
+				body: { paymentMethod: 'SP' },
+				status: 409
+			});
+			assert.equal((await callback(payment)).status, 200);
+			assert.equal(
+				(await request('/api/wedez/payments/status', { token: buyer.token })).data.plan_tier,
+				'pro'
+			);
+		}
+	);
+	await check('missing QR data keeps the invoice reservation; expiry is persisted', async () => {
+		const buyer = await createUser('direct-malformed');
+		const weddingId = await provision(buyer);
+		malformedInvoice = true;
+		await request('/api/wedez/payments/session', {
+			token: buyer.token,
+			method: 'POST',
+			body: {},
+			status: 502
+		});
+		malformedInvoice = false;
+		const count = invoices;
+		await request('/api/wedez/payments/session', {
+			token: buyer.token,
+			method: 'POST',
+			body: {},
+			status: 409
+		});
+		assert.equal(invoices, count);
+		const payment = (await records('payments', `wedding = '${weddingId}'`))[0];
+		await request(`/api/collections/payments/records/${payment.id}`, {
+			token: admin,
+			method: 'PATCH',
+			body: { expires_at: '2020-01-01 00:00:00.000Z' }
+		});
+		assert.equal(
+			(await request('/api/wedez/payments/status', { token: buyer.token })).data.payment.status,
+			'expired'
+		);
+		assert.equal(
+			(await request('/api/wedez/payments/status', { token: buyer.token })).data.payment.status,
+			'expired'
+		);
+		const next = await invoice(buyer, '');
+		assert.ok(next.qr_string.startsWith('000201'));
+		assert.notEqual(next.id, payment.id);
+	});
+	await check(
+		'an expired local deadline reconciles a paid gateway invoice before retrying',
+		async () => {
+			const buyer = await createUser('direct-expired-paid');
+			await provision(buyer);
+			const payment = await invoice(buyer, '');
+			await request(`/api/collections/payments/records/${payment.id}`, {
+				token: admin,
+				method: 'PATCH',
+				body: { expires_at: '2020-01-01 00:00:00.000Z' }
+			});
+			transactions.get(payment.order_id).statusCode = '00';
+			const count = invoices;
+			const retry = (
+				await request('/api/wedez/payments/session', {
+					token: buyer.token,
+					method: 'POST',
+					body: {}
+				})
+			).data;
+			assert.equal(retry.plan_tier, 'pro');
+			assert.equal(retry.payment.id, payment.id);
+			assert.equal(invoices, count);
+			const status = (await request('/api/wedez/payments/status', { token: buyer.token })).data;
+			assert.equal(status.payment.id, payment.id);
+			assert.equal(status.payment.amount, 50000);
+			assert.equal(status.payment.qr_string, '');
+		}
+	);
 	await check(
 		'transfer proof migration preserves history and restricts private image uploads',
 		async () => {
@@ -297,8 +505,9 @@ try {
 			body: { home_area: 'affiliate' },
 			status: 404
 		});
+		const weddingCount = (await records('weddings')).length;
 		affiliateUser = await createUser('affiliate');
-		assert.equal((await records('weddings')).length, 0);
+		assert.equal((await records('weddings')).length, weddingCount);
 		const chosen = await request(`/api/collections/users/records/${affiliateUser.id}`, {
 			token: affiliateUser.token,
 			method: 'PATCH',
