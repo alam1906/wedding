@@ -23,7 +23,17 @@ function enroll(app, userId) {
 	var affiliate;
 	app.runInTransaction(function (txApp) {
 		affiliate = findAffiliate(txApp, userId);
-		if (affiliate) return;
+		if (affiliate) {
+			if (affiliate.getString('status') === 'pending') {
+				affiliate.set('status', 'active');
+				txApp.save(affiliate);
+			} else if (affiliate.getString('status') !== 'active') {
+				throw new ForbiddenError(
+					'Keanggotaan affiliate dinonaktifkan. Hubungi pengelola Wedez untuk informasi lebih lanjut.'
+				);
+			}
+			return;
+		}
 		var code;
 		do {
 			code = $security.randomStringWithAlphabet(6, 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789');
@@ -31,7 +41,7 @@ function enroll(app, userId) {
 		affiliate = new Record(txApp.findCollectionByNameOrId('affiliates'));
 		affiliate.set('user', userId);
 		affiliate.set('code', code);
-		affiliate.set('status', 'pending');
+		affiliate.set('status', 'active');
 		txApp.save(affiliate);
 	});
 	return affiliate;

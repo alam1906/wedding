@@ -65,36 +65,27 @@ export function errorMessage(error: unknown, context: 'login' | 'action' = 'acti
 }
 
 export async function getOverview(): Promise<Record<string, number>> {
-	const [
-		users,
-		weddings,
-		proWeddings,
-		paid,
-		activeAffiliates,
-		pendingAffiliates,
-		requestedPayouts
-	] = await Promise.all([
-		pocketBase.collection('users').getList(1, 1, { fields: 'id' }),
-		pocketBase.collection('weddings').getList(1, 1, { fields: 'id' }),
-		pocketBase.collection('weddings').getList(1, 1, { filter: 'plan_tier = "pro"', fields: 'id' }),
-		pocketBase.collection('payments').getList(1, 1, { filter: 'status = "paid"', fields: 'id' }),
-		pocketBase
-			.collection('affiliates')
-			.getList(1, 1, { filter: 'status = "active"', fields: 'id' }),
-		pocketBase
-			.collection('affiliates')
-			.getList(1, 1, { filter: 'status = "pending"', fields: 'id' }),
-		pocketBase
-			.collection('affiliate_payouts')
-			.getList(1, 1, { filter: 'status = "requested"', fields: 'id' })
-	]);
+	const [users, weddings, proWeddings, paid, activeAffiliates, requestedPayouts] =
+		await Promise.all([
+			pocketBase.collection('users').getList(1, 1, { fields: 'id' }),
+			pocketBase.collection('weddings').getList(1, 1, { fields: 'id' }),
+			pocketBase
+				.collection('weddings')
+				.getList(1, 1, { filter: 'plan_tier = "pro"', fields: 'id' }),
+			pocketBase.collection('payments').getList(1, 1, { filter: 'status = "paid"', fields: 'id' }),
+			pocketBase
+				.collection('affiliates')
+				.getList(1, 1, { filter: 'status = "active"', fields: 'id' }),
+			pocketBase
+				.collection('affiliate_payouts')
+				.getList(1, 1, { filter: 'status = "requested"', fields: 'id' })
+		]);
 	return {
 		users: users.totalItems,
 		weddings: weddings.totalItems,
 		proWeddings: proWeddings.totalItems,
 		paid: paid.totalItems,
 		activeAffiliates: activeAffiliates.totalItems,
-		pendingAffiliates: pendingAffiliates.totalItems,
 		requestedPayouts: requestedPayouts.totalItems
 	};
 }

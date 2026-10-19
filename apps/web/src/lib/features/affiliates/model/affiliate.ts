@@ -36,7 +36,7 @@ export type AffiliateOverview = {
 };
 
 export const statusLabels: Record<AffiliateStatus | CommissionStatus | PayoutStatus, string> = {
-	pending: 'Menunggu persetujuan',
+	pending: 'Belum aktif',
 	active: 'Aktif',
 	rejected: 'Ditolak',
 	suspended: 'Ditangguhkan',

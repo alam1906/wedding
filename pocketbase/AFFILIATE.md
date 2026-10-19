@@ -3,7 +3,7 @@
 Satu akun `users` dapat mempunyai undangan, keanggotaan affiliate, atau keduanya.
 Pendaftaran akun hanya membuat `users`. Setelah login dan verifikasi, pengguna yang
 belum memilih tujuan diarahkan ke `/start`. Pilihan Undangan membuat undangan gratis,
-sedangkan pilihan Affiliate membuka area affiliate untuk mengajukan keanggotaan.
+sedangkan pilihan Affiliate membuka area affiliate untuk bergabung dan langsung aktif.
 `users.home_area` menyimpan tujuan login berikutnya; pilihan diperbarui saat pengguna
 beralih area lewat menu akun. Formulir registrasi Undangan dan Affiliate memakai akun
 `users` yang sama; asal formulir tidak disimpan karena pilihan dibuat di `/start`.
@@ -11,7 +11,7 @@ beralih area lewat menu akun. Formulir registrasi Undangan dan Affiliate memakai
 ## Halaman
 
 - `/register` dan `/login`: autentikasi `users` bersama; tujuan masuk dipilih di `/start`.
-- `/affiliate/dashboard`: pengajuan keanggotaan, kode kupon, dan ringkasan komisi.
+- `/affiliate/dashboard`: aktivasi keanggotaan, kode kupon, dan ringkasan komisi.
 - `/affiliate/commissions`: riwayat komisi, 20 baris per halaman.
 - `/affiliate/payouts`: pengajuan dan riwayat pencairan.
 - `/affiliate/settings`: rekening bank.
@@ -24,7 +24,8 @@ melalui menu akun; menu akun pada area undangan juga menyediakan akses affiliate
 ## Aturan program
 
 - Kode unik enam karakter, disimpan sebagai huruf kapital; backend mengabaikan kapitalisasi input.
-- Admin menyetujui keanggotaan sebelum kupon bisa digunakan. Email harus terverifikasi.
+- Setelah email terverifikasi, pengguna dapat bergabung dan langsung mendapat keanggotaan aktif.
+  Kupon dapat langsung digunakan tanpa persetujuan admin.
 - Pengantin mendapat diskon 10% dari harga backend `WEDEZ_PRO_PRICE`.
 - Affiliator mendapat 20% dari nominal setelah diskon, sebelum biaya gateway.
 - Nominal dibulatkan ke bawah ke rupiah penuh. Contoh: 50.000 → 45.000 → komisi 9.000.
@@ -64,9 +65,11 @@ status. Bukti tersimpan dapat dibuka melalui **Lihat bukti**.
 
 Jika memakai PocketBase Admin langsung, gunakan alur yang sama:
 
-1. Buka `affiliates`, tinjau record `pending`, lalu ubah `status` menjadi `active` atau `rejected`.
-   Pemilik dan kode tidak dapat diubah. `suspended` menghentikan penggunaan kupon baru dan
-   pengajuan pencairan; pembayaran yang sudah mempunyai snapshot tetap direkonsiliasi.
+1. Keanggotaan baru langsung `active`. Admin dapat menangguhkan atau mengaktifkan kembali
+   affiliate melalui menu Afiliasi. Pemilik dan kode tidak dapat diubah. `suspended`
+   menghentikan penggunaan kupon baru dan pengajuan pencairan; pembayaran yang sudah
+   mempunyai snapshot tetap direkonsiliasi. Pendaftaran ulang tidak membuka kembali akun
+   yang ditolak atau ditangguhkan.
 2. Buka `affiliate_payouts` dengan status `requested`. Periksa total dan rekening snapshot.
 3. Ubah menjadi `processing` sebelum melakukan transfer manual, agar operator lain tahu
    pengajuan sedang ditangani.
@@ -89,7 +92,11 @@ terpisah; jangan mengubah riwayat `paid` menjadi `void`.
 ## Pemasangan dan batas verifikasi
 
 Deploy frontend bersama `pb_hooks` dan seluruh migration, termasuk
-`1791936000_add_affiliate_transfer_proof.js` untuk field bukti transfer.
+`1791936000_add_affiliate_transfer_proof.js` untuk field bukti transfer dan
+`1792627200_auto_activate_affiliates.js` untuk mengaktifkan pendaftar lama yang masih
+`pending` dan emailnya telah terverifikasi. Status `rejected` dan `suspended` tidak diubah.
+Pendaftar lama yang baru memverifikasi email setelah migrasi dapat memakai tombol
+**Aktifkan affiliate** tanpa persetujuan admin.
 Migration `1790985600_add_account_home.js` mengisi `home_area` untuk akun lama yang
 sudah punya undangan atau keanggotaan affiliate; akun baru memilih sendiri setelah login.
 Migration `1791072000_remove_signup_intent.js` menghapus `signup_intent` beserta nilai

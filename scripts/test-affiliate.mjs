@@ -118,11 +118,53 @@ await writeFile(
 		.replaceAll('https://sandbox.duitku.com/webapi/api/merchant', mockBase)
 );
 const binary = path.join(root, 'pocketbase/pocketbase');
-const args = [
-	`--dir=${temp}/data`,
-	`--hooksDir=${temp}/hooks`,
-	`--migrationsDir=${root}/pocketbase/pb_migrations`
+const migrationsDir = path.join(temp, 'migrations');
+await cp(path.join(root, 'pocketbase/pb_migrations'), migrationsDir, { recursive: true });
+// Seed old applications immediately before the real upgrade, then assert its effects
+// and remove only these fixture records before the API scenarios begin.
+const activationCases = [
+	{ code: 'MIGR01', status: 'pending', verified: true, expected: 'active' },
+	{ code: 'MIGR02', status: 'pending', verified: false, expected: 'pending' },
+	{ code: 'MIGR03', status: 'active', verified: true, expected: 'active' },
+	{ code: 'MIGR04', status: 'rejected', verified: true, expected: 'rejected' },
+	{ code: 'MIGR05', status: 'suspended', verified: true, expected: 'suspended' },
+	{ code: 'MIGR06', status: 'pending', orphan: true, expected: 'pending' }
 ];
+await writeFile(
+	path.join(migrationsDir, '1792627199_seed_auto_activation_test.js'),
+	`migrate((app) => {
+		for (const test of ${JSON.stringify(activationCases)}) {
+			let user;
+			if (!test.orphan) {
+				user = new Record(app.findCollectionByNameOrId('users'));
+				user.set('email', test.code.toLowerCase() + '@migration.example.test');
+				user.set('password', ${JSON.stringify(password)});
+				user.set('verified', test.verified);
+				app.save(user);
+			}
+			const affiliate = new Record(app.findCollectionByNameOrId('affiliates'));
+			affiliate.set('user', user ? user.id : '');
+			affiliate.set('code', test.code);
+			affiliate.set('status', test.status);
+			app.save(affiliate);
+		}
+	}, () => {});`
+);
+await writeFile(
+	path.join(migrationsDir, '1792627201_verify_auto_activation_test.js'),
+	`migrate((app) => {
+		for (const test of ${JSON.stringify(activationCases)}) {
+			const affiliate = app.findRecordsByFilter('affiliates', 'code = {:code}', '', 1, 0, {code: test.code})[0];
+			if (!affiliate || affiliate.getString('status') !== test.expected)
+				throw new Error('Incorrect automatic activation for ' + test.code);
+			const userId = affiliate.getString('user');
+			app.db().newQuery('DELETE FROM affiliates WHERE id = {:id}').bind({id: affiliate.id}).execute();
+			if (userId) app.db().newQuery('DELETE FROM users WHERE id = {:id}').bind({id: userId}).execute();
+		}
+		console.log('AUTO_ACTIVATION_MIGRATION_OK');
+	}, () => {});`
+);
+const args = [`--dir=${temp}/data`, `--hooksDir=${temp}/hooks`, `--migrationsDir=${migrationsDir}`];
 const env = {
 	...process.env,
 	DUITKU_ENV: 'sandbox',
@@ -309,6 +351,12 @@ try {
 	let firstPayment;
 	let firstWedding;
 	await check(
+		'migration activates verified pending affiliates and preserves restrictions',
+		async () => {
+			assert.match(setup.stdout + setup.stderr + logs, /AUTO_ACTIVATION_MIGRATION_OK/);
+		}
+	);
+	await check(
 		'direct methods are authenticated, priced on the server and limited to QRIS/VA',
 		async () => {
 			await request('/api/wedez/payments/methods', { method: 'POST', body: {}, status: 401 });
@@ -484,7 +532,7 @@ try {
 			assert.ok(collection.viewRule.includes('affiliate.user = @request.auth.id'));
 		}
 	);
-	await check('verified enrollment; registration never creates a wedding', async () => {
+	await check('verified enrollment activates immediately and never creates a wedding', async () => {
 		await request('/api/wedez/affiliate/me', { status: 401 });
 		const usersCollection = (await request('/api/collections/users', { token: admin })).data;
 		assert.ok(!usersCollection.fields.some((field) => field.name === 'signup_intent'));
@@ -527,12 +575,48 @@ try {
 		affiliate = results[0].data;
 		assert.equal(affiliate.id, results[1].data.id);
 		assert.match(affiliate.code, /^[A-Z0-9]{6}$/);
-		assert.equal(affiliate.status, 'pending');
+		assert.equal(affiliate.status, 'active');
+		assert.equal(results[1].data.status, 'active');
 		await request(`/api/collections/affiliates/records/${affiliate.id}`, {
 			token: affiliateUser.token,
 			method: 'PATCH',
-			body: { status: 'active' },
+			body: { status: 'suspended' },
 			status: 403
+		});
+	});
+	await check('legacy pending enrollment activates once and retains its coupon', async () => {
+		await request(`/api/collections/affiliates/records/${affiliate.id}`, {
+			token: admin,
+			method: 'PATCH',
+			body: { status: 'pending' }
+		});
+		const result = await request('/api/wedez/affiliate/enroll', {
+			token: affiliateUser.token,
+			method: 'POST'
+		});
+		assert.equal(result.data.status, 'active');
+		assert.equal(result.data.id, affiliate.id);
+		assert.equal(result.data.code, affiliate.code);
+		assert.equal((await records('affiliates', `user = '${affiliateUser.id}'`)).length, 1);
+	});
+	await check('re-enrollment cannot override rejected or suspended status', async () => {
+		for (const status of ['rejected', 'suspended']) {
+			await request(`/api/collections/affiliates/records/${affiliate.id}`, {
+				token: admin,
+				method: 'PATCH',
+				body: { status }
+			});
+			await request('/api/wedez/affiliate/enroll', {
+				token: affiliateUser.token,
+				method: 'POST',
+				status: 403
+			});
+			assert.equal((await records('affiliates', `id = '${affiliate.id}'`))[0].status, status);
+		}
+		await request(`/api/collections/affiliates/records/${affiliate.id}`, {
+			token: admin,
+			method: 'PATCH',
+			body: { status: 'active' }
 		});
 	});
 	await check('coupon eligibility, normalization, server-calculated 10% discount', async () => {
@@ -547,17 +631,6 @@ try {
 			amount: 1,
 			discount_percent: 100
 		};
-		await request('/api/wedez/payments/quote', {
-			token: firstBuyer.token,
-			method: 'POST',
-			body: quoteBody,
-			status: 400
-		});
-		await request(`/api/collections/affiliates/records/${affiliate.id}`, {
-			token: admin,
-			method: 'PATCH',
-			body: { status: 'active' }
-		});
 		const quote = (
 			await request('/api/wedez/payments/quote', {
 				token: firstBuyer.token,

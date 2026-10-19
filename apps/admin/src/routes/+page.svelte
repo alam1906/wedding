@@ -613,9 +613,7 @@
 									<div>
 										<h2 class="admin-eyebrow">Perlu ditindaklanjuti</h2>
 										<p class="mt-3 text-2xl font-black tracking-tight sm:text-3xl">
-											{(
-												(counts.pendingAffiliates ?? 0) + (counts.requestedPayouts ?? 0)
-											).toLocaleString('id-ID')} tugas menunggu
+											{(counts.requestedPayouts ?? 0).toLocaleString('id-ID')} tugas menunggu
 										</p>
 									</div>
 									<button
@@ -643,16 +641,7 @@
 										</svg>
 									</button>
 								</div>
-								<div class="mt-5 grid gap-3 sm:grid-cols-2">
-									<button
-										type="button"
-										onclick={() => navigate('affiliates')}
-										class="admin-button justify-between gap-3 text-left"
-										><span class="text-sm font-medium text-[#5c554e]"
-											>Afiliasi menunggu persetujuan</span
-										><span class="admin-badge bg-[#e5fa94]">{counts.pendingAffiliates ?? 0}</span
-										></button
-									>
+								<div class="mt-5 grid gap-3">
 									<button
 										type="button"
 										onclick={() => navigate('payouts')}

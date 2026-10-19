@@ -64,16 +64,18 @@ try {
 	await page.getByRole('button', { name: 'Masuk ke affiliate', exact: true }).click();
 	await page.waitForURL('**/affiliate/dashboard');
 	assert.equal((await api(`/api/collections/users/records/${user.id}`)).home_area, 'affiliate');
-	await page.getByRole('button', { name: 'Ajukan pendaftaran affiliate', exact: true }).click();
-	await page.getByText('Menunggu persetujuan', { exact: true }).first().waitFor();
+	await page.getByRole('button', { name: 'Gabung affiliate', exact: true }).click();
+	await page.getByText('Aktif', { exact: true }).waitFor();
+	assert.equal(await page.getByText('Menunggu persetujuan', { exact: true }).count(), 0);
+	assert.equal(await page.getByRole('button', { name: 'Salin kode kupon' }).isEnabled(), true);
 	const sidebar = await page.locator('aside.sidebar').boundingBox();
 	const topbar = await page.locator('header').boundingBox();
-	assert.equal(Math.round(sidebar?.width ?? 0), 230);
-	assert.equal(Math.round(topbar?.x ?? 0), 230);
+	assert.equal(Math.round(sidebar?.width ?? 0), 256);
+	assert.equal(Math.round(topbar?.x ?? 0), 256);
 	assert.equal(await page.getByRole('link', { name: 'Data Pernikahan', exact: true }).count(), 0);
 	assert.equal(await page.getByRole('link', { name: 'Undangan', exact: true }).count(), 0);
 	await page.screenshot({
-		path: path.join(shots, 'affiliate-pending-desktop.png'),
+		path: path.join(shots, 'affiliate-activated-desktop.png'),
 		fullPage: true
 	});
 	await page.goto(appUrl + '/user/dashboard');
@@ -84,7 +86,7 @@ try {
 			'/api/collections/affiliates/records?filter=' + encodeURIComponent(`user = '${user.id}'`)
 		)
 	).items[0];
-	await api(`/api/collections/affiliates/records/${affiliate.id}`, 'PATCH', { status: 'active' });
+	assert.equal(affiliate.status, 'active');
 	await page.setViewportSize({ width: 390, height: 844 });
 	await page.getByRole('button', { name: 'Buka menu', exact: true }).click();
 	await page.getByRole('link', { name: 'Rekening', exact: true }).click();

@@ -28,7 +28,7 @@
 		try {
 			await enrollAffiliate();
 			await invalidate('wedez:affiliate');
-			toast.success('Pendaftaran affiliate diajukan.');
+			toast.success('Affiliate berhasil diaktifkan. Kode kupon siap digunakan.');
 		} catch (cause) {
 			error = affiliateError(cause);
 		} finally {
@@ -57,11 +57,22 @@
 		<p class="font-semibold">{statusLabels[overview.affiliate.status]}</p>
 		<p>
 			{overview.affiliate.status === 'pending'
-				? 'Admin sedang meninjau pendaftaranmu. Kupon belum dapat digunakan.'
+				? 'Aktifkan keanggotaanmu untuk langsung menggunakan kode kupon.'
 				: overview.affiliate.status === 'rejected'
-					? 'Pendaftaran belum disetujui. Hubungi pengelola Wedez untuk informasi lebih lanjut.'
+					? 'Keanggotaan affiliate dinonaktifkan. Hubungi pengelola Wedez untuk informasi lebih lanjut.'
 					: 'Kupon dan pengajuan pencairan dinonaktifkan sementara. Riwayat komisimu tetap tersimpan.'}
 		</p>
+		{#if overview.affiliate.status === 'pending'}
+			{#if error}<p role="alert" class="mt-3 text-red-600">{error}</p>{/if}
+			<button
+				type="button"
+				onclick={enroll}
+				disabled={busy}
+				aria-busy={busy}
+				class="ws-button ws-button--primary mt-4 disabled:opacity-50"
+				>{busy ? 'Mengaktifkan...' : 'Aktifkan affiliate'}</button
+			>
+		{/if}
 	</div>
 {/if}
 
@@ -133,15 +144,16 @@
 			pembayaran berhasil. Pencairan mulai {rupiah(overview.minimum_payout)}.
 		</p>
 		<p class="mt-3 text-sm text-[#5c554e]">
-			Pendaftaran akan ditinjau oleh admin. Kode dapat digunakan setelah disetujui.
+			Keanggotaan langsung aktif setelah bergabung. Kode kupon bisa langsung dibagikan.
 		</p>
 		{#if error}<p role="alert" class="mt-4 text-sm text-red-600">{error}</p>{/if}
 		<button
 			type="button"
 			onclick={enroll}
 			disabled={busy}
+			aria-busy={busy}
 			class="ws-button ws-button--primary mt-6 cursor-pointer px-5 py-3 text-sm disabled:opacity-50"
-			>{busy ? 'Mengajukan...' : 'Ajukan pendaftaran affiliate'}</button
+			>{busy ? 'Mengaktifkan...' : 'Gabung affiliate'}</button
 		>
 	</section>
 {:else}
