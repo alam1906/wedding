@@ -189,6 +189,7 @@ export async function getPaymentQuote(couponCode: string): Promise<PaymentQuote>
 	}
 }
 
-export function getProPaymentStatus(): Promise<ProPaymentState> {
-	return paymentRequest('/api/wedez/payments/status', 'GET');
+export function getProPaymentStatus(refresh = true): Promise<ProPaymentState> {
+	// Automatic polling reads callback-updated DB state, not the gateway.
+	return paymentRequest(`/api/wedez/payments/status${refresh ? '' : '?refresh=false'}`, 'GET');
 }

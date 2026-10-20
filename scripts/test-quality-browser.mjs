@@ -10,6 +10,7 @@ import { fileURLToPath } from 'node:url';
 import PocketBase from '../apps/web/node_modules/pocketbase/dist/pocketbase.es.mjs';
 import { WEDDING_THEME_KEYS } from '../apps/invitation/src/lib/features/wedding-themes/model/wedding-theme.ts';
 import { testLogicRegressions } from './lib/logic-browser-regressions.mjs';
+import { testAuditFourRegressions } from './lib/audit-four-browser-regressions.mjs';
 
 const fixturePath = process.argv[2];
 assert.ok(
@@ -445,6 +446,7 @@ try {
 		await page.getByText('Tema tidak ditemukan.', { exact: true }).waitFor();
 	});
 	await testLogicRegressions({ browser, pb, fixture, web, invitation, check, jsErrors });
+	await testAuditFourRegressions({ browser, pb, fixture, web, check, jsErrors });
 	await check('No unhandled JavaScript exceptions across all three apps', async () =>
 		assert.deepEqual(jsErrors, [])
 	);

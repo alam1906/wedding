@@ -453,6 +453,12 @@ try {
 		await get('users', user.id);
 		assert.equal((await get('payments', payment.id)).wedding, user.wedding);
 		assert.equal((await fetch(personal.fileUrl)).status, 200);
+		await request(`/api/collections/payments/records/${payment.id}`, {
+			method: 'PATCH',
+			body: { status: 'expired', checkout_lock: '' }
+		});
+		await deleteAccount(user, 'HAPUS', 409);
+		assert.equal((await get('payments', payment.id)).wedding, user.wedding);
 	});
 	await check('paid history survives deletion and repeated gateway callbacks', async () => {
 		const user = await createUser('paid-delete');
@@ -580,7 +586,9 @@ try {
 			const affiliate = await enroll(affiliateUser);
 			for (let i = 0; i < 2; i++) {
 				const buyer = await createUser(`late-buyer-${i}`);
-				const earlier = await createPayment(buyer, 'expired', affiliate.id);
+				// Only gateway-final invoices allow deletion; legacy local expiry
+				// now stays blocked until reconciled (covered by the guard test).
+				const earlier = await createPayment(buyer, 'failed', affiliate.id);
 				const later = await createPayment(buyer, 'failed', affiliate.id);
 				await deleteAccount(buyer);
 				await assertDeleted(buyer);

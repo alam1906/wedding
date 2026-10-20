@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import SkeletonTable from '#lib/components/ui/SkeletonTable.svelte';
 	import { invalidate } from '$app/navigation';
 	import {
 		affiliateError,
@@ -158,7 +159,7 @@
 		</button>
 	</div>
 	{#if error}<p role="alert" class="px-5 py-4 text-sm text-red-600">{error}</p>{/if}
-	{#if loading}<p role="status" class="px-5 py-10 text-sm text-[#5c554e]">Memuat riwayat...</p>
+	{#if loading}<SkeletonTable />
 	{:else if !records.length}<p class="px-5 py-10 text-sm text-[#5c554e]">
 			{isPayout
 				? 'Belum ada pengajuan pencairan.'

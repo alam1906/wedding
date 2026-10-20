@@ -212,7 +212,7 @@
 		if (!alive || checking || creating || loading || paid) return;
 		checking = true;
 		try {
-			applyStatus(await getProPaymentStatus());
+			applyStatus(await getProPaymentStatus(manual));
 			if (!alive) return;
 			error = '';
 			if (manual && pending)
@@ -437,7 +437,9 @@
 							<div class="notice">
 								<strong>Waktu pembayaran telah habis.</strong>
 								<p>
-									Kami memeriksa status terakhir. Jangan transfer menggunakan detail tagihan ini.
+									Jangan transfer menggunakan detail tagihan ini. Periksa status untuk memastikan
+									hasil akhir pembayaran. Jika status belum berubah, hubungi bantuan sebelum membuat
+									pembayaran baru.
 								</p>
 							</div>
 						{:else if payment.kind === 'qris' && payment.qr_string}

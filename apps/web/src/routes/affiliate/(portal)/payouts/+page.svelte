@@ -4,4 +4,4 @@
 	let { data }: PageProps = $props();
 </script>
 
-<AffiliateHistory kind="payouts" overview={data.overview} />
+<AffiliateHistory kind="payouts" overview={await data.overview} />

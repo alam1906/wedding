@@ -4,4 +4,4 @@
 	let { data }: PageProps = $props();
 </script>
 
-<AffiliateDashboard overview={data.overview} />
+<AffiliateDashboard overview={await data.overview} />

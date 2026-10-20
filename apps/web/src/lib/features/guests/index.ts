@@ -1,6 +1,8 @@
 export {
 	GuestDataError,
-	getGuests,
+	getGuestPage,
+	getExistingGuestNumbers,
+	GUEST_PAGE_SIZE,
 	createGuest,
 	createGuests,
 	updateGuest,

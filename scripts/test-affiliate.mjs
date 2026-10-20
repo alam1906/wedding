@@ -30,6 +30,9 @@ const merchant = 'TEST';
 let invoices = 0;
 let rejectInvoice = false;
 let malformedInvoice = false;
+let statusRequests = 0;
+let rejectStatus = false;
+let statusDelay = 0;
 const transactions = new Map();
 const mock = createServer(async (request, response) => {
 	let raw = '';
@@ -86,6 +89,14 @@ const mock = createServer(async (request, response) => {
 			})
 		);
 	} else {
+		assert.equal(request.url, '/status');
+		statusRequests++;
+		if (statusDelay) await new Promise((resolve) => setTimeout(resolve, statusDelay));
+		if (rejectStatus) {
+			response.writeHead(503);
+			response.end('{}');
+			return;
+		}
 		const transaction = transactions.get(data.merchantOrderId);
 		if (!transaction) {
 			response.writeHead(404);
@@ -450,43 +461,65 @@ try {
 			);
 		}
 	);
-	await check('missing QR data keeps the invoice reservation; expiry is persisted', async () => {
-		const buyer = await createUser('direct-malformed');
-		const weddingId = await provision(buyer);
-		malformedInvoice = true;
-		await request('/api/wedez/payments/session', {
-			token: buyer.token,
-			method: 'POST',
-			body: {},
-			status: 502
-		});
-		malformedInvoice = false;
-		const count = invoices;
-		await request('/api/wedez/payments/session', {
-			token: buyer.token,
-			method: 'POST',
-			body: {},
-			status: 409
-		});
-		assert.equal(invoices, count);
-		const payment = (await records('payments', `wedding = '${weddingId}'`))[0];
-		await request(`/api/collections/payments/records/${payment.id}`, {
-			token: admin,
-			method: 'PATCH',
-			body: { expires_at: '2020-01-01 00:00:00.000Z' }
-		});
-		assert.equal(
-			(await request('/api/wedez/payments/status', { token: buyer.token })).data.payment.status,
-			'expired'
-		);
-		assert.equal(
-			(await request('/api/wedez/payments/status', { token: buyer.token })).data.payment.status,
-			'expired'
-		);
-		const next = await invoice(buyer, '');
-		assert.ok(next.qr_string.startsWith('000201'));
-		assert.notEqual(next.id, payment.id);
-	});
+	await check(
+		'local expiry keeps the reservation until gateway cancellation is confirmed',
+		async () => {
+			const buyer = await createUser('direct-malformed');
+			const weddingId = await provision(buyer);
+			malformedInvoice = true;
+			await request('/api/wedez/payments/session', {
+				token: buyer.token,
+				method: 'POST',
+				body: {},
+				status: 502
+			});
+			malformedInvoice = false;
+			const count = invoices;
+			await request('/api/wedez/payments/session', {
+				token: buyer.token,
+				method: 'POST',
+				body: {},
+				status: 409
+			});
+			assert.equal(invoices, count);
+			const payment = (await records('payments', `wedding = '${weddingId}'`))[0];
+			await request(`/api/collections/payments/records/${payment.id}`, {
+				token: admin,
+				method: 'PATCH',
+				body: { expires_at: '2020-01-01 00:00:00.000Z' }
+			});
+			assert.equal(
+				(await request('/api/wedez/payments/status', { token: buyer.token })).data.payment.status,
+				'pending'
+			);
+			assert.equal(
+				(await request('/api/wedez/payments/status', { token: buyer.token })).data.payment.status,
+				'pending'
+			);
+			await request('/api/wedez/payments/session', {
+				token: buyer.token,
+				method: 'POST',
+				body: {},
+				status: 409
+			});
+			assert.equal(invoices, count);
+			assert.equal((await records('payments', `id = '${payment.id}'`))[0].checkout_lock, weddingId);
+			transactions.get(payment.provider_transaction_id).statusCode = '02';
+			// Advance only the synthetic lease, not a production timeout.
+			await request(`/api/collections/payments/records/${payment.id}`, {
+				token: admin,
+				method: 'PATCH',
+				body: { status_check_after: '' }
+			});
+			assert.equal(
+				(await request('/api/wedez/payments/status', { token: buyer.token })).data.payment.status,
+				'failed'
+			);
+			const next = await invoice(buyer, '');
+			assert.ok(next.qr_string.startsWith('000201'));
+			assert.notEqual(next.id, payment.id);
+		}
+	);
 	await check(
 		'an expired local deadline reconciles a paid gateway invoice before retrying',
 		async () => {
@@ -514,6 +547,152 @@ try {
 			assert.equal(status.payment.id, payment.id);
 			assert.equal(status.payment.amount, 50000);
 			assert.equal(status.payment.qr_string, '');
+		}
+	);
+	await check(
+		'late gateway success reconciles after a locally elapsed deadline without callback',
+		async () => {
+			const buyer = await createUser('deadline-pending-paid');
+			const weddingId = await provision(buyer);
+			const payment = await invoice(buyer, '');
+			await request(`/api/collections/payments/records/${payment.id}`, {
+				token: admin,
+				method: 'PATCH',
+				body: { expires_at: '2020-01-01 00:00:00.000Z' }
+			});
+			assert.equal(
+				(await request('/api/wedez/payments/status', { token: buyer.token })).data.payment.status,
+				'pending'
+			);
+			transactions.get(payment.order_id).statusCode = '00';
+			await request(`/api/collections/payments/records/${payment.id}`, {
+				token: admin,
+				method: 'PATCH',
+				body: { status_check_after: '' }
+			});
+			const result = (await request('/api/wedez/payments/status', { token: buyer.token })).data;
+			assert.equal(result.payment.status, 'paid');
+			assert.equal(result.plan_tier, 'pro');
+			assert.equal((await records('weddings', `id = '${weddingId}'`))[0].plan_tier, 'pro');
+		}
+	);
+	await check('legacy expired invoices are reconciled and block a duplicate checkout', async () => {
+		const buyer = await createUser('legacy-expired');
+		await provision(buyer);
+		const payment = await invoice(buyer, '');
+		await request(`/api/collections/payments/records/${payment.id}`, {
+			token: admin,
+			method: 'PATCH',
+			body: { status: 'expired', checkout_lock: '', expires_at: '2020-01-01 00:00:00.000Z' }
+		});
+		const count = invoices;
+		await request('/api/wedez/payments/session', {
+			token: buyer.token,
+			method: 'POST',
+			body: {},
+			status: 409
+		});
+		assert.equal(invoices, count);
+		assert.equal(
+			(await request('/api/wedez/payments/status?refresh=false', { token: buyer.token })).data
+				.payment.status,
+			'pending'
+		);
+		// Reconstruct history produced by the old release: a newer failed
+		// invoice exists alongside an older locally-expired reservation.
+		await request(`/api/collections/payments/records/${payment.id}`, {
+			token: admin,
+			method: 'PATCH',
+			body: { status: 'failed' }
+		});
+		const newer = await invoice(buyer, '');
+		await callback(newer, '01');
+		transactions.get(payment.order_id).statusCode = '00';
+		await request(`/api/collections/payments/records/${payment.id}`, {
+			token: admin,
+			method: 'PATCH',
+			body: { status: 'expired', status_check_after: '' }
+		});
+		const cached = (
+			await request('/api/wedez/payments/status?refresh=false', { token: buyer.token })
+		).data;
+		assert.equal(cached.payment.id, payment.id);
+		assert.equal(cached.payment.status, 'pending');
+		assert.equal(
+			(await request('/api/wedez/payments/status', { token: buyer.token })).data.plan_tier,
+			'pro'
+		);
+	});
+	await check(
+		'status polling is DB-only; manual concurrent checks share a persistent gateway lease',
+		async () => {
+			const buyer = await createUser('status-coalescing');
+			await provision(buyer);
+			const payment = await invoice(buyer, '');
+			const before = statusRequests;
+			for (let i = 0; i < 3; i++)
+				await request('/api/wedez/payments/status?refresh=false', { token: buyer.token });
+			assert.equal(statusRequests, before);
+			statusDelay = 150;
+			try {
+				await Promise.all(
+					Array.from({ length: 5 }, () =>
+						request('/api/wedez/payments/status', { token: buyer.token })
+					)
+				);
+			} finally {
+				statusDelay = 0;
+			}
+			assert.equal(statusRequests, before + 1);
+			await request('/api/wedez/payments/status', { token: buyer.token });
+			assert.equal(statusRequests, before + 1);
+			assert.equal((await callback(payment)).status, 200);
+			const result = (
+				await request('/api/wedez/payments/status?refresh=false', { token: buyer.token })
+			).data;
+			assert.equal(result.payment.status, 'paid');
+			assert.equal(statusRequests, before + 1);
+		}
+	);
+	await check(
+		'gateway failures back off without unlocking checkout or downgrading paid callbacks',
+		async () => {
+			const buyer = await createUser('status-backoff');
+			const weddingId = await provision(buyer);
+			const payment = await invoice(buyer, '');
+			rejectStatus = true;
+			const before = statusRequests;
+			try {
+				await request('/api/wedez/payments/status', { token: buyer.token, status: 502 });
+				await request('/api/wedez/payments/status', { token: buyer.token });
+				assert.equal(statusRequests, before + 1);
+				assert.equal(
+					(await records('payments', `id = '${payment.id}'`))[0].checkout_lock,
+					weddingId
+				);
+			} finally {
+				rejectStatus = false;
+			}
+			await request(`/api/collections/payments/records/${payment.id}`, {
+				token: admin,
+				method: 'PATCH',
+				body: { status_check_after: '' }
+			});
+			statusDelay = 150;
+			try {
+				const inFlight = request('/api/wedez/payments/status', { token: buyer.token });
+				while (statusRequests === before + 1)
+					await new Promise((resolve) => setTimeout(resolve, 5));
+				await callback(payment);
+				await inFlight;
+			} finally {
+				statusDelay = 0;
+			}
+			assert.equal(
+				(await request('/api/wedez/payments/status?refresh=false', { token: buyer.token })).data
+					.payment.status,
+				'paid'
+			);
 		}
 	);
 	await check(
@@ -1145,6 +1324,7 @@ try {
 				method: 'PATCH',
 				body: { expires_at: '2020-01-01 00:00:00.000Z' }
 			});
+			transactions.get(older.order_id).statusCode = '02';
 			const newer = await invoice(buyer, affiliate.code);
 			assert.equal((await callback(older)).status, 200);
 			assert.equal((await callback(newer)).status, 200);

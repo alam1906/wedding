@@ -46,21 +46,32 @@ konfigurasi, tetapi pembuatan invoice tidak lagi memakai endpoint POP createInvo
   pembayaran hanya dapat diakses pemilik wedding yang sudah terverifikasi.
 - Timeout/respons gateway yang tidak lengkap tetap mempertahankan reservasi: jangan
   menerbitkan invoice lain karena gateway mungkin sudah membuat tagihan pertama.
-- Status dipantau saat tab terlihat. Countdown diselaraskan dengan waktu server.
-  Status callback/polling diperiksa signature/order/amount; aktivasi Pro dan komisi
+- Status database dipantau setiap 6 detik saat tab terlihat, tanpa memanggil Duitku.
+  Pemuatan awal, tombol cek status, dan percobaan checkout lama melakukan rekonsiliasi.
+  Lease di database membatasi pemeriksaan gateway menjadi satu per tagihan per 60 detik,
+  termasuk permintaan bersamaan/multi-tab. Kegagalan memakai backoff hingga 15 menit.
+  Countdown diselaraskan dengan waktu server.
+  Status callback/rekonsiliasi diperiksa signature/order/amount; aktivasi Pro dan komisi
   memakai transaksi idempoten yang sama. Status paid tidak dapat diturunkan.
-- QR/VA disembunyikan saat waktu habis; status akhir tetap dikonfirmasi backend.
+- QR/VA disembunyikan saat waktu habis. Tenggat lokal tidak mengubah status menjadi
+  gagal atau melepas reservasi; backend menunggu hasil akhir dari gateway.
+  Tagihan `expired` dari rilis lama juga diperiksa kembali dan menahan checkout baru
+  serta penghapusan akun sampai status akhirnya jelas.
 - Setelah Pro terkonfirmasi aktif, halaman menampilkan hitung mundur dan otomatis
   kembali ke dashboard dalam 5 detik. Tombol Lanjut ke dashboard tetap tersedia;
   timer dibersihkan jika pengguna meninggalkan halaman lebih awal.
-- Tagihan POP lama tetap direkonsiliasi. Pengguna diminta menunggu kedaluwarsa sebelum
-  membuat tagihan baru jika detail QR/VA belum tersedia; tidak otomatis diarahkan keluar.
+- Tagihan POP lama tetap direkonsiliasi; tidak otomatis diarahkan keluar.
+  Jika gateway terus menjawab pending/not found atau tidak tersedia, pengguna perlu
+  memeriksa status atau menghubungi bantuan. Admin harus mengonfirmasi hasil di gateway
+  sebelum menyelesaikan reservasi; jangan menganggap lewat waktu sebagai bukti gagal.
 
 ## Menjalankan dan memverifikasi
 
 Restart PocketBase setelah memperbarui kode agar migration
 `1792540800_add_direct_payment_details.js` menambahkan kolom detail pembayaran dan
-rate limit. Jangan menimpa atau menghapus database untuk menjalankan migration.
+rate limit, serta `1792886400_payment_reconciliation.js` menambahkan lease/backoff.
+Uji migration pada salinan terisolasi terlebih dahulu. Jangan menimpa atau menghapus
+database untuk menjalankan migration.
 Build frontend web setelah dependency terpasang (`bun install`).
 
 `bun scripts/test-affiliate.mjs` menjalankan PocketBase/SQLite di direktori sementara

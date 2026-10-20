@@ -8,6 +8,7 @@ import { createServer } from 'node:net';
 import path from 'node:path';
 import PocketBase from '../apps/web/node_modules/pocketbase/dist/pocketbase.es.mjs';
 import { testLogicRegressions } from './lib/logic-browser-regressions.mjs';
+import { testWorkspaceSkeletons } from './lib/workspace-skeleton-regressions.mjs';
 
 const fixturePath = path.resolve(process.argv[2] || '');
 assert.equal(
@@ -108,7 +109,7 @@ try {
 				authRefreshRequests.push(request.url());
 		})
 	);
-	for (const width of [1366, 390]) {
+	for (const width of process.env.WEDEZ_TEST_SKELETONS_ONLY === '1' ? [] : [1366, 390]) {
 		const suffix = `${width}-${Date.now().toString(36)}`;
 		const email = `read-${width}-${Date.now()}@example.test`;
 		await admin.collection('users').create({
@@ -288,7 +289,7 @@ try {
 		await back();
 		delayDomain = true;
 		await page.getByRole('heading', { name: 'Domain', exact: true }).click();
-		await page.getByText('Memuat data…', { exact: true }).waitFor();
+		await page.locator('[data-skeleton="section-Domain"]').waitFor();
 		await back();
 		await open('Tema');
 		releaseDomain();
@@ -313,6 +314,12 @@ try {
 			.getByRole('button', { name: 'Tambah tamu', exact: true })
 			.click();
 		await page.getByText('Tamu berhasil ditambahkan.', { exact: true }).waitFor();
+		await page.getByText('Memuat daftar tamu…', { exact: true }).waitFor({ state: 'hidden' });
+		assert.equal(
+			count('/guests/records'),
+			2,
+			'A successful save refreshes exactly one bounded page'
+		);
 		await admin.collection('guests').create({
 			wedding: id,
 			name: 'QA Baru',
@@ -333,7 +340,11 @@ try {
 		);
 		await menu('Undangan');
 		await page.getByText('QA Baru', { exact: true }).filter({ visible: true }).first().waitFor();
-		assert.equal(count('/guests/records'), 2);
+		assert.equal(
+			count('/guests/records'),
+			3,
+			'Re-entry fetches one fresh page after the save refresh'
+		);
 		await menu('Upgrade');
 		await page.getByText('Paketmu saat ini', { exact: true }).waitFor();
 		assert.equal(recordReads().at(-1).fields, 'id,plan_tier');
@@ -402,6 +413,7 @@ try {
 		);
 		await context.close();
 	}
+	await testWorkspaceSkeletons({ browser, web, fixture, pb: admin });
 	const jsErrors = [];
 	await testLogicRegressions({
 		browser,

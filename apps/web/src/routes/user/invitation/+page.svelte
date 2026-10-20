@@ -1,9 +1,13 @@
 <script lang="ts">
 	import { error } from '@sveltejs/kit';
+	import { onDestroy } from 'svelte';
+	import { MediaQuery } from 'svelte/reactivity';
 	import type { Attachment } from 'svelte/attachments';
 
 	import {
-		getGuests,
+		getGuestPage,
+		getExistingGuestNumbers,
+		GUEST_PAGE_SIZE,
 		createGuest,
 		createGuests,
 		updateGuest,
@@ -63,7 +67,21 @@
 		whatsappTemplate: initialWhatsappTemplate,
 		guests: initialGuests
 	} = await getInvitationData();
-	let guests = $state.raw<Guest[]>(initialGuests);
+	let guests = $state.raw<Guest[]>(initialGuests.items);
+	let guestPage = $state(initialGuests.page);
+	let totalPages = $state(initialGuests.totalPages);
+	let totalGuests = $state(initialGuests.totalItems);
+	let loadingGuests = $state(false);
+	let guestLoadError = $state('');
+	let guestRequest: AbortController | undefined;
+	let searchTimer: ReturnType<typeof setTimeout> | undefined;
+	let disposed = false;
+	const desktop = new MediaQuery('(min-width: 640px)');
+	onDestroy(() => {
+		disposed = true;
+		guestRequest?.abort();
+		clearTimeout(searchTimer);
+	});
 
 	let search = $state('');
 	let guestSortField = $state<GuestSortField>('name');
@@ -101,7 +119,7 @@
 	async function getInvitationData() {
 		try {
 			const [loadedGuests, loadedWeddingSlug, whatsappTemplate] = await Promise.all([
-				getGuests(),
+				getGuestPage(),
 				getCurrentWeddingSlug(),
 				getWhatsappTemplate()
 			]);
@@ -186,17 +204,30 @@
 			closeGuestActionMenu(true);
 		};
 		const handleViewportChange = () => closeGuestActionMenu();
+		const handleScroll = (event: Event) => {
+			const target = event.target;
+			// Text inputs can scroll internally when losing focus. That does
+			// not move the menu anchor and must not close a newly opened menu.
+			if (
+				target === document ||
+				target === window ||
+				(target instanceof Element &&
+					guestActionMenuButton &&
+					target.contains(guestActionMenuButton))
+			)
+				closeGuestActionMenu();
+		};
 
 		document.addEventListener('pointerdown', handlePointerDown);
 		document.addEventListener('keydown', handleKeydown);
 		window.addEventListener('resize', handleViewportChange);
-		window.addEventListener('scroll', handleViewportChange, true);
+		window.addEventListener('scroll', handleScroll, true);
 
 		return () => {
 			document.removeEventListener('pointerdown', handlePointerDown);
 			document.removeEventListener('keydown', handleKeydown);
 			window.removeEventListener('resize', handleViewportChange);
-			window.removeEventListener('scroll', handleViewportChange, true);
+			window.removeEventListener('scroll', handleScroll, true);
 		};
 	};
 
@@ -243,28 +274,56 @@
 		guestStatusFilter = status;
 		statusMenuOpen = false;
 		statusMenuButton?.focus();
+		void loadGuestPage(1);
 	}
 
-	let filteredGuests = $derived.by(() => {
-		const normalizedSearch = search.trim().toLocaleLowerCase('id-ID');
-		const filtered = guests.filter((guest) => {
-			const matchesSearch = `${guest.name} ${guest.whatsapp}`
-				.toLocaleLowerCase('id-ID')
-				.includes(normalizedSearch);
-			const matchesStatus = guestStatusFilter === 'all' || guest.rsvp_status === guestStatusFilter;
+	async function loadGuestPage(page: number) {
+		if (disposed) return;
+		clearTimeout(searchTimer);
+		guestRequest?.abort();
+		const controller = new AbortController();
+		guestRequest = controller;
+		loadingGuests = true;
+		guestLoadError = '';
+		closeGuestActionMenu();
+		try {
+			const query = {
+				page,
+				search,
+				status: guestStatusFilter,
+				sort: guestSortField,
+				direction: guestSortDirection,
+				signal: controller.signal
+			};
+			let result = await getGuestPage(query);
+			// A deletion can make the last page empty.
+			if (result.page > Math.max(1, result.totalPages)) {
+				result = await getGuestPage({ ...query, page: Math.max(1, result.totalPages) });
+			}
+			if (disposed || controller.signal.aborted) return;
+			guests = result.items;
+			guestPage = result.page;
+			totalPages = result.totalPages;
+			totalGuests = result.totalItems;
+		} catch (cause) {
+			if (disposed || controller.signal.aborted) return;
+			guestLoadError =
+				cause instanceof GuestDataError ? cause.message : 'Daftar tamu gagal dimuat.';
+		} finally {
+			if (!disposed && guestRequest === controller) loadingGuests = false;
+		}
+	}
 
-			return matchesSearch && matchesStatus;
-		});
-
-		return [...filtered].sort((left, right) => {
-			const comparison =
-				guestSortField === 'created_at'
-					? left.created_at.localeCompare(right.created_at)
-					: left.name.localeCompare(right.name, 'id');
-
-			return guestSortDirection === 'ascending' ? comparison : -comparison;
-		});
-	});
+	function searchGuests(event: Event) {
+		search = (event.currentTarget as HTMLInputElement).value;
+		guestRequest?.abort();
+		guestRequest = undefined;
+		clearTimeout(searchTimer);
+		loadingGuests = true;
+		guestLoadError = '';
+		closeGuestActionMenu();
+		searchTimer = setTimeout(() => void loadGuestPage(1), 250);
+	}
 	let importableCsvRows = $derived(csvRows.filter((row) => !row.issue));
 	let rejectedCsvRows = $derived(csvRows.filter((row) => row.issue));
 	let isDeletingGuest = $derived(
@@ -349,8 +408,10 @@
 		csvDialog?.close();
 	}
 
-	function markExistingGuests(rows: GuestCsvRow[]): GuestCsvRow[] {
-		const existingNumbers = new Set(guests.map((guest) => guest.whatsapp));
+	async function markExistingGuests(rows: GuestCsvRow[]): Promise<GuestCsvRow[]> {
+		const existingNumbers = await getExistingGuestNumbers(
+			rows.filter((row) => !row.issue).map((row) => row.normalizedWhatsapp)
+		);
 
 		return rows.map((row) =>
 			!row.issue && existingNumbers.has(row.normalizedWhatsapp)
@@ -385,9 +446,12 @@
 		isReadingCsv = true;
 
 		try {
-			csvRows = markExistingGuests(parseGuestCsv(await file.text()));
+			csvRows = await markExistingGuests(parseGuestCsv(await file.text()));
 		} catch (error) {
-			csvError = error instanceof GuestCsvError ? error.message : 'File CSV gagal dibaca.';
+			csvError =
+				error instanceof GuestCsvError || error instanceof GuestDataError
+					? error.message
+					: 'File CSV gagal dibaca.';
 		} finally {
 			isReadingCsv = false;
 			input.value = '';
@@ -402,9 +466,9 @@
 
 		try {
 			const createdGuests = await createGuests(importableCsvRows.map((row) => row.input));
-			guests = [...guests, ...createdGuests];
 			toast.success(`${createdGuests.length} tamu berhasil diimpor.`);
 			csvDialog?.close();
+			await loadGuestPage(guestPage);
 		} catch (error) {
 			toast.error(error instanceof GuestDataError ? error.message : 'Tamu dari CSV gagal diimpor.');
 		} finally {
@@ -447,11 +511,11 @@
 	function toggleGuestSort(field: GuestSortField): void {
 		if (guestSortField === field) {
 			guestSortDirection = guestSortDirection === 'ascending' ? 'descending' : 'ascending';
-			return;
+		} else {
+			guestSortField = field;
+			guestSortDirection = field === 'created_at' ? 'descending' : 'ascending';
 		}
-
-		guestSortField = field;
-		guestSortDirection = field === 'created_at' ? 'descending' : 'ascending';
+		void loadGuestPage(1);
 	}
 
 	function guestSortAria(field: GuestSortField): SortDirection | 'none' {
@@ -492,16 +556,15 @@
 
 		try {
 			if (editingId === null) {
-				const createdGuest = await createGuest(guestInput);
-				guests = [...guests, createdGuest];
+				await createGuest(guestInput);
 				toast.success('Tamu berhasil ditambahkan.');
 			} else {
-				const updatedGuest = await updateGuest(editingId, guestInput);
-				guests = guests.map((guest) => (guest.id === updatedGuest.id ? updatedGuest : guest));
+				await updateGuest(editingId, guestInput);
 				toast.success('Data tamu berhasil diperbarui.');
 			}
 
 			closeDialog();
+			await loadGuestPage(guestPage);
 		} catch (error) {
 			guestFormError =
 				error instanceof GuestDataError ? error.message : 'Data tamu gagal disimpan.';
@@ -522,10 +585,10 @@
 
 		try {
 			await deleteGuest(guest.id);
-			guests = guests.filter((item) => item.id !== guest.id);
 			toast.success('Tamu berhasil dihapus.');
 			deleteDialog?.close();
 			guestPendingDeletion = null;
+			await loadGuestPage(guestPage);
 		} catch (error) {
 			toast.error(error instanceof GuestDataError ? error.message : 'Tamu gagal dihapus.');
 		} finally {
@@ -1104,7 +1167,8 @@
 								<path d="m16 16 4 4"></path>
 							</svg>
 							<input
-								bind:value={search}
+								value={search}
+								oninput={searchGuests}
 								class="ws-input field search-field w-full py-3 pr-4 pl-12 text-sm shadow-[3px_3px_0_#191919] placeholder:text-gray-300"
 								placeholder="Cari"
 							/>
@@ -1265,173 +1329,211 @@
 				</div>
 			</div>
 
-			<div class="hidden overflow-x-auto sm:block">
-				<table class="ws-table w-full min-w-200 text-left">
-					<thead class="bg-[#e2d2ff] text-xs font-extrabold tracking-wide uppercase">
-						<tr class="divide-x-2 divide-[#191919]">
-							<th class="px-6 py-4" aria-sort={guestSortAria('name')}>
-								<button
-									type="button"
-									class="ws-link inline-flex cursor-pointer items-center gap-2"
-									onclick={() => toggleGuestSort('name')}
-									title="Urutkan berdasarkan nama tamu"
-								>
-									Tamu
-									<svg
-										aria-hidden="true"
-										class={`size-4 ${guestSortField === 'name' ? 'text-gray-900' : 'text-gray-400'}`}
-										viewBox="0 0 16 16"
-										fill="none"
-										stroke="currentColor"
-										stroke-width="1.8"
-										stroke-linecap="round"
-										stroke-linejoin="round"
+			{#if loadingGuests}
+				<p class="p-10 text-center text-sm text-[#5c554e]" role="status">Memuat daftar tamu…</p>
+			{:else if guestLoadError}
+				<div class="p-10 text-center">
+					<p role="alert" class="mb-3 text-sm">{guestLoadError}</p>
+					<button type="button" class="ws-button px-4 py-2" onclick={() => loadGuestPage(1)}
+						>Coba lagi</button
+					>
+				</div>
+			{:else if desktop.current}
+				<div class="overflow-x-auto">
+					<table class="ws-table w-full min-w-200 text-left">
+						<thead class="bg-[#e2d2ff] text-xs font-extrabold tracking-wide uppercase">
+							<tr class="divide-x-2 divide-[#191919]">
+								<th class="px-6 py-4" aria-sort={guestSortAria('name')}>
+									<button
+										type="button"
+										class="ws-link inline-flex cursor-pointer items-center gap-2"
+										onclick={() => toggleGuestSort('name')}
+										title="Urutkan berdasarkan nama tamu"
 									>
-										<path
-											class={guestSortField === 'name' && guestSortDirection === 'ascending'
-												? ''
-												: 'opacity-30'}
-											d="m5 6 3-3 3 3"
-										></path>
-										<path
-											class={guestSortField === 'name' && guestSortDirection === 'descending'
-												? ''
-												: 'opacity-30'}
-											d="m5 10 3 3 3-3"
-										></path>
-									</svg>
-								</button>
-							</th>
-							<th class="px-6 py-4">WhatsApp</th>
-							<th class="px-6 py-4">Status</th>
-							<th class="px-6 py-4" aria-sort={guestSortAria('created_at')}>
-								<button
-									type="button"
-									class="ws-link inline-flex cursor-pointer items-center gap-2"
-									onclick={() => toggleGuestSort('created_at')}
-									title="Urutkan berdasarkan tanggal ditambahkan"
-								>
-									Date
-									<svg
-										aria-hidden="true"
-										class={`size-4 ${guestSortField === 'created_at' ? 'text-gray-900' : 'text-gray-400'}`}
-										viewBox="0 0 16 16"
-										fill="none"
-										stroke="currentColor"
-										stroke-width="1.8"
-										stroke-linecap="round"
-										stroke-linejoin="round"
-									>
-										<path
-											class={guestSortField === 'created_at' && guestSortDirection === 'ascending'
-												? ''
-												: 'opacity-30'}
-											d="m5 6 3-3 3 3"
-										></path>
-										<path
-											class={guestSortField === 'created_at' && guestSortDirection === 'descending'
-												? ''
-												: 'opacity-30'}
-											d="m5 10 3 3 3-3"
-										></path>
-									</svg>
-								</button>
-							</th>
-							<th class="px-6 py-4 text-right">Aksi</th>
-						</tr>
-					</thead>
-					<tbody class="divide-y divide-[#191919]/15 bg-white">
-						{#each filteredGuests as guest (guest.id)}
-							<tr class="divide-x divide-[#191919]/15">
-								<td class="px-6 py-4">
-									<p class="text-sm font-semibold text-[#191919]">{guest.name}</p>
-								</td>
-								<td class="px-6 py-4 text-sm text-[#5c554e]">{guest.whatsapp || '-'}</td>
-								<td class="px-6 py-4">
-									<span class="ws-badge {statusClass(guest.rsvp_status)}"
-										>{statusLabel(guest.rsvp_status)}</span
-									>
-								</td>
-								<td class="px-6 py-4 text-sm whitespace-nowrap text-[#5c554e]">
-									{formatGuestDate(guest.created_at)}
-								</td>
-								<td class="px-6 py-4">
-									<div class="flex justify-end">
-										<button
-											type="button"
-											data-guest-actions-trigger
-											onclick={(event) => toggleGuestActionMenu(event, guest)}
-											aria-label={`Buka aksi untuk ${guest.name}`}
-											aria-haspopup="menu"
-											aria-expanded={guestActionMenuGuest?.id === guest.id}
-											aria-controls={guestActionMenuGuest?.id === guest.id
-												? 'guest-action-menu'
-												: undefined}
-											class="ws-button ws-button--icon grid size-9 cursor-pointer place-items-center text-[#191919] transition"
+										Tamu
+										<svg
+											aria-hidden="true"
+											class={`size-4 ${guestSortField === 'name' ? 'text-gray-900' : 'text-gray-400'}`}
+											viewBox="0 0 16 16"
+											fill="none"
+											stroke="currentColor"
+											stroke-width="1.8"
+											stroke-linecap="round"
+											stroke-linejoin="round"
 										>
-											<svg
-												aria-hidden="true"
-												class="size-5"
-												viewBox="0 0 24 24"
-												fill="currentColor"
-											>
-												<circle cx="12" cy="5" r="1.7"></circle>
-												<circle cx="12" cy="12" r="1.7"></circle>
-												<circle cx="12" cy="19" r="1.7"></circle>
-											</svg>
-										</button>
-									</div>
-								</td>
+											<path
+												class={guestSortField === 'name' && guestSortDirection === 'ascending'
+													? ''
+													: 'opacity-30'}
+												d="m5 6 3-3 3 3"
+											></path>
+											<path
+												class={guestSortField === 'name' && guestSortDirection === 'descending'
+													? ''
+													: 'opacity-30'}
+												d="m5 10 3 3 3-3"
+											></path>
+										</svg>
+									</button>
+								</th>
+								<th class="px-6 py-4">WhatsApp</th>
+								<th class="px-6 py-4">Status</th>
+								<th class="px-6 py-4" aria-sort={guestSortAria('created_at')}>
+									<button
+										type="button"
+										class="ws-link inline-flex cursor-pointer items-center gap-2"
+										onclick={() => toggleGuestSort('created_at')}
+										title="Urutkan berdasarkan tanggal ditambahkan"
+									>
+										Date
+										<svg
+											aria-hidden="true"
+											class={`size-4 ${guestSortField === 'created_at' ? 'text-gray-900' : 'text-gray-400'}`}
+											viewBox="0 0 16 16"
+											fill="none"
+											stroke="currentColor"
+											stroke-width="1.8"
+											stroke-linecap="round"
+											stroke-linejoin="round"
+										>
+											<path
+												class={guestSortField === 'created_at' && guestSortDirection === 'ascending'
+													? ''
+													: 'opacity-30'}
+												d="m5 6 3-3 3 3"
+											></path>
+											<path
+												class={guestSortField === 'created_at' &&
+												guestSortDirection === 'descending'
+													? ''
+													: 'opacity-30'}
+												d="m5 10 3 3 3-3"
+											></path>
+										</svg>
+									</button>
+								</th>
+								<th class="px-6 py-4 text-right">Aksi</th>
 							</tr>
-						{:else}
-							<tr
-								><td colspan="5" class="px-6 py-12 text-center text-sm text-[#5c554e]"
-									>Tamu tidak ditemukan.</td
-								></tr
-							>
-						{/each}
-					</tbody>
-				</table>
-			</div>
-
-			<div class="divide-y divide-gray-200 sm:hidden">
-				{#each filteredGuests as guest (guest.id)}
-					<article class="p-5">
-						<div class="flex items-start justify-between gap-3">
-							<div class="min-w-0">
-								<h2 class="truncate font-semibold text-[#191919]">{guest.name}</h2>
-								<p class="mt-1 text-sm text-[#5c554e]">{guest.whatsapp || '-'}</p>
-								<p class="mt-1 text-xs text-[#5c554e]">{formatGuestDate(guest.created_at)}</p>
+						</thead>
+						<tbody class="divide-y divide-[#191919]/15 bg-white">
+							{#each guests as guest (guest.id)}
+								<tr class="divide-x divide-[#191919]/15">
+									<td class="px-6 py-4">
+										<p class="text-sm font-semibold text-[#191919]">{guest.name}</p>
+									</td>
+									<td class="px-6 py-4 text-sm text-[#5c554e]">{guest.whatsapp || '-'}</td>
+									<td class="px-6 py-4">
+										<span class="ws-badge {statusClass(guest.rsvp_status)}"
+											>{statusLabel(guest.rsvp_status)}</span
+										>
+									</td>
+									<td class="px-6 py-4 text-sm whitespace-nowrap text-[#5c554e]">
+										{formatGuestDate(guest.created_at)}
+									</td>
+									<td class="px-6 py-4">
+										<div class="flex justify-end">
+											<button
+												type="button"
+												data-guest-actions-trigger
+												onclick={(event) => toggleGuestActionMenu(event, guest)}
+												aria-label={`Buka aksi untuk ${guest.name}`}
+												aria-haspopup="menu"
+												aria-expanded={guestActionMenuGuest?.id === guest.id}
+												aria-controls={guestActionMenuGuest?.id === guest.id
+													? 'guest-action-menu'
+													: undefined}
+												class="ws-button ws-button--icon grid size-9 cursor-pointer place-items-center text-[#191919] transition"
+											>
+												<svg
+													aria-hidden="true"
+													class="size-5"
+													viewBox="0 0 24 24"
+													fill="currentColor"
+												>
+													<circle cx="12" cy="5" r="1.7"></circle>
+													<circle cx="12" cy="12" r="1.7"></circle>
+													<circle cx="12" cy="19" r="1.7"></circle>
+												</svg>
+											</button>
+										</div>
+									</td>
+								</tr>
+							{:else}
+								<tr
+									><td colspan="5" class="px-6 py-12 text-center text-sm text-[#5c554e]"
+										>Tamu tidak ditemukan.</td
+									></tr
+								>
+							{/each}
+						</tbody>
+					</table>
+				</div>
+			{:else}
+				<div class="divide-y divide-gray-200">
+					{#each guests as guest (guest.id)}
+						<article class="p-5">
+							<div class="flex items-start justify-between gap-3">
+								<div class="min-w-0">
+									<h2 class="truncate font-semibold text-[#191919]">{guest.name}</h2>
+									<p class="mt-1 text-sm text-[#5c554e]">{guest.whatsapp || '-'}</p>
+									<p class="mt-1 text-xs text-[#5c554e]">{formatGuestDate(guest.created_at)}</p>
+								</div>
+								<span class="ws-badge shrink-0 {statusClass(guest.rsvp_status)}"
+									>{statusLabel(guest.rsvp_status)}</span
+								>
 							</div>
-							<span class="ws-badge shrink-0 {statusClass(guest.rsvp_status)}"
-								>{statusLabel(guest.rsvp_status)}</span
-							>
-						</div>
-						<div class="mt-4 flex justify-end">
-							<button
-								type="button"
-								data-guest-actions-trigger
-								onclick={(event) => toggleGuestActionMenu(event, guest)}
-								aria-label={`Buka aksi untuk ${guest.name}`}
-								aria-haspopup="menu"
-								aria-expanded={guestActionMenuGuest?.id === guest.id}
-								aria-controls={guestActionMenuGuest?.id === guest.id
-									? 'guest-action-menu'
-									: undefined}
-								class="ws-button ws-button--icon grid size-10 cursor-pointer place-items-center text-[#191919]"
-							>
-								<svg aria-hidden="true" class="size-5" viewBox="0 0 24 24" fill="currentColor">
-									<circle cx="12" cy="5" r="1.7"></circle>
-									<circle cx="12" cy="12" r="1.7"></circle>
-									<circle cx="12" cy="19" r="1.7"></circle>
-								</svg>
-							</button>
-						</div>
-					</article>
-				{:else}
-					<p class="p-10 text-center text-sm text-[#5c554e]">Tamu tidak ditemukan.</p>
-				{/each}
-			</div>
+							<div class="mt-4 flex justify-end">
+								<button
+									type="button"
+									data-guest-actions-trigger
+									onclick={(event) => toggleGuestActionMenu(event, guest)}
+									aria-label={`Buka aksi untuk ${guest.name}`}
+									aria-haspopup="menu"
+									aria-expanded={guestActionMenuGuest?.id === guest.id}
+									aria-controls={guestActionMenuGuest?.id === guest.id
+										? 'guest-action-menu'
+										: undefined}
+									class="ws-button ws-button--icon grid size-10 cursor-pointer place-items-center text-[#191919]"
+								>
+									<svg aria-hidden="true" class="size-5" viewBox="0 0 24 24" fill="currentColor">
+										<circle cx="12" cy="5" r="1.7"></circle>
+										<circle cx="12" cy="12" r="1.7"></circle>
+										<circle cx="12" cy="19" r="1.7"></circle>
+									</svg>
+								</button>
+							</div>
+						</article>
+					{:else}
+						<p class="p-10 text-center text-sm text-[#5c554e]">Tamu tidak ditemukan.</p>
+					{/each}
+				</div>
+			{/if}
+			<nav
+				aria-label="Halaman daftar tamu"
+				class="flex flex-wrap items-center justify-between gap-3 border-t-2 border-[#191919] p-4 text-sm"
+			>
+				<p role="status">
+					{totalGuests ? (guestPage - 1) * GUEST_PAGE_SIZE + 1 : 0}–{Math.min(
+						guestPage * GUEST_PAGE_SIZE,
+						totalGuests
+					)}
+					dari {totalGuests} tamu · Halaman {guestPage} dari {Math.max(1, totalPages)}
+				</p>
+				<div class="flex gap-2">
+					<button
+						type="button"
+						class="ws-button px-3 py-2"
+						disabled={loadingGuests || !!guestLoadError || guestPage <= 1}
+						onclick={() => loadGuestPage(guestPage - 1)}>Sebelumnya</button
+					>
+					<button
+						type="button"
+						class="ws-button px-3 py-2"
+						disabled={loadingGuests || !!guestLoadError || guestPage >= totalPages}
+						onclick={() => loadGuestPage(guestPage + 1)}>Berikutnya</button
+					>
+				</div>
+			</nav>
 		</div>
 	</div>
 

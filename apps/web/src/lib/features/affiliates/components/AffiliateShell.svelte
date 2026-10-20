@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { page } from '$app/state';
+	import { navigating, page } from '$app/state';
+	import WorkspaceContent from '#lib/components/ui/WorkspaceContent.svelte';
 	import type { Snippet } from 'svelte';
 	import type { Attachment } from 'svelte/attachments';
 	import { logout } from '#lib/features/auth/index.js';
@@ -28,12 +29,17 @@
 		{ href: '/affiliate/payouts', label: 'Pencairan', icon: 'payouts' },
 		{ href: '/affiliate/settings', label: 'Rekening', icon: 'settings' }
 	];
+	const menuPath = $derived(
+		navigating.to?.url.pathname.startsWith('/affiliate/')
+			? navigating.to.url.pathname
+			: page.url.pathname
+	);
 	const currentMenuTitle = $derived(
-		navigation.find((item) => page.url.pathname === item.href)?.label ?? 'Beranda'
+		navigation.find((item) => menuPath === item.href)?.label ?? 'Beranda'
 	);
 
 	function navClass(href: string) {
-		return `ws-nav-button${page.url.pathname === href ? ' is-active' : ''}`;
+		return `ws-nav-button${menuPath === href ? ' is-active' : ''}`;
 	}
 
 	const attachProfile: Attachment<HTMLDivElement> = (element) => {
@@ -89,12 +95,12 @@
 		type="button"
 		aria-label="Tutup menu"
 		onclick={() => (menuOpen = false)}
-		class:open={menuOpen}
+		class:open={$state.eager(menuOpen)}
 		class="drawer-backdrop fixed inset-0 z-40 bg-gray-900/40 md:hidden"
 	></button>
 
 	<aside
-		class:open={menuOpen}
+		class:open={$state.eager(menuOpen)}
 		class="sidebar fixed inset-y-0 left-0 z-50 w-64 border-r-2 border-[#191919] bg-[#fffaf1]"
 	>
 		<div class="flex h-full flex-col overflow-y-auto px-5 pb-7">
@@ -108,9 +114,9 @@
 				{#each navigation as item (item.href)}
 					<a
 						href={item.href}
-						aria-current={page.url.pathname === item.href ? 'page' : undefined}
+						aria-current={$state.eager(menuPath) === item.href ? 'page' : undefined}
 						onclick={() => (menuOpen = false)}
-						class={navClass(item.href)}
+						class={$state.eager(navClass(item.href))}
 					>
 						<svg
 							aria-hidden="true"
@@ -149,7 +155,7 @@
 			<button
 				type="button"
 				aria-label="Buka menu"
-				aria-expanded={menuOpen}
+				aria-expanded={$state.eager(menuOpen)}
 				onclick={() => {
 					menuOpen = true;
 					profileOpen = false;
@@ -162,7 +168,9 @@
 					<span class="h-0.5 w-full rounded-full bg-current"></span>
 				</span>
 			</button>
-			<h1 class="text-xl font-black tracking-tight sm:text-2xl">{currentMenuTitle}</h1>
+			<h1 class="text-xl font-black tracking-tight sm:text-2xl">
+				{$state.eager(currentMenuTitle)}
+			</h1>
 
 			<div {@attach attachProfile} class="relative ml-auto">
 				<button
@@ -211,7 +219,9 @@
 		</header>
 
 		<main class="px-4 py-8 sm:px-6 lg:px-10 lg:py-10">
-			<div class="w-full min-w-0">{@render children()}</div>
+			<div class="w-full min-w-0">
+				<WorkspaceContent area="affiliate">{@render children()}</WorkspaceContent>
+			</div>
 		</main>
 	</div>
 </div>

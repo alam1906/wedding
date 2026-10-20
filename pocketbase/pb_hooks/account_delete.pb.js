@@ -20,8 +20,10 @@ routerAdd(
 			});
 			weddings.forEach(function (wedding) {
 				if (
-					txApp.countRecords('payments', $dbx.hashExp({ wedding: wedding.id, status: 'pending' })) >
-					0
+					txApp.countRecords(
+						'payments',
+						$dbx.exp("wedding = {:id} AND status IN ('pending', 'expired')", { id: wedding.id })
+					) > 0
 				) {
 					throw new ApiError(
 						409,

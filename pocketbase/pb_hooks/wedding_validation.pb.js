@@ -17,13 +17,15 @@ onRecordValidate(function (e) {
 
 // Redaction alone still permits boolean inference via filters, sorts and
 // relation joins (for example wedding.whatsapp_template on wedding_stories).
-// No application screen searches or sorts by this private field.
+// No application screen searches or sorts by these private fields.
 onRecordsListRequest(function (e) {
 	if (!e.hasSuperuserAuth()) {
 		var query = e.requestInfo().query;
 		var expression = String(query.filter || '') + ' ' + String(query.sort || '');
-		if (expression.toLowerCase().indexOf('whatsapp_template') !== -1) {
-			throw new ForbiddenError('Pencarian berdasarkan template privat tidak diizinkan.');
+		if (
+			/whatsapp_template|(?:groom|bride)_payment_(?:number|provider|account_name)/i.test(expression)
+		) {
+			throw new ForbiddenError('Pencarian berdasarkan data privat tidak diizinkan.');
 		}
 	}
 	e.next();
@@ -37,7 +39,7 @@ onRecordEnrich(function (e) {
 		e.record.hide('whatsapp_template');
 		for (var i = 0; i < 2; i++) {
 			var person = i === 0 ? 'groom' : 'bride';
-			if (e.record.getBool(person + '_gift_hidden')) {
+			if (!e.record.getBool('gift_enabled') || e.record.getBool(person + '_gift_hidden')) {
 				e.record.hide(person + '_payment_number');
 				e.record.hide(person + '_payment_provider');
 				e.record.hide(person + '_payment_account_name');

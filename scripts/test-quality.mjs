@@ -294,6 +294,70 @@ try {
 			assert.equal(bothHidden.groom_payment_number, undefined);
 			assert.equal(bothHidden.bride_payment_number, undefined);
 			assert.equal(calculateWeddingCompletion(bothHidden).totalFields, 17);
+			const story = await giftOwner.client.collection('wedding_stories').create({
+				wedding: giftWedding,
+				title: 'Gift privacy',
+				content: 'Synthetic privacy test',
+				sort_order: 1
+			});
+			for (const reader of [anonymous, b.client]) {
+				for (const person of ['groom', 'bride']) {
+					for (const suffix of ['number', 'provider', 'account_name']) {
+						const field = `${person}_payment_${suffix}`;
+						for (const filter of [
+							`${field} = "${data[field]}"`,
+							`${field} ~ "${data[field].slice(0, 2)}"`
+						]) {
+							await denied(() => reader.collection('weddings').getList(1, 1, { filter }));
+							await denied(() =>
+								reader.collection('wedding_stories').getList(1, 1, { filter: `wedding.${filter}` })
+							);
+						}
+						await denied(() => reader.collection('weddings').getList(1, 1, { sort: field }));
+						await denied(() =>
+							reader.collection('wedding_stories').getList(1, 1, { sort: `-wedding.${field}` })
+						);
+					}
+				}
+			}
+			const feeds = await Promise.all(
+				[giftOwner.client, anonymous, b.client].map((reader) =>
+					subscribe(reader, [`weddings/${giftWedding}`])
+				)
+			);
+			try {
+				await giftOwner.client.collection('weddings').update(giftWedding, {
+					gift_enabled: false,
+					groom_gift_hidden: false,
+					bride_gift_hidden: false
+				});
+				await waitFor(() => feeds.every((feed) => feed.events.length), 'gift realtime delivery');
+				for (const reader of [anonymous, b.client]) {
+					const direct = await reader.collection('weddings').getOne(giftWedding);
+					const projected = await reader.collection('weddings').getOne(giftWedding, {
+						fields: 'id,groom_payment_number,bride_payment_number'
+					});
+					const expanded = await reader.collection('wedding_stories').getOne(story.id, {
+						expand: 'wedding'
+					});
+					for (const record of [direct, projected, expanded.expand.wedding]) {
+						for (const person of ['groom', 'bride'])
+							for (const suffix of ['number', 'provider', 'account_name'])
+								assert.equal(record[`${person}_payment_${suffix}`], undefined);
+					}
+				}
+				for (const feed of feeds.slice(1))
+					assert.equal(feed.events[0].record.groom_payment_number, undefined);
+				assert.equal(feeds[0].events[0].record.groom_payment_number, data.groom_payment_number);
+				for (const reader of [giftOwner.client, pb]) {
+					const own = await reader.collection('weddings').getOne(giftWedding);
+					assert.equal(own.groom_payment_number, data.groom_payment_number);
+					assert.equal(own.bride_payment_number, data.bride_payment_number);
+				}
+			} finally {
+				await Promise.all(feeds.map((feed) => feed.close()));
+				await giftOwner.client.collection('wedding_stories').delete(story.id);
+			}
 			await denied(() =>
 				b.client.collection('weddings').update(giftWedding, { groom_gift_hidden: false })
 			);

@@ -1,7 +1,7 @@
 import { ClientResponseError, type RecordModel } from 'pocketbase';
 
 import { pocketBase } from '#lib/infrastructure/pocketbase/index.js';
-import type { Guest, GuestInput } from '../model/guest.js';
+import type { Guest, GuestInput, GuestStatus } from '../model/guest.js';
 import { INVALID_GUEST_WHATSAPP_MESSAGE, normalizeGuestWhatsapp } from '../model/guest-form.js';
 
 const GUEST_FIELDS = [
@@ -173,17 +173,76 @@ function isRsvpTokenConflict(error: unknown): boolean {
 	);
 }
 
-export function getGuests(): Promise<Guest[]> {
+export const GUEST_PAGE_SIZE = 50;
+export type GuestPageQuery = {
+	page?: number;
+	search?: string;
+	status?: 'all' | GuestStatus;
+	sort?: 'name' | 'created_at';
+	direction?: 'ascending' | 'descending';
+	signal?: AbortSignal;
+};
+export type GuestPage = {
+	items: Guest[];
+	page: number;
+	totalPages: number;
+	totalItems: number;
+};
+
+export function getGuestPage(query: GuestPageQuery = {}): Promise<GuestPage> {
 	return handleGuestRequest(async () => {
 		const weddingId = getCurrentWeddingId();
-		const records = await pocketBase.collection('guests').getFullList({
-			cache: 'no-store',
-			filter: pocketBase.filter('wedding = {:weddingId}', { weddingId }),
-			fields: GUEST_FIELDS.join(','),
-			requestKey: `guests-${weddingId}`
-		});
+		const filters = [pocketBase.filter('wedding = {:weddingId}', { weddingId })];
+		if (query.search?.trim()) {
+			// Escape LIKE wildcards so searching for "%" or "_" remains literal.
+			const search = `%${query.search.trim().replace(/[\\%_]/g, '\\$&')}%`;
+			filters.push(pocketBase.filter('(name ~ {:search} || whatsapp ~ {:search})', { search }));
+		}
+		if (query.status && query.status !== 'all') {
+			filters.push(pocketBase.filter('rsvp_status = {:status}', { status: query.status }));
+		}
+		const sort = query.sort === 'created_at' ? 'created_at' : 'name';
+		const records = await pocketBase
+			.collection('guests')
+			.getList(query.page ?? 1, GUEST_PAGE_SIZE, {
+				cache: 'no-store',
+				filter: filters.join(' && '),
+				sort: `${query.direction === 'descending' ? '-' : ''}${sort},id`,
+				fields: GUEST_FIELDS.join(','),
+				requestKey: null,
+				signal: query.signal
+			});
 
-		return records.map(toGuest).sort((left, right) => left.name.localeCompare(right.name, 'id'));
+		return { ...records, items: records.items.map(toGuest) };
+	});
+}
+
+export function getExistingGuestNumbers(numbers: string[]): Promise<Set<string>> {
+	return handleGuestRequest(async () => {
+		const remaining = new Set(numbers);
+		if (remaining.size > 50) throw new GuestDataError('Pemeriksaan CSV maksimal 50 nomor.');
+		const existing = new Set<string>();
+		const weddingId = getCurrentWeddingId();
+		// Query only candidate numbers, not every guest. Removing each matched
+		// number also bounds reads when legacy records contain many duplicates.
+		while (remaining.size) {
+			const candidates = [...remaining].map((number) =>
+				pocketBase.filter('whatsapp = {:number}', { number })
+			);
+			const result = await pocketBase.collection('guests').getList(1, 50, {
+				filter: `${pocketBase.filter('wedding = {:weddingId}', { weddingId })} && (${candidates.join(' || ')})`,
+				fields: 'whatsapp',
+				skipTotal: true,
+				requestKey: null,
+				cache: 'no-store'
+			});
+			if (!result.items.length) break;
+			for (const record of result.items) {
+				existing.add(record.whatsapp);
+				remaining.delete(record.whatsapp);
+			}
+		}
+		return existing;
 	});
 }
 

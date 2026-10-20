@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { page } from '$app/state';
+	import { navigating, page } from '$app/state';
+	import WorkspaceContent from '#lib/components/ui/WorkspaceContent.svelte';
 	import { onMount } from 'svelte';
 	import type { Attachment } from 'svelte/attachments';
 	import { getAuthenticatedEmail, getAuthenticatedName, logout } from '#lib/features/auth/index.js';
@@ -32,6 +33,11 @@
 	let profileEmail = $state('');
 	let isLoggingOut = $state(false);
 	let isSwitchingArea = $state(false);
+	const menuPath = $derived(
+		navigating.to?.url.pathname.startsWith('/user/')
+			? navigating.to.url.pathname
+			: page.url.pathname
+	);
 	let profileInitial = $derived(
 		(profileName.trim().charAt(0) || profileEmail.trim().charAt(0) || 'W').toLocaleUpperCase(
 			'id-ID'
@@ -92,7 +98,7 @@
 	}
 
 	function isActive(href: string) {
-		return page.url.pathname === href || page.url.pathname.startsWith(`${href}/`);
+		return menuPath === href || menuPath.startsWith(`${href}/`);
 	}
 
 	function navClass(href: string) {
@@ -111,12 +117,12 @@
 		type="button"
 		aria-label="Tutup menu"
 		onclick={() => (menuOpen = false)}
-		class:open={menuOpen}
+		class:open={$state.eager(menuOpen)}
 		class="drawer-backdrop fixed inset-0 z-40 bg-gray-900/40 md:hidden"
 	></button>
 
 	<aside
-		class:open={menuOpen}
+		class:open={$state.eager(menuOpen)}
 		class="sidebar fixed inset-y-0 left-0 z-50 w-64 border-r-2 border-[#191919] bg-[#fffaf1]"
 	>
 		<div class="flex h-full flex-col overflow-y-auto px-5 pb-7">
@@ -130,9 +136,9 @@
 				{#each navigation as item (item.href)}
 					<a
 						href={item.href}
-						aria-current={isActive(item.href) ? 'page' : undefined}
+						aria-current={$state.eager(isActive(item.href)) ? 'page' : undefined}
 						onclick={() => (menuOpen = false)}
-						class={navClass(item.href)}
+						class={$state.eager(navClass(item.href))}
 					>
 						<svg
 							aria-hidden="true"
@@ -177,7 +183,7 @@
 			<button
 				type="button"
 				aria-label="Buka menu"
-				aria-expanded={menuOpen}
+				aria-expanded={$state.eager(menuOpen)}
 				onclick={() => {
 					menuOpen = true;
 					profileMenuOpen = false;
@@ -190,7 +196,9 @@
 					<span class="h-0.5 w-full rounded-full bg-current"></span>
 				</span>
 			</button>
-			<span class="text-lg font-black tracking-tight sm:text-2xl">{currentMenuTitle}</span>
+			<span class="text-lg font-black tracking-tight sm:text-2xl"
+				>{$state.eager(currentMenuTitle)}</span
+			>
 
 			<div {@attach attachProfileMenu} class="relative ml-auto">
 				<button
@@ -245,7 +253,7 @@
 			</div>
 		</header>
 
-		{@render children()}
+		<WorkspaceContent area="user">{@render children()}</WorkspaceContent>
 	</div>
 </main>
 

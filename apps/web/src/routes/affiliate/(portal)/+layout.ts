@@ -9,8 +9,11 @@ export const load: LayoutLoad = async ({ url, depends, fetch }) => {
 	depends('wedez:affiliate');
 	await requireVerifiedAccount(url.pathname, 'affiliate');
 	if (getAccountHome() === '/start') redirect(307, '/start');
+	// Let the shell render immediately; the page boundary owns the loading/error UI.
+	const overview = getAffiliateOverview(fetch);
+	void overview.catch(() => {});
 	return {
-		overview: await getAffiliateOverview(fetch),
+		overview,
 		name: getAuthenticatedName(),
 		email: getAuthenticatedEmail(),
 		hasWedding: hasWedding()

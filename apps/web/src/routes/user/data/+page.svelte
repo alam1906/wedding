@@ -3,6 +3,7 @@
 	import { page } from '$app/state';
 	import { error } from '@sveltejs/kit';
 	import { onDestroy, untrack } from 'svelte';
+	import DataSectionSkeleton from '#lib/components/ui/DataSectionSkeleton.svelte';
 
 	import {
 		MusicDataError,
@@ -667,6 +668,7 @@
 
 	function openSection(section: SectionName) {
 		pushState('', { ...page.state, dataSection: section });
+		window.scrollTo({ top: 0, behavior: 'instant' });
 	}
 
 	function isSectionComplete(section: SectionName): boolean {
@@ -1245,14 +1247,17 @@
 					onclick={closeActiveSection}
 					class="mb-5 cursor-pointer text-sm font-bold">← Back</button
 				>
-				<h1 class="text-2xl font-extrabold text-[#191919]">{activeSection}</h1>
+				<header class="border-b border-[#191919] pb-5">
+					<h1 class="text-2xl font-extrabold text-[#191919]">{activeSection}</h1>
+					<p class="mt-2 text-sm text-[#5c554e]">{activeSectionData?.description}</p>
+				</header>
 				{#if sectionError}
 					<p role="alert" class="mt-4 text-sm text-red-700">{sectionError}</p>
 					<button type="button" onclick={() => (sectionLoadAttempt += 1)} class="ws-button mt-4"
 						>Coba lagi</button
 					>
 				{:else}
-					<p role="status" class="mt-4 text-sm text-[#5c554e]">Memuat data…</p>
+					<div class="mt-6"><DataSectionSkeleton section={activeSection} /></div>
 				{/if}
 			</div>
 		{:else}
@@ -1329,7 +1334,7 @@
 							{/if}
 
 							{#if musicOptions.status === 'loading'}
-								<p class="mt-4 text-sm text-[#5c554e]">Memuat daftar musik...</p>
+								<DataSectionSkeleton section="Musik" footer={false} />
 							{:else if musicOptions.options.length > 0}
 								<div
 									aria-hidden={!musicEnabled}

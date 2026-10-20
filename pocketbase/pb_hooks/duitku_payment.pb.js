@@ -80,14 +80,14 @@ routerAdd(
 		// reservations outside the DB transaction before allowing another invoice.
 		var previous = e.app.findRecordsByFilter(
 			'payments',
-			"wedding = {:wedding} && provider = 'duitku' && status = 'pending'",
+			"wedding = {:wedding} && provider = 'duitku' && (status = 'pending' || status = 'expired')",
 			'-created',
 			0,
 			0,
 			{ wedding: weddingId }
 		);
 		for (var p = 0; p < previous.length; p++) {
-			if (helpers.paymentHasExpired(previous[p])) {
+			if (helpers.paymentHasExpired(previous[p]) || previous[p].getString('status') === 'expired') {
 				var reconciled = helpers.reconcilePayment(e.app, config, previous[p]);
 				if (reconciled.getString('status') === 'paid')
 					return e.json(200, helpers.paymentResponse(e.app, weddingId, reconciled));
@@ -119,7 +119,7 @@ routerAdd(
 				throw new ApiError(409, 'Harga berubah. Muat ulang halaman sebelum melanjutkan.');
 			var pendingPayments = txApp.findRecordsByFilter(
 				'payments',
-				"wedding = {:wedding} && provider = 'duitku' && status = 'pending'",
+				"wedding = {:wedding} && provider = 'duitku' && (status = 'pending' || status = 'expired')",
 				'-created',
 				0,
 				0,
@@ -127,10 +127,10 @@ routerAdd(
 			);
 			for (var index = 0; index < pendingPayments.length; index++) {
 				var pending = pendingPayments[index];
-				if (helpers.paymentHasExpired(pending)) {
+				if (helpers.paymentHasExpired(pending) || pending.getString('status') === 'expired') {
 					throw new ApiError(
 						409,
-						'Periksa status tagihan yang kedaluwarsa sebelum membuat pembayaran baru.'
+						'Status akhir tagihan sebelumnya belum dikonfirmasi. Periksa status atau hubungi bantuan sebelum membuat pembayaran baru.'
 					);
 				}
 				if (
@@ -140,7 +140,7 @@ routerAdd(
 				) {
 					throw new ApiError(
 						409,
-						'Masih ada pembayaran aktif dengan harga, kupon, atau metode berbeda. Selesaikan atau tunggu pembayaran tersebut kedaluwarsa.'
+						'Masih ada pembayaran aktif dengan harga, kupon, atau metode berbeda. Selesaikan atau periksa status pembayaran tersebut.'
 					);
 				}
 				if (!pending.getString('va_number') && !pending.getString('qr_string'))
@@ -184,7 +184,7 @@ routerAdd(
 		var email = String(e.auth.get('email') || '').trim();
 		var customerName = String(e.auth.get('name') || '').trim() || email || 'Pengguna Wedez';
 		// A timeout may still create an invoice. Keep the reservation until
-		// status reconciliation or expiry rather than issuing another charge.
+		// a final gateway status rather than issuing another charge.
 		var invoice = helpers.createInvoice(e.app, config, {
 			paymentAmount: payment.getInt('amount'),
 			merchantOrderId: merchantOrderId,
@@ -273,10 +273,38 @@ routerAdd(
 			return e.json(200, helpers.paymentResponse(e.app, weddingId, null));
 		}
 
-		var payment = payments[0];
+		var unresolved =
+			wedding.getString('plan_tier') === 'pro'
+				? []
+				: e.app.findRecordsByFilter(
+						'payments',
+						"wedding = {:wedding} && provider = 'duitku' && (status = 'pending' || status = 'expired')",
+						'-created',
+						0,
+						0,
+						{ wedding: weddingId }
+					);
+		// A newer failed invoice must not hide an older unresolved reservation,
+		// including during DB-only polling.
+		var payment = unresolved.length ? unresolved[0] : payments[0];
 
-		if (String(payment.get('status') || '') === 'pending') {
-			payment = helpers.reconcilePayment(e.app, config, payment);
+		if (e.requestInfo().query.refresh !== 'false') {
+			// Include legacy locally-expired invoices, even if a newer invoice
+			// was created by an older release. A late success must not be lost.
+			var pendingPayment = null;
+			for (var i = 0; i < unresolved.length; i++) {
+				var reconciled = helpers.reconcilePayment(e.app, config, unresolved[i]);
+				if (
+					!pendingPayment &&
+					(reconciled.getString('status') === 'pending' ||
+						reconciled.getString('status') === 'expired')
+				)
+					pendingPayment = reconciled;
+				if (reconciled.id === payment.id || reconciled.getString('status') === 'paid')
+					payment = reconciled;
+				if (reconciled.getString('status') === 'paid') break;
+			}
+			if (payment.getString('status') !== 'paid' && pendingPayment) payment = pendingPayment;
 		}
 
 		return e.json(200, helpers.paymentResponse(e.app, weddingId, payment));

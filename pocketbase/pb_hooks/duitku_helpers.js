@@ -335,25 +335,59 @@ function syncPaymentFromStatus(app, payment, response) {
 }
 
 function reconcilePayment(app, config, payment) {
-	var transaction = checkTransaction(
-		app,
-		config,
-		payment.getString('provider_transaction_id'),
-		payment.getInt('amount')
-	);
-	var status = syncPaymentFromStatus(app, payment, transaction);
-	payment = app.findRecordById('payments', payment.id);
-	if (status === 'pending' && paymentHasExpired(payment)) {
-		applyPaymentStatus(app, payment, 'expired', '');
-		payment = app.findRecordById('payments', payment.id);
+	var claimed = false;
+	var paymentId = payment.id;
+	app.runInTransaction(function (txApp) {
+		payment = txApp.findRecordById('payments', paymentId);
+		var status = payment.getString('status');
+		if (status !== 'pending' && status !== 'expired') return;
+		if (Date.parse(payment.getString('status_check_after')) > Date.now()) return;
+		// Longer than the 20-second HTTP timeout. Never hold a DB transaction
+		// while calling the gateway; another request reads the cached DB status.
+		payment.set('status_check_after', new Date(Date.now() + 60000).toISOString());
+		txApp.save(payment);
+		claimed = true;
+	});
+	if (!claimed) return payment;
+	try {
+		var transaction = checkTransaction(
+			app,
+			config,
+			payment.getString('provider_transaction_id'),
+			payment.getInt('amount')
+		);
+		syncPaymentFromStatus(app, payment, transaction);
+		app.runInTransaction(function (txApp) {
+			var current = txApp.findRecordById('payments', paymentId);
+			current.set('status_check_failures', 0);
+			current.set('status_check_after', new Date(Date.now() + 60000).toISOString());
+			txApp.save(current);
+		});
+	} catch (error) {
+		app.runInTransaction(function (txApp) {
+			var current = txApp.findRecordById('payments', paymentId);
+			var failures = Math.min(current.getInt('status_check_failures') + 1, 5);
+			current.set('status_check_failures', failures);
+			current.set(
+				'status_check_after',
+				new Date(Date.now() + Math.min(60000 * Math.pow(2, failures - 1), 900000)).toISOString()
+			);
+			txApp.save(current);
+		});
+		throw error;
 	}
-	return payment;
+	// A local deadline (or a gateway "not found"/pending response) cannot
+	// prove non-payment. Only a final gateway result releases the reservation.
+	return app.findRecordById('payments', paymentId);
 }
 
 function paymentResponse(app, weddingId, payment) {
 	var config = getConfig();
 	var wedding = app.findRecordById('weddings', weddingId);
 	var status = payment ? String(payment.get('status') || 'pending') : 'idle';
+	// Older releases persisted a local timeout as "expired". These invoices
+	// remain unresolved until the gateway confirms success or failure.
+	if (status === 'expired') status = 'pending';
 
 	if (String(wedding.get('plan_tier') || '') === 'pro') {
 		status = 'paid';
