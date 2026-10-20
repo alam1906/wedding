@@ -254,7 +254,7 @@
 		</form>
 	</dialog>
 
-	<div class="mx-auto flex w-full max-w-6xl flex-col gap-5 lg:grid lg:grid-cols-2 lg:items-start">
+	<div class="flex w-full flex-col gap-5 lg:grid lg:grid-cols-2 lg:items-start">
 		<div class="contents lg:block lg:space-y-5">
 			<section class="ws-panel order-1 p-5 sm:p-6">
 				<form onsubmit={handleSaveProfile}>

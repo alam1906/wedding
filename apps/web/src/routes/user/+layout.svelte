@@ -11,7 +11,7 @@
 	import { setWeddingContext, WeddingState } from '#lib/features/weddings/index.js';
 	import type { LayoutProps } from './$types';
 
-	type NavigationIcon = 'home' | 'calendar' | 'invitation' | 'settings';
+	type NavigationIcon = 'home' | 'calendar' | 'invitation' | 'upgrade' | 'settings';
 
 	type NavigationItem = {
 		href: string;
@@ -23,6 +23,7 @@
 		{ href: '/user/dashboard', label: 'Beranda', icon: 'home' },
 		{ href: '/user/data', label: 'Data Pernikahan', icon: 'calendar' },
 		{ href: '/user/invitation', label: 'Undangan', icon: 'invitation' },
+		{ href: '/user/upgrade', label: 'Upgrade', icon: 'upgrade' },
 		{ href: '/user/setting', label: 'Pengaturan', icon: 'settings' }
 	];
 
@@ -163,6 +164,12 @@
 							{:else if item.icon === 'invitation'}
 								<rect x="3" y="5" width="18" height="14" rx="2"></rect>
 								<path d="m4 7 8 6 8-6"></path>
+							{:else if item.icon === 'upgrade'}
+								<path
+									d="m3 6 4.5 4L12 3l4.5 7L21 6l-2 11H5L3 6ZM5 21h14"
+									stroke-linecap="round"
+									stroke-linejoin="round"
+								></path>
 							{:else}
 								<path d="M4 7h10M18 7h2M4 17h2M10 17h10"></path>
 								<circle cx="16" cy="7" r="2"></circle>

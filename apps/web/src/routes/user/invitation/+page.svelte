@@ -717,7 +717,7 @@
 </svelte:head>
 
 <section class="px-4 py-8 sm:px-6 lg:px-10 lg:py-10">
-	<div class="mx-auto w-full max-w-6xl space-y-5">
+	<div class="w-full space-y-5">
 		<dialog
 			{@attach attachGuestDialog}
 			onclick={(event) => event.target === event.currentTarget && closeDialog()}
@@ -1438,7 +1438,7 @@
 				type="button"
 				role="menuitem"
 				onclick={() => runGuestAction('share', selectedGuest)}
-				class="ws-menu-option flex w-full cursor-pointer items-center gap-3 px-3 py-2.5 text-left text-sm font-medium text-[#191919]"
+				class="ws-menu-option flex w-full cursor-pointer items-center justify-start gap-2 px-3 py-2.5 text-left text-sm font-medium text-[#191919]"
 			>
 				<svg
 					aria-hidden="true"
@@ -1459,7 +1459,7 @@
 				type="button"
 				role="menuitem"
 				onclick={() => runGuestAction('copy', selectedGuest)}
-				class="ws-menu-option flex w-full cursor-pointer items-center gap-3 px-3 py-2.5 text-left text-sm font-medium text-[#191919]"
+				class="ws-menu-option flex w-full cursor-pointer items-center justify-start gap-2 px-3 py-2.5 text-left text-sm font-medium text-[#191919]"
 			>
 				<svg
 					aria-hidden="true"
@@ -1478,7 +1478,7 @@
 				type="button"
 				role="menuitem"
 				onclick={() => runGuestAction('edit', selectedGuest)}
-				class="ws-menu-option flex w-full cursor-pointer items-center gap-3 px-3 py-2.5 text-left text-sm font-medium text-[#191919]"
+				class="ws-menu-option flex w-full cursor-pointer items-center justify-start gap-2 px-3 py-2.5 text-left text-sm font-medium text-[#191919]"
 			>
 				<svg
 					aria-hidden="true"
@@ -1498,7 +1498,7 @@
 				type="button"
 				role="menuitem"
 				onclick={() => runGuestAction('preview', selectedGuest)}
-				class="ws-menu-option flex w-full cursor-pointer items-center gap-3 px-3 py-2.5 text-left text-sm font-medium text-[#191919]"
+				class="ws-menu-option flex w-full cursor-pointer items-center justify-start gap-2 px-3 py-2.5 text-left text-sm font-medium text-[#191919]"
 			>
 				<svg
 					aria-hidden="true"
@@ -1520,7 +1520,7 @@
 				role="menuitem"
 				disabled={deletingIds.includes(selectedGuest.id)}
 				onclick={() => runGuestAction('delete', selectedGuest)}
-				class="ws-menu-option flex w-full cursor-pointer items-center gap-3 px-3 py-2.5 text-left text-sm font-medium text-red-600 disabled:cursor-not-allowed disabled:opacity-50"
+				class="ws-menu-option flex w-full cursor-pointer items-center justify-start gap-2 px-3 py-2.5 text-left text-sm font-medium text-red-600 disabled:cursor-not-allowed disabled:opacity-50"
 			>
 				<svg
 					aria-hidden="true"

@@ -39,7 +39,7 @@
 {#if affiliate}
 	<form
 		onsubmit={save}
-		class="mt-8 w-full max-w-md space-y-5 border-2 border-[#191919] bg-white p-6 shadow-[7px_7px_0_#191919] sm:p-8"
+		class="mt-8 w-full space-y-5 border-2 border-[#191919] bg-white p-6 shadow-[7px_7px_0_#191919] sm:p-8"
 	>
 		<div>
 			<label class="form-label mb-2 block" for="bank-name">Nama bank</label>

@@ -15,7 +15,7 @@
 		formatEventDate,
 		formatPersonName,
 		formatStoryDate,
-		safeExternalURL
+		getEventLocation
 	} from '../../shared/theme-utils.js';
 
 	type ThemeProfile = {
@@ -49,7 +49,6 @@
 	const coupleName = $derived(groomName + ' & ' + brideName);
 	const akad = $derived(formatEventDate(wedding.akad));
 	const reception = $derived(formatEventDate(wedding.reception));
-	const mapsURL = $derived(safeExternalURL(wedding.maps));
 	const countdownTarget = $derived(wedding.akad || wedding.reception || '');
 	const rsvpToken = $derived(page.url.searchParams.get('rsvp')?.trim() ?? '');
 	let countdown = $state(calculateCountdown(untrack(() => countdownTarget)));
@@ -353,20 +352,20 @@
 					<h2>Waktu & tempat</h2>
 				</header>
 				<div class="event-grid">
-					{#each [{ title: 'Akad Nikah', schedule: akad }, { title: 'Resepsi', schedule: reception }] as event (event.title)}
+					{#each [{ title: 'Akad Nikah', schedule: akad, ...getEventLocation(wedding, 'akad') }, { title: 'Resepsi', schedule: reception, ...getEventLocation(wedding, 'reception') }] as event (event.title)}
 						<article class="event-card" data-reveal>
 							<p class="eyebrow">{event.title}</p>
 							<h3>{event.schedule.date}</h3>
-							<strong>{event.schedule.time}</strong>{#if wedding.address}<div class="divider"></div>
-								<p>{wedding.address}</p>{/if}
+							<strong>{event.schedule.time}</strong>{#if event.address}<div class="divider"></div>
+								<p>{event.address}</p>{/if}
+							{#if event.maps}<div class="center-action">
+									<a href={event.maps} target="_blank" rel="noreferrer" class="primary-button"
+										>Buka Google Maps →</a
+									>
+								</div>{/if}
 						</article>
 					{/each}
 				</div>
-				{#if mapsURL}<div class="center-action">
-						<a href={mapsURL} target="_blank" rel="noreferrer" class="primary-button"
-							>Buka Google Maps →</a
-						>
-					</div>{/if}
 			</div>
 		</section>
 
@@ -1134,6 +1133,11 @@
 	}
 	.gift-grid article {
 		text-align: left;
+	}
+	.gift-grid > article:only-child {
+		grid-column: 1 / -1;
+		justify-self: center;
+		width: min(100%, 420px);
 	}
 	.gift-provider {
 		display: block;

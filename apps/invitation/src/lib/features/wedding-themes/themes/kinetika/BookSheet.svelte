@@ -26,7 +26,7 @@
 	const mother = $derived(formatPersonName(wedding[`${person}_mother_name`]));
 	const groom = $derived(formatPersonName(wedding.groom_name) || 'Mempelai Pria');
 	const bride = $derived(formatPersonName(wedding.bride_name) || 'Mempelai Wanita');
-	const maps = $derived(safeExternalURL(wedding.maps));
+	const maps = $derived(safeExternalURL(leaf.maps || ''));
 	const giftPeople = $derived(
 		(['groom', 'bride'] as const).filter((person) => wedding[`${person}_payment_number`])
 	);

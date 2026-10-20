@@ -11,6 +11,8 @@ const demoWedding: WeddingData = {
 	theme: 'nocturne',
 	plan_tier: 'pro',
 	gift_enabled: true,
+	groom_gift_hidden: false,
+	bride_gift_hidden: false,
 	groom_name: 'Raka',
 	groom_father_name: 'Budi Santoso',
 	groom_mother_name: 'Ratna Sari',
@@ -33,6 +35,9 @@ const demoWedding: WeddingData = {
 		'Dan di antara tanda-tanda (kebesaran)-Nya ialah Dia menciptakan pasangan-pasangan untukmu dari jenismu sendiri, agar kamu cenderung dan merasa tenteram kepadanya, dan Dia menjadikan di antaramu rasa kasih dan sayang. Sungguh, pada yang demikian itu benar-benar terdapat tanda-tanda (kebesaran Allah) bagi kaum yang berpikir.',
 	address: 'Gedung Taman Laras, Bandung, Jawa Barat (lokasi contoh)',
 	maps: 'https://www.google.com/maps/search/?api=1&query=Bandung%2C%20Jawa%20Barat',
+	separate_events: false,
+	reception_address: '',
+	reception_maps: '',
 	akad: '2027-12-12T08:00:00+07:00',
 	reception: '2027-12-12T11:00:00+07:00',
 	// No licensed demo audio is bundled yet; keep the existing optional music behavior.

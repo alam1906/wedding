@@ -33,6 +33,8 @@ export type WeddingData = {
 	music: string;
 	plan_tier: WeddingPlanTier;
 	gift_enabled: boolean;
+	groom_gift_hidden: boolean;
+	bride_gift_hidden: boolean;
 	whatsapp_template: string;
 	groom_name: string;
 	groom_father_name: string;
@@ -54,6 +56,9 @@ export type WeddingData = {
 	cover_url: string;
 	quote: string;
 	address: string;
+	separate_events: boolean;
+	reception_address: string;
+	reception_maps: string;
 	maps: string;
 	akad: string;
 	reception: string;

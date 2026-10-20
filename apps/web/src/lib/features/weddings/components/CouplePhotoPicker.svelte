@@ -19,19 +19,19 @@
 	}
 </script>
 
-<div class="relative mt-4 size-22">
+<div class="mt-4 flex w-fit flex-col items-center">
 	{#if preview}
-		<img src={preview} alt={`Preview ${label}`} class="size-full rounded-full object-cover" />
+		<img src={preview} alt={`Preview ${label}`} class="size-22 rounded-full object-cover" />
 		<button
 			type="button"
 			onclick={removePhoto}
 			{disabled}
 			aria-label={`Hapus foto ${label}`}
-			class="absolute -top-2 -right-2 grid size-11 cursor-pointer place-items-center border-0 bg-transparent p-0 text-red-600 shadow-none transition-colors hover:text-red-700 disabled:cursor-not-allowed disabled:opacity-50"
+			class="group mt-1 inline-flex min-h-11 cursor-pointer items-center justify-center gap-1.5 border-0 bg-transparent px-1 py-2 text-xs font-bold text-red-600 shadow-none transition-colors hover:text-red-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600 disabled:cursor-not-allowed disabled:opacity-50"
 		>
 			<svg
 				aria-hidden="true"
-				class="size-5"
+				class="size-4 shrink-0"
 				viewBox="0 0 24 24"
 				fill="none"
 				stroke="currentColor"
@@ -41,6 +41,7 @@
 			>
 				<path d="M4 7h16M9 7V4h6v3M7 7l1 13h8l1-13M10 11v5M14 11v5"></path>
 			</svg>
+			<span class="underline-offset-4 group-hover:underline">Hapus foto</span>
 		</button>
 	{:else}
 		<button
@@ -48,7 +49,7 @@
 			onclick={() => input?.click()}
 			{disabled}
 			aria-label={`Pilih foto ${label}`}
-			class="grid size-full cursor-pointer place-items-center rounded-full border-2 border-dashed border-[#191919] bg-transparent p-0 text-[#5c554e] transition-colors hover:text-[#191919] disabled:cursor-not-allowed disabled:opacity-50"
+			class="grid size-22 cursor-pointer place-items-center rounded-full border-2 border-dashed border-[#191919] bg-transparent p-0 text-[#5c554e] transition-colors hover:text-[#191919] disabled:cursor-not-allowed disabled:opacity-50"
 		>
 			<svg
 				aria-hidden="true"

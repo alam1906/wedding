@@ -1,3 +1,17 @@
+import type { WeddingData } from '../../weddings/model/wedding.js';
+
+export function getEventLocation(
+	wedding: Pick<WeddingData, 'address' | 'maps'> &
+		Partial<Pick<WeddingData, 'separate_events' | 'reception_address' | 'reception_maps'>>,
+	event: 'akad' | 'reception'
+) {
+	const separate = event === 'reception' && wedding.separate_events;
+	return {
+		address: separate ? wedding.reception_address || '' : wedding.address,
+		maps: safeExternalURL(separate ? wedding.reception_maps || '' : wedding.maps)
+	};
+}
+
 export type EventDate = {
 	date: string;
 	time: string;

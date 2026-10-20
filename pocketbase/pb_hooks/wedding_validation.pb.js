@@ -35,6 +35,14 @@ onRecordEnrich(function (e) {
 	var auth = e.requestInfo && e.requestInfo.auth;
 	if (!auth || (!auth.isSuperuser() && auth.id !== e.record.getString('owner'))) {
 		e.record.hide('whatsapp_template');
+		for (var i = 0; i < 2; i++) {
+			var person = i === 0 ? 'groom' : 'bride';
+			if (e.record.getBool(person + '_gift_hidden')) {
+				e.record.hide(person + '_payment_number');
+				e.record.hide(person + '_payment_provider');
+				e.record.hide(person + '_payment_account_name');
+			}
+		}
 	}
 	e.next();
 }, 'weddings');

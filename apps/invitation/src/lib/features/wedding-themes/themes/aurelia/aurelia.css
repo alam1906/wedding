@@ -594,6 +594,11 @@
 	gap: 24px;
 	margin-top: 28px;
 }
+.aurelia-theme .aurelia-gifts > :only-child {
+	grid-column: 1 / -1;
+	justify-self: center;
+	width: min(100%, 420px);
+}
 .aurelia-theme .aurelia-gift {
 	padding: 30px;
 }

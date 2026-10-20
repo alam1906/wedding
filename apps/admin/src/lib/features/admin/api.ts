@@ -4,7 +4,7 @@ import { pocketBase } from '#lib/infrastructure/pocketbase/client.js';
 import { transferProofError } from './model.js';
 import type {
 	AffiliateRecord,
-	AffiliateStatus,
+	AffiliateModerationStatus,
 	PayoutRecord,
 	PayoutStatus,
 	Section
@@ -118,8 +118,16 @@ export async function getRecords<T extends RecordModel>(
 
 export async function setAffiliateStatus(
 	record: AffiliateRecord,
-	status: AffiliateStatus
+	status: AffiliateModerationStatus
 ): Promise<void> {
+	const validTransition =
+		(record.status === 'active' && status === 'suspended') ||
+		(record.status === 'suspended' && status === 'active');
+	if (!validTransition) {
+		throw new Error(
+			'Admin hanya dapat menangguhkan atau mengaktifkan kembali affiliate yang ditangguhkan.'
+		);
+	}
 	await pocketBase.collection('affiliates').update(record.id, { status });
 }
 

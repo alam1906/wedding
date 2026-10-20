@@ -8,7 +8,7 @@
 		formatEventDate,
 		formatPersonName,
 		formatStoryDate,
-		safeExternalURL
+		getEventLocation
 	} from '../../shared/theme-utils.js';
 	import ArsirRsvp from './ArsirRsvp.svelte';
 	import { mountArsirAnimations, type ArsirMotion } from './arsir-animations.js';
@@ -27,7 +27,6 @@
 	);
 	const targetDate = $derived(wedding.akad || wedding.reception || '');
 	const eventDate = $derived(formatEventDate(wedding.reception || wedding.akad));
-	const maps = $derived(safeExternalURL(wedding.maps));
 	const token = $derived(page.url.searchParams.get('rsvp')?.trim() ?? '');
 	const people = $derived([
 		{
@@ -48,8 +47,16 @@
 		}
 	]);
 	const events = $derived([
-		{ label: 'Akad Nikah', date: formatEventDate(wedding.akad) },
-		{ label: 'Resepsi', date: formatEventDate(wedding.reception) }
+		{
+			label: 'Akad Nikah',
+			...getEventLocation(wedding, 'akad'),
+			date: formatEventDate(wedding.akad)
+		},
+		{
+			label: 'Resepsi',
+			...getEventLocation(wedding, 'reception'),
+			date: formatEventDate(wedding.reception)
+		}
 	]);
 	const gifts = $derived(
 		[
@@ -69,7 +76,6 @@
 	);
 	let root = $state<HTMLElement>();
 	let recipient = $state('');
-	let giftsVisible = $state(false);
 	let audio = $state<HTMLAudioElement>();
 	let gallery = $state<HTMLDialogElement>();
 	let galleryIndex = $state(0);
@@ -164,11 +170,6 @@
 		};
 		if (motion) motion.open(complete);
 		else complete();
-	}
-	async function toggleGifts() {
-		giftsVisible = !giftsVisible;
-		await tick();
-		if (!disposed) motion?.refresh();
 	}
 	async function copyAccount(number: string) {
 		try {
@@ -348,10 +349,10 @@
 								<h3>{event.label}</h3>
 								<p class="arsir-event-date">{event.date.date}</p>
 								<p class="arsir-event-time">{event.date.time}</p>
-								{#if wedding.address}<p class="arsir-address">{wedding.address}</p>{/if}
-								{#if maps}<a
+								{#if event.address}<p class="arsir-address">{event.address}</p>{/if}
+								{#if event.maps}<a
 										class="arsir-outline"
-										href={maps}
+										href={event.maps}
 										target="_blank"
 										rel="noopener noreferrer">Buka Google Maps</a
 									>{/if}
@@ -402,14 +403,7 @@
 						<header class="arsir-heading" data-arsir-reveal>
 							<h2 id="arsir-gifts-title">Hadiah Pernikahan</h2>
 						</header>
-						<button
-							class="arsir-outline"
-							type="button"
-							aria-expanded={giftsVisible}
-							aria-controls="arsir-gift-accounts"
-							onclick={toggleGifts}>{giftsVisible ? 'Tutup rekening' : 'Lihat rekening'}</button
-						>
-						<div id="arsir-gift-accounts" class="arsir-gifts" hidden={!giftsVisible}>
+						<div class="arsir-gifts">
 							{#each gifts as gift, index (index)}
 								<article class="arsir-gift">
 									<h3>{gift.provider || gift.name}</h3>

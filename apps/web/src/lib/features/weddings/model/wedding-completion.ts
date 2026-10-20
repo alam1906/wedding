@@ -17,6 +17,7 @@ export const WEDDING_COMPLETION_FIELDS = [
 	'cover',
 	'quote',
 	'address',
+	'reception_address',
 	'maps',
 	'akad',
 	'reception',
@@ -58,12 +59,20 @@ function hasValue(value: unknown): boolean {
 }
 
 export function calculateWeddingCompletion(
-	record: Partial<Record<WeddingCompletionField, unknown>> & { gift_enabled?: boolean }
+	record: Partial<Record<WeddingCompletionField, unknown>> & {
+		gift_enabled?: boolean;
+		groom_gift_hidden?: boolean;
+		bride_gift_hidden?: boolean;
+		separate_events?: boolean;
+	}
 ): WeddingCompletion {
-	const fields =
-		record.gift_enabled === false
-			? WEDDING_COMPLETION_FIELDS.filter((field) => !GIFT_COMPLETION_FIELDS.has(field))
-			: WEDDING_COMPLETION_FIELDS;
+	const fields = WEDDING_COMPLETION_FIELDS.filter(
+		(field) =>
+			!(record.gift_enabled === false && GIFT_COMPLETION_FIELDS.has(field)) &&
+			!(record.groom_gift_hidden === true && field.startsWith('groom_payment_')) &&
+			!(record.bride_gift_hidden === true && field.startsWith('bride_payment_')) &&
+			(field !== 'reception_address' || record.separate_events === true)
+	);
 	const totalFields = fields.length;
 	const completedFields = fields.filter((field) => hasValue(record[field])).length;
 

@@ -13,6 +13,8 @@ const PUBLIC_WEDDING_FIELDS = [
 	'theme',
 	'plan_tier',
 	'gift_enabled',
+	'groom_gift_hidden',
+	'bride_gift_hidden',
 	'groom_name',
 	'groom_father_name',
 	'groom_mother_name',
@@ -30,6 +32,9 @@ const PUBLIC_WEDDING_FIELDS = [
 	'cover',
 	'quote',
 	'address',
+	'separate_events',
+	'reception_address',
+	'reception_maps',
 	'maps',
 	'akad',
 	'reception',
@@ -96,17 +101,23 @@ function toWeddingData(
 		theme: typeof record.theme === 'string' && record.theme ? record.theme : 'nocturne',
 		plan_tier: record.plan_tier === 'pro' ? 'pro' : 'free',
 		gift_enabled: record.gift_enabled === true,
+		groom_gift_hidden: record.groom_gift_hidden === true,
+		bride_gift_hidden: record.bride_gift_hidden === true,
 		groom_name: typeof record.groom_name === 'string' ? record.groom_name : '',
 		groom_father_name: typeof record.groom_father_name === 'string' ? record.groom_father_name : '',
 		groom_mother_name: typeof record.groom_mother_name === 'string' ? record.groom_mother_name : '',
 		groom_photo: typeof record.groom_photo === 'string' ? record.groom_photo : '',
 		groom_photo_url: fileURL(client, record, record.groom_photo, '400x400'),
 		groom_payment_number:
-			typeof record.groom_payment_number === 'string' ? record.groom_payment_number : '',
+			record.groom_gift_hidden !== true && typeof record.groom_payment_number === 'string'
+				? record.groom_payment_number
+				: '',
 		groom_payment_provider:
-			typeof record.groom_payment_provider === 'string' ? record.groom_payment_provider : '',
+			record.groom_gift_hidden !== true && typeof record.groom_payment_provider === 'string'
+				? record.groom_payment_provider
+				: '',
 		groom_payment_account_name:
-			typeof record.groom_payment_account_name === 'string'
+			record.groom_gift_hidden !== true && typeof record.groom_payment_account_name === 'string'
 				? record.groom_payment_account_name
 				: '',
 		bride_name: typeof record.bride_name === 'string' ? record.bride_name : '',
@@ -115,17 +126,24 @@ function toWeddingData(
 		bride_photo: typeof record.bride_photo === 'string' ? record.bride_photo : '',
 		bride_photo_url: fileURL(client, record, record.bride_photo, '400x400'),
 		bride_payment_number:
-			typeof record.bride_payment_number === 'string' ? record.bride_payment_number : '',
+			record.bride_gift_hidden !== true && typeof record.bride_payment_number === 'string'
+				? record.bride_payment_number
+				: '',
 		bride_payment_provider:
-			typeof record.bride_payment_provider === 'string' ? record.bride_payment_provider : '',
+			record.bride_gift_hidden !== true && typeof record.bride_payment_provider === 'string'
+				? record.bride_payment_provider
+				: '',
 		bride_payment_account_name:
-			typeof record.bride_payment_account_name === 'string'
+			record.bride_gift_hidden !== true && typeof record.bride_payment_account_name === 'string'
 				? record.bride_payment_account_name
 				: '',
 		cover: typeof record.cover === 'string' ? record.cover : '',
 		cover_url: fileURL(client, record, record.cover, '800x500'),
 		quote: typeof record.quote === 'string' ? record.quote : '',
 		address: typeof record.address === 'string' ? record.address : '',
+		separate_events: record.separate_events === true,
+		reception_address: typeof record.reception_address === 'string' ? record.reception_address : '',
+		reception_maps: typeof record.reception_maps === 'string' ? record.reception_maps : '',
 		maps: typeof record.maps === 'string' ? record.maps : '',
 		akad: typeof record.akad === 'string' ? record.akad : '',
 		reception: typeof record.reception === 'string' ? record.reception : '',

@@ -8,7 +8,7 @@
 		formatEventDate,
 		formatPersonName,
 		formatStoryDate,
-		safeExternalURL
+		getEventLocation
 	} from '../../shared/theme-utils.js';
 	import KusumaRsvp from './KusumaRsvp.svelte';
 	import { mountKusumaAnimations, type KusumaMotion } from './kusuma-animations.js';
@@ -27,7 +27,6 @@
 	);
 	const targetDate = $derived(wedding.akad || wedding.reception || '');
 	const eventDate = $derived(formatEventDate(wedding.reception || wedding.akad));
-	const maps = $derived(safeExternalURL(wedding.maps));
 	const token = $derived(page.url.searchParams.get('rsvp')?.trim() ?? '');
 	const people = $derived([
 		{
@@ -48,8 +47,16 @@
 		}
 	]);
 	const events = $derived([
-		{ label: 'Akad Nikah', date: formatEventDate(wedding.akad) },
-		{ label: 'Resepsi', date: formatEventDate(wedding.reception) }
+		{
+			label: 'Akad Nikah',
+			...getEventLocation(wedding, 'akad'),
+			date: formatEventDate(wedding.akad)
+		},
+		{
+			label: 'Resepsi',
+			...getEventLocation(wedding, 'reception'),
+			date: formatEventDate(wedding.reception)
+		}
 	]);
 	const gifts = $derived(
 		[
@@ -69,7 +76,6 @@
 	);
 	let root = $state<HTMLElement>();
 	let recipient = $state('');
-	let giftsVisible = $state(false);
 	let audio = $state<HTMLAudioElement>();
 	let gallery = $state<HTMLDialogElement>();
 	let galleryIndex = $state(0);
@@ -164,11 +170,6 @@
 		};
 		if (motion) motion.open(complete);
 		else complete();
-	}
-	async function toggleGifts() {
-		giftsVisible = !giftsVisible;
-		await tick();
-		if (!disposed) motion?.refresh();
 	}
 	async function copyAccount(number: string) {
 		try {
@@ -322,10 +323,10 @@
 								<h3>{event.label}</h3>
 								<p class="kusuma-event-date">{event.date.date}</p>
 								<p class="kusuma-event-time">{event.date.time}</p>
-								{#if wedding.address}<p class="kusuma-address">{wedding.address}</p>{/if}
-								{#if maps}<a
+								{#if event.address}<p class="kusuma-address">{event.address}</p>{/if}
+								{#if event.maps}<a
 										class="kusuma-outline"
-										href={maps}
+										href={event.maps}
 										target="_blank"
 										rel="noopener noreferrer">Buka Google Maps</a
 									>{/if}
@@ -415,14 +416,7 @@
 						</header>
 						<div class="kusuma-gift-panel kusuma-glass" data-kusuma-reveal>
 							{@render flower('kusuma-flower-left')}
-							<button
-								class="kusuma-outline"
-								type="button"
-								aria-expanded={giftsVisible}
-								aria-controls="kusuma-gift-accounts"
-								onclick={toggleGifts}>{giftsVisible ? 'Tutup rekening' : 'Lihat rekening'}</button
-							>
-							<div id="kusuma-gift-accounts" class="kusuma-gifts" hidden={!giftsVisible}>
+							<div class="kusuma-gifts">
 								{#each gifts as gift, index (index)}
 									<article class="kusuma-gift">
 										<h3>{gift.provider || gift.name}</h3>

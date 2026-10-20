@@ -8,6 +8,7 @@ const destinations = new Set([
 	'/user/invitation',
 	'/user/setting',
 	'/payment',
+	'/user/upgrade',
 	'/start',
 	'/affiliate/dashboard',
 	'/affiliate/commissions',

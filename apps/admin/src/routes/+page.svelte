@@ -17,10 +17,11 @@
 		setPayoutStatus
 	} from '#lib/features/admin/api.js';
 	import {
+		affiliateStatusLabels,
 		dateTime,
 		rupiah,
 		type AffiliateRecord,
-		type AffiliateStatus,
+		type AffiliateModerationStatus,
 		type PaymentRecord,
 		type PayoutRecord,
 		type PayoutStatus,
@@ -39,7 +40,7 @@
 	];
 	const statusOptions: Partial<Record<Section, string[]>> = {
 		payments: ['pending', 'paid', 'failed', 'expired', 'refunded'],
-		affiliates: ['pending', 'active', 'rejected', 'suspended'],
+		affiliates: ['active', 'suspended'],
 		payouts: ['requested', 'processing', 'paid', 'rejected', 'failed']
 	};
 	const statusLabels: Record<string, string> = {
@@ -81,7 +82,10 @@
 	let query = $state('');
 	let status = $state('');
 	let actionBusy = $state(false);
-	let pendingAffiliate = $state<{ record: AffiliateRecord; status: AffiliateStatus } | null>(null);
+	let pendingAffiliate = $state<{
+		record: AffiliateRecord;
+		status: AffiliateModerationStatus;
+	} | null>(null);
 	let pendingPayout = $state<{ record: PayoutRecord; status: PayoutStatus } | null>(null);
 	let actionDetail = $state('');
 	let actionError = $state('');
@@ -274,7 +278,7 @@
 		void refresh();
 	}
 
-	function openAffiliate(record: AffiliateRecord, next: AffiliateStatus) {
+	function openAffiliate(record: AffiliateRecord, next: AffiliateModerationStatus) {
 		pendingAffiliate = { record, status: next };
 		actionError = '';
 		affiliateDialog.showModal();
@@ -828,23 +832,18 @@
 															<p class="mt-0.5 font-mono text-xs text-[#5c554e]">{item.code}</p></td
 														><td class="px-5 py-4"
 															><span data-status={item.status} class="admin-badge"
-																>{statusLabels[item.status] || item.status}</span
+																>{affiliateStatusLabels[item.status] || item.status}</span
 															></td
 														><td class="px-5 py-4 whitespace-nowrap text-[#5c554e]"
 															>{dateTime(item.created)}</td
 														><td class="px-5 py-4"
 															><div class="flex flex-wrap justify-end gap-2">
-																{#if item.status === 'pending' || item.status === 'rejected' || item.status === 'suspended'}<button
+																{#if item.status === 'suspended'}<button
 																		type="button"
 																		onclick={() => openAffiliate(item, 'active')}
 																		disabled={actionBusy}
 																		class="admin-button admin-button--primary admin-button--small px-3 py-1.5 text-xs"
-																		>Aktifkan</button
-																	>{/if}{#if item.status === 'pending'}<button
-																		type="button"
-																		onclick={() => openAffiliate(item, 'rejected')}
-																		disabled={actionBusy}
-																		class="admin-button admin-button--small">Tolak</button
+																		>Aktifkan kembali</button
 																	>{/if}{#if item.status === 'active'}<button
 																		type="button"
 																		onclick={() => openAffiliate(item, 'suspended')}
@@ -944,7 +943,9 @@
 		<form onsubmit={updateAffiliate} class="p-6 sm:p-8">
 			<p class="admin-eyebrow mb-3">Afiliasi</p>
 			<h2 id="affiliate-dialog-title" class="text-2xl font-black tracking-tight">
-				Ubah status afiliasi?
+				{pendingAffiliate.status === 'suspended'
+					? 'Tangguhkan afiliasi?'
+					: 'Aktifkan kembali afiliasi?'}
 			</h2>
 			<p id="affiliate-dialog-description" class="mt-3 text-sm leading-6 text-[#5c554e]">
 				Status afiliasi <strong class="font-semibold text-[#191919]"

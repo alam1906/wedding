@@ -8,7 +8,7 @@
 		formatEventDate,
 		formatPersonName,
 		formatStoryDate,
-		safeExternalURL
+		getEventLocation
 	} from '../../shared/theme-utils.js';
 	import AnomaliRsvp from './AnomaliRsvp.svelte';
 	import { mountAnomaliAnimations, type AnomaliMotion } from './anomali-animations.js';
@@ -19,7 +19,6 @@
 	const couple = $derived(groom + ' & ' + bride);
 	const targetDate = $derived(wedding.akad || wedding.reception || '');
 	const eventDate = $derived(formatEventDate(wedding.reception || wedding.akad));
-	const maps = $derived(safeExternalURL(wedding.maps));
 	const token = $derived(page.url.searchParams.get('rsvp')?.trim() ?? '');
 	const cover = $derived(
 		wedding.cover_url ||
@@ -286,20 +285,23 @@
 							{@render splitTitle('Waktu & tempat')}
 						</h2>
 						<div class="event-grid">
-							{#each [{ label: 'Akad Nikah', value: wedding.akad }, { label: 'Resepsi', value: wedding.reception }] as event, index (index)}
+							{#each [{ label: 'Akad Nikah', value: wedding.akad, ...getEventLocation(wedding, 'akad') }, { label: 'Resepsi', value: wedding.reception, ...getEventLocation(wedding, 'reception') }] as event, index (index)}
 								{@const date = formatEventDate(event.value)}
 								<article class="event-ticket" data-event-ticket>
 									<p class="small-label">{event.label}</p>
 									<h3>{date.date}</h3>
 									<p class="event-time">{date.time}</p>
 									<div class="ticket-rule" data-rule aria-hidden="true"></div>
-									{#if wedding.address}<p class="event-address">{wedding.address}</p>{/if}
+									{#if event.address}<p class="event-address">{event.address}</p>{/if}
+									{#if event.maps}<a
+											class="maps-button"
+											href={event.maps}
+											target="_blank"
+											rel="noreferrer">Buka Google Maps</a
+										>{/if}
 								</article>
 							{/each}
 						</div>
-						{#if maps}<a class="maps-button" href={maps} target="_blank" rel="noreferrer"
-								>Buka Google Maps</a
-							>{/if}
 					</div>
 				</section>
 

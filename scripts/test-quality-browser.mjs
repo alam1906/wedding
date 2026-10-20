@@ -249,24 +249,76 @@ try {
 			assert.deepEqual(await page.getByRole('alert').allTextContents(), []);
 		});
 	}
-	await check('Admin shows business validation instead of an incorrect login error', async () => {
-		const affiliate = await owner.send('/api/wedez/affiliate/enroll', { method: 'POST' });
-		await pb.collection('users').update(fixture.owner.record.id, { verified: false });
-		try {
+	await check(
+		'Admin has no enrollment approval controls; moderation remains available',
+		async () => {
+			const affiliate = await owner.send('/api/wedez/affiliate/enroll', { method: 'POST' });
+			assert.equal(affiliate.status, 'active');
 			await page
 				.getByRole('navigation', { name: 'Navigasi admin' })
 				.getByRole('button', { name: 'Afiliasi', exact: true })
 				.click();
-			await page.getByRole('button', { name: 'Aktifkan', exact: true }).first().click();
-			const dialog = page.locator('dialog[open]');
-			await dialog.getByRole('button', { name: 'Ubah status', exact: true }).click();
-			await dialog.getByText('Email affiliate belum terverifikasi.', { exact: true }).waitFor();
-			assert.equal((await pb.collection('affiliates').getOne(affiliate.id)).status, 'pending');
-			await dialog.getByRole('button', { name: 'Batal', exact: true }).click();
-		} finally {
-			await pb.collection('users').update(fixture.owner.record.id, { verified: true });
+			const row = page.getByRole('row').filter({ hasText: affiliate.code });
+			await row.getByRole('button', { name: 'Tangguhkan', exact: true }).waitFor();
+			assert.equal(await page.getByRole('button', { name: 'Aktifkan', exact: true }).count(), 0);
+			assert.equal(await page.getByRole('button', { name: 'Tolak', exact: true }).count(), 0);
+			await page.getByRole('button', { name: 'Filter status: Semua status', exact: true }).click();
+			const options = await page
+				.getByRole('group', { name: 'Pilihan status' })
+				.getByRole('button')
+				.allTextContents();
+			assert.deepEqual(
+				options.map((label) => label.trim()),
+				['Semua status', 'Aktif', 'Ditangguhkan']
+			);
+			await page.keyboard.press('Escape');
+			await row.getByRole('button', { name: 'Tangguhkan', exact: true }).click();
+			await page
+				.locator('dialog[open]')
+				.getByRole('button', { name: 'Ubah status', exact: true })
+				.click();
+			await row.getByRole('button', { name: 'Aktifkan kembali', exact: true }).waitFor();
+			assert.equal((await pb.collection('affiliates').getOne(affiliate.id)).status, 'suspended');
 		}
-	});
+	);
+	await check(
+		'Admin reactivation keeps business errors inline and does not bypass verification',
+		async () => {
+			const affiliate = (
+				await pb.collection('affiliates').getList(1, 1, {
+					filter: pb.filter('user = {:id}', { id: fixture.owner.record.id })
+				})
+			).items[0];
+			await pb.collection('users').update(fixture.owner.record.id, { verified: false });
+			try {
+				const row = page.getByRole('row').filter({ hasText: affiliate.code });
+				await row.getByRole('button', { name: 'Aktifkan kembali', exact: true }).click();
+				const dialog = page.locator('dialog[open]');
+				await dialog.getByRole('button', { name: 'Ubah status', exact: true }).click();
+				await dialog.getByText('Email affiliate belum terverifikasi.', { exact: true }).waitFor();
+				assert.equal((await pb.collection('affiliates').getOne(affiliate.id)).status, 'suspended');
+				assert.equal(await page.getByRole('navigation', { name: 'Navigasi admin' }).count(), 1);
+				await dialog.getByRole('button', { name: 'Batal', exact: true }).click();
+			} finally {
+				await pb.collection('users').update(fixture.owner.record.id, { verified: true });
+			}
+			await page
+				.getByRole('row')
+				.filter({ hasText: affiliate.code })
+				.getByRole('button', { name: 'Aktifkan kembali', exact: true })
+				.click();
+			await page
+				.locator('dialog[open]')
+				.getByRole('button', { name: 'Ubah status', exact: true })
+				.click();
+			await page
+				.getByRole('row')
+				.filter({ hasText: affiliate.code })
+				.getByRole('button', { name: 'Tangguhkan', exact: true })
+				.waitFor();
+			assert.equal((await pb.collection('affiliates').getOne(affiliate.id)).status, 'active');
+		}
+	);
 	await check('Admin token stays in memory and reload requires login', async () => {
 		assert.ok(!(await page.evaluate(() => JSON.stringify(localStorage))).includes('_superusers'));
 		await page.reload();

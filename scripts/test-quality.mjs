@@ -11,6 +11,7 @@ import { fileURLToPath } from 'node:url';
 import PocketBase from '../apps/web/node_modules/pocketbase/dist/pocketbase.es.mjs';
 import { WEDDING_THEME_KEYS as webThemes } from '../apps/web/src/lib/features/wedding-themes/model/wedding-theme.ts';
 import { WEDDING_THEME_KEYS as invitationThemes } from '../apps/invitation/src/lib/features/wedding-themes/model/wedding-theme.ts';
+import { calculateWeddingCompletion } from '../apps/web/src/lib/features/weddings/model/wedding-completion.ts';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const temp = await mkdtemp(path.join(tmpdir(), 'wedez-quality-'));
@@ -243,6 +244,61 @@ try {
 	const wa = await provision(a.client),
 		wb = await provision(b.client);
 	const anonymous = new PocketBase(base);
+	await check(
+		'gift visibility is independent, preserves account data and hides inactive public accounts',
+		async () => {
+			const giftOwner = await user();
+			const giftWedding = await provision(giftOwner.client);
+			const data = {
+				slug: 'qa-gift-visibility',
+				gift_enabled: true,
+				groom_payment_account_name: 'QA Pria',
+				groom_payment_provider: 'BCA',
+				groom_payment_number: '00012345678',
+				bride_payment_account_name: 'QA Wanita',
+				bride_payment_provider: 'DANA',
+				bride_payment_number: '081234567890'
+			};
+			const saved = await giftOwner.client.collection('weddings').update(giftWedding, data);
+			assert.equal(saved.groom_gift_hidden, false);
+			assert.equal(saved.bride_gift_hidden, false);
+			for (const person of ['groom', 'bride']) {
+				const other = person === 'groom' ? 'bride' : 'groom';
+				await giftOwner.client
+					.collection('weddings')
+					.update(giftWedding, { [`${person}_gift_hidden`]: true });
+				const own = await giftOwner.client.collection('weddings').getOne(giftWedding);
+				assert.equal(own[`${person}_payment_number`], data[`${person}_payment_number`]);
+				assert.equal(calculateWeddingCompletion(own).totalFields, 20);
+				for (const reader of [anonymous, b.client]) {
+					const visible = await reader.collection('weddings').getOne(giftWedding);
+					for (const field of ['payment_number', 'payment_provider', 'payment_account_name']) {
+						assert.equal(visible[`${person}_${field}`], undefined);
+						assert.equal(visible[`${other}_${field}`], data[`${other}_${field}`]);
+					}
+				}
+				const projection = await anonymous
+					.collection('weddings')
+					.getOne(giftWedding, { fields: `${person}_payment_number,${other}_payment_number` });
+				assert.equal(projection[`${person}_payment_number`], undefined);
+				await giftOwner.client
+					.collection('weddings')
+					.update(giftWedding, { [`${person}_gift_hidden`]: false });
+				const restored = await anonymous.collection('weddings').getOne(giftWedding);
+				assert.equal(restored[`${person}_payment_number`], data[`${person}_payment_number`]);
+			}
+			await giftOwner.client
+				.collection('weddings')
+				.update(giftWedding, { groom_gift_hidden: true, bride_gift_hidden: true });
+			const bothHidden = await anonymous.collection('weddings').getOne(giftWedding);
+			assert.equal(bothHidden.groom_payment_number, undefined);
+			assert.equal(bothHidden.bride_payment_number, undefined);
+			assert.equal(calculateWeddingCompletion(bothHidden).totalFields, 17);
+			await denied(() =>
+				b.client.collection('weddings').update(giftWedding, { groom_gift_hidden: false })
+			);
+		}
+	);
 	const collections = await pb.collections.getFullList();
 	await writeFile(
 		`${temp}/schema.json`,

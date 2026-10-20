@@ -9,7 +9,7 @@
 		formatEventDate,
 		formatPersonName,
 		formatStoryDate,
-		safeExternalURL
+		getEventLocation
 	} from '../../shared/theme-utils.js';
 	import EditionRsvp from './EditionRsvp.svelte';
 	import FloralFrame from '../floral/FloralFrame.svelte';
@@ -41,7 +41,6 @@
 	);
 	const targetDate = $derived(wedding.akad || wedding.reception || '');
 	const eventDate = $derived(formatEventDate(wedding.reception || wedding.akad));
-	const maps = $derived(safeExternalURL(wedding.maps));
 	const token = $derived(page.url.searchParams.get('rsvp')?.trim() ?? '');
 	const people = $derived([
 		{
@@ -64,11 +63,13 @@
 	const events = $derived([
 		{
 			label: 'Akad Nikah',
+			...getEventLocation(wedding, 'akad'),
 			date: formatEventDate(wedding.akad),
 			calendar: formatEventCalendarDate(wedding.akad)
 		},
 		{
 			label: 'Resepsi',
+			...getEventLocation(wedding, 'reception'),
 			date: formatEventDate(wedding.reception),
 			calendar: formatEventCalendarDate(wedding.reception)
 		}
@@ -91,7 +92,6 @@
 	);
 	let root = $state<HTMLElement>();
 	let recipient = $state('');
-	let giftsVisible = $state(false);
 	let audio = $state<HTMLAudioElement>();
 	let gallery = $state<HTMLDialogElement>();
 	let galleryIndex = $state(0);
@@ -186,11 +186,6 @@
 		};
 		if (motion) motion.open(complete);
 		else complete();
-	}
-	async function toggleGifts() {
-		giftsVisible = !giftsVisible;
-		await tick();
-		if (!disposed) motion?.refresh();
 	}
 	async function copyAccount(number: string) {
 		try {
@@ -582,10 +577,10 @@
 										</div>
 									{:else}<p class="edition-event-date">{event.date.date}</p>{/if}
 									<p class="edition-event-time">{event.date.time}</p>
-									{#if wedding.address}<p class="edition-address">{wedding.address}</p>{/if}
-									{#if maps}<a
+									{#if event.address}<p class="edition-address">{event.address}</p>{/if}
+									{#if event.maps}<a
 											class="edition-outline"
-											href={maps}
+											href={event.maps}
 											target="_blank"
 											rel="noopener noreferrer">Buka Google Maps</a
 										>{/if}
@@ -693,14 +688,7 @@
 							<header class="edition-heading" data-edition-reveal>
 								<h2 id="edition-gifts-title">Hadiah Pernikahan</h2>
 							</header>
-							<button
-								class="edition-outline"
-								type="button"
-								aria-expanded={giftsVisible}
-								aria-controls="edition-gift-accounts"
-								onclick={toggleGifts}>{giftsVisible ? 'Tutup rekening' : 'Lihat rekening'}</button
-							>
-							<div id="edition-gift-accounts" class="edition-gifts" hidden={!giftsVisible}>
+							<div class="edition-gifts">
 								{#each gifts as gift, index (index)}
 									<article class="edition-gift edition-panel">
 										<h3>{gift.provider || gift.name}</h3>

@@ -110,7 +110,7 @@
 </svelte:head>
 
 <section class="px-4 py-8 sm:px-6 lg:px-10 lg:py-10">
-	<div class="mx-auto w-full max-w-6xl">
+	<div class="w-full">
 		<div class="ws-highlights grid w-full min-w-0 gap-5 lg:grid-cols-2">
 			<article class="ws-panel flex min-w-0 items-center p-5">
 				<div class="flex w-full min-w-0 items-center justify-between gap-4">
@@ -183,7 +183,7 @@
 					</div>
 					{#if weddingPlanTier === 'free'}
 						<a
-							href="/payment"
+							href="/user/upgrade"
 							class="ws-button inline-flex shrink-0 items-center justify-center px-5 py-3 text-sm transition"
 						>
 							Upgrade

@@ -7,7 +7,7 @@
 		formatEventDate,
 		formatPersonName,
 		formatStoryDate,
-		safeExternalURL
+		getEventLocation
 	} from '../../shared/theme-utils.js';
 	import PramestiRsvp from './PramestiRsvp.svelte';
 	import { mountPramestiAnimations, type PramestiMotion } from './pramesti-animations.js';
@@ -19,7 +19,6 @@
 	const couple = $derived(`${groom} & ${bride}`);
 	const targetDate = $derived(wedding.akad || wedding.reception || '');
 	const eventDate = $derived(formatEventDate(wedding.reception || wedding.akad));
-	const maps = $derived(safeExternalURL(wedding.maps));
 	const token = $derived(page.url.searchParams.get('rsvp')?.trim() ?? '');
 	const people = $derived([
 		{
@@ -40,8 +39,16 @@
 		}
 	]);
 	const events = $derived([
-		{ label: 'Akad Nikah', date: formatEventDate(wedding.akad) },
-		{ label: 'Resepsi', date: formatEventDate(wedding.reception) }
+		{
+			label: 'Akad Nikah',
+			...getEventLocation(wedding, 'akad'),
+			date: formatEventDate(wedding.akad)
+		},
+		{
+			label: 'Resepsi',
+			...getEventLocation(wedding, 'reception'),
+			date: formatEventDate(wedding.reception)
+		}
 	]);
 	const gifts = $derived(
 		[
@@ -287,10 +294,10 @@
 								<div class="pramesti-event-rule"></div>
 								<p class="pramesti-event-date">{event.date.date}</p>
 								<p>{event.date.time}</p>
-								{#if wedding.address}<p class="pramesti-address">{wedding.address}</p>{/if}
-								{#if maps}<a
+								{#if event.address}<p class="pramesti-address">{event.address}</p>{/if}
+								{#if event.maps}<a
 										class="pramesti-outline"
-										href={maps}
+										href={event.maps}
 										target="_blank"
 										rel="noopener noreferrer">Buka Google Maps</a
 									>{/if}

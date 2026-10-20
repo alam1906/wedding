@@ -211,7 +211,7 @@
 		</header>
 
 		<main class="px-4 py-8 sm:px-6 lg:px-10 lg:py-10">
-			<div class="mx-auto w-full max-w-6xl min-w-0">{@render children()}</div>
+			<div class="w-full min-w-0">{@render children()}</div>
 		</main>
 	</div>
 </div>

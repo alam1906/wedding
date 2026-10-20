@@ -762,15 +762,17 @@
 .seruni-theme .seruni-messages-state:empty {
 	display: none;
 }
-.seruni-theme .seruni-gift-toggle {
-	text-align: center;
-}
 .seruni-theme .seruni-gifts {
 	display: grid;
 	grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
 	gap: 24px;
 	max-width: 760px;
 	margin: 32px auto 0;
+}
+.seruni-theme .seruni-gifts > :only-child {
+	grid-column: 1 / -1;
+	justify-self: center;
+	width: min(100%, 420px);
 }
 .seruni-theme .seruni-gift {
 	padding: 32px 24px;

@@ -1,5 +1,5 @@
 import type { WeddingData } from '#lib/features/weddings/index.js';
-import { formatEventDate, formatStoryDate } from '../../shared/theme-utils.js';
+import { formatEventDate, formatStoryDate, getEventLocation } from '../../shared/theme-utils.js';
 
 export type BookGeometry = {
 	width: number;
@@ -34,6 +34,7 @@ export type BookPage = {
 	date?: string;
 	time?: string;
 	text?: string;
+	maps?: string | null;
 	quoteStart?: boolean;
 	quoteEnd?: boolean;
 	image?: string;
@@ -128,8 +129,13 @@ export function buildBookPages(
 		{ id: 'bride', group: 'couple', kind: 'person', person: 'bride', label: 'Mempelai Wanita' }
 	];
 	for (const event of [
-		{ id: 'akad', label: 'Akad Nikah', value: wedding.akad },
-		{ id: 'reception', label: 'Resepsi', value: wedding.reception }
+		{ id: 'akad', label: 'Akad Nikah', value: wedding.akad, ...getEventLocation(wedding, 'akad') },
+		{
+			id: 'reception',
+			label: 'Resepsi',
+			value: wedding.reception,
+			...getEventLocation(wedding, 'reception')
+		}
 	]) {
 		const date = formatEventDate(event.value);
 		const remaining =
@@ -137,7 +143,7 @@ export function buildBookPages(
 			measure(date.date, titleFont, 1.15) -
 			bodyFont * 1.6 -
 			(geometry.height < 360 ? 50 : 90);
-		const address = paginateBookText(wedding.address, remaining, bodyFont, 1.6, measure);
+		const address = paginateBookText(event.address, remaining, bodyFont, 1.6, measure);
 		pages.push({
 			id: event.id,
 			group: 'event',
@@ -145,6 +151,7 @@ export function buildBookPages(
 			label: event.label,
 			date: date.date,
 			time: date.time,
+			maps: event.maps,
 			text: address[0]
 		});
 		for (let i = 1; i < address.length; i++) {
@@ -154,6 +161,7 @@ export function buildBookPages(
 				kind: 'location',
 				label: event.label,
 				title: 'Lokasi',
+				maps: event.maps,
 				text: address[i]
 			});
 		}

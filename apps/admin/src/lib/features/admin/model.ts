@@ -28,6 +28,13 @@ export type PaymentRecord = RecordModel & {
 };
 
 export type AffiliateStatus = 'pending' | 'active' | 'rejected' | 'suspended';
+export type AffiliateModerationStatus = Extract<AffiliateStatus, 'active' | 'suspended'>;
+export const affiliateStatusLabels: Record<AffiliateStatus, string> = {
+	pending: 'Belum aktif',
+	active: 'Aktif',
+	rejected: 'Dinonaktifkan',
+	suspended: 'Ditangguhkan'
+};
 export type AffiliateRecord = RecordModel & {
 	user: string;
 	code: string;

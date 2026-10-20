@@ -21,6 +21,8 @@ export type WeddingData = {
 	theme: string;
 	plan_tier: WeddingPlanTier;
 	gift_enabled: boolean;
+	groom_gift_hidden: boolean;
+	bride_gift_hidden: boolean;
 	groom_name: string;
 	groom_father_name: string;
 	groom_mother_name: string;
@@ -41,6 +43,9 @@ export type WeddingData = {
 	cover_url: string;
 	quote: string;
 	address: string;
+	separate_events: boolean;
+	reception_address: string;
+	reception_maps: string;
 	maps: string;
 	akad: string;
 	reception: string;

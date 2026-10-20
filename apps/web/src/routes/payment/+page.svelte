@@ -619,17 +619,6 @@
 							<h2>Wedez <span>PRO</span></h2>
 						</div>
 						<div class="order-body">
-							<div class="lifetime">
-								<PaymentIcon name="spark" size={18} /><strong>Akses selamanya</strong><span
-									>Sekali bayar</span
-								>
-							</div>
-							<ul class="features">
-								{#each ['Semua tema premium', 'Tamu tanpa batas', 'Tanpa watermark'] as feature (feature)}<li
-									>
-										<span><PaymentIcon name="check" size={13} /></span>{feature}
-									</li>{/each}
-							</ul>
 							<div class="receipt">
 								<div>
 									<span>Paket Pro</span><strong
@@ -1057,40 +1046,8 @@
 	.mobile-pay-label {
 		display: none;
 	}
-	.lifetime {
-		display: flex;
-		align-items: center;
-		gap: 7px;
-		font-size: 12px;
-	}
-	.lifetime > span {
-		margin-left: auto;
-		font-size: 10px;
-		color: #655e58;
-	}
-	.features {
-		display: grid;
-		gap: 12px;
-		padding: 20px 0;
-		border-bottom: 1px dashed #aaa49e;
-	}
-	.features li {
-		display: flex;
-		align-items: center;
-		gap: 10px;
-		font-size: 12px;
-	}
-	.features li > span {
-		display: grid;
-		place-items: center;
-		width: 19px;
-		height: 19px;
-		background: var(--lime);
-		border: 1px solid var(--ink);
-	}
 	.receipt {
 		order: 2;
-		padding-top: 20px;
 	}
 	.receipt > div {
 		display: flex;
@@ -1397,6 +1354,7 @@
 		background: var(--cream);
 		padding: 16px;
 		margin-top: 20px;
+		margin-bottom: 20px;
 	}
 	.coupon-toggle {
 		width: 100%;
@@ -1493,12 +1451,6 @@
 		.panel-heading,
 		.payment-body {
 			padding: 20px;
-		}
-		.lifetime {
-			flex-wrap: wrap;
-		}
-		.lifetime > span {
-			margin-left: 0;
 		}
 		.panel-heading {
 			flex-wrap: wrap;

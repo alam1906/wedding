@@ -6,6 +6,7 @@
 
 	import { getMusicOptionsContext } from '#lib/features/musics/index.js';
 	import CouplePhotoPicker from '#lib/features/weddings/components/CouplePhotoPicker.svelte';
+	import WeddingEventForm from '#lib/features/weddings/components/WeddingEventForm.svelte';
 	import {
 		getWeddingContext,
 		getWeddingInvitationBaseHost,
@@ -540,14 +541,14 @@
 	const initialQuotePreset = getQuotePreset(initialWedding.quote);
 	let wedding = $state<WeddingData>({ ...initialWedding });
 	let stories = $state<EditableWeddingStory[]>(toEditableStories(initialWedding.stories));
-	let akadValue = $state(toDateTimeLocal(initialWedding.akad));
-	let receptionValue = $state(toDateTimeLocal(initialWedding.reception));
 	let selectedTheme = $state<ThemeKey>(normalizeTheme(initialWedding.theme));
 	let selectedThemeName = $derived(themes.find((theme) => theme.key === selectedTheme)?.name ?? '');
 	let themeHasChanges = $derived(selectedTheme !== normalizeTheme(wedding.theme));
 	let selectedMusic = $state(initialWedding.music);
 	let musicEnabled = $state(initialWedding.music !== '');
 	let giftEnabled = $state(initialWedding.gift_enabled);
+	let groomGiftHidden = $state(initialWedding.groom_gift_hidden);
+	let brideGiftHidden = $state(initialWedding.bride_gift_hidden);
 	let lastSelectedMusic = initialWedding.music;
 	let selectedQuotePreset = $state<QuotePreset>(initialQuotePreset);
 	let customQuote = $state(initialQuotePreset === 'custom' ? initialWedding.quote : '');
@@ -636,7 +637,10 @@
 					wedding.bride_photo
 				);
 			case 'Acara':
-				return hasValues(wedding.akad, wedding.reception, wedding.address, wedding.maps);
+				return (
+					hasValues(wedding.akad, wedding.reception, wedding.address) &&
+					(!wedding.separate_events || hasValues(wedding.reception_address))
+				);
 			case 'Media':
 				return hasValues(wedding.cover) && wedding.gallery.length > 0;
 			case 'Story':
@@ -649,14 +653,18 @@
 			case 'Kado':
 				return (
 					!wedding.gift_enabled ||
-					hasValues(
-						wedding.groom_payment_account_name,
-						wedding.groom_payment_provider,
-						wedding.groom_payment_number,
-						wedding.bride_payment_account_name,
-						wedding.bride_payment_provider,
-						wedding.bride_payment_number
-					)
+					((wedding.groom_gift_hidden ||
+						hasValues(
+							wedding.groom_payment_account_name,
+							wedding.groom_payment_provider,
+							wedding.groom_payment_number
+						)) &&
+						(wedding.bride_gift_hidden ||
+							hasValues(
+								wedding.bride_payment_account_name,
+								wedding.bride_payment_provider,
+								wedding.bride_payment_number
+							)))
 				);
 			case 'Musik':
 				return musicEnabled && selectedMusic.length > 0;
@@ -665,30 +673,16 @@
 		}
 	}
 
-	function toDateTimeLocal(value: string): string {
-		if (!value) {
-			return '';
-		}
-
-		const date = new Date(value.replace(' ', 'T'));
-		if (Number.isNaN(date.getTime())) {
-			return value.slice(0, 16).replace(' ', 'T');
-		}
-
-		const offset = date.getTimezoneOffset() * 60_000;
-		return new Date(date.getTime() - offset).toISOString().slice(0, 16);
-	}
-
 	function refreshLocalData(updatedWedding: WeddingData) {
 		clearStoryImagePreviews();
 		wedding = updatedWedding;
 		stories = toEditableStories(updatedWedding.stories);
-		akadValue = toDateTimeLocal(updatedWedding.akad);
-		receptionValue = toDateTimeLocal(updatedWedding.reception);
 		selectedTheme = normalizeTheme(updatedWedding.theme);
 		selectedMusic = updatedWedding.music;
 		musicEnabled = updatedWedding.music !== '';
 		giftEnabled = updatedWedding.gift_enabled;
+		groomGiftHidden = updatedWedding.groom_gift_hidden;
+		brideGiftHidden = updatedWedding.bride_gift_hidden;
 		selectedQuotePreset = getQuotePreset(updatedWedding.quote);
 		customQuote = selectedQuotePreset === 'custom' ? updatedWedding.quote : '';
 		if (updatedWedding.music) {
@@ -864,6 +858,8 @@
 		selectedMusic = wedding.music;
 		musicEnabled = wedding.music !== '';
 		giftEnabled = wedding.gift_enabled;
+		groomGiftHidden = wedding.groom_gift_hidden;
+		brideGiftHidden = wedding.bride_gift_hidden;
 		selectedQuotePreset = getQuotePreset(wedding.quote);
 		customQuote = selectedQuotePreset === 'custom' ? wedding.quote : '';
 		if (wedding.music) {
@@ -1119,6 +1115,7 @@
 					// Filtering can unmount the selected radio without changing the selected theme.
 					formData.set('theme', selectedTheme);
 				}
+				formData.delete('event-layout');
 				formData.delete('music-option');
 				formData.delete('quote-preset');
 				removeEmptyFiles(formData);
@@ -1149,10 +1146,23 @@
 				}
 
 				const updatedWedding = await weddingState.updateCurrentWedding(formData);
-				if (activeSection === 'Kado' && updatedWedding.gift_enabled !== giftEnabled) {
+				if (
+					activeSection === 'Kado' &&
+					(updatedWedding.gift_enabled !== giftEnabled ||
+						updatedWedding.groom_gift_hidden !== groomGiftHidden ||
+						updatedWedding.bride_gift_hidden !== brideGiftHidden)
+				) {
 					throw new WeddingDataError(
-						'Pengaturan kado belum tersimpan. Jalankan migrasi PocketBase lalu coba lagi.'
+						'Pengaturan tampilan rekening belum tersimpan. Silakan coba lagi.'
 					);
+				}
+				if (
+					activeSection === 'Acara' &&
+					(updatedWedding.separate_events !== (formData.get('separate_events') === 'true') ||
+						updatedWedding.reception_address !== formData.get('reception_address') ||
+						updatedWedding.reception_maps !== formData.get('reception_maps'))
+				) {
+					throw new WeddingDataError('Detail lokasi resepsi belum tersimpan. Silakan coba lagi.');
 				}
 				refreshLocalData(updatedWedding);
 			}
@@ -1180,7 +1190,7 @@
 		? 'px-4 pt-8 pb-48 sm:px-6 lg:px-10 lg:pt-10'
 		: 'px-4 py-8 sm:px-6 lg:px-10 lg:py-10'}
 >
-	<div class="mx-auto w-full max-w-6xl">
+	<div class="w-full">
 		{#if activeSection === null}
 			<div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
 				{#each sections as section, index (section.title)}
@@ -1514,46 +1524,9 @@
 							</section>
 						</div>
 					{:else if activeSection === 'Acara'}
-						<div class="space-y-5">
-							<div class="grid gap-5 sm:grid-cols-2">
-								<label class="form-label block"
-									>Akad nikah<input
-										name="akad"
-										type="datetime-local"
-										bind:value={akadValue}
-										class="form-control mt-2"
-									/></label
-								>
-								<label class="form-label block"
-									>Resepsi<input
-										name="reception"
-										type="datetime-local"
-										bind:value={receptionValue}
-										class="form-control mt-2"
-									/></label
-								>
-							</div>
-							<label class="form-label block"
-								>Alamat acara<textarea
-									name="address"
-									bind:value={wedding.address}
-									class="form-control mt-2 min-h-32"
-									placeholder="Alamat lengkap"></textarea></label
-							>
-							<label class="form-label block">
-								Link Google Maps
-								<input
-									name="maps"
-									type="url"
-									value={wedding.maps}
-									class="form-control mt-2"
-									placeholder="https://maps.app.goo.gl/..."
-								/>
-								<span class="mt-2 block text-xs font-normal text-[#5c554e]"
-									>Salin link lokasi melalui menu Bagikan di Google Maps.</span
-								>
-							</label>
-						</div>
+						{#key wedding}
+							<WeddingEventForm {wedding} disabled={isSaving} />
+						{/key}
 					{:else if activeSection === 'Media'}
 						<div class="space-y-8">
 							<section>
@@ -1892,6 +1865,8 @@
 						</fieldset>
 					{:else if activeSection === 'Kado'}
 						<input type="hidden" name="gift_enabled" value={giftEnabled ? 'true' : 'false'} />
+						<input type="hidden" name="groom_gift_hidden" value={String(groomGiftHidden)} />
+						<input type="hidden" name="bride_gift_hidden" value={String(brideGiftHidden)} />
 						<div
 							aria-hidden={!giftEnabled}
 							class={[
@@ -1902,110 +1877,167 @@
 							<div class="-mx-1 min-h-0 overflow-hidden px-1">
 								<fieldset disabled={!giftEnabled} class="min-w-0 border-0 p-0">
 									<legend class="sr-only">Informasi kado</legend>
-									<div class="grid gap-6 xl:grid-cols-2">
-										<section class="py-5 sm:p-5">
-											<div class="space-y-5">
-												<label class="form-label block">
-													Nama Pemilik Rekening / Akun <span class="text-red-500">*</span>
-													<input
-														name="groom_payment_account_name"
-														type="text"
-														maxlength="100"
-														required
-														value={wedding.groom_payment_account_name}
-														class="form-control mt-2"
-													/>
-												</label>
-												<label class="form-label block">
-													Bank / eWallet <span class="text-red-500">*</span>
-													<select
-														name="groom_payment_provider"
-														required
-														value={wedding.groom_payment_provider}
-														class="form-control payment-provider mt-2 pr-10"
-													>
-														<option value="" disabled>Pilih bank / eWallet</option>
-														{#if wedding.groom_payment_provider && !isListedPaymentProvider(wedding.groom_payment_provider)}
-															<option value={wedding.groom_payment_provider}
-																>{wedding.groom_payment_provider}</option
-															>
-														{/if}
-														<optgroup label="Bank">
-															{#each bankOptions as bank (bank)}<option value={bank}>{bank}</option
-																>{/each}
-														</optgroup>
-														<optgroup label="eWallet">
-															{#each eWalletOptions as wallet (wallet)}<option value={wallet}
-																	>{wallet}</option
-																>{/each}
-														</optgroup>
-													</select>
-												</label>
-												<label class="form-label block">
-													Nomor Rekening / Akun <span class="text-red-500">*</span>
-													<input
-														name="groom_payment_number"
-														type="text"
-														maxlength="50"
-														required
-														value={wedding.groom_payment_number}
-														inputmode="numeric"
-														class="form-control mt-2"
-													/>
-												</label>
+									<div class="grid items-start gap-6 xl:grid-cols-2">
+										<section class="ws-inset p-4 sm:p-5">
+											<div class="flex min-h-11 items-center justify-between gap-5">
+												<label
+													id="groom-gift-label"
+													for="groom-gift-switch"
+													class="form-label cursor-pointer">Tampilkan rekening mempelai pria</label
+												>
+												<button
+													id="groom-gift-switch"
+													type="button"
+													role="switch"
+													aria-labelledby="groom-gift-label"
+													aria-checked={!groomGiftHidden}
+													onclick={() => (groomGiftHidden = !groomGiftHidden)}
+													class="relative shrink-0 cursor-pointer before:absolute before:inset-x-0 before:-inset-y-2 focus-visible:shadow-none! focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#191919]!"
+													><span aria-hidden="true" class="absolute"></span></button
+												>
 											</div>
+											<fieldset
+												disabled={groomGiftHidden}
+												hidden={groomGiftHidden}
+												class="min-w-0 border-0 p-0"
+											>
+												<legend class="sr-only">Rekening mempelai pria</legend>
+												<div class="mt-5 space-y-5">
+													<label class="form-label block">
+														Nama Pemilik Rekening / Akun <span class="text-red-500">*</span>
+														<input
+															name="groom_payment_account_name"
+															type="text"
+															maxlength="100"
+															required
+															value={wedding.groom_payment_account_name}
+															class="form-control mt-2"
+														/>
+													</label>
+													<label class="form-label block">
+														Bank / eWallet <span class="text-red-500">*</span>
+														<select
+															name="groom_payment_provider"
+															required
+															value={wedding.groom_payment_provider}
+															class="form-control payment-provider mt-2 pr-10"
+														>
+															<option value="" disabled>Pilih bank / eWallet</option>
+															{#if wedding.groom_payment_provider && !isListedPaymentProvider(wedding.groom_payment_provider)}
+																<option value={wedding.groom_payment_provider}
+																	>{wedding.groom_payment_provider}</option
+																>
+															{/if}
+															<optgroup label="Bank">
+																{#each bankOptions as bank (bank)}<option value={bank}
+																		>{bank}</option
+																	>{/each}
+															</optgroup>
+															<optgroup label="eWallet">
+																{#each eWalletOptions as wallet (wallet)}<option value={wallet}
+																		>{wallet}</option
+																	>{/each}
+															</optgroup>
+														</select>
+													</label>
+													<label class="form-label block">
+														Nomor Rekening / Akun <span class="text-red-500">*</span>
+														<input
+															name="groom_payment_number"
+															type="text"
+															maxlength="50"
+															required
+															value={wedding.groom_payment_number}
+															inputmode="numeric"
+															class="form-control mt-2"
+														/>
+													</label>
+												</div>
+											</fieldset>
+											{#if groomGiftHidden}<p class="mt-3 text-xs leading-5 text-[#5c554e]">
+													Rekening ini tidak ditampilkan pada undangan. Data tetap tersimpan.
+												</p>{/if}
 										</section>
-										<section class="py-5 sm:p-5">
-											<div class="space-y-5">
-												<label class="form-label block">
-													Nama Pemilik Rekening / Akun <span class="text-red-500">*</span>
-													<input
-														name="bride_payment_account_name"
-														type="text"
-														maxlength="100"
-														required
-														value={wedding.bride_payment_account_name}
-														class="form-control mt-2"
-													/>
-												</label>
-												<label class="form-label block">
-													Bank / eWallet <span class="text-red-500">*</span>
-													<select
-														name="bride_payment_provider"
-														required
-														value={wedding.bride_payment_provider}
-														class="form-control payment-provider mt-2 pr-10"
-													>
-														<option value="" disabled>Pilih bank / eWallet</option>
-														{#if wedding.bride_payment_provider && !isListedPaymentProvider(wedding.bride_payment_provider)}
-															<option value={wedding.bride_payment_provider}
-																>{wedding.bride_payment_provider}</option
-															>
-														{/if}
-														<optgroup label="Bank">
-															{#each bankOptions as bank (bank)}<option value={bank}>{bank}</option
-																>{/each}
-														</optgroup>
-														<optgroup label="eWallet">
-															{#each eWalletOptions as wallet (wallet)}<option value={wallet}
-																	>{wallet}</option
-																>{/each}
-														</optgroup>
-													</select>
-												</label>
-												<label class="form-label block">
-													Nomor Rekening / Akun <span class="text-red-500">*</span>
-													<input
-														name="bride_payment_number"
-														type="text"
-														maxlength="50"
-														required
-														value={wedding.bride_payment_number}
-														inputmode="numeric"
-														class="form-control mt-2"
-													/>
-												</label>
+										<section class="ws-inset p-4 sm:p-5">
+											<div class="flex min-h-11 items-center justify-between gap-5">
+												<label
+													id="bride-gift-label"
+													for="bride-gift-switch"
+													class="form-label cursor-pointer"
+													>Tampilkan rekening mempelai wanita</label
+												>
+												<button
+													id="bride-gift-switch"
+													type="button"
+													role="switch"
+													aria-labelledby="bride-gift-label"
+													aria-checked={!brideGiftHidden}
+													onclick={() => (brideGiftHidden = !brideGiftHidden)}
+													class="relative shrink-0 cursor-pointer before:absolute before:inset-x-0 before:-inset-y-2 focus-visible:shadow-none! focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#191919]!"
+													><span aria-hidden="true" class="absolute"></span></button
+												>
 											</div>
+											<fieldset
+												disabled={brideGiftHidden}
+												hidden={brideGiftHidden}
+												class="min-w-0 border-0 p-0"
+											>
+												<legend class="sr-only">Rekening mempelai wanita</legend>
+												<div class="mt-5 space-y-5">
+													<label class="form-label block">
+														Nama Pemilik Rekening / Akun <span class="text-red-500">*</span>
+														<input
+															name="bride_payment_account_name"
+															type="text"
+															maxlength="100"
+															required
+															value={wedding.bride_payment_account_name}
+															class="form-control mt-2"
+														/>
+													</label>
+													<label class="form-label block">
+														Bank / eWallet <span class="text-red-500">*</span>
+														<select
+															name="bride_payment_provider"
+															required
+															value={wedding.bride_payment_provider}
+															class="form-control payment-provider mt-2 pr-10"
+														>
+															<option value="" disabled>Pilih bank / eWallet</option>
+															{#if wedding.bride_payment_provider && !isListedPaymentProvider(wedding.bride_payment_provider)}
+																<option value={wedding.bride_payment_provider}
+																	>{wedding.bride_payment_provider}</option
+																>
+															{/if}
+															<optgroup label="Bank">
+																{#each bankOptions as bank (bank)}<option value={bank}
+																		>{bank}</option
+																	>{/each}
+															</optgroup>
+															<optgroup label="eWallet">
+																{#each eWalletOptions as wallet (wallet)}<option value={wallet}
+																		>{wallet}</option
+																	>{/each}
+															</optgroup>
+														</select>
+													</label>
+													<label class="form-label block">
+														Nomor Rekening / Akun <span class="text-red-500">*</span>
+														<input
+															name="bride_payment_number"
+															type="text"
+															maxlength="50"
+															required
+															value={wedding.bride_payment_number}
+															inputmode="numeric"
+															class="form-control mt-2"
+														/>
+													</label>
+												</div>
+											</fieldset>
+											{#if brideGiftHidden}<p class="mt-3 text-xs leading-5 text-[#5c554e]">
+													Rekening ini tidak ditampilkan pada undangan. Data tetap tersimpan.
+												</p>{/if}
 										</section>
 									</div>
 								</fieldset>
@@ -2016,12 +2048,12 @@
 
 				<div
 					class={activeSection === 'Tema'
-						? 'fixed inset-x-0 bottom-0 z-20 border-t-2 border-[#191919] bg-white px-4 pt-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:px-6 md:left-64 lg:px-10'
+						? 'ws-panel fixed inset-x-4 bottom-0 z-20 px-5 pt-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:inset-x-6 sm:px-7 md:left-[calc(16rem+1.5rem)] lg:right-10 lg:left-[calc(16rem+2.5rem)]'
 						: 'mt-7 border-t border-[#191919] pt-5'}
 				>
 					<div
 						class={activeSection === 'Tema'
-							? 'mx-auto flex w-full max-w-6xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between'
+							? 'flex w-full flex-col gap-3 sm:flex-row sm:items-center sm:justify-between'
 							: 'flex justify-end'}
 					>
 						{#if activeSection === 'Tema'}

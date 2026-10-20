@@ -65,8 +65,12 @@ status. Bukti tersimpan dapat dibuka melalui **Lihat bukti**.
 
 Jika memakai PocketBase Admin langsung, gunakan alur yang sama:
 
-1. Keanggotaan baru langsung `active`. Admin dapat menangguhkan atau mengaktifkan kembali
-   affiliate melalui menu Afiliasi. Pemilik dan kode tidak dapat diubah. `suspended`
+1. Keanggotaan baru langsung `active`; dashboard admin tidak menyediakan persetujuan,
+   penolakan pendaftaran, atau filter antrean pendaftar. Menu Afiliasi hanya menyediakan
+   filter `active`/`suspended` dan kontrol penangguhan serta aktivasi kembali akun yang
+   ditangguhkan. Record lama `pending`/`rejected` tetap dapat dilihat tanpa tombol
+   persetujuan, dengan label **Belum aktif**/**Dinonaktifkan**. Pemilik dan kode tidak
+   dapat diubah. `suspended`
    menghentikan penggunaan kupon baru dan pengajuan pencairan; pembayaran yang sudah
    mempunyai snapshot tetap direkonsiliasi. Pendaftaran ulang tidak membuka kembali akun
    yang ditolak atau ditangguhkan.

@@ -660,6 +660,11 @@
 	gap: 20px;
 	margin-top: 28px;
 }
+.kusuma-theme .kusuma-gifts > :only-child {
+	grid-column: 1 / -1;
+	justify-self: center;
+	width: min(100%, 420px);
+}
 .kusuma-theme .kusuma-gift {
 	min-width: 0;
 	padding: 24px;
