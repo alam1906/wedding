@@ -2,6 +2,7 @@ import { ClientResponseError, type RecordModel } from 'pocketbase';
 
 import { pocketBase } from '#lib/infrastructure/pocketbase/index.js';
 import type { WeddingData, WeddingStoryItem, WeddingStorySaveInput } from '../model/wedding.js';
+import type { WeddingSection } from '../model/wedding-summary.js';
 
 const PUBLIC_WEDDING_FIELDS = [
 	'id',
@@ -40,7 +41,48 @@ const PUBLIC_WEDDING_FIELDS = [
 	'gallery'
 ] as const;
 
-const OWNER_WEDDING_FIELDS = [...PUBLIC_WEDDING_FIELDS, 'whatsapp_template'] as const;
+const WEDDING_SECTION_FIELDS: Record<WeddingSection, readonly string[]> = {
+	Domain: ['slug'],
+	Mempelai: [
+		'groom_name',
+		'groom_father_name',
+		'groom_mother_name',
+		'groom_photo',
+		'bride_name',
+		'bride_father_name',
+		'bride_mother_name',
+		'bride_photo'
+	],
+	Acara: [
+		'akad',
+		'reception',
+		'address',
+		'maps',
+		'separate_events',
+		'reception_address',
+		'reception_maps'
+	],
+	Media: ['cover', 'gallery'],
+	Story: [],
+	Quote: ['quote'],
+	Kado: [
+		'gift_enabled',
+		'groom_gift_hidden',
+		'bride_gift_hidden',
+		'groom_payment_number',
+		'groom_payment_provider',
+		'groom_payment_account_name',
+		'bride_payment_number',
+		'bride_payment_provider',
+		'bride_payment_account_name'
+	],
+	Musik: ['music'],
+	Tema: ['theme']
+};
+
+function sectionFields(section: WeddingSection): string {
+	return ['id', 'collectionId', 'collectionName', ...WEDDING_SECTION_FIELDS[section]].join(',');
+}
 
 const WEDDING_STORY_FIELDS = [
 	'id',
@@ -75,7 +117,11 @@ function getCurrentWeddingId(): string {
 	throw new WeddingDataError('Wedding untuk akun ini tidak ditemukan.');
 }
 
-function fileURL(record: RecordModel, filename: unknown, thumb?: string): string {
+function fileURL(
+	record: Pick<RecordModel, 'id'> & Record<string, unknown>,
+	filename: unknown,
+	thumb?: string
+): string {
 	if (typeof filename !== 'string' || filename.length === 0) {
 		return '';
 	}
@@ -97,7 +143,10 @@ function toWeddingStory(record: RecordModel): WeddingStoryItem {
 	};
 }
 
-function toWeddingData(record: RecordModel, stories: WeddingStoryItem[]): WeddingData {
+function toWeddingData(
+	record: Pick<RecordModel, 'id'> & Record<string, unknown>,
+	stories: WeddingStoryItem[]
+): WeddingData {
 	const galleryNames = Array.isArray(record.gallery)
 		? record.gallery.filter((filename): filename is string => typeof filename === 'string')
 		: [];
@@ -191,6 +240,7 @@ async function getWeddingStories(weddingId: string): Promise<WeddingStoryItem[]>
 	const records = await pocketBase.collection('wedding_stories').getFullList({
 		filter: pocketBase.filter('wedding = {:weddingId}', { weddingId }),
 		fields: WEDDING_STORY_FIELDS.join(','),
+		cache: 'no-store',
 		sort: 'sort_order,date,id',
 		requestKey: `wedding-stories-${weddingId}`
 	});
@@ -198,10 +248,13 @@ async function getWeddingStories(weddingId: string): Promise<WeddingStoryItem[]>
 	return records.map(toWeddingStory);
 }
 
-async function handleWeddingRequest(request: () => Promise<RecordModel>): Promise<WeddingData> {
+async function handleWeddingRequest(
+	request: () => Promise<RecordModel>,
+	includeStories = false
+): Promise<WeddingData> {
 	try {
 		const record = await request();
-		return toWeddingData(record, await getWeddingStories(record.id));
+		return toWeddingData(record, includeStories ? await getWeddingStories(record.id) : []);
 	} catch (error) {
 		if (error instanceof WeddingDataError) {
 			throw error;
@@ -216,22 +269,41 @@ async function handleWeddingRequest(request: () => Promise<RecordModel>): Promis
 	}
 }
 
-export function getCurrentWedding(): Promise<WeddingData> {
-	return handleWeddingRequest(() =>
-		pocketBase.collection('weddings').getOne(getCurrentWeddingId(), {
-			fields: OWNER_WEDDING_FIELDS.join(',')
-		})
+export function createWeddingDraft(id: string): WeddingData {
+	return toWeddingData({ id }, []);
+}
+
+export function getWeddingSection(section: WeddingSection): Promise<WeddingData> {
+	return handleWeddingRequest(
+		() =>
+			pocketBase.collection('weddings').getOne(getCurrentWeddingId(), {
+				fields: sectionFields(section),
+				requestKey: null,
+				cache: 'no-store'
+			}),
+		section === 'Story'
 	);
 }
 
-export function getWeddingBySlug(slug: string): Promise<WeddingData> {
-	return handleWeddingRequest(() =>
+export async function getWeddingPlan(): Promise<WeddingData['plan_tier']> {
+	const wedding = await handleWeddingRequest(() =>
 		pocketBase
 			.collection('weddings')
-			.getFirstListItem(pocketBase.filter('slug = {:slug}', { slug }), {
-				fields: PUBLIC_WEDDING_FIELDS.join(','),
-				requestKey: `public-wedding-${slug}`
-			})
+			.getOne(getCurrentWeddingId(), { fields: 'id,plan_tier', cache: 'no-store' })
+	);
+	return wedding.plan_tier;
+}
+
+export function getWeddingBySlug(slug: string): Promise<WeddingData> {
+	return handleWeddingRequest(
+		() =>
+			pocketBase
+				.collection('weddings')
+				.getFirstListItem(pocketBase.filter('slug = {:slug}', { slug }), {
+					fields: PUBLIC_WEDDING_FIELDS.join(','),
+					requestKey: `public-wedding-${slug}`
+				}),
+		true
 	);
 }
 
@@ -240,6 +312,7 @@ export async function getCurrentWeddingSlug(): Promise<string> {
 		const weddingId = getCurrentWeddingId();
 		const record = await pocketBase.collection('weddings').getOne(weddingId, {
 			fields: 'slug',
+			cache: 'no-store',
 			requestKey: `current-wedding-slug-${weddingId}`
 		});
 
@@ -259,11 +332,12 @@ export async function getCurrentWeddingSlug(): Promise<string> {
 }
 
 export function updateCurrentWedding(
-	data: FormData | Record<string, unknown>
+	data: FormData | Record<string, unknown>,
+	section: WeddingSection
 ): Promise<WeddingData> {
 	return handleWeddingRequest(() =>
 		pocketBase.collection('weddings').update(getCurrentWeddingId(), data, {
-			fields: OWNER_WEDDING_FIELDS.join(',')
+			fields: sectionFields(section)
 		})
 	);
 }

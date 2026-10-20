@@ -7,7 +7,7 @@ import type { LayoutLoad } from './$types';
 
 export const load: LayoutLoad = async ({ url, depends, fetch }) => {
 	depends('wedez:affiliate');
-	await requireVerifiedAccount(url.pathname, 'affiliate', fetch);
+	await requireVerifiedAccount(url.pathname, 'affiliate');
 	if (getAccountHome() === '/start') redirect(307, '/start');
 	return {
 		overview: await getAffiliateOverview(fetch),

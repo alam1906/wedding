@@ -3,7 +3,7 @@
 	import { landingPlans } from '#lib/features/landing/model/landing-content.js';
 	import { getPaymentQuote } from '#lib/features/payments/api/payment.js';
 	import PaymentIcon from '#lib/features/payments/components/PaymentIcon.svelte';
-	import { getCurrentWedding } from '#lib/features/weddings/api/wedding.js';
+	import { getWeddingPlan } from '#lib/features/weddings/api/wedding.js';
 	import type { WeddingPlanTier } from '#lib/features/weddings/index.js';
 
 	let tier = $state<WeddingPlanTier | null>(null);
@@ -23,10 +23,10 @@
 
 	onMount(() => {
 		let active = true;
-		void Promise.allSettled([getCurrentWedding(), getPaymentQuote('')]).then(
+		void Promise.allSettled([getWeddingPlan(), getPaymentQuote('')]).then(
 			([weddingResult, quoteResult]) => {
 				if (!active) return;
-				if (weddingResult.status === 'fulfilled') tier = weddingResult.value.plan_tier;
+				if (weddingResult.status === 'fulfilled') tier = weddingResult.value;
 				if (quoteResult.status === 'fulfilled') price = quoteResult.value.original_amount;
 				if (weddingResult.status === 'rejected') {
 					feedback = 'Status paket belum dapat dimuat. Silakan muat ulang halaman.';

@@ -15,14 +15,10 @@
 		updateAuthenticatedAvatar,
 		updateAuthenticatedName
 	} from '#lib/features/auth/index.js';
-	import { getGuestContext } from '#lib/features/guests/index.js';
 	import { getToastContext } from '#lib/features/toast/index.js';
-	import { getWeddingContext } from '#lib/features/weddings/index.js';
 	import { OPTIMIZABLE_IMAGE_ACCEPT } from '#lib/shared/image/optimize-image.js';
 
 	const toast = getToastContext();
-	const guests = getGuestContext();
-	const wedding = getWeddingContext();
 	let profileName = $state('');
 	let profileEmail = $state('');
 	let savedProfileName = $state('');
@@ -74,8 +70,6 @@
 
 		try {
 			await deleteCurrentAccount(deleteConfirmation);
-			guests.reset();
-			wedding.reset();
 			logout();
 			getDeleteAccountDialog()?.close();
 			toast.success('Akun dan data undangan Anda berhasil dihapus.');
@@ -123,8 +117,6 @@
 			currentPassword = '';
 			newPassword = '';
 			passwordConfirm = '';
-			guests.reset();
-			wedding.reset();
 			toast.success('Kata sandi berhasil diperbarui. Silakan masuk kembali.');
 			await goto('/login', { replace: true });
 		} catch (error) {

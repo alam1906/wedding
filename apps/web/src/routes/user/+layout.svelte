@@ -1,14 +1,11 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
-	import { onDestroy, onMount } from 'svelte';
+	import { onMount } from 'svelte';
 	import type { Attachment } from 'svelte/attachments';
 	import { getAuthenticatedEmail, getAuthenticatedName, logout } from '#lib/features/auth/index.js';
 	import { chooseAffiliateHome } from '#lib/features/auth/api/choose-home.js';
-	import { GuestState, setGuestContext } from '#lib/features/guests/index.js';
-	import { MusicOptionsState, setMusicOptionsContext } from '#lib/features/musics/index.js';
 	import { getToastContext } from '#lib/features/toast/index.js';
-	import { setWeddingContext, WeddingState } from '#lib/features/weddings/index.js';
 	import type { LayoutProps } from './$types';
 
 	type NavigationIcon = 'home' | 'calendar' | 'invitation' | 'upgrade' | 'settings';
@@ -27,10 +24,7 @@
 		{ href: '/user/setting', label: 'Pengaturan', icon: 'settings' }
 	];
 
-	let { children, data }: LayoutProps = $props();
-	const guests = setGuestContext(new GuestState());
-	const musicOptions = setMusicOptionsContext(new MusicOptionsState());
-	const wedding = setWeddingContext(new WeddingState());
+	let { children }: LayoutProps = $props();
 	const toast = getToastContext();
 	let menuOpen = $state(false);
 	let profileMenuOpen = $state(false);
@@ -44,13 +38,6 @@
 		)
 	);
 
-	function resetUserState() {
-		guests.reset();
-		musicOptions.reset();
-		wedding.reset();
-	}
-
-	onDestroy(resetUserState);
 	onMount(() => {
 		profileName = getAuthenticatedName();
 		profileEmail = getAuthenticatedEmail();
@@ -85,7 +72,6 @@
 		isLoggingOut = true;
 		menuOpen = false;
 		profileMenuOpen = false;
-		resetUserState();
 		logout();
 		await goto('/login', { replaceState: true });
 	}
@@ -96,7 +82,8 @@
 		try {
 			await chooseAffiliateHome();
 			profileMenuOpen = false;
-			await goto('/affiliate/dashboard');
+			// Commit the area change before the destination starts loading affiliate data.
+			window.location.assign('/affiliate/dashboard');
 		} catch {
 			toast.error('Gagal beralih ke Affiliate. Silakan coba lagi.');
 		} finally {
@@ -241,7 +228,7 @@
 							onclick={switchToAffiliate}
 							class="ws-menu-option flex w-full cursor-pointer px-2 py-2.5 text-left text-sm font-medium text-[#191919] disabled:cursor-not-allowed disabled:opacity-50"
 						>
-							{data.hasAffiliate ? 'Beralih ke Affiliate' : 'Gabung Affiliate'}
+							Beralih ke Affiliate
 						</button>
 						<button
 							type="button"

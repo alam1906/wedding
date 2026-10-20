@@ -3,7 +3,11 @@
 	import type { Attachment } from 'svelte/attachments';
 
 	import {
-		getGuestContext,
+		getGuests,
+		createGuest,
+		createGuests,
+		updateGuest,
+		deleteGuest,
 		GuestDataError,
 		GuestCsvError,
 		parseGuestCsv,
@@ -18,11 +22,15 @@
 	import { getToastContext } from '#lib/features/toast/index.js';
 	import {
 		DEFAULT_WHATSAPP_TEMPLATE,
-		getWeddingContext,
 		getWeddingInvitationUrl,
 		WhatsappTemplateError,
 		WeddingDataError
 	} from '#lib/features/weddings/index.js';
+	import { getCurrentWeddingSlug } from '#lib/features/weddings/api/wedding.js';
+	import {
+		getWhatsappTemplate,
+		updateWhatsappTemplate
+	} from '#lib/features/weddings/api/whatsapp-template.js';
 
 	type TemplatePreviewPart = {
 		text: string;
@@ -39,8 +47,6 @@
 		{ value: 'not_attending', label: 'Tidak hadir' }
 	] as const satisfies readonly { value: GuestStatusFilter; label: string }[];
 	const toast = getToastContext();
-	const guestState = getGuestContext();
-	const weddingState = getWeddingContext();
 
 	function emptyGuestForm(): GuestInput {
 		return {
@@ -52,8 +58,12 @@
 		};
 	}
 
-	const { weddingSlug, whatsappTemplate: initialWhatsappTemplate } = await getInvitationData();
-	let guests = $derived(guestState.guests ?? []);
+	const {
+		weddingSlug,
+		whatsappTemplate: initialWhatsappTemplate,
+		guests: initialGuests
+	} = await getInvitationData();
+	let guests = $state.raw<Guest[]>(initialGuests);
 
 	let search = $state('');
 	let guestSortField = $state<GuestSortField>('name');
@@ -90,13 +100,13 @@
 
 	async function getInvitationData() {
 		try {
-			const [, loadedWeddingSlug, whatsappTemplate] = await Promise.all([
-				guestState.getGuests(),
-				weddingState.getCurrentWeddingSlug(),
-				weddingState.getWhatsappTemplate()
+			const [loadedGuests, loadedWeddingSlug, whatsappTemplate] = await Promise.all([
+				getGuests(),
+				getCurrentWeddingSlug(),
+				getWhatsappTemplate()
 			]);
 
-			return { weddingSlug: loadedWeddingSlug, whatsappTemplate };
+			return { weddingSlug: loadedWeddingSlug, whatsappTemplate, guests: loadedGuests };
 		} catch (cause) {
 			throw error(500, {
 				message:
@@ -391,9 +401,8 @@
 		isImportingCsv = true;
 
 		try {
-			const createdGuests = await guestState.createGuests(
-				importableCsvRows.map((row) => row.input)
-			);
+			const createdGuests = await createGuests(importableCsvRows.map((row) => row.input));
+			guests = [...guests, ...createdGuests];
 			toast.success(`${createdGuests.length} tamu berhasil diimpor.`);
 			csvDialog?.close();
 		} catch (error) {
@@ -483,10 +492,12 @@
 
 		try {
 			if (editingId === null) {
-				await guestState.createGuest(guestInput);
+				const createdGuest = await createGuest(guestInput);
+				guests = [...guests, createdGuest];
 				toast.success('Tamu berhasil ditambahkan.');
 			} else {
-				await guestState.updateGuest(editingId, guestInput);
+				const updatedGuest = await updateGuest(editingId, guestInput);
+				guests = guests.map((guest) => (guest.id === updatedGuest.id ? updatedGuest : guest));
 				toast.success('Data tamu berhasil diperbarui.');
 			}
 
@@ -510,7 +521,8 @@
 		deletingIds = [...deletingIds, guest.id];
 
 		try {
-			await guestState.deleteGuest(guest.id);
+			await deleteGuest(guest.id);
+			guests = guests.filter((item) => item.id !== guest.id);
 			toast.success('Tamu berhasil dihapus.');
 			deleteDialog?.close();
 			guestPendingDeletion = null;
@@ -632,7 +644,7 @@
 
 		try {
 			const safeTemplate = sanitizeEditorHtml(whatsappTemplateDraft);
-			const updatedTemplate = await weddingState.updateWhatsappTemplate(safeTemplate);
+			const updatedTemplate = await updateWhatsappTemplate(safeTemplate);
 			savedWhatsappTemplate = updatedTemplate;
 			whatsappTemplateDraft = updatedTemplate;
 			if (templateEditor) templateEditor.innerHTML = updatedTemplate;

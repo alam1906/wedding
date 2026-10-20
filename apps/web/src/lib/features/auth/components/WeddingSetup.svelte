@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { chooseAffiliateHome } from '#lib/features/auth/api/choose-home.js';
+	import { refreshAuthenticatedUser } from '#lib/features/auth/api/verification.js';
 	import { hasWedding, type AccountIntent } from '#lib/features/auth/model/navigation.js';
 	import { pocketBase } from '#lib/infrastructure/pocketbase/index.js';
 	import AuthFrame from '#lib/components/auth/AuthFrame.svelte';
@@ -12,7 +13,7 @@
 		error = '';
 		try {
 			await pocketBase.send('/api/wedez/account/provision', { method: 'POST' });
-			await pocketBase.collection('users').authRefresh();
+			await refreshAuthenticatedUser();
 			await goto('/user/dashboard', { invalidateAll: true });
 		} catch {
 			error = 'Pilihan undangan belum dapat disimpan. Silakan coba lagi.';

@@ -2,13 +2,23 @@
 	import { pushState } from '$app/navigation';
 	import { page } from '$app/state';
 	import { error } from '@sveltejs/kit';
-	import { onDestroy, onMount, untrack } from 'svelte';
+	import { onDestroy, untrack } from 'svelte';
 
-	import { getMusicOptionsContext } from '#lib/features/musics/index.js';
+	import {
+		MusicDataError,
+		requestMusicOptions,
+		type MusicOption
+	} from '#lib/features/musics/index.js';
+	import {
+		createWeddingDraft,
+		getWeddingSection,
+		saveCurrentWeddingStories,
+		updateCurrentWedding
+	} from '#lib/features/weddings/api/wedding.js';
+	import { getWeddingSummary } from '#lib/features/weddings/api/summary.js';
 	import CouplePhotoPicker from '#lib/features/weddings/components/CouplePhotoPicker.svelte';
 	import WeddingEventForm from '#lib/features/weddings/components/WeddingEventForm.svelte';
 	import {
-		getWeddingContext,
 		getWeddingInvitationBaseHost,
 		getWeddingInvitationHost,
 		WeddingDataError,
@@ -535,9 +545,13 @@
 	};
 
 	const toast = getToastContext();
-	const musicOptions = getMusicOptionsContext();
-	const weddingState = getWeddingContext();
-	const initialWedding = await getInitialWedding();
+	let musicOptions = $state<{
+		options: MusicOption[];
+		error: string;
+		status: 'idle' | 'loading' | 'ready' | 'error';
+	}>({ options: [], error: '', status: 'idle' });
+	let summary = $state.raw(await getInitialSummary());
+	const initialWedding = untrack(() => createWeddingDraft(summary.id));
 	const initialQuotePreset = getQuotePreset(initialWedding.quote);
 	let wedding = $state<WeddingData>({ ...initialWedding });
 	let stories = $state<EditableWeddingStory[]>(toEditableStories(initialWedding.stories));
@@ -558,6 +572,10 @@
 			: (quoteOptions.find((option) => option.key === selectedQuotePreset)?.text ?? '')
 	);
 	let activeSection = $derived(getActiveSection(page.state));
+	let loadedSection = $state<SectionName | null>(null);
+	let sectionError = $state('');
+	let sectionLoadAttempt = $state(0);
+	let sectionGeneration = 0;
 	let isSaving = $state(false);
 	let localSingleImagePreviews = $state<Partial<Record<WeddingSingleFileField, string>>>({});
 	let localSingleImageFiles = $state<Partial<Record<WeddingSingleFileField, File>>>({});
@@ -587,9 +605,9 @@
 	const invitationBaseHost = getWeddingInvitationBaseHost();
 	let invitationHostPreview = $derived(getWeddingInvitationHost(wedding.slug || 'namamempelai'));
 
-	async function getInitialWedding(): Promise<WeddingData> {
+	async function getInitialSummary() {
 		try {
-			return await weddingState.getCurrentWedding();
+			return await getWeddingSummary();
 		} catch (cause) {
 			throw error(500, {
 				message: cause instanceof WeddingDataError ? cause.message : 'Data wedding gagal dimuat.'
@@ -597,14 +615,48 @@
 		}
 	}
 
-	onMount(() => {
-		void musicOptions.load();
-	});
-
 	$effect(() => {
-		if (activeSection === null) {
-			untrack(resetActiveSectionChanges);
+		const section = activeSection;
+		void sectionLoadAttempt;
+		sectionGeneration += 1;
+		let current = true;
+		untrack(() => {
+			resetActiveSectionChanges();
+			refreshLocalData(createWeddingDraft(summary.id));
+			lastSelectedMusic = '';
+			loadedSection = null;
+			sectionError = '';
+			musicOptions = { options: [], error: '', status: section === 'Musik' ? 'loading' : 'idle' };
+		});
+		if (section !== null) {
+			void getWeddingSection(section)
+				.then((data) => {
+					if (!current) return;
+					refreshLocalData(data);
+					loadedSection = section;
+				})
+				.catch((cause) => {
+					if (current)
+						sectionError = cause instanceof WeddingDataError ? cause.message : 'Data gagal dimuat.';
+				});
 		}
+		if (section === 'Musik') {
+			void requestMusicOptions()
+				.then((options) => {
+					if (current) musicOptions = { options, error: '', status: 'ready' };
+				})
+				.catch((cause) => {
+					if (current)
+						musicOptions = {
+							options: [],
+							status: 'error',
+							error: cause instanceof MusicDataError ? cause.message : 'Daftar musik gagal dimuat.'
+						};
+				});
+		}
+		return () => {
+			current = false;
+		};
 	});
 
 	function getActiveSection(state: App.PageState): SectionName | null {
@@ -617,60 +669,8 @@
 		pushState('', { ...page.state, dataSection: section });
 	}
 
-	function hasValues(...values: string[]): boolean {
-		return values.every((value) => value.trim().length > 0);
-	}
-
 	function isSectionComplete(section: SectionName): boolean {
-		switch (section) {
-			case 'Domain':
-				return wedding.slug.trim().length >= 3;
-			case 'Mempelai':
-				return hasValues(
-					wedding.groom_name,
-					wedding.groom_father_name,
-					wedding.groom_mother_name,
-					wedding.groom_photo,
-					wedding.bride_name,
-					wedding.bride_father_name,
-					wedding.bride_mother_name,
-					wedding.bride_photo
-				);
-			case 'Acara':
-				return (
-					hasValues(wedding.akad, wedding.reception, wedding.address) &&
-					(!wedding.separate_events || hasValues(wedding.reception_address))
-				);
-			case 'Media':
-				return hasValues(wedding.cover) && wedding.gallery.length > 0;
-			case 'Story':
-				return (
-					stories.length > 0 &&
-					stories.every((story) => hasValues(story.title, story.date, story.content, story.image))
-				);
-			case 'Quote':
-				return hasValues(wedding.quote);
-			case 'Kado':
-				return (
-					!wedding.gift_enabled ||
-					((wedding.groom_gift_hidden ||
-						hasValues(
-							wedding.groom_payment_account_name,
-							wedding.groom_payment_provider,
-							wedding.groom_payment_number
-						)) &&
-						(wedding.bride_gift_hidden ||
-							hasValues(
-								wedding.bride_payment_account_name,
-								wedding.bride_payment_provider,
-								wedding.bride_payment_number
-							)))
-				);
-			case 'Musik':
-				return musicEnabled && selectedMusic.length > 0;
-			case 'Tema':
-				return selectedTheme.length > 0;
-		}
+		return summary.sections[section];
 	}
 
 	function refreshLocalData(updatedWedding: WeddingData) {
@@ -1083,7 +1083,12 @@
 	async function saveActiveSection(event: SubmitEvent) {
 		event.preventDefault();
 
-		if (isSaving || isOptimizingImages || activeSection === null) {
+		if (
+			isSaving ||
+			isOptimizingImages ||
+			activeSection === null ||
+			loadedSection !== activeSection
+		) {
 			return;
 		}
 
@@ -1093,10 +1098,12 @@
 		}
 
 		isSaving = true;
+		const section = activeSection;
+		const generation = sectionGeneration;
 
 		try {
-			if (activeSection === 'Story') {
-				const updatedStories = await weddingState.saveCurrentWeddingStories(
+			if (section === 'Story') {
+				const updatedStories = await saveCurrentWeddingStories(
 					stories.map((story) => ({
 						id: story.id,
 						title: story.title,
@@ -1106,6 +1113,7 @@
 						removeImage: story.removeImage
 					}))
 				);
+				if (generation !== sectionGeneration) return;
 				clearStoryImagePreviews();
 				wedding = { ...wedding, stories: updatedStories };
 				stories = toEditableStories(updatedStories);
@@ -1145,7 +1153,8 @@
 					normalizeDateField(formData, 'reception');
 				}
 
-				const updatedWedding = await weddingState.updateCurrentWedding(formData);
+				const updatedWedding = await updateCurrentWedding(formData, section);
+				if (generation !== sectionGeneration) return;
 				if (
 					activeSection === 'Kado' &&
 					(updatedWedding.gift_enabled !== giftEnabled ||
@@ -1172,6 +1181,11 @@
 				input.value = '';
 			});
 			toast.success(`${activeSection} berhasil disimpan.`);
+			try {
+				summary = await getWeddingSummary();
+			} catch {
+				toast.error('Perubahan tersimpan, tetapi status kelengkapan belum dapat diperbarui.');
+			}
 		} catch (error) {
 			toast.error(error instanceof WeddingDataError ? error.message : 'Perubahan gagal disimpan.');
 		} finally {
@@ -1223,6 +1237,23 @@
 						<p class="mt-2 text-sm leading-6 text-[#5c554e]">{section.description}</p>
 					</button>
 				{/each}
+			</div>
+		{:else if loadedSection !== activeSection}
+			<div class="ws-panel p-5 sm:p-7">
+				<button
+					type="button"
+					onclick={closeActiveSection}
+					class="mb-5 cursor-pointer text-sm font-bold">← Back</button
+				>
+				<h1 class="text-2xl font-extrabold text-[#191919]">{activeSection}</h1>
+				{#if sectionError}
+					<p role="alert" class="mt-4 text-sm text-red-700">{sectionError}</p>
+					<button type="button" onclick={() => (sectionLoadAttempt += 1)} class="ws-button mt-4"
+						>Coba lagi</button
+					>
+				{:else}
+					<p role="status" class="mt-4 text-sm text-[#5c554e]">Memuat data…</p>
+				{/if}
 			</div>
 		{:else}
 			<form class="ws-panel p-5 sm:p-7" onsubmit={saveActiveSection}>

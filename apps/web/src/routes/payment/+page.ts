@@ -6,7 +6,7 @@ import type { PageLoad } from './$types';
 
 export const prerender = false;
 
-export const load: PageLoad = async ({ fetch }) => {
-	await requireVerifiedAccount('/payment', 'wedding', fetch);
+export const load: PageLoad = async () => {
+	await requireVerifiedAccount('/payment', 'wedding');
 	if (browser && !hasWedding()) redirect(307, '/start');
 };

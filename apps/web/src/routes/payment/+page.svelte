@@ -2,7 +2,6 @@
 	import { onMount, tick } from 'svelte';
 	import { goto, replaceState } from '$app/navigation';
 	import { page } from '$app/state';
-	import { getWeddingContext } from '#lib/features/weddings/index.js';
 	import {
 		createProPaymentSession,
 		getPaymentMethods,
@@ -19,7 +18,6 @@
 	import PaymentQr from '#lib/features/payments/components/PaymentQr.svelte';
 	import CouponForm from '#lib/features/payments/components/CouponForm.svelte';
 
-	const wedding = getWeddingContext();
 	let payment = $state<ProPayment | null>(null);
 	let quote = $state<PaymentQuote | null>(null);
 	let methods = $state<PaymentMethod[]>([]);
@@ -130,7 +128,6 @@
 		if (result.payment.id || !payment) payment = result.payment;
 		if (result.payment.status === 'pending') couponCode = result.payment.coupon_code;
 		if (paid) {
-			wedding.reset();
 			error = '';
 			statusMessage = '';
 		}

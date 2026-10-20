@@ -26,6 +26,7 @@ function toMusicOption(record: RecordModel): MusicOption {
 export async function requestMusicOptions(): Promise<MusicOption[]> {
 	try {
 		const records = await pocketBase.collection('musics').getFullList({
+			cache: 'no-store',
 			fields: MUSIC_FIELDS.join(','),
 			filter: "title != '' && music != ''",
 			sort: 'title,id',

@@ -50,6 +50,7 @@ export function getWhatsappTemplate(): Promise<string> {
 		const weddingId = getCurrentWeddingId();
 		const record = await pocketBase.collection('weddings').getOne(weddingId, {
 			fields: 'whatsapp_template',
+			cache: 'no-store',
 			requestKey: `whatsapp-template-${weddingId}`
 		});
 		const template =

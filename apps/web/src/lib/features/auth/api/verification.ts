@@ -76,6 +76,7 @@ export function confirmEmailVerification(token: string) {
 	);
 }
 
+// Refresh account fields only; preserve the login token and its expiration.
 export function refreshAuthenticatedUser(signal?: AbortSignal) {
 	return handleVerificationRequest(async () => {
 		const token = pocketBase.authStore.token;
@@ -85,11 +86,15 @@ export function refreshAuthenticatedUser(signal?: AbortSignal) {
 			throw new VerificationError('Sesi Anda sudah berakhir. Silakan masuk kembali.');
 		}
 
-		// authRefresh saves automatically. Isolate it so an old response cannot replace
-		// a login from another tab or restore a session after logout.
+		// Read current account data with the captured session without renewing its token.
+		// A late response must not replace another tab's login or restore a logged-out session.
 		const client = new PocketBase(pocketBase.baseURL, new BaseAuthStore());
 		client.authStore.save(token, record);
-		const response = await client.collection('users').authRefresh({ signal, requestKey: null });
+		const updatedRecord = await client.collection('users').getOne(record.id, {
+			signal,
+			requestKey: null,
+			cache: 'no-store'
+		});
 
 		if (
 			signal?.aborted ||
@@ -99,8 +104,8 @@ export function refreshAuthenticatedUser(signal?: AbortSignal) {
 			throw new VerificationError('Sesi akun berubah. Silakan muat ulang halaman.');
 		}
 
-		pocketBase.authStore.save(response.token, response.record);
-		return response;
+		pocketBase.authStore.save(token, updatedRecord);
+		return { token, record: updatedRecord };
 	}, 'refresh');
 }
 

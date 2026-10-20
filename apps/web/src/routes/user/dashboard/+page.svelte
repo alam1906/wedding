@@ -1,67 +1,22 @@
 <script lang="ts">
-	import { getGuestContext, GuestDataError, type Guest } from '#lib/features/guests/index.js';
 	import {
 		WeddingDataError,
-		calculateWeddingCompletion,
-		getWeddingContext,
+		getDashboardSummary,
 		getWeddingInvitationHost,
 		getWeddingInvitationUrl
 	} from '#lib/features/weddings/index.js';
 
-	const guests = getGuestContext();
-	const wedding = getWeddingContext();
-
-	type GuestStats = {
-		total: number;
-		attending: number;
-		notAttending: number;
-		pending: number;
-	};
-
-	function calculateGuestStats(guests: Guest[]): GuestStats {
-		const stats: GuestStats = {
-			total: 0,
-			attending: 0,
-			notAttending: 0,
-			pending: 0
-		};
-
-		for (const guest of guests) {
-			const guestCount = Math.max(1, Math.trunc(guest.guest_count));
-			stats.total += guestCount;
-
-			if (guest.rsvp_status === 'attending') {
-				stats.attending += guestCount;
-			} else if (guest.rsvp_status === 'not_attending') {
-				stats.notAttending += guestCount;
-			} else {
-				stats.pending += guestCount;
-			}
-		}
-
-		return stats;
-	}
-
 	async function getDashboardData() {
 		try {
-			const weddingData = await wedding.getCurrentWedding();
-			let guestStats: GuestStats | null = null;
-			let guestStatsError: string | null = null;
-
-			try {
-				guestStats = calculateGuestStats(await guests.getGuests());
-			} catch (error) {
-				guestStatsError =
-					error instanceof GuestDataError ? error.message : 'Statistik tamu gagal dimuat.';
-			}
+			const summary = await getDashboardSummary();
 
 			return {
-				weddingProgress: calculateWeddingCompletion(weddingData),
-				weddingSlug: weddingData.slug,
-				weddingPlanTier: weddingData.plan_tier,
+				weddingProgress: summary.completion,
+				weddingSlug: summary.slug,
+				weddingPlanTier: summary.plan_tier,
 				weddingProgressError: null,
-				guestStats,
-				guestStatsError
+				guestStats: summary.guests,
+				guestStatsError: null
 			};
 		} catch (error) {
 			return {

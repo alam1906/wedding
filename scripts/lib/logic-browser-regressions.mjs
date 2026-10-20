@@ -148,7 +148,7 @@ export async function testLogicRegressions({
 				await page.getByText('Cek email Anda', { exact: true }).waitFor();
 				await pb.collection('users').update(auth.record.id, { verified: true });
 				let requests = 0;
-				await page.route('**/api/collections/users/auth-refresh', async (route) => {
+				await page.route(`**/api/collections/users/records/${auth.record.id}*`, async (route) => {
 					requests++;
 					const response = await route.fetch();
 					seen.resolve();
@@ -163,12 +163,12 @@ export async function testLogicRegressions({
 					}
 				});
 				await seen.wait();
-				// Only one verification refresh may run while its response is held.
-				// Navigating to /start subsequently performs its own account-guard refresh.
+				// Verification reads account data once while the response is held.
 				assert.equal(requests, 1);
 				held.resolve();
 				await page.waitForURL('**/start');
 				assert.equal((await storedAuth(page)).record.verified, true);
+				assert.equal((await storedAuth(page)).token, auth.token);
 			} finally {
 				held.resolve();
 				await page.context().close();
@@ -206,7 +206,7 @@ export async function testLogicRegressions({
 		const page = await newPage(auth);
 		try {
 			await page.route('**/api/realtime*', (route) => route.abort());
-			await page.route('**/api/collections/users/auth-refresh', (route) =>
+			await page.route(`**/api/collections/users/records/${auth.record.id}*`, (route) =>
 				route.fulfill({ status: 503, json: { message: 'Synthetic outage' } })
 			);
 			await page.goto(web + '/verification');
@@ -214,7 +214,7 @@ export async function testLogicRegressions({
 				.getByText('Status akun gagal diperbarui. Silakan masuk kembali.', { exact: true })
 				.waitFor();
 			assert.equal((await storedAuth(page)).record.verified, false);
-			await page.unroute('**/api/collections/users/auth-refresh');
+			await page.unroute(`**/api/collections/users/records/${auth.record.id}*`);
 			await page.evaluate(() => window.dispatchEvent(new Event('online')));
 			await page.waitForURL('**/start');
 			assert.equal((await storedAuth(page)).record.verified, true);
@@ -235,7 +235,7 @@ export async function testLogicRegressions({
 				completed = gate();
 			try {
 				await page.route('**/api/realtime*', (route) => route.abort());
-				await page.route('**/api/collections/users/auth-refresh', async (route) => {
+				await page.route(`**/api/collections/users/records/${auth.record.id}*`, async (route) => {
 					const response = await route.fetch();
 					seen.resolve();
 					await held.promise;
@@ -274,7 +274,7 @@ export async function testLogicRegressions({
 				seen = gate();
 			try {
 				await page.route('**/api/realtime*', (route) => route.abort());
-				await page.route('**/api/collections/users/auth-refresh', async (route) => {
+				await page.route(`**/api/collections/users/records/${auth.record.id}*`, async (route) => {
 					const response = await route.fetch();
 					seen.resolve();
 					await held.promise;
@@ -306,6 +306,42 @@ export async function testLogicRegressions({
 			}
 		}
 	);
+
+	await check('Wedding setup preserves the login token after provisioning', async () => {
+		const auth = await newUser(true);
+		const page = await newPage(auth);
+		try {
+			await page.goto(web + '/start');
+			await page.getByRole('button', { name: 'Buat undangan gratis', exact: true }).click();
+			await page.waitForURL('**/user/dashboard');
+			await page.getByText('Paket aktif', { exact: true }).waitFor();
+			const stored = await storedAuth(page);
+			assert.equal(stored.token, auth.token);
+			assert.ok(stored.record.wedding_id);
+			assert.equal(
+				(await pb.collection('weddings').getOne(stored.record.wedding_id)).owner,
+				auth.record.id
+			);
+		} finally {
+			await page.context().close();
+		}
+	});
+
+	await check('Expired sessions go to login without refreshing their token', async () => {
+		const auth = await newUser(true);
+		const parts = auth.token.split('.');
+		const payload = JSON.parse(Buffer.from(parts[1], 'base64url'));
+		payload.exp = Math.floor(Date.now() / 1000) - 60;
+		parts[1] = Buffer.from(JSON.stringify(payload)).toString('base64url');
+		const page = await newPage({ ...auth, token: parts.join('.') });
+		try {
+			await page.goto(web + '/user/dashboard');
+			await page.waitForURL('**/login?next=%2Fuser%2Fdashboard');
+			assert.equal((await storedAuth(page))?.token || '', '');
+		} finally {
+			await page.context().close();
+		}
+	});
 
 	await check('A late area switch preserves the new account and does not navigate', async () => {
 		const other = await newUser(true);

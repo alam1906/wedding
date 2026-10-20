@@ -177,6 +177,7 @@ export function getGuests(): Promise<Guest[]> {
 	return handleGuestRequest(async () => {
 		const weddingId = getCurrentWeddingId();
 		const records = await pocketBase.collection('guests').getFullList({
+			cache: 'no-store',
 			filter: pocketBase.filter('wedding = {:weddingId}', { weddingId }),
 			fields: GUEST_FIELDS.join(','),
 			requestKey: `guests-${weddingId}`

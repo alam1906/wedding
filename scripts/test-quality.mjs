@@ -590,6 +590,92 @@ try {
 		}
 		assert.ok(limited);
 	});
+	await check('on-demand summaries are owner-only, fresh, and omit private records', async () => {
+		const owner = await user();
+		const id = await provision(owner.client);
+		const initial = await owner.client.send('/api/wedez/dashboard');
+		assert.deepEqual(initial.guests, { total: 0, attending: 0, notAttending: 0, pending: 0 });
+		assert.deepEqual(Object.keys(initial).sort(), ['completion', 'guests', 'plan_tier', 'slug']);
+		await denied(() => anonymous.send('/api/wedez/dashboard'));
+		await denied(() => anonymous.send('/api/wedez/weddings/summary'));
+		const unverified = await user(false);
+		await denied(() => unverified.client.send('/api/wedez/dashboard'));
+		await denied(() => unverified.client.send('/api/wedez/weddings/summary'));
+		const noWedding = await user();
+		await denied(() => noWedding.client.send('/api/wedez/dashboard'));
+		const story = await owner.client.collection('wedding_stories').create({
+			wedding: id,
+			title: 'QA Story',
+			content: 'Private story content',
+			date: '2027-01-01',
+			sort_order: 1
+		});
+		await pb.collection('guests').create(guest(id, { guest_count: 3, rsvp_status: 'attending' }));
+		await pb
+			.collection('guests')
+			.create(guest(id, { guest_count: 2, rsvp_status: 'not_attending' }));
+		const pendingGuest = await pb.collection('guests').create(guest(id, { guest_count: 4 }));
+		const record = await owner.client.collection('weddings').update(id, {
+			slug: 'qa-summary',
+			quote: 'Private quote',
+			whatsapp_template: 'PRIVATE-SUMMARY-TEMPLATE',
+			gift_enabled: true,
+			groom_gift_hidden: true,
+			bride_gift_hidden: false,
+			separate_events: true,
+			reception_address: 'Private address'
+		});
+		const summary = await owner.client.send('/api/wedez/weddings/summary');
+		assert.deepEqual(
+			summary.completion,
+			calculateWeddingCompletion({ ...record, stories: [story] })
+		);
+		assert.equal(summary.sections.Story, false);
+		assert.equal(summary.sections.Quote, true);
+		assert.equal(summary.id, id);
+		assert.deepEqual(Object.keys(summary).sort(), [
+			'completion',
+			'id',
+			'plan_tier',
+			'sections',
+			'slug'
+		]);
+		assert.doesNotMatch(JSON.stringify(summary), /Private|PRIVATE|whatsapp|payment_number/);
+		for (const flags of [
+			{ gift_enabled: false, separate_events: false },
+			{ gift_enabled: true, groom_gift_hidden: true, bride_gift_hidden: true },
+			{ groom_gift_hidden: false, bride_gift_hidden: false, separate_events: true },
+			{ groom_gift_hidden: false, bride_gift_hidden: true }
+		]) {
+			const updated = await owner.client.collection('weddings').update(id, flags);
+			assert.deepEqual(
+				(await owner.client.send('/api/wedez/weddings/summary')).completion,
+				calculateWeddingCompletion({ ...updated, stories: [story] })
+			);
+		}
+		await owner.client.collection('wedding_stories').update(story.id, {
+			image: new File([png], 'story.png', { type: 'image/png' })
+		});
+		assert.equal((await owner.client.send('/api/wedez/weddings/summary')).sections.Story, true);
+		const dashboard = await owner.client.send('/api/wedez/dashboard');
+		assert.equal(dashboard.slug, 'qa-summary');
+		assert.deepEqual(dashboard.guests, { total: 9, attending: 3, notAttending: 2, pending: 4 });
+		await owner.client.collection('guests').update(pendingGuest.id, { rsvp_status: 'attending' });
+		assert.deepEqual((await owner.client.send('/api/wedez/dashboard')).guests, {
+			total: 9,
+			attending: 7,
+			notAttending: 2,
+			pending: 0
+		});
+		const other = await b.client.send(
+			`/api/wedez/dashboard?wedding=${id}&owner=${owner.record.id}`
+		);
+		assert.notEqual(other.slug, 'qa-summary');
+		const response = await fetch(base + '/api/wedez/dashboard', {
+			headers: { Authorization: owner.client.authStore.token }
+		});
+		assert.equal(response.headers.get('cache-control'), 'no-store');
+	});
 	assert.doesNotMatch(logs, /failed to execute .*\.pb\.js|ReferenceError|SyntaxError|TypeError/);
 	await writeFile(
 		`${temp}/fixture.json`,
