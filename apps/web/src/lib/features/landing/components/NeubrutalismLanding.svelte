@@ -183,11 +183,11 @@
 				<div data-reveal class="max-w-3xl">
 					<p class="eyebrow">Kenapa memilih Wedez</p>
 					<h2 id="why-wedez-title" class="section-title mt-4">
-						Lebih sederhana untuk kalian, lebih berkesan untuk tamu.
+						Bikin undangan pernikahan tanpa ribet.
 					</h2>
 					<p class="section-description">
-						Semua yang dibutuhkan untuk membuat dan mengelola undangan, dirancang dalam satu
-						pengalaman yang mudah digunakan.
+						Pilih tema yang kalian suka, lengkapi detail acara, lalu bagikan ke tamu. Konfirmasi
+						kehadiran mereka bisa kalian pantau langsung di dashboard.
 					</p>
 				</div>
 				<div class="mt-10 grid gap-6 sm:grid-cols-2 lg:mt-12 lg:grid-cols-4">

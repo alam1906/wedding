@@ -30,6 +30,9 @@ export async function testWorkspaceSkeletons({ browser, web, fixture, pb }) {
 			requests = [],
 			gates = [];
 		let failOverview = false;
+		let failWeddingSummary = false;
+		let slowNavigation = false;
+		let delayedRequests = 0;
 		await context.addInitScript(
 			(auth) => localStorage.setItem('wedez_auth', JSON.stringify(auth)),
 			{ token: owner.authStore.token, record: owner.authStore.record }
@@ -37,7 +40,14 @@ export async function testWorkspaceSkeletons({ browser, web, fixture, pb }) {
 		await context.route(/\/api\/(?:collections|wedez|files)\//, async (route) => {
 			const url = new URL(route.request().url());
 			requests.push({ path: url.pathname, frame: new URL(route.request().frame().url()).pathname });
-			const gate = gates.find((item) => !item.used && item.matches(url));
+			if (slowNavigation) {
+				// Let older responses finish between newer clicks, in a different order.
+				const delay = [1100, 450, 800][delayedRequests++ % 3];
+				await new Promise((resolve) => setTimeout(resolve, delay));
+			}
+			const gate = gates.find(
+				(item) => !item.released && (!item.once || !item.used) && item.matches(url)
+			);
 			if (gate) {
 				gate.used = true;
 				gate.seen();
@@ -47,6 +57,10 @@ export async function testWorkspaceSkeletons({ browser, web, fixture, pb }) {
 				failOverview = false;
 				return route.fulfill({ status: 503, json: { message: 'Synthetic loading failure' } });
 			}
+			if (failWeddingSummary && url.pathname === '/api/wedez/weddings/summary') {
+				failWeddingSummary = false;
+				return route.fulfill({ status: 503, json: { message: 'Synthetic loading failure' } });
+			}
 			try {
 				const response = await route.fetch({ url: fixture.base + url.pathname + url.search });
 				await route.fulfill({ response });
@@ -54,7 +68,7 @@ export async function testWorkspaceSkeletons({ browser, web, fixture, pb }) {
 				/* A superseded page/context may abort its request. */
 			}
 		});
-		function hold(matches) {
+		function hold(matches, once = false) {
 			let seen, release;
 			const requested = new Promise((resolve) => {
 				seen = resolve;
@@ -62,8 +76,20 @@ export async function testWorkspaceSkeletons({ browser, web, fixture, pb }) {
 			const wait = new Promise((resolve) => {
 				release = resolve;
 			});
-			gates.push({ matches, seen, wait, release, used: false });
-			return { requested, release };
+			const gate = {
+				matches,
+				seen,
+				wait,
+				once,
+				used: false,
+				released: false,
+				release() {
+					gate.released = true;
+					release();
+				}
+			};
+			gates.push(gate);
+			return { requested, release: gate.release };
 		}
 		const page = await context.newPage();
 		page.setDefaultTimeout(15000);
@@ -114,7 +140,107 @@ export async function testWorkspaceSkeletons({ browser, web, fixture, pb }) {
 				'Old form must not remain interactive'
 			);
 		}
+		async function rapidNavigation(area) {
+			const items =
+				area === 'user'
+					? ['data', 'dashboard', 'invitation', 'upgrade']
+					: ['dashboard', 'commissions', 'payouts', 'settings'];
+			const finalName = area === 'user' ? 'Upgrade' : 'Rekening';
+			const finalContent = area === 'user' ? 'Paketmu saat ini' : 'Rekening pencairan';
+			await page.goto(`${web}/${area}/${items[0]}`);
+			if (area === 'user')
+				await page.getByRole('heading', { name: 'Domain', exact: true }).waitFor();
+			else await page.getByText('Status affiliate', { exact: true }).waitFor();
+			await page.locator('[data-skeleton]').waitFor({ state: 'hidden' });
+			// Regression: A → B → A must finish without waiting for the abandoned
+			// first A request. A pathname-keyed boundary used to keep that branch alive.
+			const abandoned = hold(
+				(url) =>
+					area === 'user'
+						? url.pathname === '/api/wedez/dashboard'
+						: url.pathname === '/api/wedez/affiliate/me',
+				true
+			);
+			await menu(area, area === 'user' ? 'Beranda' : 'Komisi');
+			await abandoned.requested;
+			await menu(area, area === 'user' ? 'Undangan' : 'Pencairan');
+			await page.waitForTimeout(50);
+			await menu(area, area === 'user' ? 'Beranda' : 'Komisi');
+			await page
+				.getByText(area === 'user' ? 'Paket aktif' : 'Riwayat komisi', { exact: true })
+				.waitFor();
+			abandoned.release();
+			const cdp = await context.newCDPSession(page);
+			await cdp.send('Network.enable');
+			await cdp.send('Network.emulateNetworkConditions', {
+				offline: false,
+				latency: 560,
+				downloadThroughput: 200000,
+				uploadThroughput: 90000,
+				connectionType: 'cellular4g'
+			});
+			await cdp.send('Network.setCacheDisabled', { cacheDisabled: true });
+			slowNavigation = true;
+			try {
+				const sequence = [1, 0, 2, 1, 3, 2, 0, 3, 1, 2, 3, 0, 1, 3, 0, 2, 1, 3];
+				for (let index = 0; index < sequence.length * 3; index++) {
+					const href = `/${area}/${items[sequence[index % sequence.length]]}`;
+					// Dispatch without awaiting the router: a real link click must remain
+					// usable even while an earlier route is still rendering its data.
+					const link = page.locator(`nav a[href="${href}"]`);
+					if (width >= 768) {
+						// Include pointer-triggered preloads, as when quickly using the sidebar.
+						const box = await link.boundingBox();
+						await page.mouse.move(box.x + 30, box.y + box.height / 2);
+						await page.waitForTimeout(30);
+						await page.mouse.click(box.x + 30, box.y + box.height / 2);
+					} else {
+						await link.dispatchEvent('click');
+					}
+					await page.waitForTimeout([40, 90, 180][index % 3]);
+				}
+				await page.getByText(finalContent, { exact: true }).waitFor();
+				await page.waitForTimeout(1500);
+				assert.equal(new URL(page.url()).pathname, `/${area}/${items.at(-1)}`);
+				await shell(area, finalName);
+				assert.equal(await page.getByText(finalContent, { exact: true }).isVisible(), true);
+				assert.equal(await page.locator('[data-skeleton]:visible').count(), 0);
+				// It must keep working after the race, including history navigation.
+				await menu(area, 'Beranda');
+				await page
+					.getByText(area === 'user' ? 'Paket aktif' : 'Status affiliate', { exact: true })
+					.waitFor();
+				await shell(area, 'Beranda');
+				await page.goBack();
+				await page.getByText(finalContent, { exact: true }).waitFor();
+				await shell(area, finalName);
+				assert.equal(
+					requests.some(
+						(request) => request.path.includes('/affiliate') && request.frame.startsWith('/user/')
+					),
+					false,
+					'User navigation must never fetch affiliate APIs'
+				);
+				console.log(`PASS ${width}px: ${area} rapid navigation, late responses and Back`);
+			} finally {
+				slowNavigation = false;
+				await cdp.send('Network.emulateNetworkConditions', {
+					offline: false,
+					latency: 0,
+					downloadThroughput: -1,
+					uploadThroughput: -1
+				});
+				await cdp.send('Network.setCacheDisabled', { cacheDisabled: false });
+				await cdp.detach();
+			}
+		}
 		try {
+			if (process.env.WEDEZ_TEST_NAVIGATION_ONLY === '1') {
+				await rapidNavigation('user');
+				await rapidNavigation('affiliate');
+				assert.deepEqual(errors, []);
+				continue;
+			}
 			let gate = hold((url) => url.pathname === '/api/wedez/dashboard');
 			await page.goto(web + '/user/dashboard');
 			await fallback('/user/dashboard');
@@ -211,6 +337,12 @@ export async function testWorkspaceSkeletons({ browser, web, fixture, pb }) {
 			await page.goBack();
 			await page.getByText('Profil akun', { exact: true }).waitFor();
 			assert.equal(new URL(page.url()).pathname, '/user/setting');
+			failWeddingSummary = true;
+			await menu('user', 'Data Pernikahan');
+			await page.getByRole('heading', { name: 'Halaman belum dapat dimuat' }).waitFor();
+			await menu('user', 'Beranda');
+			await page.getByText('Paket aktif', { exact: true }).waitFor();
+			await shell('user', 'Beranda');
 			assert.equal(
 				requests.some(
 					(request) => request.path.includes('/affiliate') && request.frame.startsWith('/user/')
@@ -256,6 +388,12 @@ export async function testWorkspaceSkeletons({ browser, web, fixture, pb }) {
 			await menu('affiliate', 'Rekening');
 			await page.getByRole('button', { name: 'Coba lagi', exact: true }).click();
 			await page.getByRole('button', { name: 'Simpan rekening', exact: true }).waitFor();
+			failOverview = true;
+			await menu('affiliate', 'Komisi');
+			await page.getByRole('heading', { name: 'Halaman belum dapat dimuat' }).waitFor();
+			await menu('affiliate', 'Beranda');
+			await page.getByText('Status affiliate', { exact: true }).waitFor();
+			await shell('affiliate', 'Beranda');
 			await page.emulateMedia({ reducedMotion: 'reduce' });
 			gate = hold((url) => url.pathname === '/api/wedez/affiliate/me');
 			await menu('affiliate', 'Komisi');
@@ -277,10 +415,14 @@ export async function testWorkspaceSkeletons({ browser, web, fixture, pb }) {
 			console.log(
 				`PASS ${width}px: affiliate route/table skeletons, error retry, reduced motion, no overflow or auth-refresh`
 			);
+			await rapidNavigation('user');
+			await rapidNavigation('affiliate');
+			assert.deepEqual(errors, []);
 		} catch (cause) {
 			console.error(
 				'Skeleton failure state:',
 				page.url(),
+				errors,
 				await page
 					.locator('nav a')
 					.evaluateAll((links) =>
