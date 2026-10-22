@@ -1,5 +1,11 @@
-// Run after test:quality and pass its isolated fixture.json. All browser API traffic
-// is forwarded to that disposable PocketBase, never the project's running database.
+// Run after test:quality and pass its isolated fixture.json. Workspace API traffic
+// is forwarded to that disposable PocketBase. Build/start web with
+// PUBLIC_POCKETBASE_URL=fixture.base as well: the auth/realtime checks use it directly.
+// For production regressions, build web first, start a fresh `vite preview`, and
+// set WEDEZ_TEST_PRODUCTION=1 plus WEDEZ_TEST_WEB_URL to its localhost URL.
+// Do not rebuild while preview is running: its manifest refers to that build's
+// hashed assets. WEDEZ_TEST_SKELETONS_ONLY=1 and WEDEZ_TEST_NAVIGATION_ONLY=1 run
+// just the rapid-navigation suite (desktop/mobile, both workspaces) and auth checks.
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import { once } from 'node:events';

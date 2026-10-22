@@ -45,13 +45,14 @@ async function handleTemplateRequest<T>(request: () => Promise<T>): Promise<T> {
 	}
 }
 
-export function getWhatsappTemplate(): Promise<string> {
+export function getWhatsappTemplate(signal?: AbortSignal): Promise<string> {
 	return handleTemplateRequest(async () => {
 		const weddingId = getCurrentWeddingId();
 		const record = await pocketBase.collection('weddings').getOne(weddingId, {
 			fields: 'whatsapp_template',
 			cache: 'no-store',
-			requestKey: `whatsapp-template-${weddingId}`
+			requestKey: null,
+			signal
 		});
 		const template =
 			typeof record.whatsapp_template === 'string' ? record.whatsapp_template.trim() : '';

@@ -1,9 +1,10 @@
 <script lang="ts">
 	import { pushState } from '$app/navigation';
 	import { page } from '$app/state';
-	import { error } from '@sveltejs/kit';
-	import { onDestroy, untrack } from 'svelte';
+	import { onDestroy, onMount, untrack } from 'svelte';
 	import DataSectionSkeleton from '#lib/components/ui/DataSectionSkeleton.svelte';
+	import WorkspaceSkeleton from '#lib/components/ui/WorkspaceSkeleton.svelte';
+	import WorkspaceLoadError from '#lib/components/ui/WorkspaceLoadError.svelte';
 
 	import {
 		MusicDataError,
@@ -551,8 +552,11 @@
 		error: string;
 		status: 'idle' | 'loading' | 'ready' | 'error';
 	}>({ options: [], error: '', status: 'idle' });
-	let summary = $state.raw(await getInitialSummary());
-	const initialWedding = untrack(() => createWeddingDraft(summary.id));
+	let summary = $state.raw<Awaited<ReturnType<typeof getWeddingSummary>>>();
+	const currentWeddingId = $derived(summary?.id);
+	let summaryError = $state<unknown>();
+	let summaryRequest: AbortController | undefined;
+	const initialWedding = createWeddingDraft('');
 	const initialQuotePreset = getQuotePreset(initialWedding.quote);
 	let wedding = $state<WeddingData>({ ...initialWedding });
 	let stories = $state<EditableWeddingStory[]>(toEditableStories(initialWedding.stories));
@@ -606,24 +610,34 @@
 	const invitationBaseHost = getWeddingInvitationBaseHost();
 	let invitationHostPreview = $derived(getWeddingInvitationHost(wedding.slug || 'namamempelai'));
 
-	async function getInitialSummary() {
+	async function loadSummary() {
+		summaryRequest?.abort();
+		const request = new AbortController();
+		summaryRequest = request;
+		summaryError = undefined;
 		try {
-			return await getWeddingSummary();
+			const result = await getWeddingSummary(request.signal);
+			if (!request.signal.aborted) summary = result;
 		} catch (cause) {
-			throw error(500, {
-				message: cause instanceof WeddingDataError ? cause.message : 'Data wedding gagal dimuat.'
-			});
+			if (!request.signal.aborted) summaryError = cause;
 		}
 	}
 
+	onMount(() => {
+		void loadSummary();
+		return () => summaryRequest?.abort();
+	});
+
 	$effect(() => {
+		const weddingId = currentWeddingId;
+		if (!weddingId) return;
 		const section = activeSection;
 		void sectionLoadAttempt;
 		sectionGeneration += 1;
 		let current = true;
 		untrack(() => {
 			resetActiveSectionChanges();
-			refreshLocalData(createWeddingDraft(summary.id));
+			refreshLocalData(createWeddingDraft(weddingId));
 			lastSelectedMusic = '';
 			loadedSection = null;
 			sectionError = '';
@@ -672,7 +686,7 @@
 	}
 
 	function isSectionComplete(section: SectionName): boolean {
-		return summary.sections[section];
+		return summary?.sections[section] ?? false;
 	}
 
 	function refreshLocalData(updatedWedding: WeddingData) {
@@ -1201,563 +1215,420 @@
 	<meta name="description" content="Kelola data pernikahan dan detail acara di Wedez." />
 </svelte:head>
 
-<section
-	class={activeSection === 'Tema'
-		? 'px-4 pt-8 pb-48 sm:px-6 lg:px-10 lg:pt-10'
-		: 'px-4 py-8 sm:px-6 lg:px-10 lg:py-10'}
->
-	<div class="w-full">
-		{#if activeSection === null}
-			<div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-				{#each sections as section, index (section.title)}
-					{@const sectionComplete = isSectionComplete(section.title)}
-					<button
-						type="button"
-						onclick={() => openSection(section.title)}
-						class="ws-panel ws-section-card group p-5 text-left transition"
-					>
-						<div class="flex items-start justify-between gap-4">
-							<span class="ws-icon grid size-10 place-items-center text-xs font-bold">
-								{String(index + 1).padStart(2, '0')}
-							</span>
-							<span class="flex items-center gap-2">
-								{#if !sectionComplete}
+{#if summaryError}
+	<WorkspaceLoadError cause={summaryError} onretry={loadSummary} />
+{:else if !summary}
+	<WorkspaceSkeleton pathname="/user/data" />
+{:else}
+	<section
+		class={activeSection === 'Tema'
+			? 'px-4 pt-8 pb-48 sm:px-6 lg:px-10 lg:pt-10'
+			: 'px-4 py-8 sm:px-6 lg:px-10 lg:py-10'}
+	>
+		<div class="w-full">
+			{#if activeSection === null}
+				<div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+					{#each sections as section, index (section.title)}
+						{@const sectionComplete = isSectionComplete(section.title)}
+						<button
+							type="button"
+							onclick={() => openSection(section.title)}
+							class="ws-panel ws-section-card group p-5 text-left transition"
+						>
+							<div class="flex items-start justify-between gap-4">
+								<span class="ws-icon grid size-10 place-items-center text-xs font-bold">
+									{String(index + 1).padStart(2, '0')}
+								</span>
+								<span class="flex items-center gap-2">
+									{#if !sectionComplete}
+										<span
+											class="ws-badge inline-flex items-center gap-1.5 bg-amber-50 px-2.5 py-1 text-[11px] font-semibold text-amber-700"
+										>
+											<span class="size-1.5 rounded-full bg-amber-500" aria-hidden="true"></span>
+											Belum lengkap
+										</span>
+									{/if}
 									<span
-										class="ws-badge inline-flex items-center gap-1.5 bg-amber-50 px-2.5 py-1 text-[11px] font-semibold text-amber-700"
+										class="text-xl text-gray-300 transition group-hover:translate-x-1 group-hover:text-gray-700"
+										aria-hidden="true">→</span
 									>
-										<span class="size-1.5 rounded-full bg-amber-500" aria-hidden="true"></span>
-										Belum lengkap
-									</span>
-								{/if}
-								<span
-									class="text-xl text-gray-300 transition group-hover:translate-x-1 group-hover:text-gray-700"
-									aria-hidden="true">→</span
-								>
-							</span>
-						</div>
-						<h2 class="mt-5 text-lg font-extrabold text-[#191919]">{section.title}</h2>
-						<p class="mt-2 text-sm leading-6 text-[#5c554e]">{section.description}</p>
-					</button>
-				{/each}
-			</div>
-		{:else if loadedSection !== activeSection}
-			<div class="ws-panel p-5 sm:p-7">
-				<button
-					type="button"
-					onclick={closeActiveSection}
-					class="mb-5 cursor-pointer text-sm font-bold">← Back</button
-				>
-				<header class="border-b border-[#191919] pb-5">
-					<h1 class="text-2xl font-extrabold text-[#191919]">{activeSection}</h1>
-					<p class="mt-2 text-sm text-[#5c554e]">{activeSectionData?.description}</p>
-				</header>
-				{#if sectionError}
-					<p role="alert" class="mt-4 text-sm text-red-700">{sectionError}</p>
-					<button type="button" onclick={() => (sectionLoadAttempt += 1)} class="ws-button mt-4"
-						>Coba lagi</button
-					>
-				{:else}
-					<div class="mt-6"><DataSectionSkeleton section={activeSection} /></div>
-				{/if}
-			</div>
-		{:else}
-			<form class="ws-panel p-5 sm:p-7" onsubmit={saveActiveSection}>
-				<header class="border-b border-[#191919] pb-5">
+								</span>
+							</div>
+							<h2 class="mt-5 text-lg font-extrabold text-[#191919]">{section.title}</h2>
+							<p class="mt-2 text-sm leading-6 text-[#5c554e]">{section.description}</p>
+						</button>
+					{/each}
+				</div>
+			{:else if loadedSection !== activeSection}
+				<div class="ws-panel p-5 sm:p-7">
 					<button
 						type="button"
 						onclick={closeActiveSection}
-						class="ws-link mb-5 inline-flex items-center gap-2 text-sm font-semibold text-[#5c554e] transition hover:text-gray-900"
+						class="mb-5 cursor-pointer text-sm font-bold">← Back</button
 					>
-						<span aria-hidden="true">←</span>
-						Back
-					</button>
-					<div class="flex items-start justify-between gap-5 sm:items-center">
-						<div>
-							<h1 class="text-2xl font-extrabold tracking-tight text-[#191919]">{activeSection}</h1>
-							<p class="mt-2 text-sm text-[#5c554e]">{activeSectionData?.description}</p>
+					<header class="border-b border-[#191919] pb-5">
+						<h1 class="text-2xl font-extrabold text-[#191919]">{activeSection}</h1>
+						<p class="mt-2 text-sm text-[#5c554e]">{activeSectionData?.description}</p>
+					</header>
+					{#if sectionError}
+						<p role="alert" class="mt-4 text-sm text-red-700">{sectionError}</p>
+						<button type="button" onclick={() => (sectionLoadAttempt += 1)} class="ws-button mt-4"
+							>Coba lagi</button
+						>
+					{:else}
+						<div class="mt-6"><DataSectionSkeleton section={activeSection} /></div>
+					{/if}
+				</div>
+			{:else}
+				<form class="ws-panel p-5 sm:p-7" onsubmit={saveActiveSection}>
+					<header class="border-b border-[#191919] pb-5">
+						<button
+							type="button"
+							onclick={closeActiveSection}
+							class="ws-link mb-5 inline-flex items-center gap-2 text-sm font-semibold text-[#5c554e] transition hover:text-gray-900"
+						>
+							<span aria-hidden="true">←</span>
+							Back
+						</button>
+						<div class="flex items-start justify-between gap-5 sm:items-center">
+							<div>
+								<h1 class="text-2xl font-extrabold tracking-tight text-[#191919]">
+									{activeSection}
+								</h1>
+								<p class="mt-2 text-sm text-[#5c554e]">{activeSectionData?.description}</p>
+							</div>
+							{#if activeSection === 'Kado'}
+								<button
+									type="button"
+									role="switch"
+									aria-label="Tambahkan kado pada undangan"
+									aria-checked={giftEnabled}
+									onclick={() => (giftEnabled = !giftEnabled)}
+									class={[
+										'relative mt-1 h-6 w-11 shrink-0 cursor-pointer rounded-full transition sm:mt-0',
+										giftEnabled ? 'bg-gray-900' : 'bg-gray-300'
+									]}
+								>
+									<span
+										aria-hidden="true"
+										class={[
+											'absolute top-1 size-4 rounded-full bg-white transition',
+											giftEnabled ? 'left-6' : 'left-1'
+										]}
+									></span>
+								</button>
+							{:else if activeSection === 'Musik'}
+								<button
+									type="button"
+									role="switch"
+									aria-label="Gunakan musik pada undangan"
+									aria-checked={musicEnabled}
+									disabled={!musicEnabled && musicOptions.options.length === 0}
+									onclick={toggleMusic}
+									class={[
+										'relative mt-1 h-6 w-11 shrink-0 cursor-pointer rounded-full transition disabled:cursor-not-allowed disabled:opacity-50 sm:mt-0',
+										musicEnabled ? 'bg-gray-900' : 'bg-gray-300'
+									]}
+								>
+									<span
+										aria-hidden="true"
+										class={[
+											'absolute top-1 size-4 rounded-full bg-white transition',
+											musicEnabled ? 'left-6' : 'left-1'
+										]}
+									></span>
+								</button>
+							{/if}
 						</div>
-						{#if activeSection === 'Kado'}
-							<button
-								type="button"
-								role="switch"
-								aria-label="Tambahkan kado pada undangan"
-								aria-checked={giftEnabled}
-								onclick={() => (giftEnabled = !giftEnabled)}
-								class={[
-									'relative mt-1 h-6 w-11 shrink-0 cursor-pointer rounded-full transition sm:mt-0',
-									giftEnabled ? 'bg-gray-900' : 'bg-gray-300'
-								]}
-							>
-								<span
-									aria-hidden="true"
-									class={[
-										'absolute top-1 size-4 rounded-full bg-white transition',
-										giftEnabled ? 'left-6' : 'left-1'
-									]}
-								></span>
-							</button>
-						{:else if activeSection === 'Musik'}
-							<button
-								type="button"
-								role="switch"
-								aria-label="Gunakan musik pada undangan"
-								aria-checked={musicEnabled}
-								disabled={!musicEnabled && musicOptions.options.length === 0}
-								onclick={toggleMusic}
-								class={[
-									'relative mt-1 h-6 w-11 shrink-0 cursor-pointer rounded-full transition disabled:cursor-not-allowed disabled:opacity-50 sm:mt-0',
-									musicEnabled ? 'bg-gray-900' : 'bg-gray-300'
-								]}
-							>
-								<span
-									aria-hidden="true"
-									class={[
-										'absolute top-1 size-4 rounded-full bg-white transition',
-										musicEnabled ? 'left-6' : 'left-1'
-									]}
-								></span>
-							</button>
-						{/if}
-					</div>
-				</header>
+					</header>
 
-				<div class="mt-6">
-					{#if activeSection === 'Musik'}
-						<fieldset>
-							<legend class="sr-only">Pilih musik undangan</legend>
-							<input type="hidden" name="music" value={musicEnabled ? selectedMusic : ''} />
+					<div class="mt-6">
+						{#if activeSection === 'Musik'}
+							<fieldset>
+								<legend class="sr-only">Pilih musik undangan</legend>
+								<input type="hidden" name="music" value={musicEnabled ? selectedMusic : ''} />
 
-							{#if musicOptions.error}
-								<p class="ws-inset mb-4 bg-red-50 px-4 py-3 text-sm text-red-700">
-									{musicOptions.error}
-								</p>
-							{/if}
+								{#if musicOptions.error}
+									<p class="ws-inset mb-4 bg-red-50 px-4 py-3 text-sm text-red-700">
+										{musicOptions.error}
+									</p>
+								{/if}
 
-							{#if musicOptions.status === 'loading'}
-								<DataSectionSkeleton section="Musik" footer={false} />
-							{:else if musicOptions.options.length > 0}
-								<div
-									aria-hidden={!musicEnabled}
-									inert={!musicEnabled}
-									class={[
-										'grid transition-[grid-template-rows,opacity] duration-300 ease-in-out motion-reduce:transition-none',
-										musicEnabled ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'
-									]}
-								>
-									<div class="min-h-0 overflow-hidden">
-										<div class="ws-inset mt-5 overflow-hidden">
-											{#each musicOptions.options as music (music.id)}
-												<div
-													class="flex flex-col gap-3 border-b border-[#191919] px-4 py-4 transition last:border-b-0 sm:flex-row sm:items-center {musicEnabled &&
-													selectedMusic === music.id
-														? 'bg-[#fffaf1]'
-														: 'bg-white'}"
-												>
-													<label
-														class="flex min-w-0 flex-1 items-center gap-3 {musicEnabled
-															? 'cursor-pointer'
-															: 'cursor-not-allowed'}"
+								{#if musicOptions.status === 'loading'}
+									<DataSectionSkeleton section="Musik" footer={false} />
+								{:else if musicOptions.options.length > 0}
+									<div
+										aria-hidden={!musicEnabled}
+										inert={!musicEnabled}
+										class={[
+											'grid transition-[grid-template-rows,opacity] duration-300 ease-in-out motion-reduce:transition-none',
+											musicEnabled ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'
+										]}
+									>
+										<div class="min-h-0 overflow-hidden">
+											<div class="ws-inset mt-5 overflow-hidden">
+												{#each musicOptions.options as music (music.id)}
+													<div
+														class="flex flex-col gap-3 border-b border-[#191919] px-4 py-4 transition last:border-b-0 sm:flex-row sm:items-center {musicEnabled &&
+														selectedMusic === music.id
+															? 'bg-[#fffaf1]'
+															: 'bg-white'}"
 													>
-														<input
-															type="radio"
-															name="music-option"
-															value={music.id}
-															disabled={!musicEnabled}
-															bind:group={selectedMusic}
-															onchange={() => (lastSelectedMusic = music.id)}
-															class="size-4 shrink-0 border-[#cbd5e1] text-gray-900 focus:ring-[#9400ff] disabled:opacity-40"
-														/>
-														<span
-															class="ws-icon grid size-10 shrink-0 place-items-center"
-															aria-hidden="true"
+														<label
+															class="flex min-w-0 flex-1 items-center gap-3 {musicEnabled
+																? 'cursor-pointer'
+																: 'cursor-not-allowed'}"
 														>
-															♪
-														</span>
-														<span class="truncate text-sm font-semibold text-[#191919]"
-															>{music.title}</span
-														>
-													</label>
-													<audio
-														controls
-														preload="none"
-														src={music.music_url}
-														onplay={pauseOtherMusicPreviews}
-														data-music-preview
-														class="h-10 w-full sm:w-64"
-													></audio>
-												</div>
-											{/each}
-										</div>
-									</div>
-								</div>
-							{/if}
-
-							{#if musicOptions.status === 'ready' && musicOptions.options.length === 0}
-								<p class="mt-4 text-sm text-[#5c554e]">Belum ada musik yang dapat dipilih.</p>
-							{/if}
-						</fieldset>
-					{:else if activeSection === 'Tema'}
-						<fieldset>
-							<legend class="sr-only">Pilih tema undangan</legend>
-							<div class="mb-6 flex flex-wrap gap-2" role="group" aria-label="Filter kategori tema">
-								{#each THEME_CATEGORIES as category (category.key)}
-									<button
-										type="button"
-										class={selectedThemeCategory === category.key
-											? 'ws-button ws-button--primary px-4 py-2 sm:px-5'
-											: 'ws-button px-4 py-2 sm:px-5'}
-										aria-pressed={selectedThemeCategory === category.key}
-										aria-controls="theme-picker-grid"
-										onclick={() => (selectedThemeCategory = category.key)}>{category.label}</button
-									>
-								{/each}
-							</div>
-							<div
-								id="theme-picker-grid"
-								class="grid auto-rows-fr content-start items-stretch justify-start gap-3 sm:grid-cols-2 lg:grid-cols-4"
-							>
-								{#each filteredThemes as theme (theme.key)}
-									<label
-										class="ws-theme-option relative flex h-full w-full cursor-pointer flex-col overflow-hidden"
-										class:ws-selected={selectedTheme === theme.key}
-									>
-										<input
-											type="radio"
-											name="theme"
-											value={theme.key}
-											bind:group={selectedTheme}
-											class="sr-only"
-										/>
-
-										<div class="aspect-16/7 shrink-0 overflow-hidden border-b-2 border-[#191919]">
-											<img
-												class="size-full object-cover"
-												src={`/images/theme-previews/${theme.key}.webp`}
-												alt=""
-												width="1200"
-												height="900"
-												loading="lazy"
-												decoding="async"
-											/>
-										</div>
-
-										<div class="flex-1 p-3.5">
-											<div>
-												<h2 class="font-extrabold text-[#191919]">{theme.name}</h2>
-												<p class="mt-1.5 text-xs leading-5 text-[#5c554e]">{theme.description}</p>
+															<input
+																type="radio"
+																name="music-option"
+																value={music.id}
+																disabled={!musicEnabled}
+																bind:group={selectedMusic}
+																onchange={() => (lastSelectedMusic = music.id)}
+																class="size-4 shrink-0 border-[#cbd5e1] text-gray-900 focus:ring-[#9400ff] disabled:opacity-40"
+															/>
+															<span
+																class="ws-icon grid size-10 shrink-0 place-items-center"
+																aria-hidden="true"
+															>
+																♪
+															</span>
+															<span class="truncate text-sm font-semibold text-[#191919]"
+																>{music.title}</span
+															>
+														</label>
+														<audio
+															controls
+															preload="none"
+															src={music.music_url}
+															onplay={pauseOtherMusicPreviews}
+															data-music-preview
+															class="h-10 w-full sm:w-64"
+														></audio>
+													</div>
+												{/each}
 											</div>
 										</div>
-									</label>
-								{/each}
-							</div>
-						</fieldset>
-					{:else if activeSection === 'Domain'}
-						<label class="form-label block">
-							Nama subdomain
-							<div class="form-control-group mt-2 flex overflow-hidden">
-								<input
-									name="slug"
-									value={wedding.slug}
-									oninput={normalizeSlug}
-									aria-describedby="domain-preview"
-									autocapitalize="none"
-									autocomplete="off"
-									inputmode="url"
-									minlength="3"
-									maxlength="50"
-									pattern="[a-z0-9]+(?:-[a-z0-9]+)*"
-									placeholder="namamempelai"
-									spellcheck="false"
-									class="form-control-group__input"
-									required
-								/>
-								<span
-									title={'.' + invitationBaseHost}
-									class="flex max-w-[58%] shrink-0 items-center border-l border-[#191919] bg-[#fffaf1] px-3 text-xs text-[#5c554e] sm:max-w-none sm:px-4 sm:text-sm"
-								>
-									<span class="truncate">.{invitationBaseHost}</span>
-								</span>
-							</div>
-							<p id="domain-preview" class="mt-2 text-xs font-normal text-[#5c554e]">
-								Alamat undangan:
-								<span class="font-semibold break-all text-[#191919]">{invitationHostPreview}</span>
-							</p>
-						</label>
-					{:else if activeSection === 'Mempelai'}
-						<div class="grid gap-6 lg:grid-cols-2">
-							<section class="ws-inset p-4 sm:p-5">
-								<h2 class="text-lg font-extrabold text-[#191919]">Mempelai Wanita</h2>
-								<div class="mt-4 min-h-44 bg-[#fffaf1] p-6">
-									<p class="text-sm font-medium text-[#191919]">Foto Mempelai</p>
-									<CouplePhotoPicker
-										preview={bridePhotoPreview}
-										label="mempelai wanita"
-										disabled={isSaving || isOptimizingImages}
-										onchange={(event) => previewSingleImage(event, 'bride_photo')}
-										onremove={() => removeCouplePhoto('bride_photo')}
-									/>
-								</div>
-								<div class="mt-5 space-y-5">
-									<label class="form-label block"
-										>Nama lengkap<input
-											name="bride_name"
-											value={wedding.bride_name}
-											class="form-control mt-2"
-										/></label
-									>
-									<label class="form-label block"
-										>Nama ayah<input
-											name="bride_father_name"
-											value={wedding.bride_father_name}
-											class="form-control mt-2"
-										/></label
-									>
-									<label class="form-label block"
-										>Nama ibu<input
-											name="bride_mother_name"
-											value={wedding.bride_mother_name}
-											class="form-control mt-2"
-										/></label
-									>
-								</div>
-							</section>
-
-							<section class="ws-inset p-4 sm:p-5">
-								<h2 class="text-lg font-extrabold text-[#191919]">Mempelai Pria</h2>
-								<div class="mt-4 min-h-44 bg-[#fffaf1] p-6">
-									<p class="text-sm font-medium text-[#191919]">Foto Mempelai</p>
-									<CouplePhotoPicker
-										preview={groomPhotoPreview}
-										label="mempelai pria"
-										disabled={isSaving || isOptimizingImages}
-										onchange={(event) => previewSingleImage(event, 'groom_photo')}
-										onremove={() => removeCouplePhoto('groom_photo')}
-									/>
-								</div>
-								<div class="mt-5 space-y-5">
-									<label class="form-label block"
-										>Nama lengkap<input
-											name="groom_name"
-											value={wedding.groom_name}
-											class="form-control mt-2"
-										/></label
-									>
-									<label class="form-label block"
-										>Nama ayah<input
-											name="groom_father_name"
-											value={wedding.groom_father_name}
-											class="form-control mt-2"
-										/></label
-									>
-									<label class="form-label block"
-										>Nama ibu<input
-											name="groom_mother_name"
-											value={wedding.groom_mother_name}
-											class="form-control mt-2"
-										/></label
-									>
-								</div>
-							</section>
-						</div>
-					{:else if activeSection === 'Acara'}
-						{#key wedding}
-							<WeddingEventForm {wedding} disabled={isSaving} />
-						{/key}
-					{:else if activeSection === 'Media'}
-						<div class="space-y-8">
-							<section>
-								<h2 class="font-semibold text-[#191919]">Cover undangan</h2>
-								<div
-									class="form-control-group relative mt-4 aspect-video overflow-hidden"
-									class:border-2={!coverPreview}
-									class:border-dashed={!coverPreview}
-									class:border-[#191919]={!coverPreview}
-								>
-									{#if coverPreview}
-										<img
-											src={coverPreview}
-											alt="Preview cover undangan"
-											class="size-full object-cover"
-										/>
-										{#if localSingleImagePreviews.cover}
-											<span
-												class="absolute top-3 right-3 z-20 rounded-lg bg-white/90 px-3 py-2 text-xs font-semibold text-[#191919] shadow"
-												>Belum disimpan</span
-											>
-										{:else}
-											<button
-												type="button"
-												onclick={() => queueFileRemoval('cover')}
-												class="ws-button ws-button--small absolute top-3 right-3 z-20 cursor-pointer px-3 py-2 text-xs"
-												>Hapus</button
-											>
-										{/if}
-									{/if}
-
-									<input
-										type="file"
-										accept={OPTIMIZABLE_IMAGE_ACCEPT}
-										onchange={(event) => previewSingleImage(event, 'cover')}
-										aria-label={coverPreview ? 'Ganti cover undangan' : 'Pilih cover undangan'}
-										class="absolute inset-0 z-10 size-full cursor-pointer opacity-0"
-									/>
-									{#if !coverPreview}
-										<span
-											class="pointer-events-none absolute inset-0 z-10 flex flex-col items-center justify-center gap-3"
-											aria-hidden="true"
-										>
-											<span
-												class="grid size-11 place-items-center rounded-full bg-gray-200 text-[#5c554e]"
-											>
-												<svg
-													class="size-5"
-													viewBox="0 0 24 24"
-													fill="none"
-													stroke="currentColor"
-													stroke-width="2"
-													stroke-linecap="round"
-													stroke-linejoin="round"
-												>
-													<path d="m14 5 5 5M4 20l3.5-.7L19 7.8a2.1 2.1 0 0 0-3-3L4.7 16.5 4 20Z"
-													></path>
-												</svg>
-											</span>
-											<span class="text-sm font-medium text-[#5c554e]">Klik untuk pilih gambar</span
-											>
-										</span>
-									{/if}
-								</div>
-							</section>
-
-							<section class="border-t border-[#191919] pt-6">
-								<h2 class="font-semibold text-[#191919]">Galeri</h2>
-								{#if wedding.gallery.length > 0 || localGalleryPreviews.length > 0}
-									<div class="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-										{#each wedding.gallery as image (image.name)}
-											<div class="group relative overflow-hidden bg-[#fffaf1]">
-												<img
-													src={image.url}
-													alt="Galeri pernikahan"
-													class:opacity-25={pendingGalleryDeletions.includes(image.name)}
-													class="aspect-square w-full object-cover transition-opacity"
-												/>
-												{#if pendingGalleryDeletions.includes(image.name)}
-													<button
-														type="button"
-														onclick={() => restoreQueuedGalleryRemoval(image.name)}
-														aria-label="Kembalikan foto galeri"
-														class="ws-button ws-button--small absolute top-2 right-2 px-2.5 py-1.5 text-xs"
-														>Kembalikan</button
-													>
-												{:else}
-													<button
-														type="button"
-														onclick={() => queueFileRemoval('gallery', image.name)}
-														aria-label="Hapus foto galeri"
-														class="ws-button ws-button--small absolute top-2 right-2 px-2.5 py-1.5 text-xs"
-														>Hapus</button
-													>
-												{/if}
-											</div>
-										{/each}
-										{#each localGalleryPreviews as preview (preview.id)}
-											<div class="relative overflow-hidden bg-[#fffaf1]">
-												<img
-													src={preview.url}
-													alt={`Preview ${preview.name}`}
-													class:opacity-25={preview.markedForRemoval}
-													class="aspect-square w-full object-cover transition-opacity"
-												/>
-												{#if preview.markedForRemoval}
-													<button
-														type="button"
-														onclick={() => restoreLocalGalleryPreview(preview.id)}
-														aria-label={`Kembalikan preview ${preview.name}`}
-														class="ws-button ws-button--small absolute top-2 right-2 px-2.5 py-1.5 text-xs"
-														>Kembalikan</button
-													>
-												{:else}
-													<button
-														type="button"
-														onclick={() => removeLocalGalleryPreview(preview.id)}
-														aria-label={`Hapus preview ${preview.name}`}
-														class="ws-button ws-button--small absolute top-2 right-2 px-2.5 py-1.5 text-xs"
-														>Hapus</button
-													>
-												{/if}
-												<span
-													class="absolute right-2 bottom-2 left-2 truncate rounded-md bg-gray-900/75 px-2 py-1 text-center text-[11px] font-semibold text-white"
-													>Belum disimpan</span
-												>
-											</div>
-										{/each}
 									</div>
 								{/if}
-								<label
-									class="form-control-group mt-4 grid min-h-36 cursor-pointer place-items-center border-dashed p-6 text-center shadow-none"
+
+								{#if musicOptions.status === 'ready' && musicOptions.options.length === 0}
+									<p class="mt-4 text-sm text-[#5c554e]">Belum ada musik yang dapat dipilih.</p>
+								{/if}
+							</fieldset>
+						{:else if activeSection === 'Tema'}
+							<fieldset>
+								<legend class="sr-only">Pilih tema undangan</legend>
+								<div
+									class="mb-6 flex flex-wrap gap-2"
+									role="group"
+									aria-label="Filter kategori tema"
 								>
-									<span class="text-sm font-semibold text-[#191919]"
-										>Tambah foto galeri, maksimal 10 file</span
-									>
-									<input
-										bind:this={galleryInput}
-										name="gallery+"
-										type="file"
-										accept={OPTIMIZABLE_IMAGE_ACCEPT}
-										multiple
-										onchange={previewGallery}
-										class="sr-only"
-									/>
-								</label>
-							</section>
-						</div>
-					{:else if activeSection === 'Story'}
-						<div class="grid gap-5 lg:grid-cols-2">
-							{#each stories as story, index (story.id)}
-								{@const storyImagePreview = getStoryImagePreview(story)}
-								<section class="py-5 sm:p-5">
-									<div class="flex items-center justify-between gap-4">
-										<h2 class="font-semibold text-[#191919]">Cerita {index + 1}</h2>
+									{#each THEME_CATEGORIES as category (category.key)}
 										<button
 											type="button"
-											onclick={() => removeStory(story.id)}
-											class="ws-link text-sm font-semibold text-red-600 hover:text-red-700"
-											>Hapus</button
+											class={selectedThemeCategory === category.key
+												? 'ws-button ws-button--primary px-4 py-2 sm:px-5'
+												: 'ws-button px-4 py-2 sm:px-5'}
+											aria-pressed={selectedThemeCategory === category.key}
+											aria-controls="theme-picker-grid"
+											onclick={() => (selectedThemeCategory = category.key)}
+											>{category.label}</button
+										>
+									{/each}
+								</div>
+								<div
+									id="theme-picker-grid"
+									class="grid auto-rows-fr content-start items-stretch justify-start gap-3 sm:grid-cols-2 lg:grid-cols-4"
+								>
+									{#each filteredThemes as theme (theme.key)}
+										<label
+											class="ws-theme-option relative flex h-full w-full cursor-pointer flex-col overflow-hidden"
+											class:ws-selected={selectedTheme === theme.key}
+										>
+											<input
+												type="radio"
+												name="theme"
+												value={theme.key}
+												bind:group={selectedTheme}
+												class="sr-only"
+											/>
+
+											<div class="aspect-16/7 shrink-0 overflow-hidden border-b-2 border-[#191919]">
+												<img
+													class="size-full object-cover"
+													src={`/images/theme-previews/${theme.key}.webp`}
+													alt=""
+													width="1200"
+													height="900"
+													loading="lazy"
+													decoding="async"
+												/>
+											</div>
+
+											<div class="flex-1 p-3.5">
+												<div>
+													<h2 class="font-extrabold text-[#191919]">{theme.name}</h2>
+													<p class="mt-1.5 text-xs leading-5 text-[#5c554e]">{theme.description}</p>
+												</div>
+											</div>
+										</label>
+									{/each}
+								</div>
+							</fieldset>
+						{:else if activeSection === 'Domain'}
+							<label class="form-label block">
+								Nama subdomain
+								<div class="form-control-group mt-2 flex overflow-hidden">
+									<input
+										name="slug"
+										value={wedding.slug}
+										oninput={normalizeSlug}
+										aria-describedby="domain-preview"
+										autocapitalize="none"
+										autocomplete="off"
+										inputmode="url"
+										minlength="3"
+										maxlength="50"
+										pattern="[a-z0-9]+(?:-[a-z0-9]+)*"
+										placeholder="namamempelai"
+										spellcheck="false"
+										class="form-control-group__input"
+										required
+									/>
+									<span
+										title={'.' + invitationBaseHost}
+										class="flex max-w-[58%] shrink-0 items-center border-l border-[#191919] bg-[#fffaf1] px-3 text-xs text-[#5c554e] sm:max-w-none sm:px-4 sm:text-sm"
+									>
+										<span class="truncate">.{invitationBaseHost}</span>
+									</span>
+								</div>
+								<p id="domain-preview" class="mt-2 text-xs font-normal text-[#5c554e]">
+									Alamat undangan:
+									<span class="font-semibold break-all text-[#191919]">{invitationHostPreview}</span
+									>
+								</p>
+							</label>
+						{:else if activeSection === 'Mempelai'}
+							<div class="grid gap-6 lg:grid-cols-2">
+								<section class="ws-inset p-4 sm:p-5">
+									<h2 class="text-lg font-extrabold text-[#191919]">Mempelai Wanita</h2>
+									<div class="mt-4 min-h-44 bg-[#fffaf1] p-6">
+										<p class="text-sm font-medium text-[#191919]">Foto Mempelai</p>
+										<CouplePhotoPicker
+											preview={bridePhotoPreview}
+											label="mempelai wanita"
+											disabled={isSaving || isOptimizingImages}
+											onchange={(event) => previewSingleImage(event, 'bride_photo')}
+											onremove={() => removeCouplePhoto('bride_photo')}
+										/>
+									</div>
+									<div class="mt-5 space-y-5">
+										<label class="form-label block"
+											>Nama lengkap<input
+												name="bride_name"
+												value={wedding.bride_name}
+												class="form-control mt-2"
+											/></label
+										>
+										<label class="form-label block"
+											>Nama ayah<input
+												name="bride_father_name"
+												value={wedding.bride_father_name}
+												class="form-control mt-2"
+											/></label
+										>
+										<label class="form-label block"
+											>Nama ibu<input
+												name="bride_mother_name"
+												value={wedding.bride_mother_name}
+												class="form-control mt-2"
+											/></label
 										>
 									</div>
+								</section>
+
+								<section class="ws-inset p-4 sm:p-5">
+									<h2 class="text-lg font-extrabold text-[#191919]">Mempelai Pria</h2>
+									<div class="mt-4 min-h-44 bg-[#fffaf1] p-6">
+										<p class="text-sm font-medium text-[#191919]">Foto Mempelai</p>
+										<CouplePhotoPicker
+											preview={groomPhotoPreview}
+											label="mempelai pria"
+											disabled={isSaving || isOptimizingImages}
+											onchange={(event) => previewSingleImage(event, 'groom_photo')}
+											onremove={() => removeCouplePhoto('groom_photo')}
+										/>
+									</div>
+									<div class="mt-5 space-y-5">
+										<label class="form-label block"
+											>Nama lengkap<input
+												name="groom_name"
+												value={wedding.groom_name}
+												class="form-control mt-2"
+											/></label
+										>
+										<label class="form-label block"
+											>Nama ayah<input
+												name="groom_father_name"
+												value={wedding.groom_father_name}
+												class="form-control mt-2"
+											/></label
+										>
+										<label class="form-label block"
+											>Nama ibu<input
+												name="groom_mother_name"
+												value={wedding.groom_mother_name}
+												class="form-control mt-2"
+											/></label
+										>
+									</div>
+								</section>
+							</div>
+						{:else if activeSection === 'Acara'}
+							{#key wedding}
+								<WeddingEventForm {wedding} disabled={isSaving} />
+							{/key}
+						{:else if activeSection === 'Media'}
+							<div class="space-y-8">
+								<section>
+									<h2 class="font-semibold text-[#191919]">Cover undangan</h2>
 									<div
 										class="form-control-group relative mt-4 aspect-video overflow-hidden"
-										class:border-2={!storyImagePreview}
-										class:border-dashed={!storyImagePreview}
-										class:border-[#191919]={!storyImagePreview}
+										class:border-2={!coverPreview}
+										class:border-dashed={!coverPreview}
+										class:border-[#191919]={!coverPreview}
 									>
-										{#if storyImagePreview}
+										{#if coverPreview}
 											<img
-												src={storyImagePreview}
-												alt={`Gambar ${story.title || `cerita ${index + 1}`}`}
+												src={coverPreview}
+												alt="Preview cover undangan"
 												class="size-full object-cover"
 											/>
-											<button
-												type="button"
-												onclick={() => removeStoryImage(story.id)}
-												class="ws-button ws-button--small absolute top-3 right-3 z-20 cursor-pointer px-3 py-2 text-xs"
-												>Hapus gambar</button
-											>
-											{#if story.localImagePreview}<span
-													class="absolute right-3 bottom-3 z-20 rounded-lg bg-gray-900/75 px-3 py-1.5 text-xs font-semibold text-white"
+											{#if localSingleImagePreviews.cover}
+												<span
+													class="absolute top-3 right-3 z-20 rounded-lg bg-white/90 px-3 py-2 text-xs font-semibold text-[#191919] shadow"
 													>Belum disimpan</span
-												>{/if}
+												>
+											{:else}
+												<button
+													type="button"
+													onclick={() => queueFileRemoval('cover')}
+													class="ws-button ws-button--small absolute top-3 right-3 z-20 cursor-pointer px-3 py-2 text-xs"
+													>Hapus</button
+												>
+											{/if}
 										{/if}
+
 										<input
 											type="file"
 											accept={OPTIMIZABLE_IMAGE_ACCEPT}
-											onchange={(event) => previewStoryImage(event, story.id)}
-											aria-label={storyImagePreview
-												? `Ganti gambar cerita ${index + 1}`
-												: `Pilih gambar cerita ${index + 1}`}
+											onchange={(event) => previewSingleImage(event, 'cover')}
+											aria-label={coverPreview ? 'Ganti cover undangan' : 'Pilih cover undangan'}
 											class="absolute inset-0 z-10 size-full cursor-pointer opacity-0"
 										/>
-										{#if !storyImagePreview}
+										{#if !coverPreview}
 											<span
 												class="pointer-events-none absolute inset-0 z-10 flex flex-col items-center justify-center gap-3"
 												aria-hidden="true"
@@ -1784,340 +1655,500 @@
 											</span>
 										{/if}
 									</div>
-									<div class="mt-5 grid gap-5 sm:grid-cols-2">
-										<label class="form-label block"
-											>Judul<input
-												bind:value={story.title}
-												maxlength="200"
-												required
-												class="form-control mt-2"
-											/></label
-										>
-										<label class="form-label block"
-											>Tanggal<input
-												type="date"
-												bind:value={story.date}
-												class="form-control mt-2"
-											/></label
-										>
-									</div>
-									<label class="form-label mt-4 block"
-										>Cerita<textarea
-											bind:value={story.content}
-											maxlength="5000"
-											required
-											class="form-control mt-2 min-h-32"></textarea></label
-									>
 								</section>
-							{/each}
-							<button
-								type="button"
-								onclick={addStory}
-								class="ws-button w-full border-2 border-dashed px-5 py-4 text-sm shadow-none! lg:col-span-2"
-								>Tambah kisah cinta</button
-							>
-						</div>
-					{:else if activeSection === 'Quote'}
-						<fieldset>
-							<legend class="sr-only">Pilihan quote</legend>
-							<div class="grid gap-3 sm:grid-cols-2">
-								{#each quoteOptions as option (option.key)}
+
+								<section class="border-t border-[#191919] pt-6">
+									<h2 class="font-semibold text-[#191919]">Galeri</h2>
+									{#if wedding.gallery.length > 0 || localGalleryPreviews.length > 0}
+										<div class="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+											{#each wedding.gallery as image (image.name)}
+												<div class="group relative overflow-hidden bg-[#fffaf1]">
+													<img
+														src={image.url}
+														alt="Galeri pernikahan"
+														class:opacity-25={pendingGalleryDeletions.includes(image.name)}
+														class="aspect-square w-full object-cover transition-opacity"
+													/>
+													{#if pendingGalleryDeletions.includes(image.name)}
+														<button
+															type="button"
+															onclick={() => restoreQueuedGalleryRemoval(image.name)}
+															aria-label="Kembalikan foto galeri"
+															class="ws-button ws-button--small absolute top-2 right-2 px-2.5 py-1.5 text-xs"
+															>Kembalikan</button
+														>
+													{:else}
+														<button
+															type="button"
+															onclick={() => queueFileRemoval('gallery', image.name)}
+															aria-label="Hapus foto galeri"
+															class="ws-button ws-button--small absolute top-2 right-2 px-2.5 py-1.5 text-xs"
+															>Hapus</button
+														>
+													{/if}
+												</div>
+											{/each}
+											{#each localGalleryPreviews as preview (preview.id)}
+												<div class="relative overflow-hidden bg-[#fffaf1]">
+													<img
+														src={preview.url}
+														alt={`Preview ${preview.name}`}
+														class:opacity-25={preview.markedForRemoval}
+														class="aspect-square w-full object-cover transition-opacity"
+													/>
+													{#if preview.markedForRemoval}
+														<button
+															type="button"
+															onclick={() => restoreLocalGalleryPreview(preview.id)}
+															aria-label={`Kembalikan preview ${preview.name}`}
+															class="ws-button ws-button--small absolute top-2 right-2 px-2.5 py-1.5 text-xs"
+															>Kembalikan</button
+														>
+													{:else}
+														<button
+															type="button"
+															onclick={() => removeLocalGalleryPreview(preview.id)}
+															aria-label={`Hapus preview ${preview.name}`}
+															class="ws-button ws-button--small absolute top-2 right-2 px-2.5 py-1.5 text-xs"
+															>Hapus</button
+														>
+													{/if}
+													<span
+														class="absolute right-2 bottom-2 left-2 truncate rounded-md bg-gray-900/75 px-2 py-1 text-center text-[11px] font-semibold text-white"
+														>Belum disimpan</span
+													>
+												</div>
+											{/each}
+										</div>
+									{/if}
+									<label
+										class="form-control-group mt-4 grid min-h-36 cursor-pointer place-items-center border-dashed p-6 text-center shadow-none"
+									>
+										<span class="text-sm font-semibold text-[#191919]"
+											>Tambah foto galeri, maksimal 10 file</span
+										>
+										<input
+											bind:this={galleryInput}
+											name="gallery+"
+											type="file"
+											accept={OPTIMIZABLE_IMAGE_ACCEPT}
+											multiple
+											onchange={previewGallery}
+											class="sr-only"
+										/>
+									</label>
+								</section>
+							</div>
+						{:else if activeSection === 'Story'}
+							<div class="grid gap-5 lg:grid-cols-2">
+								{#each stories as story, index (story.id)}
+									{@const storyImagePreview = getStoryImagePreview(story)}
+									<section class="py-5 sm:p-5">
+										<div class="flex items-center justify-between gap-4">
+											<h2 class="font-semibold text-[#191919]">Cerita {index + 1}</h2>
+											<button
+												type="button"
+												onclick={() => removeStory(story.id)}
+												class="ws-link text-sm font-semibold text-red-600 hover:text-red-700"
+												>Hapus</button
+											>
+										</div>
+										<div
+											class="form-control-group relative mt-4 aspect-video overflow-hidden"
+											class:border-2={!storyImagePreview}
+											class:border-dashed={!storyImagePreview}
+											class:border-[#191919]={!storyImagePreview}
+										>
+											{#if storyImagePreview}
+												<img
+													src={storyImagePreview}
+													alt={`Gambar ${story.title || `cerita ${index + 1}`}`}
+													class="size-full object-cover"
+												/>
+												<button
+													type="button"
+													onclick={() => removeStoryImage(story.id)}
+													class="ws-button ws-button--small absolute top-3 right-3 z-20 cursor-pointer px-3 py-2 text-xs"
+													>Hapus gambar</button
+												>
+												{#if story.localImagePreview}<span
+														class="absolute right-3 bottom-3 z-20 rounded-lg bg-gray-900/75 px-3 py-1.5 text-xs font-semibold text-white"
+														>Belum disimpan</span
+													>{/if}
+											{/if}
+											<input
+												type="file"
+												accept={OPTIMIZABLE_IMAGE_ACCEPT}
+												onchange={(event) => previewStoryImage(event, story.id)}
+												aria-label={storyImagePreview
+													? `Ganti gambar cerita ${index + 1}`
+													: `Pilih gambar cerita ${index + 1}`}
+												class="absolute inset-0 z-10 size-full cursor-pointer opacity-0"
+											/>
+											{#if !storyImagePreview}
+												<span
+													class="pointer-events-none absolute inset-0 z-10 flex flex-col items-center justify-center gap-3"
+													aria-hidden="true"
+												>
+													<span
+														class="grid size-11 place-items-center rounded-full bg-gray-200 text-[#5c554e]"
+													>
+														<svg
+															class="size-5"
+															viewBox="0 0 24 24"
+															fill="none"
+															stroke="currentColor"
+															stroke-width="2"
+															stroke-linecap="round"
+															stroke-linejoin="round"
+														>
+															<path
+																d="m14 5 5 5M4 20l3.5-.7L19 7.8a2.1 2.1 0 0 0-3-3L4.7 16.5 4 20Z"
+															></path>
+														</svg>
+													</span>
+													<span class="text-sm font-medium text-[#5c554e]"
+														>Klik untuk pilih gambar</span
+													>
+												</span>
+											{/if}
+										</div>
+										<div class="mt-5 grid gap-5 sm:grid-cols-2">
+											<label class="form-label block"
+												>Judul<input
+													bind:value={story.title}
+													maxlength="200"
+													required
+													class="form-control mt-2"
+												/></label
+											>
+											<label class="form-label block"
+												>Tanggal<input
+													type="date"
+													bind:value={story.date}
+													class="form-control mt-2"
+												/></label
+											>
+										</div>
+										<label class="form-label mt-4 block"
+											>Cerita<textarea
+												bind:value={story.content}
+												maxlength="5000"
+												required
+												class="form-control mt-2 min-h-32"></textarea></label
+										>
+									</section>
+								{/each}
+								<button
+									type="button"
+									onclick={addStory}
+									class="ws-button w-full border-2 border-dashed px-5 py-4 text-sm shadow-none! lg:col-span-2"
+									>Tambah kisah cinta</button
+								>
+							</div>
+						{:else if activeSection === 'Quote'}
+							<fieldset>
+								<legend class="sr-only">Pilihan quote</legend>
+								<div class="grid gap-3 sm:grid-cols-2">
+									{#each quoteOptions as option (option.key)}
+										<label
+											class="ws-inset flex cursor-pointer items-center justify-between gap-3 px-4 py-3 transition"
+											class:border-violet-600={selectedQuotePreset === option.key}
+											class:bg-violet-50={selectedQuotePreset === option.key}
+											class:border-gray-200={selectedQuotePreset !== option.key}
+											class:bg-white={selectedQuotePreset !== option.key}
+										>
+											<input
+												type="radio"
+												name="quote-preset"
+												value={option.key}
+												bind:group={selectedQuotePreset}
+												class="sr-only"
+											/>
+											<span class="text-sm font-semibold text-[#191919]">
+												{option.label}: {option.reference}
+											</span>
+											<span
+												class="grid size-5 shrink-0 place-items-center rounded-full border"
+												class:border-violet-600={selectedQuotePreset === option.key}
+												class:bg-violet-600={selectedQuotePreset === option.key}
+												class:border-[#191919]={selectedQuotePreset !== option.key}
+											>
+												{#if selectedQuotePreset === option.key}
+													<span class="size-2 rounded-full bg-white"></span>
+												{/if}
+											</span>
+										</label>
+									{/each}
+
 									<label
 										class="ws-inset flex cursor-pointer items-center justify-between gap-3 px-4 py-3 transition"
-										class:border-violet-600={selectedQuotePreset === option.key}
-										class:bg-violet-50={selectedQuotePreset === option.key}
-										class:border-gray-200={selectedQuotePreset !== option.key}
-										class:bg-white={selectedQuotePreset !== option.key}
+										class:border-violet-600={selectedQuotePreset === 'custom'}
+										class:bg-violet-50={selectedQuotePreset === 'custom'}
+										class:border-gray-200={selectedQuotePreset !== 'custom'}
+										class:bg-white={selectedQuotePreset !== 'custom'}
 									>
 										<input
 											type="radio"
 											name="quote-preset"
-											value={option.key}
+											value="custom"
 											bind:group={selectedQuotePreset}
+											onchange={() => (customQuote = '')}
 											class="sr-only"
 										/>
-										<span class="text-sm font-semibold text-[#191919]">
-											{option.label}: {option.reference}
-										</span>
+										<span class="text-sm font-semibold text-[#191919]">Custom</span>
 										<span
 											class="grid size-5 shrink-0 place-items-center rounded-full border"
-											class:border-violet-600={selectedQuotePreset === option.key}
-											class:bg-violet-600={selectedQuotePreset === option.key}
-											class:border-[#191919]={selectedQuotePreset !== option.key}
+											class:border-violet-600={selectedQuotePreset === 'custom'}
+											class:bg-violet-600={selectedQuotePreset === 'custom'}
+											class:border-[#191919]={selectedQuotePreset !== 'custom'}
 										>
-											{#if selectedQuotePreset === option.key}
+											{#if selectedQuotePreset === 'custom'}
 												<span class="size-2 rounded-full bg-white"></span>
 											{/if}
 										</span>
 									</label>
-								{/each}
+								</div>
 
-								<label
-									class="ws-inset flex cursor-pointer items-center justify-between gap-3 px-4 py-3 transition"
-									class:border-violet-600={selectedQuotePreset === 'custom'}
-									class:bg-violet-50={selectedQuotePreset === 'custom'}
-									class:border-gray-200={selectedQuotePreset !== 'custom'}
-									class:bg-white={selectedQuotePreset !== 'custom'}
-								>
-									<input
-										type="radio"
-										name="quote-preset"
-										value="custom"
-										bind:group={selectedQuotePreset}
-										onchange={() => (customQuote = '')}
-										class="sr-only"
-									/>
-									<span class="text-sm font-semibold text-[#191919]">Custom</span>
-									<span
-										class="grid size-5 shrink-0 place-items-center rounded-full border"
-										class:border-violet-600={selectedQuotePreset === 'custom'}
-										class:bg-violet-600={selectedQuotePreset === 'custom'}
-										class:border-[#191919]={selectedQuotePreset !== 'custom'}
+								{#if selectedQuotePreset === 'custom'}
+									<label class="form-label mt-5 block"
+										>Isi quote<textarea
+											name="quote"
+											bind:value={customQuote}
+											class="form-control mt-2 min-h-40"
+											placeholder="Tuliskan quote yang bermakna"></textarea></label
 									>
-										{#if selectedQuotePreset === 'custom'}
-											<span class="size-2 rounded-full bg-white"></span>
-										{/if}
-									</span>
-								</label>
-							</div>
-
-							{#if selectedQuotePreset === 'custom'}
-								<label class="form-label mt-5 block"
-									>Isi quote<textarea
-										name="quote"
-										bind:value={customQuote}
-										class="form-control mt-2 min-h-40"
-										placeholder="Tuliskan quote yang bermakna"></textarea></label
-								>
-							{:else}
-								<label class="form-label mt-5 block"
-									>Isi quote<textarea
-										name="quote"
-										value={selectedQuote}
-										readonly
-										class="form-control mt-2 min-h-40 resize-none leading-6"></textarea></label
-								>
-							{/if}
-						</fieldset>
-					{:else if activeSection === 'Kado'}
-						<input type="hidden" name="gift_enabled" value={giftEnabled ? 'true' : 'false'} />
-						<input type="hidden" name="groom_gift_hidden" value={String(groomGiftHidden)} />
-						<input type="hidden" name="bride_gift_hidden" value={String(brideGiftHidden)} />
-						<div
-							aria-hidden={!giftEnabled}
-							class={[
-								'grid transition-[grid-template-rows,opacity] duration-300 ease-in-out motion-reduce:transition-none',
-								giftEnabled ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'
-							]}
-						>
-							<div class="-mx-1 min-h-0 overflow-hidden px-1">
-								<fieldset disabled={!giftEnabled} class="min-w-0 border-0 p-0">
-									<legend class="sr-only">Informasi kado</legend>
-									<div class="grid items-start gap-6 xl:grid-cols-2">
-										<section class="ws-inset p-4 sm:p-5">
-											<div class="flex min-h-11 items-center justify-between gap-5">
-												<label
-													id="groom-gift-label"
-													for="groom-gift-switch"
-													class="form-label cursor-pointer">Tampilkan rekening mempelai pria</label
-												>
-												<button
-													id="groom-gift-switch"
-													type="button"
-													role="switch"
-													aria-labelledby="groom-gift-label"
-													aria-checked={!groomGiftHidden}
-													onclick={() => (groomGiftHidden = !groomGiftHidden)}
-													class="relative shrink-0 cursor-pointer before:absolute before:inset-x-0 before:-inset-y-2 focus-visible:shadow-none! focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#191919]!"
-													><span aria-hidden="true" class="absolute"></span></button
-												>
-											</div>
-											<fieldset
-												disabled={groomGiftHidden}
-												hidden={groomGiftHidden}
-												class="min-w-0 border-0 p-0"
-											>
-												<legend class="sr-only">Rekening mempelai pria</legend>
-												<div class="mt-5 space-y-5">
-													<label class="form-label block">
-														Nama Pemilik Rekening / Akun <span class="text-red-500">*</span>
-														<input
-															name="groom_payment_account_name"
-															type="text"
-															maxlength="100"
-															required
-															value={wedding.groom_payment_account_name}
-															class="form-control mt-2"
-														/>
-													</label>
-													<label class="form-label block">
-														Bank / eWallet <span class="text-red-500">*</span>
-														<select
-															name="groom_payment_provider"
-															required
-															value={wedding.groom_payment_provider}
-															class="form-control payment-provider mt-2 pr-10"
-														>
-															<option value="" disabled>Pilih bank / eWallet</option>
-															{#if wedding.groom_payment_provider && !isListedPaymentProvider(wedding.groom_payment_provider)}
-																<option value={wedding.groom_payment_provider}
-																	>{wedding.groom_payment_provider}</option
-																>
-															{/if}
-															<optgroup label="Bank">
-																{#each bankOptions as bank (bank)}<option value={bank}
-																		>{bank}</option
-																	>{/each}
-															</optgroup>
-															<optgroup label="eWallet">
-																{#each eWalletOptions as wallet (wallet)}<option value={wallet}
-																		>{wallet}</option
-																	>{/each}
-															</optgroup>
-														</select>
-													</label>
-													<label class="form-label block">
-														Nomor Rekening / Akun <span class="text-red-500">*</span>
-														<input
-															name="groom_payment_number"
-															type="text"
-															maxlength="50"
-															required
-															value={wedding.groom_payment_number}
-															inputmode="numeric"
-															class="form-control mt-2"
-														/>
-													</label>
+								{:else}
+									<label class="form-label mt-5 block"
+										>Isi quote<textarea
+											name="quote"
+											value={selectedQuote}
+											readonly
+											class="form-control mt-2 min-h-40 resize-none leading-6"></textarea></label
+									>
+								{/if}
+							</fieldset>
+						{:else if activeSection === 'Kado'}
+							<input type="hidden" name="gift_enabled" value={giftEnabled ? 'true' : 'false'} />
+							<input type="hidden" name="groom_gift_hidden" value={String(groomGiftHidden)} />
+							<input type="hidden" name="bride_gift_hidden" value={String(brideGiftHidden)} />
+							<div
+								aria-hidden={!giftEnabled}
+								class={[
+									'grid transition-[grid-template-rows,opacity] duration-300 ease-in-out motion-reduce:transition-none',
+									giftEnabled ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'
+								]}
+							>
+								<div class="-mx-1 min-h-0 overflow-hidden px-1">
+									<fieldset disabled={!giftEnabled} class="min-w-0 border-0 p-0">
+										<legend class="sr-only">Informasi kado</legend>
+										<div class="grid items-start gap-6 xl:grid-cols-2">
+											<section class="ws-inset p-4 sm:p-5">
+												<div class="flex min-h-11 items-center justify-between gap-5">
+													<label
+														id="groom-gift-label"
+														for="groom-gift-switch"
+														class="form-label cursor-pointer"
+														>Tampilkan rekening mempelai pria</label
+													>
+													<button
+														id="groom-gift-switch"
+														type="button"
+														role="switch"
+														aria-labelledby="groom-gift-label"
+														aria-checked={!groomGiftHidden}
+														onclick={() => (groomGiftHidden = !groomGiftHidden)}
+														class="relative shrink-0 cursor-pointer before:absolute before:inset-x-0 before:-inset-y-2 focus-visible:shadow-none! focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#191919]!"
+														><span aria-hidden="true" class="absolute"></span></button
+													>
 												</div>
-											</fieldset>
-											{#if groomGiftHidden}<p class="mt-3 text-xs leading-5 text-[#5c554e]">
-													Rekening ini tidak ditampilkan pada undangan. Data tetap tersimpan.
-												</p>{/if}
-										</section>
-										<section class="ws-inset p-4 sm:p-5">
-											<div class="flex min-h-11 items-center justify-between gap-5">
-												<label
-													id="bride-gift-label"
-													for="bride-gift-switch"
-													class="form-label cursor-pointer"
-													>Tampilkan rekening mempelai wanita</label
+												<fieldset
+													disabled={groomGiftHidden}
+													hidden={groomGiftHidden}
+													class="min-w-0 border-0 p-0"
 												>
-												<button
-													id="bride-gift-switch"
-													type="button"
-													role="switch"
-													aria-labelledby="bride-gift-label"
-													aria-checked={!brideGiftHidden}
-													onclick={() => (brideGiftHidden = !brideGiftHidden)}
-													class="relative shrink-0 cursor-pointer before:absolute before:inset-x-0 before:-inset-y-2 focus-visible:shadow-none! focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#191919]!"
-													><span aria-hidden="true" class="absolute"></span></button
-												>
-											</div>
-											<fieldset
-												disabled={brideGiftHidden}
-												hidden={brideGiftHidden}
-												class="min-w-0 border-0 p-0"
-											>
-												<legend class="sr-only">Rekening mempelai wanita</legend>
-												<div class="mt-5 space-y-5">
-													<label class="form-label block">
-														Nama Pemilik Rekening / Akun <span class="text-red-500">*</span>
-														<input
-															name="bride_payment_account_name"
-															type="text"
-															maxlength="100"
-															required
-															value={wedding.bride_payment_account_name}
-															class="form-control mt-2"
-														/>
-													</label>
-													<label class="form-label block">
-														Bank / eWallet <span class="text-red-500">*</span>
-														<select
-															name="bride_payment_provider"
-															required
-															value={wedding.bride_payment_provider}
-															class="form-control payment-provider mt-2 pr-10"
-														>
-															<option value="" disabled>Pilih bank / eWallet</option>
-															{#if wedding.bride_payment_provider && !isListedPaymentProvider(wedding.bride_payment_provider)}
-																<option value={wedding.bride_payment_provider}
-																	>{wedding.bride_payment_provider}</option
-																>
-															{/if}
-															<optgroup label="Bank">
-																{#each bankOptions as bank (bank)}<option value={bank}
-																		>{bank}</option
-																	>{/each}
-															</optgroup>
-															<optgroup label="eWallet">
-																{#each eWalletOptions as wallet (wallet)}<option value={wallet}
-																		>{wallet}</option
-																	>{/each}
-															</optgroup>
-														</select>
-													</label>
-													<label class="form-label block">
-														Nomor Rekening / Akun <span class="text-red-500">*</span>
-														<input
-															name="bride_payment_number"
-															type="text"
-															maxlength="50"
-															required
-															value={wedding.bride_payment_number}
-															inputmode="numeric"
-															class="form-control mt-2"
-														/>
-													</label>
+													<legend class="sr-only">Rekening mempelai pria</legend>
+													<div class="mt-5 space-y-5">
+														<label class="form-label block">
+															Nama Pemilik Rekening / Akun <span class="text-red-500">*</span>
+															<input
+																name="groom_payment_account_name"
+																type="text"
+																maxlength="100"
+																required
+																value={wedding.groom_payment_account_name}
+																class="form-control mt-2"
+															/>
+														</label>
+														<label class="form-label block">
+															Bank / eWallet <span class="text-red-500">*</span>
+															<select
+																name="groom_payment_provider"
+																required
+																value={wedding.groom_payment_provider}
+																class="form-control payment-provider mt-2 pr-10"
+															>
+																<option value="" disabled>Pilih bank / eWallet</option>
+																{#if wedding.groom_payment_provider && !isListedPaymentProvider(wedding.groom_payment_provider)}
+																	<option value={wedding.groom_payment_provider}
+																		>{wedding.groom_payment_provider}</option
+																	>
+																{/if}
+																<optgroup label="Bank">
+																	{#each bankOptions as bank (bank)}<option value={bank}
+																			>{bank}</option
+																		>{/each}
+																</optgroup>
+																<optgroup label="eWallet">
+																	{#each eWalletOptions as wallet (wallet)}<option value={wallet}
+																			>{wallet}</option
+																		>{/each}
+																</optgroup>
+															</select>
+														</label>
+														<label class="form-label block">
+															Nomor Rekening / Akun <span class="text-red-500">*</span>
+															<input
+																name="groom_payment_number"
+																type="text"
+																maxlength="50"
+																required
+																value={wedding.groom_payment_number}
+																inputmode="numeric"
+																class="form-control mt-2"
+															/>
+														</label>
+													</div>
+												</fieldset>
+												{#if groomGiftHidden}<p class="mt-3 text-xs leading-5 text-[#5c554e]">
+														Rekening ini tidak ditampilkan pada undangan. Data tetap tersimpan.
+													</p>{/if}
+											</section>
+											<section class="ws-inset p-4 sm:p-5">
+												<div class="flex min-h-11 items-center justify-between gap-5">
+													<label
+														id="bride-gift-label"
+														for="bride-gift-switch"
+														class="form-label cursor-pointer"
+														>Tampilkan rekening mempelai wanita</label
+													>
+													<button
+														id="bride-gift-switch"
+														type="button"
+														role="switch"
+														aria-labelledby="bride-gift-label"
+														aria-checked={!brideGiftHidden}
+														onclick={() => (brideGiftHidden = !brideGiftHidden)}
+														class="relative shrink-0 cursor-pointer before:absolute before:inset-x-0 before:-inset-y-2 focus-visible:shadow-none! focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#191919]!"
+														><span aria-hidden="true" class="absolute"></span></button
+													>
 												</div>
-											</fieldset>
-											{#if brideGiftHidden}<p class="mt-3 text-xs leading-5 text-[#5c554e]">
-													Rekening ini tidak ditampilkan pada undangan. Data tetap tersimpan.
-												</p>{/if}
-										</section>
-									</div>
-								</fieldset>
+												<fieldset
+													disabled={brideGiftHidden}
+													hidden={brideGiftHidden}
+													class="min-w-0 border-0 p-0"
+												>
+													<legend class="sr-only">Rekening mempelai wanita</legend>
+													<div class="mt-5 space-y-5">
+														<label class="form-label block">
+															Nama Pemilik Rekening / Akun <span class="text-red-500">*</span>
+															<input
+																name="bride_payment_account_name"
+																type="text"
+																maxlength="100"
+																required
+																value={wedding.bride_payment_account_name}
+																class="form-control mt-2"
+															/>
+														</label>
+														<label class="form-label block">
+															Bank / eWallet <span class="text-red-500">*</span>
+															<select
+																name="bride_payment_provider"
+																required
+																value={wedding.bride_payment_provider}
+																class="form-control payment-provider mt-2 pr-10"
+															>
+																<option value="" disabled>Pilih bank / eWallet</option>
+																{#if wedding.bride_payment_provider && !isListedPaymentProvider(wedding.bride_payment_provider)}
+																	<option value={wedding.bride_payment_provider}
+																		>{wedding.bride_payment_provider}</option
+																	>
+																{/if}
+																<optgroup label="Bank">
+																	{#each bankOptions as bank (bank)}<option value={bank}
+																			>{bank}</option
+																		>{/each}
+																</optgroup>
+																<optgroup label="eWallet">
+																	{#each eWalletOptions as wallet (wallet)}<option value={wallet}
+																			>{wallet}</option
+																		>{/each}
+																</optgroup>
+															</select>
+														</label>
+														<label class="form-label block">
+															Nomor Rekening / Akun <span class="text-red-500">*</span>
+															<input
+																name="bride_payment_number"
+																type="text"
+																maxlength="50"
+																required
+																value={wedding.bride_payment_number}
+																inputmode="numeric"
+																class="form-control mt-2"
+															/>
+														</label>
+													</div>
+												</fieldset>
+												{#if brideGiftHidden}<p class="mt-3 text-xs leading-5 text-[#5c554e]">
+														Rekening ini tidak ditampilkan pada undangan. Data tetap tersimpan.
+													</p>{/if}
+											</section>
+										</div>
+									</fieldset>
+								</div>
 							</div>
-						</div>
-					{/if}
-				</div>
+						{/if}
+					</div>
 
-				<div
-					class={activeSection === 'Tema'
-						? 'ws-panel fixed inset-x-4 bottom-0 z-20 px-5 pt-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:inset-x-6 sm:px-7 md:left-[calc(16rem+1.5rem)] lg:right-10 lg:left-[calc(16rem+2.5rem)]'
-						: 'mt-7 border-t border-[#191919] pt-5'}
-				>
 					<div
 						class={activeSection === 'Tema'
-							? 'flex w-full flex-col gap-3 sm:flex-row sm:items-center sm:justify-between'
-							: 'flex justify-end'}
+							? 'ws-panel fixed inset-x-4 bottom-0 z-20 px-5 pt-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:inset-x-6 sm:px-7 md:left-[calc(16rem+1.5rem)] lg:right-10 lg:left-[calc(16rem+2.5rem)]'
+							: 'mt-7 border-t border-[#191919] pt-5'}
 					>
-						{#if activeSection === 'Tema'}
-							<p aria-live="polite" class="min-w-0 text-sm text-[#5c554e]">
-								Tema terpilih:
-								<strong class="font-extrabold text-[#191919]">{selectedThemeName}</strong>
-							</p>
-						{/if}
-						<button
-							type="submit"
-							disabled={isSaving ||
-								isOptimizingImages ||
-								(activeSection === 'Tema' && !themeHasChanges)}
-							aria-busy={isSaving || isOptimizingImages}
-							class="ws-button ws-button--primary shrink-0 cursor-pointer px-5 py-3 text-sm transition disabled:cursor-not-allowed disabled:opacity-60"
+						<div
+							class={activeSection === 'Tema'
+								? 'flex w-full flex-col gap-3 sm:flex-row sm:items-center sm:justify-between'
+								: 'flex justify-end'}
 						>
-							{isOptimizingImages
-								? 'Mengoptimalkan gambar...'
-								: isSaving
-									? 'Sedang menyimpan...'
-									: 'Simpan perubahan'}
-						</button>
+							{#if activeSection === 'Tema'}
+								<p aria-live="polite" class="min-w-0 text-sm text-[#5c554e]">
+									Tema terpilih:
+									<strong class="font-extrabold text-[#191919]">{selectedThemeName}</strong>
+								</p>
+							{/if}
+							<button
+								type="submit"
+								disabled={isSaving ||
+									isOptimizingImages ||
+									(activeSection === 'Tema' && !themeHasChanges)}
+								aria-busy={isSaving || isOptimizingImages}
+								class="ws-button ws-button--primary shrink-0 cursor-pointer px-5 py-3 text-sm transition disabled:cursor-not-allowed disabled:opacity-60"
+							>
+								{isOptimizingImages
+									? 'Mengoptimalkan gambar...'
+									: isSaving
+										? 'Sedang menyimpan...'
+										: 'Simpan perubahan'}
+							</button>
+						</div>
 					</div>
-				</div>
-			</form>
-		{/if}
-	</div>
-</section>
+				</form>
+			{/if}
+		</div>
+	</section>
+{/if}
 
 <style>
 	select.payment-provider:focus {

@@ -22,9 +22,18 @@ function isSummary(
 	);
 }
 
-async function requestSummary<T>(path: string, validate: (value: unknown) => boolean): Promise<T> {
+async function requestSummary<T>(
+	path: string,
+	validate: (value: unknown) => boolean,
+	signal?: AbortSignal
+): Promise<T> {
 	try {
-		const response = await pocketBase.send<T>(path, { method: 'GET', cache: 'no-store' });
+		const response = await pocketBase.send<T>(path, {
+			method: 'GET',
+			cache: 'no-store',
+			requestKey: null,
+			signal
+		});
 		if (!validate(response)) throw new WeddingDataError('Respons ringkasan undangan tidak valid.');
 		return response;
 	} catch (cause) {
@@ -38,29 +47,37 @@ async function requestSummary<T>(path: string, validate: (value: unknown) => boo
 	}
 }
 
-export function getWeddingSummary(): Promise<WeddingSummary> {
-	return requestSummary('/api/wedez/weddings/summary', (value) => {
-		if (!isSummary(value)) return false;
-		const data = value as WeddingSummary;
-		return (
-			typeof data.id === 'string' &&
-			!!data.sections &&
-			WEDDING_SECTIONS.every((section) => typeof data.sections[section] === 'boolean')
-		);
-	});
+export function getWeddingSummary(signal?: AbortSignal): Promise<WeddingSummary> {
+	return requestSummary(
+		'/api/wedez/weddings/summary',
+		(value) => {
+			if (!isSummary(value)) return false;
+			const data = value as WeddingSummary;
+			return (
+				typeof data.id === 'string' &&
+				!!data.sections &&
+				WEDDING_SECTIONS.every((section) => typeof data.sections[section] === 'boolean')
+			);
+		},
+		signal
+	);
 }
 
-export function getDashboardSummary(): Promise<DashboardSummary> {
-	return requestSummary('/api/wedez/dashboard', (value) => {
-		if (!isSummary(value)) return false;
-		const data = value as DashboardSummary;
-		return (
-			!!data.guests &&
-			['total', 'attending', 'notAttending', 'pending'].every(
-				(key) =>
-					Number.isSafeInteger(data.guests[key as keyof typeof data.guests]) &&
-					data.guests[key as keyof typeof data.guests] >= 0
-			)
-		);
-	});
+export function getDashboardSummary(signal?: AbortSignal): Promise<DashboardSummary> {
+	return requestSummary(
+		'/api/wedez/dashboard',
+		(value) => {
+			if (!isSummary(value)) return false;
+			const data = value as DashboardSummary;
+			return (
+				!!data.guests &&
+				['total', 'attending', 'notAttending', 'pending'].every(
+					(key) =>
+						Number.isSafeInteger(data.guests[key as keyof typeof data.guests]) &&
+						data.guests[key as keyof typeof data.guests] >= 0
+				)
+			);
+		},
+		signal
+	);
 }

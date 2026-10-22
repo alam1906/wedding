@@ -30,7 +30,7 @@ export async function testWorkspaceSkeletons({ browser, web, fixture, pb }) {
 			requests = [],
 			gates = [];
 		let failOverview = false;
-		let failWeddingSummary = false;
+		let failingUserApi;
 		let slowNavigation = false;
 		let delayedRequests = 0;
 		await context.addInitScript(
@@ -57,8 +57,8 @@ export async function testWorkspaceSkeletons({ browser, web, fixture, pb }) {
 				failOverview = false;
 				return route.fulfill({ status: 503, json: { message: 'Synthetic loading failure' } });
 			}
-			if (failWeddingSummary && url.pathname === '/api/wedez/weddings/summary') {
-				failWeddingSummary = false;
+			if (url.pathname === failingUserApi) {
+				failingUserApi = undefined;
 				return route.fulfill({ status: 503, json: { message: 'Synthetic loading failure' } });
 			}
 			try {
@@ -112,7 +112,7 @@ export async function testWorkspaceSkeletons({ browser, web, fixture, pb }) {
 				await navigation.getByRole('link', { name, exact: true }).getAttribute('aria-current'),
 				'page'
 			);
-			assert.equal(await page.locator('header').first().isVisible(), true);
+			await page.locator('header').first().getByText(name, { exact: true }).waitFor();
 			assert.equal(
 				await page.evaluate(() => document.documentElement.scrollWidth > innerWidth),
 				false
@@ -163,13 +163,24 @@ export async function testWorkspaceSkeletons({ browser, web, fixture, pb }) {
 			);
 			await menu(area, area === 'user' ? 'Beranda' : 'Komisi');
 			await abandoned.requested;
+			const intermediate = hold(
+				(url) =>
+					area === 'user'
+						? url.pathname === '/api/collections/guests/records'
+						: url.pathname === '/api/collections/affiliate_payouts/records',
+				true
+			);
 			await menu(area, area === 'user' ? 'Undangan' : 'Pencairan');
-			await page.waitForTimeout(50);
+			// Prove B has mounted (its component starts this request). If B's code
+			// is still downloading, going back to A legitimately retains A's first
+			// request; holding that forever would test a fake deadlock.
+			await intermediate.requested;
 			await menu(area, area === 'user' ? 'Beranda' : 'Komisi');
 			await page
 				.getByText(area === 'user' ? 'Paket aktif' : 'Riwayat komisi', { exact: true })
 				.waitFor();
 			abandoned.release();
+			intermediate.release();
 			const cdp = await context.newCDPSession(page);
 			await cdp.send('Network.enable');
 			await cdp.send('Network.emulateNetworkConditions', {
@@ -214,6 +225,48 @@ export async function testWorkspaceSkeletons({ browser, web, fixture, pb }) {
 				await page.goBack();
 				await page.getByText(finalContent, { exact: true }).waitFor();
 				await shell(area, finalName);
+				await page.goForward();
+				await page
+					.getByText(area === 'user' ? 'Paket aktif' : 'Status affiliate', { exact: true })
+					.waitFor();
+				await shell(area, 'Beranda');
+				// Finish bursts on EVERY page, not only Upgrade (which had no top-level
+				// await). Production used to leave an old route or an endless skeleton.
+				const destinations =
+					area === 'user'
+						? [
+								['data', 'Data Pernikahan', 'Domain'],
+								['invitation', 'Undangan', 'Cari'],
+								['dashboard', 'Beranda', 'Paket aktif'],
+								['setting', 'Pengaturan', 'Profil akun'],
+								['upgrade', 'Upgrade', 'Paketmu saat ini']
+							]
+						: [
+								['commissions', 'Komisi', 'Riwayat komisi'],
+								['payouts', 'Pencairan', 'Pencairan komisi'],
+								['settings', 'Rekening', 'Rekening pencairan'],
+								['dashboard', 'Beranda', 'Status affiliate']
+							];
+				for (const [destination, name, content] of destinations) {
+					for (const index of sequence.slice(0, 10)) {
+						await page.locator(`nav a[href="/${area}/${items[index]}"]`).dispatchEvent('click');
+						await page.waitForTimeout(60);
+					}
+					await menu(area, name);
+					const target =
+						destination === 'invitation'
+							? page.getByPlaceholder(content)
+							: page.getByText(content, { exact: true });
+					await target.waitFor();
+					await page.waitForTimeout(1500);
+					assert.equal(new URL(page.url()).pathname, `/${area}/${destination}`);
+					await shell(area, name);
+					assert.equal(await target.isVisible(), true);
+					assert.equal(await page.locator('[data-skeleton]:visible').count(), 0);
+					await page.screenshot({
+						path: `${artifacts}/stable-${area}-${destination}-${width}.png`
+					});
+				}
 				assert.equal(
 					requests.some(
 						(request) => request.path.includes('/affiliate') && request.frame.startsWith('/user/')
@@ -221,7 +274,9 @@ export async function testWorkspaceSkeletons({ browser, web, fixture, pb }) {
 					false,
 					'User navigation must never fetch affiliate APIs'
 				);
-				console.log(`PASS ${width}px: ${area} rapid navigation, late responses and Back`);
+				console.log(
+					`PASS ${width}px: ${area} rapid navigation ends on every page; URL/header/sidebar/content agree, late responses, Back/Forward`
+				);
 			} finally {
 				slowNavigation = false;
 				await cdp.send('Network.emulateNetworkConditions', {
@@ -308,8 +363,21 @@ export async function testWorkspaceSkeletons({ browser, web, fixture, pb }) {
 			await page.getByText('Paketmu saat ini', { exact: true }).waitFor();
 			// Settings has no data fetch: only hold its first lazy-loaded module.
 			let releaseModule;
+			let settingsModule = '**/src/routes/user/setting/+page.svelte*';
+			if (process.env.WEDEZ_TEST_PRODUCTION === '1') {
+				const html = await (await context.request.get(web + '/user/setting')).text();
+				const appPath = html.match(/import\("([^"\n]+\/entry\/app\.[^"\n]+\.js)"\)/)?.[1];
+				assert.ok(appPath, 'Production SPA must reference its hashed app entry');
+				const appUrl = new URL(appPath, web + '/user/setting').href;
+				const app = await (await context.request.get(appUrl)).text();
+				const node = app.match(/"\/user\/setting":\[(\d+)/)?.[1];
+				assert.ok(node, 'Production manifest must contain Settings');
+				const module = app.match(new RegExp(`nodes/${node}\\.[\\w-]+\\.js`))?.[0];
+				assert.ok(module, 'Settings must have a production route chunk');
+				settingsModule = '**/' + module;
+			}
 			await context.route(
-				'**/src/routes/user/setting/+page.svelte*',
+				settingsModule,
 				async (route) => {
 					await new Promise((resolve) => {
 						releaseModule = resolve;
@@ -337,7 +405,23 @@ export async function testWorkspaceSkeletons({ browser, web, fixture, pb }) {
 			await page.goBack();
 			await page.getByText('Profil akun', { exact: true }).waitFor();
 			assert.equal(new URL(page.url()).pathname, '/user/setting');
-			failWeddingSummary = true;
+			for (const [name, api, content] of [
+				['Beranda', '/api/wedez/dashboard', 'Paket aktif'],
+				['Data Pernikahan', '/api/wedez/weddings/summary', 'Domain'],
+				['Undangan', '/api/collections/guests/records', 'Cari']
+			]) {
+				failingUserApi = api;
+				await menu('user', name);
+				await page.getByRole('heading', { name: 'Halaman belum dapat dimuat' }).waitFor();
+				await shell('user', name);
+				await page.getByRole('button', { name: 'Coba lagi', exact: true }).click();
+				await (
+					name === 'Undangan'
+						? page.getByPlaceholder(content)
+						: page.getByText(content, { exact: true })
+				).waitFor();
+			}
+			failingUserApi = '/api/wedez/weddings/summary';
 			await menu('user', 'Data Pernikahan');
 			await page.getByRole('heading', { name: 'Halaman belum dapat dimuat' }).waitFor();
 			await menu('user', 'Beranda');

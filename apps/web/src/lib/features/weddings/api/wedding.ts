@@ -307,13 +307,14 @@ export function getWeddingBySlug(slug: string): Promise<WeddingData> {
 	);
 }
 
-export async function getCurrentWeddingSlug(): Promise<string> {
+export async function getCurrentWeddingSlug(signal?: AbortSignal): Promise<string> {
 	try {
 		const weddingId = getCurrentWeddingId();
 		const record = await pocketBase.collection('weddings').getOne(weddingId, {
 			fields: 'slug',
 			cache: 'no-store',
-			requestKey: `current-wedding-slug-${weddingId}`
+			requestKey: null,
+			signal
 		});
 
 		return typeof record.slug === 'string' ? record.slug : '';

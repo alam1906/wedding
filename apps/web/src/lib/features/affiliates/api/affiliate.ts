@@ -18,7 +18,7 @@ export function affiliateError(error: unknown): string {
 }
 
 export function getAffiliateOverview(fetch?: typeof globalThis.fetch): Promise<AffiliateOverview> {
-	return pocketBase.send('/api/wedez/affiliate/me', { method: 'GET', fetch });
+	return pocketBase.send('/api/wedez/affiliate/me', { method: 'GET', fetch, requestKey: null });
 }
 
 export function enrollAffiliate(): Promise<Affiliate> {
