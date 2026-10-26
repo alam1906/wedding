@@ -87,7 +87,21 @@ Jika memakai PocketBase Admin langsung, gunakan alur yang sama:
 6. Jika hasil transfer belum pasti, biarkan `processing` sampai rekonsiliasi selesai.
    Jangan melepas saldo atau mengulang transfer hanya karena koneksi terputus.
 
-Jangan membuat/menghapus komisi atau payout secara manual. Hook request Admin juga menjaga
+Superuser boleh menghapus record apa pun melalui PocketBase Admin, termasuk `affiliates`,
+`payments`, `affiliate_commissions`, `affiliate_payouts`, dan undangan yang memiliki riwayat
+pembayaran. Hak ini juga berlaku untuk bulk delete. Pengguna biasa dan request anonim
+tetap tidak boleh menghapus data keuangan; aturan akses collection tidak dibuka.
+
+Relasi wajib bawaan PocketBase tetap berlaku. Jika sebuah payment masih dirujuk komisi,
+hapus record payout yang merujuk komisi tersebut (bila diperlukan), lalu komisinya,
+baru payment atau affiliate-nya. Tidak ada cascade baru yang otomatis menghapus seluruh
+komisi/payout ketika satu affiliate dipilih. Relasi opsional tetap dibersihkan oleh PocketBase.
+
+Penghapusan oleh superuser bersifat permanen dan mengikuti pembersihan relasi/file bawaan
+PocketBase, bukan alur rekonsiliasi pembayaran. Backup sebelum menghapus; penghapusan
+komisi/payout dapat mengubah saldo dan membuat riwayat atau total pencairan tidak konsisten.
+Alur hapus akun pengguna tetap mempertahankan riwayat keuangan dan menolak saldo/pencairan
+yang belum selesai. Jangan membuat komisi/payout secara manual. Hook update Admin menjaga
 transisi dan field snapshot. Untuk refund sebelum pencairan, admin dapat mengubah komisi
 `available` → `void` dengan `void_reason`. Jika masih direservasi, selesaikan pembatalan
 pencairan terlebih dahulu. Refund setelah komisi dibayar memerlukan rekonsiliasi/koreksi

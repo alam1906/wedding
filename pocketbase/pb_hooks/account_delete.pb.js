@@ -91,9 +91,10 @@ routerAdd(
 	$apis.bodyLimit(1024)
 );
 
-// Other deletion paths must not silently detach financial history without
-// its original wedding reference (or bypass the pending-payment guard).
-onRecordDelete(function (e) {
+// Ordinary API clients must use account deletion to preserve financial history.
+// Superusers may deliberately delete any record from PocketBase Admin instead.
+onRecordDeleteRequest(function (e) {
+	if (e.hasSuperuserAuth()) return e.next();
 	if (e.app.countRecords('payments', $dbx.hashExp({ wedding: e.record.id })) > 0) {
 		throw new BadRequestError('Gunakan alur hapus akun untuk undangan dengan riwayat pembayaran.');
 	}

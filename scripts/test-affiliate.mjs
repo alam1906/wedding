@@ -218,7 +218,8 @@ async function request(route, { token = '', method = 'GET', body, status = 200 }
 		},
 		body: multipart ? body : body === undefined ? undefined : JSON.stringify(body)
 	});
-	const data = await response.json();
+	const text = await response.text();
+	const data = text ? JSON.parse(text) : null;
 	if (status !== null)
 		assert.equal(response.status, status, `${method} ${route}: ${JSON.stringify(data)}`);
 	return { status: response.status, data };
@@ -1235,32 +1236,35 @@ try {
 			assert.ok((await fetch(`${url}?token=${encodeURIComponent(otherToken)}`)).status >= 400);
 		}
 	);
-	await check('financial history is retained and paid commissions cannot be voided', async () => {
-		const commission = (await records('affiliate_commissions'))[0];
-		await request(`/api/collections/affiliate_commissions/records/${commission.id}`, {
-			token: admin,
-			method: 'PATCH',
-			body: { status: 'void', void_reason: 'test refund' },
-			status: 400
-		});
-		await request(`/api/collections/affiliate_payouts/records/${paidPayout.id}`, {
-			token: admin,
-			method: 'DELETE',
-			status: 400
-		});
-		await request(`/api/collections/payments/records/${firstPayment.id}`, {
-			token: admin,
-			method: 'DELETE',
-			status: 400
-		});
-		const deletion = await request(`/api/collections/weddings/records/${firstWedding}`, {
-			token: firstBuyer.token,
-			method: 'DELETE',
-			status: null
-		});
-		assert.ok(deletion.status >= 400);
-		assert.equal((await records('payments', `id = '${firstPayment.id}'`)).length, 1);
-	});
+	await check(
+		'ordinary users cannot delete financial history; paid commissions cannot be voided',
+		async () => {
+			const commission = (await records('affiliate_commissions'))[0];
+			await request(`/api/collections/affiliate_commissions/records/${commission.id}`, {
+				token: admin,
+				method: 'PATCH',
+				body: { status: 'void', void_reason: 'test refund' },
+				status: 400
+			});
+			await request(`/api/collections/affiliate_payouts/records/${paidPayout.id}`, {
+				token: affiliateUser.token,
+				method: 'DELETE',
+				status: 403
+			});
+			await request(`/api/collections/payments/records/${firstPayment.id}`, {
+				token: firstBuyer.token,
+				method: 'DELETE',
+				status: 403
+			});
+			const deletion = await request(`/api/collections/weddings/records/${firstWedding}`, {
+				token: firstBuyer.token,
+				method: 'DELETE',
+				status: null
+			});
+			assert.ok(deletion.status >= 400);
+			assert.equal((await records('payments', `id = '${firstPayment.id}'`)).length, 1);
+		}
+	);
 	await check(
 		'uncertain invoice creation keeps reservation; discounted missing status reconciles',
 		async () => {
@@ -1376,6 +1380,156 @@ try {
 			}
 			assert.equal(limited, true);
 		});
+		// Destructive maintenance scenarios use only this disposable fixture. Keep
+		// browser fixtures intact so their affiliate/payment flows can still run.
+		const deletionTargets = [
+			['affiliates', affiliate.id],
+			['affiliate_commissions', (await records('affiliate_commissions'))[0].id],
+			['affiliate_payouts', paidPayout.id],
+			['payments', firstPayment.id]
+		];
+		await check(
+			'financial deletion is superuser-only even if a delete rule is opened',
+			async () => {
+				for (const [collection, id] of deletionTargets) {
+					const schema = (await request(`/api/collections/${collection}`, { token: admin })).data;
+					assert.equal(schema.deleteRule, null);
+					await request(`/api/collections/${collection}`, {
+						token: admin,
+						method: 'PATCH',
+						body: { deleteRule: '' }
+					});
+					try {
+						for (const token of ['', affiliateUser.token, firstBuyer.token]) {
+							const response = await request(`/api/collections/${collection}/records/${id}`, {
+								token,
+								method: 'DELETE',
+								body: { isSuperuser: true, force: true },
+								status: 403
+							});
+							assert.match(response.data.message, /Hanya superuser/);
+						}
+						await request(`/api/collections/${collection}/records/${id}`, { token: admin });
+					} finally {
+						await request(`/api/collections/${collection}`, {
+							token: admin,
+							method: 'PATCH',
+							body: { deleteRule: schema.deleteRule }
+						});
+					}
+				}
+			}
+		);
+		await check(
+			'superuser deletes paid payouts, proof files, commissions and payments',
+			async () => {
+				const proofPath = path.join(
+					temp,
+					'data/storage',
+					paidPayout.collectionId,
+					paidPayout.id,
+					paidPayout.transfer_proof
+				);
+				assert.deepEqual(await readFile(proofPath), proofImage);
+				const linkedPayment = await request(
+					`/api/collections/payments/records/${firstPayment.id}`,
+					{
+						token: admin,
+						method: 'DELETE',
+						status: 400
+					}
+				);
+				assert.match(linkedPayment.data.message, /required relation reference/);
+				for (const collection of ['affiliate_payouts', 'affiliate_commissions', 'payments']) {
+					const id = deletionTargets.find(([name]) => name === collection)[1];
+					await request(`/api/collections/${collection}/records/${id}`, {
+						token: admin,
+						method: 'DELETE',
+						status: 204
+					});
+					await request(`/api/collections/${collection}/records/${id}`, {
+						token: admin,
+						status: 404
+					});
+				}
+				await assert.rejects(readFile(proofPath), { code: 'ENOENT' });
+			}
+		);
+		await check(
+			'bulk financial deletion accepts superusers and rejects ordinary users',
+			async () => {
+				const referenced = new Set(
+					(await records('affiliate_commissions')).map((record) => record.payment)
+				);
+				const targets = (await records('payments'))
+					.filter((record) => !referenced.has(record.id))
+					.slice(0, 2);
+				assert.equal(targets.length, 2);
+				const body = {
+					requests: targets.map((record) => ({
+						method: 'DELETE',
+						url: `/api/collections/payments/records/${record.id}`
+					}))
+				};
+				await request('/api/batch', { token: firstBuyer.token, method: 'POST', body, status: 400 });
+				for (const record of targets)
+					await request(`/api/collections/payments/records/${record.id}`, { token: admin });
+				const response = await request('/api/batch', { token: admin, method: 'POST', body });
+				assert.deepEqual(
+					response.data.map((item) => item.status),
+					[204, 204]
+				);
+				for (const record of targets)
+					await request(`/api/collections/payments/records/${record.id}`, {
+						token: admin,
+						status: 404
+					});
+			}
+		);
+		await check('superuser deletes users and weddings with payment history', async () => {
+			const linked = (await records('payments')).filter((record) => record.wedding);
+			const wedding = (
+				await request(`/api/collections/weddings/records/${linked[0].wedding}`, { token: admin })
+			).data;
+			const otherWedding = linked.find((record) => record.wedding !== wedding.id).wedding;
+			for (const [collection, id] of [
+				['users', wedding.owner],
+				['weddings', otherWedding]
+			]) {
+				await request(`/api/collections/${collection}/records/${id}`, {
+					token: admin,
+					method: 'DELETE',
+					status: 204
+				});
+				await request(`/api/collections/${collection}/records/${id}`, {
+					token: admin,
+					status: 404
+				});
+			}
+		});
+	}
+	if (process.env.WEDEZ_KEEP_TEST_SERVER !== '1') {
+		await check(
+			'superuser deletes affiliates after explicitly deleting required references',
+			async () => {
+				const route = `/api/collections/affiliates/records/${affiliate.id}`;
+				const blocked = await request(route, { token: admin, method: 'DELETE', status: 400 });
+				assert.match(blocked.data.message, /required relation reference/);
+				await request(route, { token: admin });
+				for (const collection of ['affiliate_payouts', 'affiliate_commissions']) {
+					const references = await records(collection, `affiliate = '${affiliate.id}'`);
+					for (const record of references) {
+						await request(`/api/collections/${collection}/records/${record.id}`, {
+							token: admin,
+							method: 'DELETE',
+							status: 204
+						});
+					}
+				}
+				await request(route, { token: admin, method: 'DELETE', status: 204 });
+				await request(route, { token: admin, status: 404 });
+			}
+		);
 	}
 	console.log(`${checks} integration scenarios passed. Test data: ${temp}`);
 	passed = true;

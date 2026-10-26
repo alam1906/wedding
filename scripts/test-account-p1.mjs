@@ -465,6 +465,7 @@ try {
 		const personal = await addPersonalData(user);
 		const payment = await createPayment(user);
 		await request(`/api/collections/weddings/records/${user.wedding}`, {
+			token: user.token,
 			method: 'DELETE',
 			status: 400
 		});
@@ -480,8 +481,9 @@ try {
 		assert.equal((await get('payments', payment.id)).status, 'paid');
 		await request(`/api/collections/payments/records/${payment.id}`, { token: '', status: 404 });
 		await request(`/api/collections/payments/records/${payment.id}`, {
+			token: '',
 			method: 'DELETE',
-			status: 400
+			status: 403
 		});
 	});
 	await check(

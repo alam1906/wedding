@@ -163,9 +163,14 @@ onRecordCreateRequest(
 	'affiliate_payouts'
 );
 
-onRecordDelete(
-	function () {
-		throw new BadRequestError('Riwayat affiliate dan pembayaran tidak dapat dihapus.');
+// Request hooks expose the authenticated identity; model hooks do not.
+// Keep collection delete rules locked and allow explicit superuser maintenance.
+onRecordDeleteRequest(
+	function (e) {
+		if (!e.hasSuperuserAuth()) {
+			throw new ForbiddenError('Hanya superuser dapat menghapus data affiliate dan pembayaran.');
+		}
+		return e.next();
 	},
 	'affiliates',
 	'affiliate_commissions',
