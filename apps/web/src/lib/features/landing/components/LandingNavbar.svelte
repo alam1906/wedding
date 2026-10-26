@@ -38,7 +38,7 @@
 	class="fixed inset-x-0 top-0 z-50 border-b-[3px] border-[#191919] bg-[#fffaf1] text-[#191919]"
 >
 	<div
-		class="mx-auto flex h-19 max-w-7xl items-center justify-between gap-4 px-5 sm:px-8 md:grid md:grid-cols-[1fr_auto_1fr]"
+		class="mx-auto flex h-19 max-w-[1440px] items-center justify-between gap-4 px-5 sm:px-8 md:grid md:grid-cols-[1fr_auto_1fr]"
 	>
 		<a
 			href="#beranda"

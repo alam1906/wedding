@@ -273,7 +273,7 @@
 
 		{#each landingDashboards as dashboard, index (dashboard.id)}
 			<section class="section-space border-b-2 border-[#191919]" aria-labelledby={dashboard.id}>
-				<div class="nb-container grid items-center gap-10 lg:grid-cols-2 lg:gap-16">
+				<div class="nb-container grid items-center gap-10 lg:grid-cols-2 lg:gap-x-24 xl:gap-x-32">
 					<figure data-reveal class={['nb-panel min-w-0 bg-white', index === 0 && 'lg:order-2']}>
 						<img
 							src={dashboard.image}
@@ -359,7 +359,9 @@
 		</section>
 
 		<section id="faq" class="section-space section-anchor" aria-labelledby="faq-title">
-			<div class="nb-container grid items-start gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
+			<div
+				class="nb-container grid items-start gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-x-24 xl:gap-x-32"
+			>
 				<div data-reveal>
 					<p class="eyebrow">Pertanyaan umum</p>
 					<h2 id="faq-title" class="section-title mt-4">FAQ - Pertanyaan yang sering diajukan</h2>
@@ -417,9 +419,9 @@
 	<footer class="border-t-2 border-[#191919] bg-[#fffaf1] text-[#191919]">
 		<div class="nb-container pt-12 sm:pt-14">
 			<div
-				class="grid grid-cols-2 gap-x-6 gap-y-10 md:gap-x-10 lg:grid-cols-[1.1fr_1.4fr_0.7fr_0.7fr]"
+				class="grid grid-cols-1 gap-x-6 gap-y-10 md:grid-cols-2 md:gap-x-10 lg:grid-cols-[1.1fr_1.4fr_0.7fr_0.7fr]"
 			>
-				<div class="col-span-2 md:col-span-1">
+				<div>
 					<a
 						href="#beranda"
 						onclick={handleSectionClick}
@@ -441,7 +443,7 @@
 						Undangan pernikahan digital yang personal, mudah dibuat, dan praktis dibagikan.
 					</p>
 				</div>
-				<div class="col-span-2 md:col-span-1">
+				<div>
 					<h2 class="font-mono text-xs font-bold tracking-[0.16em] uppercase">Hubungi Kami</h2>
 					<address class="mt-5 text-sm leading-6 not-italic">
 						<ul class="space-y-4">
@@ -550,9 +552,11 @@
 					</ul>
 				</div>
 			</div>
-			<div class="mt-10 flex h-14 items-center justify-center border-t border-[#191919] sm:mt-12">
-				<p class="text-center font-mono text-xs leading-6 sm:text-sm">© 2026 Wedez</p>
-			</div>
+		</div>
+		<div
+			class="mt-10 flex h-14 items-center justify-center border-t border-[#191919] px-6 sm:mt-12"
+		>
+			<p class="text-center font-mono text-xs leading-6 sm:text-sm">© 2026 Wedez</p>
 		</div>
 	</footer>
 	<WhatsAppButton phoneNumber="+6281292464061" />
@@ -565,7 +569,7 @@
 	}
 	.nb-container {
 		width: 100%;
-		max-width: 1280px;
+		max-width: 1440px;
 		margin-inline: auto;
 		padding-inline: 24px;
 	}
