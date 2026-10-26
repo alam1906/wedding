@@ -156,6 +156,18 @@ try {
 			status = 204;
 		} else if (url.pathname.endsWith('/users/auth-refresh')) {
 			body = JSON.stringify({ token, record: owner });
+		} else if (url.pathname === '/api/wedez/dashboard') {
+			body = JSON.stringify({
+				slug: wedding.slug,
+				plan_tier: wedding.plan_tier,
+				completion: { completedFields: 15, totalFields: 17, percentage: 88 },
+				guests: {
+					total: guests.length,
+					attending: guests.filter((guest) => guest.rsvp_status === 'attending').length,
+					notAttending: guests.filter((guest) => guest.rsvp_status === 'not_attending').length,
+					pending: guests.filter((guest) => guest.rsvp_status === 'pending').length
+				}
+			});
 		} else if (url.pathname === `/api/collections/weddings/records/${wedding.id}`) {
 			body = JSON.stringify(wedding);
 		} else if (url.pathname.endsWith('/guests/records')) {
@@ -258,6 +270,17 @@ try {
 			returnByValue: true
 		});
 		if (!metrics.result.value) throw new Error(`Horizontal overflow in ${route}`);
+		if (name === 'overview') {
+			const upgrade = await call('Runtime.evaluate', {
+				expression: `(() => {
+					const link = document.querySelector('aside a[href="/user/upgrade"]');
+					return !!link && link.textContent.trim() === 'Upgrade' && link.getBoundingClientRect().height > 0;
+				})()`,
+				returnByValue: true
+			});
+			if (!upgrade.result.value)
+				throw new Error('Upgrade sidebar menu is missing from the preview.');
+		}
 		const screenshot = await call('Page.captureScreenshot', {
 			format: 'png',
 			captureBeyondViewport: false

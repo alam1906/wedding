@@ -416,7 +416,9 @@
 	</main>
 	<footer class="border-t-2 border-[#191919] bg-[#fffaf1] text-[#191919]">
 		<div class="nb-container pt-12 sm:pt-14">
-			<div class="grid grid-cols-2 gap-x-6 gap-y-10 md:grid-cols-[1.6fr_0.8fr_0.8fr] md:gap-16">
+			<div
+				class="grid grid-cols-2 gap-x-6 gap-y-10 md:gap-x-10 lg:grid-cols-[1.1fr_1.4fr_0.7fr_0.7fr]"
+			>
 				<div class="col-span-2 md:col-span-1">
 					<a
 						href="#beranda"
@@ -438,6 +440,68 @@
 					<p class="mt-4 max-w-sm text-sm leading-6 text-[#47433f]">
 						Undangan pernikahan digital yang personal, mudah dibuat, dan praktis dibagikan.
 					</p>
+				</div>
+				<div class="col-span-2 md:col-span-1">
+					<h2 class="font-mono text-xs font-bold tracking-[0.16em] uppercase">Hubungi Kami</h2>
+					<address class="mt-5 text-sm leading-6 not-italic">
+						<ul class="space-y-4">
+							<li class="flex items-start gap-3">
+								<svg
+									class="mt-0.5 size-5 shrink-0"
+									viewBox="0 0 24 24"
+									fill="none"
+									stroke="currentColor"
+									stroke-width="1.75"
+									aria-hidden="true"
+								>
+									<path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0Z" />
+									<circle cx="12" cy="10" r="3" />
+								</svg>
+								<span
+									>Dusun Sukawangi RT 018 RW 004 Desa Pasirpanjang Kec. Manonjaya Kab. Tasikmalaya,
+									Jawa Barat</span
+								>
+							</li>
+							<li class="flex items-start gap-3">
+								<svg
+									class="mt-0.5 size-5 shrink-0"
+									viewBox="0 0 24 24"
+									fill="none"
+									stroke="currentColor"
+									stroke-width="1.75"
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									aria-hidden="true"
+								>
+									<path
+										d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.69 2.8a2 2 0 0 1-.45 2.11L8.09 9.9a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.9.33 1.84.56 2.8.69A2 2 0 0 1 22 16.92Z"
+									/>
+								</svg>
+								<a class="underline-offset-4 hover:underline" href="tel:+6281292464061"
+									>+6281292464061</a
+								>
+							</li>
+							<li class="flex items-start gap-3">
+								<svg
+									class="mt-0.5 size-5 shrink-0"
+									viewBox="0 0 24 24"
+									fill="none"
+									stroke="currentColor"
+									stroke-width="1.75"
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									aria-hidden="true"
+								>
+									<rect x="3" y="5" width="18" height="14" rx="1" />
+									<path d="m3 6 9 7 9-7" />
+								</svg>
+								<a
+									class="break-all underline-offset-4 hover:underline"
+									href="mailto:support@wedez.id">support@wedez.id</a
+								>
+							</li>
+						</ul>
+					</address>
 				</div>
 				<nav aria-labelledby="footer-navigation-title">
 					<h2
