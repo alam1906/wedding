@@ -328,6 +328,7 @@ try {
 		...process.env,
 		WEDEZ_APP_URL: appUrl,
 		DUITKU_ENV: 'sandbox',
+		DUITKU_API_URL: '',
 		DUITKU_MERCHANT_CODE: 'TEST',
 		DUITKU_API_KEY: apiKey,
 		WEDEZ_PRO_PRICE: '50000',

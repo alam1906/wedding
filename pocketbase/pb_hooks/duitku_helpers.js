@@ -26,12 +26,10 @@ function getConfig() {
 		.trim()
 		.toLowerCase();
 	var expectedApiUrl =
-		environment === 'production' ? 'https://api-prod.duitku.com' : 'https://api-sandbox.duitku.com';
-	var expectedStatusUrl =
 		environment === 'production'
-			? 'https://passport.duitku.com/webapi/api/merchant/transactionStatus'
-			: 'https://sandbox.duitku.com/webapi/api/merchant/transactionStatus';
-	var apiUrl = trimTrailingSlash($os.getenv('DUITKU_API_URL') || expectedApiUrl);
+			? 'https://passport.duitku.com/webapi/api/merchant'
+			: 'https://sandbox.duitku.com/webapi/api/merchant';
+	var apiUrl = trimTrailingSlash($os.getenv('DUITKU_API_URL')) || expectedApiUrl;
 	var callbackUrl = String($os.getenv('DUITKU_CALLBACK_URL') || '').trim();
 	var returnUrl = String($os.getenv('DUITKU_RETURN_URL') || '').trim();
 	var expiryMinutes = 10;
@@ -42,7 +40,10 @@ function getConfig() {
 	}
 
 	if (apiUrl !== expectedApiUrl) {
-		throw new ApiError(503, 'URL API Duitku tidak sesuai dengan environment yang dipilih.');
+		throw new ApiError(
+			503,
+			'DUITKU_API_URL untuk ' + environment + ' harus ' + expectedApiUrl + '.'
+		);
 	}
 
 	if (!/^https:\/\//.test(callbackUrl)) {
@@ -69,11 +70,6 @@ function getConfig() {
 		merchantCode: merchantCode,
 		apiKey: apiKey,
 		apiUrl: apiUrl,
-		merchantApiUrl:
-			environment === 'production'
-				? 'https://passport.duitku.com/webapi/api/merchant'
-				: 'https://sandbox.duitku.com/webapi/api/merchant',
-		statusUrl: expectedStatusUrl,
 		callbackUrl: callbackUrl,
 		returnUrl: returnUrl,
 		expiryMinutes: expiryMinutes,
@@ -139,7 +135,7 @@ function createInvoice(app, config, invoice) {
 	return sendDuitkuRequest(
 		app,
 		{
-			url: config.merchantApiUrl + '/v2/inquiry',
+			url: config.apiUrl + '/v2/inquiry',
 			method: 'POST',
 			timeout: 20,
 			headers: {
@@ -171,7 +167,7 @@ function getPaymentMethods(app, config, amount) {
 	var response = sendDuitkuRequest(
 		app,
 		{
-			url: config.merchantApiUrl + '/paymentmethod/getpaymentmethod',
+			url: config.apiUrl + '/paymentmethod/getpaymentmethod',
 			method: 'POST',
 			timeout: 20,
 			headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
@@ -219,7 +215,7 @@ function checkTransaction(app, config, merchantOrderId, expectedAmount) {
 	var response = sendDuitkuRequest(
 		app,
 		{
-			url: config.statusUrl,
+			url: config.apiUrl + '/transactionStatus',
 			method: 'POST',
 			timeout: 20,
 			headers: {

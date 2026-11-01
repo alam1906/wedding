@@ -89,7 +89,14 @@ const mock = createServer(async (request, response) => {
 			})
 		);
 	} else {
-		assert.equal(request.url, '/status');
+		assert.equal(request.url, '/transactionStatus');
+		assert.equal(data.merchantCode, merchant);
+		assert.equal(
+			data.signature,
+			createHmac('sha256', apiKey)
+				.update(merchant + data.merchantOrderId)
+				.digest('hex')
+		);
 		statusRequests++;
 		if (statusDelay) await new Promise((resolve) => setTimeout(resolve, statusDelay));
 		if (rejectStatus) {
@@ -120,13 +127,10 @@ await cp(path.join(root, 'pocketbase/pb_hooks'), path.join(temp, 'hooks'), { rec
 const helperPath = path.join(temp, 'hooks/duitku_helpers.js');
 await writeFile(
 	helperPath,
-	(await readFile(helperPath, 'utf8'))
-		.replaceAll('https://api-sandbox.duitku.com', mockBase)
-		.replaceAll(
-			'https://sandbox.duitku.com/webapi/api/merchant/transactionStatus',
-			`${mockBase}/status`
-		)
-		.replaceAll('https://sandbox.duitku.com/webapi/api/merchant', mockBase)
+	(await readFile(helperPath, 'utf8')).replaceAll(
+		'https://sandbox.duitku.com/webapi/api/merchant',
+		mockBase
+	)
 );
 const binary = path.join(root, 'pocketbase/pocketbase');
 const migrationsDir = path.join(temp, 'migrations');

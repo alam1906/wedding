@@ -55,7 +55,8 @@ services:
       DUITKU_ENV: ${DUITKU_ENV:-production}
       DUITKU_MERCHANT_CODE: ${DUITKU_MERCHANT_CODE:?Set DUITKU_MERCHANT_CODE}
       DUITKU_API_KEY: ${DUITKU_API_KEY:?Set DUITKU_API_KEY}
-      DUITKU_API_URL: ${DUITKU_API_URL:-https://api-prod.duitku.com}
+      # Jika kosong, backend memilih base URL Duitku API sesuai DUITKU_ENV.
+      DUITKU_API_URL: ${DUITKU_API_URL:-}
       DUITKU_CALLBACK_URL: ${DUITKU_CALLBACK_URL:?Set DUITKU_CALLBACK_URL}
       DUITKU_RETURN_URL: ${DUITKU_RETURN_URL:?Set DUITKU_RETURN_URL}
     expose:

@@ -118,10 +118,26 @@ WEDEZ_PRO_PRICE
 DUITKU_ENV
 DUITKU_MERCHANT_CODE
 DUITKU_API_KEY
-DUITKU_API_URL
 DUITKU_CALLBACK_URL
 DUITKU_RETURN_URL
 ```
+
+Integrasi pembayaran memakai **Duitku API**. Untuk production, gunakan
+`DUITKU_ENV=production` dan kredensial dari proyek Duitku API production.
+`DUITKU_API_URL` opsional: kosongkan agar backend memilih otomatis, atau isi
+`https://passport.duitku.com/webapi/api/merchant`. Untuk sandbox gunakan
+`DUITKU_ENV=sandbox` dengan kredensial sandbox dan base URL
+`https://sandbox.duitku.com/webapi/api/merchant`.
+Ganti nilai lama `api-prod.duitku.com` / `api-sandbox.duitku.com` jika masih ada.
+Callback production adalah `https://api.wedez.id/api/wedez/payments/duitku/callback`
+dan return URL adalah `https://wedez.id/payment`.
+
+Perubahan kode hook memerlukan image PocketBase baru dari GitHub Actions. Siapkan
+Environment Dokploy yang sesuai sebelum workflow mendeploy rilis tersebut.
+Setelah rilis ini terpasang, perubahan environment Duitku saja cukup **Save lalu
+Deploy**; tidak perlu rebuild image atau commit kredensial ke Git. Mengedit `.env`
+lokal tidak mengubah Environment Dokploy. Lihat [panduan pembayaran](payments-duitku.md)
+untuk contoh konfigurasi lengkap dan pengujian.
 
 `PUBLIC_*` bukan runtime environment Dokploy. Nilainya dipasang ketika image statis dibangun oleh
 GitHub Actions. Perbarui `WEDEZ_APP_URL`, `WEDEZ_API_URL`, `DUITKU_CALLBACK_URL`, dan

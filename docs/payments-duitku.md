@@ -28,9 +28,44 @@ ditawarkan pada halaman ini.
   Tidak perlu plugin browser maupun SDK popup Duitku. Paket `qrcode` hanya mengubah
   `qrString` gateway menjadi gambar secara lokal, tanpa layanan QR pihak ketiga.
 
-Endpoint inquiry dan metode dipilih otomatis dari `DUITKU_ENV`: sandbox.duitku.com
-atau passport.duitku.com. `DUITKU_API_URL` lama tetap divalidasi untuk kompatibilitas
-konfigurasi, tetapi pembuatan invoice tidak lagi memakai endpoint POP createInvoice.
+## Environment Duitku API
+
+`DUITKU_API_URL` adalah base URL yang dipakai untuk seluruh permintaan Duitku API.
+Jika tidak diisi atau kosong, backend memilihnya otomatis dari `DUITKU_ENV`:
+
+| `DUITKU_ENV` | `DUITKU_API_URL`                                  |
+| ------------ | ------------------------------------------------- |
+| `sandbox`    | `https://sandbox.duitku.com/webapi/api/merchant`  |
+| `production` | `https://passport.duitku.com/webapi/api/merchant` |
+
+Backend menambahkan `/paymentmethod/getpaymentmethod` untuk daftar metode,
+`/v2/inquiry` untuk membuat tagihan, dan `/transactionStatus` untuk cek status.
+Jangan menambahkan suffix tersebut ke `DUITKU_API_URL`. URL harus sesuai environment;
+alamat POP `api-prod.duitku.com` / `api-sandbox.duitku.com` ditolak dengan pesan
+konfigurasi, sebelum mengirim permintaan ke gateway.
+
+Untuk production, isi **Environment service Compose di Dokploy**:
+
+```dotenv
+DUITKU_ENV=production
+DUITKU_MERCHANT_CODE=isi-merchant-code-production
+DUITKU_API_KEY=isi-api-key-production
+DUITKU_API_URL=https://passport.duitku.com/webapi/api/merchant
+DUITKU_CALLBACK_URL=https://api.wedez.id/api/wedez/payments/duitku/callback
+DUITKU_RETURN_URL=https://wedez.id/payment
+```
+
+Untuk pengembangan lokal, gunakan `.env.dev` dengan `DUITKU_ENV=sandbox`, kredensial
+sandbox, dan `DUITKU_API_URL=https://sandbox.duitku.com/webapi/api/merchant`.
+Gunakan return URL localhost dan callback HTTPS tunnel ke PocketBase lokal seperti
+dijelaskan di atas. Mengganti URL saja tidak mengubah kredensial sandbox menjadi
+kredensial production. `.env` dan `.env.dev` diabaikan Git; perubahan file lokal ini
+tidak memperbarui Environment Dokploy.
+
+Saat memasang perubahan kode konfigurasi ini, image PocketBase harus dibangun ulang
+melalui GitHub Actions. Siapkan Environment Dokploy yang sesuai sebelum rilis tersebut
+dideploy. Setelah image baru terpasang, perubahan environment saja cukup dengan
+**Save lalu Deploy** agar container dibuat ulang; tidak memerlukan build image baru.
 
 ## Perilaku dan keamanan
 
@@ -74,7 +109,10 @@ Uji migration pada salinan terisolasi terlebih dahulu. Jangan menimpa atau mengh
 database untuk menjalankan migration.
 Build frontend web setelah dependency terpasang (`bun install`).
 
-`bun scripts/test-affiliate.mjs` menjalankan PocketBase/SQLite di direktori sementara
+`bun run test:duitku` memeriksa pemilihan endpoint sandbox/production, penolakan URL
+yang salah, dan signature request tanpa memanggil gateway.
+
+`bun run test:affiliate` menjalankan PocketBase/SQLite di direktori sementara
 dengan provider Duitku tiruan, termasuk signature direct API, metode, biaya, kupon,
 konkurensi, callback duplikat, expiry, dan isolasi pemilik. Tidak menyentuh pb_data asli.
 
