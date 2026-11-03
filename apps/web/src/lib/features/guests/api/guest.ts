@@ -1,7 +1,7 @@
 import { ClientResponseError, type RecordModel } from 'pocketbase';
 
 import { pocketBase } from '#lib/infrastructure/pocketbase/index.js';
-import type { Guest, GuestInput, GuestStatus } from '../model/guest.js';
+import type { Guest, GuestInput, GuestQuota, GuestStatus } from '../model/guest.js';
 import { INVALID_GUEST_WHATSAPP_MESSAGE, normalizeGuestWhatsapp } from '../model/guest-form.js';
 
 const GUEST_FIELDS = [
@@ -58,24 +58,24 @@ function toGuest(record: RecordModel): Guest {
 }
 
 function validationMessage(error: ClientResponseError): string | null {
-	const responseData = error.response?.data;
-
-	if (typeof responseData !== 'object' || responseData === null) {
+	function findMessage(value: unknown): string | null {
+		if (typeof value !== 'object' || value === null) return null;
+		if (
+			'code' in value &&
+			typeof value.code === 'string' &&
+			'message' in value &&
+			typeof value.message === 'string'
+		) {
+			return value.message;
+		}
+		// CSV batch errors nest each validation inside the failed request.
+		for (const nested of Object.values(value)) {
+			const message = findMessage(nested);
+			if (message) return message;
+		}
 		return null;
 	}
-
-	for (const validation of Object.values(responseData)) {
-		if (
-			typeof validation === 'object' &&
-			validation !== null &&
-			'message' in validation &&
-			typeof validation.message === 'string'
-		) {
-			return validation.message;
-		}
-	}
-
-	return null;
+	return findMessage(error.response?.data);
 }
 
 function guestErrorMessage(error: ClientResponseError): string {
@@ -174,6 +174,29 @@ function isRsvpTokenConflict(error: unknown): boolean {
 }
 
 export const GUEST_PAGE_SIZE = 50;
+
+export function getGuestQuota(signal?: AbortSignal): Promise<GuestQuota> {
+	return handleGuestRequest(async () => {
+		const quota = await pocketBase.send<GuestQuota>('/api/wedez/guests/quota', {
+			method: 'GET',
+			cache: 'no-store',
+			requestKey: null,
+			signal
+		});
+		if (
+			!quota ||
+			!Number.isSafeInteger(quota.total) ||
+			quota.total < 0 ||
+			!(
+				(quota.plan_tier === 'pro' && quota.limit === null) ||
+				(quota.plan_tier === 'free' && Number.isSafeInteger(quota.limit) && Number(quota.limit) > 0)
+			)
+		)
+			throw new GuestDataError('Kuota tamu gagal dimuat. Silakan coba lagi.');
+		return quota;
+	});
+}
+
 export type GuestPageQuery = {
 	page?: number;
 	search?: string;

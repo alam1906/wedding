@@ -826,13 +826,6 @@
 	text-transform: uppercase;
 	letter-spacing: 0.1em;
 }
-.edition-theme .edition-footer a {
-	display: inline-block;
-	margin-top: 40px;
-	font-size: 12px;
-	color: var(--e-muted);
-	text-decoration: none;
-}
 .edition-theme .edition-music {
 	position: fixed;
 	right: max(16px, env(safe-area-inset-right));

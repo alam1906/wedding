@@ -94,7 +94,7 @@ export const landingPlans = [
 		name: 'Free',
 		price: 'Rp0',
 		description: 'Mulai merancang undangan dan lihat hasilnya sebelum dipublikasikan.',
-		features: ['Tema Terbatas', 'Tamu Terbatas', 'Ada Watermark'],
+		features: ['10 Pilihan Tema', 'Maksimal 30 Tamu', 'Ada Watermark'],
 		featured: false
 	},
 	{
@@ -110,7 +110,7 @@ export const landingFaqs = [
 	{
 		question: 'Apakah Wedez gratis digunakan?',
 		answer:
-			'Ya, Wedez menyediakan paket gratis dengan tema dasar dan maksimal 100 tamu. Paket Pro membuka semua tema premium, tamu tanpa batas, dan menghilangkan watermark.'
+			'Ya, Wedez menyediakan paket gratis dengan 10 pilihan tema dan maksimal 30 tamu. Paket Pro membuka semua tema premium, tamu tanpa batas, dan menghilangkan watermark.'
 	},
 	{
 		question: 'Bagaimana cara membuat undangan di Wedez?',

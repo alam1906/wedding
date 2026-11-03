@@ -145,7 +145,7 @@ try {
 		owner: otherUser.id,
 		slug: 'qa-same-day',
 		plan_tier: 'free',
-		theme: 'arsir',
+		theme: 'minimalist-1',
 		address: 'Lokasi sama',
 		maps: fixture.maps,
 		akad: fixture.akad,

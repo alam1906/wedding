@@ -19,6 +19,12 @@ export type GuestInput = Pick<
 	'name' | 'whatsapp' | 'rsvp_status' | 'message' | 'guest_count'
 >;
 
+export type GuestQuota = {
+	plan_tier: 'free' | 'pro';
+	total: number;
+	limit: number | null;
+};
+
 export const PUBLIC_RSVP_STATUSES = ['attending', 'not_attending'] as const;
 
 export type PublicRsvpStatus = (typeof PUBLIC_RSVP_STATUSES)[number];

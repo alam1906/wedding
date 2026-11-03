@@ -135,7 +135,7 @@ try {
 		);
 		await owner.collection('weddings').update(id, {
 			slug: `qa-read-${suffix}`,
-			theme: 'arsir',
+			theme: 'minimalist-1',
 			groom_name: 'QA Pria',
 			bride_name: 'QA Wanita',
 			groom_father_name: 'Ayah',
@@ -299,7 +299,12 @@ try {
 		await back();
 		await open('Tema');
 		releaseDomain();
-		await page.locator('label.ws-theme-option').first().click();
+		await page
+			.locator('label.ws-theme-option')
+			.filter({ has: page.locator('input:not(:disabled)') })
+			.filter({ hasNot: page.locator('input:checked') })
+			.first()
+			.click();
 		const chosenTheme = await page.locator('input[name="theme"]:checked').inputValue();
 		await page.getByRole('button', { name: 'Simpan perubahan', exact: true }).click();
 		await page.getByText('Tema berhasil disimpan.', { exact: true }).waitFor();

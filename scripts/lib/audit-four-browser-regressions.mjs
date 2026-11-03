@@ -20,6 +20,8 @@ export async function testAuditFourRegressions({ browser, pb, fixture, web, chec
 		method: 'POST'
 	});
 	await owner.collection('users').authRefresh();
+	// The pagination fixture intentionally exercises more than the Free allowance.
+	await pb.collection('weddings').update(wedding, { plan_tier: 'pro' });
 	const context = await browser.newContext({ viewport: { width: 1440, height: 1000 } });
 	const page = await context.newPage();
 	page.setDefaultTimeout(10000);

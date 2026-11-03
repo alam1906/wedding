@@ -452,7 +452,6 @@
 				<div class="seruni-wash seruni-wash-right" aria-hidden="true"></div>
 				<p class="seruni-footer-names">{couple}</p>
 				<p class="seruni-footer-date">{eventDate.date}</p>
-				<a href="https://wedez.id" target="_blank" rel="noopener noreferrer">Dibuat dengan Wedez</a>
 			</footer>
 		</div>
 	{/if}

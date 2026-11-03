@@ -711,13 +711,6 @@
 	text-transform: uppercase;
 	color: var(--k-green-dark);
 }
-.kusuma-theme .kusuma-footer a {
-	display: inline-block;
-	margin-top: 48px;
-	color: var(--k-muted);
-	font-size: 12px;
-	text-decoration: none;
-}
 .kusuma-theme .kusuma-music {
 	position: fixed;
 	right: max(16px, env(safe-area-inset-right));

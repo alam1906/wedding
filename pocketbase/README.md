@@ -25,5 +25,21 @@ Audit data lama pada lingkungan yang disetujui sebelum memutuskan remediasi data
 Migration `1792886401_guest_pagination_indexes.js` menambahkan indeks daftar tamu
 per wedding untuk nama, tanggal, dan pencarian nomor CSV. Frontend memuat maksimal
 50 tamu per halaman; pencarian/filter tetap berlaku pada seluruh tamu milik pemilik.
+
+Hook `guest_limits.pb.js` membatasi paket Free ke 30 entri undangan per wedding
+(bukan jumlah orang dalam `guest_count`); Pro tanpa batas. Pemeriksaan dan penyimpanan
+berjalan dalam transaksi yang sama untuk penambahan manual, batch CSV, serta
+pemindahan tamu. Batch yang melebihi kuota dibatalkan seluruhnya. Data Free lama
+yang melebihi kuota tidak dihapus dan tetap dapat diedit atau menerima RSVP.
+`GET /api/wedez/guests/quota` mengembalikan paket, jumlah entri, dan batas milik
+pemilik terverifikasi. Rilis hooks ini sebelum frontend yang menggunakan endpoint tersebut.
+
+Hook `theme_access.pb.js` membatasi pemilihan tema baru paket Free ke 10 tema
+di `theme_access.js`: Minimalist 1–3, Neobrutalism 1–3, Playful 1–3, dan Nocturne.
+Ringkasan wedding mengirim `free_theme_keys` dari daftar backend yang sama;
+editor tetap menampilkan tema Pro dalam keadaan terkunci. Paket Pro dapat memilih
+semua tema. Tema premium Free yang sudah tersimpan tidak diganti otomatis,
+tetapi setelah beralih ke tema lain, memilihnya kembali memerlukan Pro.
+
 Rekonsiliasi pembayaran menggunakan migration `1792886400_payment_reconciliation.js`;
 lihat [panduan pembayaran](../docs/payments-duitku.md) sebelum merilis perubahan backend.

@@ -707,13 +707,6 @@
 	letter-spacing: 0.1em;
 	text-transform: uppercase;
 }
-.arsir-theme .arsir-footer a {
-	display: inline-block;
-	margin-top: 84px;
-	color: var(--a-muted);
-	font-size: 12px;
-	text-decoration: none;
-}
 .arsir-theme .arsir-music {
 	position: fixed;
 	right: max(16px, env(safe-area-inset-right));

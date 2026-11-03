@@ -833,14 +833,6 @@
 	letter-spacing: 0.12em;
 	text-transform: uppercase;
 }
-.seruni-theme .seruni-footer a {
-	position: relative;
-	display: inline-block;
-	margin-top: 60px;
-	color: #66515f;
-	font-size: 11px;
-	text-decoration: none;
-}
 .seruni-theme .seruni-music {
 	position: fixed;
 	right: max(16px, env(safe-area-inset-right));

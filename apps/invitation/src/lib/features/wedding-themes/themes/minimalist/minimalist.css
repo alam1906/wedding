@@ -854,7 +854,7 @@
 	color: #fff;
 	background: #111512;
 }
-.minimalist-7 .edition-footer :is(p, a) {
+.minimalist-7 .edition-footer p {
 	color: inherit;
 }
 

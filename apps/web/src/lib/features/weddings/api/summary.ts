@@ -6,6 +6,7 @@ import {
 	type WeddingSummary
 } from '../model/wedding-summary.js';
 import { WeddingDataError } from './wedding.js';
+import { isWeddingThemeKey } from '#lib/features/wedding-themes/model/wedding-theme.js';
 
 function isSummary(
 	value: unknown
@@ -55,6 +56,10 @@ export function getWeddingSummary(signal?: AbortSignal): Promise<WeddingSummary>
 			const data = value as WeddingSummary;
 			return (
 				typeof data.id === 'string' &&
+				Array.isArray(data.free_theme_keys) &&
+				data.free_theme_keys.length === 10 &&
+				new Set(data.free_theme_keys).size === 10 &&
+				data.free_theme_keys.every(isWeddingThemeKey) &&
 				!!data.sections &&
 				WEDDING_SECTIONS.every((section) => typeof data.sections[section] === 'boolean')
 			);

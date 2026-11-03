@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
 // Owner-only read models. Return counts and completion flags instead of private records.
 function ownedWedding(e) {
 	if (!e.auth || !e.auth.getBool('verified')) {
@@ -60,6 +61,7 @@ function weddingSummary(app, wedding) {
 		id: wedding.id,
 		slug: wedding.getString('slug'),
 		plan_tier: wedding.getString('plan_tier') === 'pro' ? 'pro' : 'free',
+		free_theme_keys: require(__hooks + '/theme_access.js').freeThemeKeys.slice(),
 		completion: {
 			completedFields: completed,
 			totalFields: total,

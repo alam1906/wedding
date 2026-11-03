@@ -486,10 +486,12 @@
 	);
 	let selectedThemeCategory = $state<ThemeCategory>('all');
 	const filteredThemes = $derived(
-		reversedThemes.filter(
-			(theme) =>
-				selectedThemeCategory === 'all' || themeCategoryByKey[theme.key] === selectedThemeCategory
-		)
+		reversedThemes
+			.filter(
+				(theme) =>
+					selectedThemeCategory === 'all' || themeCategoryByKey[theme.key] === selectedThemeCategory
+			)
+			.sort((a, b) => Number(isThemeLocked(a.key)) - Number(isThemeLocked(b.key)))
 	);
 	const quoteOptions = [
 		{
@@ -553,6 +555,9 @@
 		status: 'idle' | 'loading' | 'ready' | 'error';
 	}>({ options: [], error: '', status: 'idle' });
 	let summary = $state.raw<Awaited<ReturnType<typeof getWeddingSummary>>>();
+	function isThemeLocked(theme: string): boolean {
+		return summary?.plan_tier !== 'pro' && !summary?.free_theme_keys.some((key) => key === theme);
+	}
 	const currentWeddingId = $derived(summary?.id);
 	let summaryError = $state<unknown>();
 	let summaryRequest: AbortController | undefined;
@@ -1112,6 +1117,10 @@
 		if (!(form instanceof HTMLFormElement)) {
 			return;
 		}
+		if (activeSection === 'Tema' && themeHasChanges && isThemeLocked(selectedTheme)) {
+			toast.error('Tema ini terkunci. Upgrade ke Pro untuk menggunakan semua tema.');
+			return;
+		}
 
 		isSaving = true;
 		const section = activeSection;
@@ -1420,6 +1429,19 @@
 						{:else if activeSection === 'Tema'}
 							<fieldset>
 								<legend class="sr-only">Pilih tema undangan</legend>
+								{#if summary.plan_tier === 'free'}
+									<div
+										class="ws-inset mb-6 flex flex-wrap items-center justify-between gap-3 bg-[#fffaf1] p-4"
+									>
+										<p class="text-sm leading-6 text-[#5c554e]">
+											<strong class="text-[#191919]">10 tema untuk paket Free.</strong>
+											Tema berlabel Pro dapat digunakan setelah upgrade.
+										</p>
+										<a href="/user/upgrade" class="ws-button shrink-0 px-4 py-2 text-sm"
+											>Upgrade ke Pro</a
+										>
+									</div>
+								{/if}
 								<div
 									class="mb-6 flex flex-wrap gap-2"
 									role="group"
@@ -1443,8 +1465,11 @@
 									class="grid auto-rows-fr content-start items-stretch justify-start gap-3 sm:grid-cols-2 lg:grid-cols-4"
 								>
 									{#each filteredThemes as theme (theme.key)}
+										{@const locked = isThemeLocked(theme.key)}
 										<label
-											class="ws-theme-option relative flex h-full w-full cursor-pointer flex-col overflow-hidden"
+											class="ws-theme-option relative flex h-full w-full flex-col overflow-hidden {locked
+												? 'cursor-not-allowed'
+												: 'cursor-pointer'}"
 											class:ws-selected={selectedTheme === theme.key}
 										>
 											<input
@@ -1452,12 +1477,17 @@
 												name="theme"
 												value={theme.key}
 												bind:group={selectedTheme}
+												disabled={locked}
+												aria-label={theme.name}
 												class="sr-only"
 											/>
 
-											<div class="aspect-16/7 shrink-0 overflow-hidden border-b-2 border-[#191919]">
+											<div
+												class="relative aspect-16/7 shrink-0 overflow-hidden border-b-2 border-[#191919]"
+											>
 												<img
 													class="size-full object-cover"
+													class:opacity-60={locked}
 													src={`/images/theme-previews/${theme.key}.webp`}
 													alt=""
 													width="1200"
@@ -1465,6 +1495,26 @@
 													loading="lazy"
 													decoding="async"
 												/>
+												{#if locked}
+													<span
+														class="absolute top-2 right-2 inline-flex items-center gap-1.5 border-2 border-[#191919] bg-[#e2d2ff] px-2 py-1 text-xs font-extrabold text-[#191919]"
+													>
+														<svg
+															aria-hidden="true"
+															class="size-3.5"
+															viewBox="0 0 24 24"
+															fill="none"
+															stroke="currentColor"
+															stroke-width="2"
+															stroke-linecap="round"
+															stroke-linejoin="round"
+														>
+															<rect x="5" y="10" width="14" height="11" rx="1" />
+															<path d="M8 10V7a4 4 0 0 1 8 0v3M12 14v3" />
+														</svg>
+														Pro · Terkunci
+													</span>
+												{/if}
 											</div>
 
 											<div class="flex-1 p-3.5">
@@ -2132,7 +2182,7 @@
 								type="submit"
 								disabled={isSaving ||
 									isOptimizingImages ||
-									(activeSection === 'Tema' && !themeHasChanges)}
+									(activeSection === 'Tema' && (!themeHasChanges || isThemeLocked(selectedTheme)))}
 								aria-busy={isSaving || isOptimizingImages}
 								class="ws-button ws-button--primary shrink-0 cursor-pointer px-5 py-3 text-sm transition disabled:cursor-not-allowed disabled:opacity-60"
 							>

@@ -532,7 +532,6 @@
 			<div class="narrow-content">
 				<p>Terima kasih atas doa dan kehadiran Anda</p>
 				<h2>{coupleName}</h2>
-				<small>Dibuat dengan Wedez</small>
 			</div>
 		</footer>
 	</main>
@@ -1174,16 +1173,6 @@
 		color: var(--color-primary);
 		font-size: 2rem;
 		font-weight: 900;
-	}
-	.closing-section small {
-		position: absolute;
-		right: 1.25rem;
-		bottom: 2rem;
-		left: 1.25rem;
-		display: block;
-		color: color-mix(in srgb, var(--color-surface) 68%, var(--color-text));
-		font-weight: 700;
-		text-align: center;
 	}
 
 	.family-neubrutalism {

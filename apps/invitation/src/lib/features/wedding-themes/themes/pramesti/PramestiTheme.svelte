@@ -402,9 +402,6 @@
 					/>{/key}
 				<footer class="pramesti-footer">
 					<p>{couple}</p>
-					<a href="https://wedez.id" target="_blank" rel="noopener noreferrer"
-						>Dibuat dengan Wedez</a
-					>
 				</footer>
 			</div>
 		</div>

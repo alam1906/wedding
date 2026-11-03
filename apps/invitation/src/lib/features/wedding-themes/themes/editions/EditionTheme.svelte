@@ -712,9 +712,6 @@
 					<div class="edition-footer-card" data-edition-reveal>
 						<p class="edition-footer-names">{couple}</p>
 						<p class="edition-footer-date">{eventDate.date}</p>
-						<a href="https://wedez.id" target="_blank" rel="noopener noreferrer"
-							>Dibuat dengan Wedez</a
-						>
 					</div>
 				</footer>
 			</div>

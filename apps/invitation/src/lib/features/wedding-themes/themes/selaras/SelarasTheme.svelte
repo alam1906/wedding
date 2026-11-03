@@ -397,7 +397,6 @@
 						<div class="closing-copy">
 							<p>Terima kasih atas doa dan kehadiran Anda</p>
 							<h2 aria-label={couple}><span>{groom}</span><i>&amp;</i><span>{bride}</span></h2>
-							<small>Dibuat dengan Wedez</small>
 						</div>
 					</footer>
 				</div>
@@ -1036,10 +1035,6 @@
 		font-size: 0.5em;
 		line-height: 1.5;
 		color: #dfc1a1;
-	}
-	.closing-copy small {
-		font-size: 0.65rem;
-		opacity: 0.8;
 	}
 	.music-button {
 		position: fixed;

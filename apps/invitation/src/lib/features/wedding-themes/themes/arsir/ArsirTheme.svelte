@@ -427,9 +427,6 @@
 				<div class="arsir-footer-content" data-arsir-reveal>
 					<p class="arsir-footer-names">{couple}</p>
 					<p class="arsir-footer-date">{eventDate.date}</p>
-					<a href="https://wedez.id" target="_blank" rel="noopener noreferrer"
-						>Dibuat dengan Wedez</a
-					>
 				</div>
 			</footer>
 		</div>

@@ -645,13 +645,6 @@
 	letter-spacing: 0.12em;
 	text-transform: uppercase;
 }
-.aurelia-theme .aurelia-footer a {
-	display: inline-block;
-	margin-top: 44px;
-	color: #fff4df;
-	font-size: 12px;
-	text-decoration: none;
-}
 .aurelia-theme .aurelia-music {
 	position: fixed;
 	right: max(16px, env(safe-area-inset-right));

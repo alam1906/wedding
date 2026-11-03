@@ -669,11 +669,6 @@
 	font-family: var(--p-serif);
 	font-size: 28px;
 }
-.pramesti-theme .pramesti-footer a {
-	color: var(--p-muted);
-	font-size: 12px;
-	text-decoration: none;
-}
 .pramesti-theme .pramesti-music {
 	position: fixed;
 	right: max(16px, env(safe-area-inset-right));

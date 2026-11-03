@@ -229,7 +229,7 @@
 					<div data-reveal class="max-w-2xl">
 						<p class="eyebrow">Pilihan tema</p>
 						<h2 id="themes-title" class="section-title mt-4">
-							Temukan gaya yang terasa seperti kalian.
+							Temukan tema yang cocok untuk kalian.
 						</h2>
 					</div>
 					<a data-reveal class="nb-button w-fit shrink-0 bg-[#e5fa94]" href="/tema"

@@ -25,9 +25,7 @@
 
 {#if data.wedding}
 	{#if data.wedding.plan_tier === 'free'}
-		<div class="unpaid-watermark" aria-hidden="true">
-			<span>BELUM BAYAR</span>
-		</div>
+		<p class="wedez-watermark">Dibuat dengan <strong>Wedez</strong></p>
 	{/if}
 	<WeddingThemeRenderer theme={data.wedding.theme} wedding={data.wedding} />
 {:else}
@@ -48,25 +46,29 @@
 {/if}
 
 <style>
-	.unpaid-watermark {
+	.wedez-watermark {
 		position: fixed;
 		z-index: 2147483647;
-		inset: 0;
-		display: grid;
-		place-items: center;
+		bottom: calc(env(safe-area-inset-bottom, 0px) + 12px);
+		left: calc(env(safe-area-inset-left, 0px) + 12px);
+		margin: 0;
+		padding: 7px 11px;
+		border: 1px solid rgb(0 0 0 / 8%);
+		border-radius: 999px;
+		background: rgb(255 255 255 / 92%);
+		color: #4b5563;
+		box-shadow: 0 2px 10px rgb(0 0 0 / 6%);
+		font-family: Arial, sans-serif;
+		font-size: 11px;
+		font-weight: 400;
+		line-height: 1.4;
+		white-space: nowrap;
 		pointer-events: none;
 		user-select: none;
 	}
 
-	.unpaid-watermark span {
-		transform: rotate(-18deg);
-		color: #b91c1c;
-		font-size: clamp(2rem, 8vw, 6rem);
-		font-weight: 900;
-		letter-spacing: 0.16em;
-		line-height: 1;
-		opacity: 0.14;
-		text-align: center;
-		white-space: nowrap;
+	.wedez-watermark strong {
+		color: #24212e;
+		font-weight: 600;
 	}
 </style>

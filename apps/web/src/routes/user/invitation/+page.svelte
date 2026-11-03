@@ -7,6 +7,7 @@
 
 	import {
 		getGuestPage,
+		getGuestQuota,
 		getExistingGuestNumbers,
 		GUEST_PAGE_SIZE,
 		createGuest,
@@ -22,6 +23,7 @@
 		type Guest,
 		type GuestCsvRow,
 		type GuestInput,
+		type GuestQuota,
 		type GuestStatus
 	} from '#lib/features/guests/index.js';
 	import { getToastContext } from '#lib/features/toast/index.js';
@@ -70,6 +72,12 @@
 	let guestPage = $state(1);
 	let totalPages = $state(0);
 	let totalGuests = $state(0);
+	let guestQuota = $state<GuestQuota | null>(null);
+	let quotaRequest: AbortController | undefined;
+	let remainingGuestSlots = $derived(
+		guestQuota?.limit == null ? null : Math.max(0, guestQuota.limit - guestQuota.total)
+	);
+	let canAddGuests = $derived(guestQuota !== null && remainingGuestSlots !== 0);
 	let loadingGuests = $state(false);
 	let guestLoadError = $state('');
 	let guestRequest: AbortController | undefined;
@@ -80,6 +88,7 @@
 		disposed = true;
 		initialRequest?.abort();
 		guestRequest?.abort();
+		quotaRequest?.abort();
 		clearTimeout(searchTimer);
 	});
 
@@ -123,10 +132,11 @@
 		initialError = undefined;
 		initialLoading = true;
 		try {
-			const [loadedGuests, loadedWeddingSlug, whatsappTemplate] = await Promise.all([
+			const [loadedGuests, loadedWeddingSlug, whatsappTemplate, quota] = await Promise.all([
 				getGuestPage({ signal: request.signal }),
 				getCurrentWeddingSlug(request.signal),
-				getWhatsappTemplate(request.signal)
+				getWhatsappTemplate(request.signal),
+				getGuestQuota(request.signal)
 			]);
 			if (request.signal.aborted) return;
 			weddingSlug = loadedWeddingSlug;
@@ -134,6 +144,7 @@
 			guestPage = loadedGuests.page;
 			totalPages = loadedGuests.totalPages;
 			totalGuests = loadedGuests.totalItems;
+			guestQuota = quota;
 			savedWhatsappTemplate = whatsappTemplate;
 			whatsappTemplateDraft = whatsappTemplate;
 		} catch (cause) {
@@ -334,8 +345,26 @@
 		closeGuestActionMenu();
 		searchTimer = setTimeout(() => void loadGuestPage(1), 250);
 	}
+
+	async function refreshGuestQuota() {
+		quotaRequest?.abort();
+		const request = new AbortController();
+		quotaRequest = request;
+		try {
+			const quota = await getGuestQuota(request.signal);
+			if (!disposed && !request.signal.aborted) guestQuota = quota;
+		} catch {
+			if (!disposed && !request.signal.aborted) guestQuota = null;
+		}
+	}
+
 	let importableCsvRows = $derived(csvRows.filter((row) => !row.issue));
 	let rejectedCsvRows = $derived(csvRows.filter((row) => row.issue));
+	let csvQuotaError = $derived(
+		remainingGuestSlots !== null && importableCsvRows.length > remainingGuestSlots
+			? `CSV berisi ${importableCsvRows.length} tamu baru, tetapi kuota paket Free tersisa ${remainingGuestSlots}. Kurangi isi CSV atau upgrade ke Pro.`
+			: ''
+	);
 	let isDeletingGuest = $derived(
 		guestPendingDeletion !== null && deletingIds.includes(guestPendingDeletion.id)
 	);
@@ -363,6 +392,7 @@
 	};
 
 	function openCreateForm() {
+		if (!canAddGuests) return;
 		resetGuestFeedback();
 		editingId = null;
 		form = emptyGuestForm();
@@ -407,6 +437,7 @@
 	}
 
 	function openCsvDialog() {
+		if (!canAddGuests) return;
 		csvRows = [];
 		csvFileName = '';
 		csvError = '';
@@ -470,17 +501,19 @@
 
 	async function importCsvGuests(event: SubmitEvent) {
 		event.preventDefault();
-		if (isImportingCsv || importableCsvRows.length === 0) return;
+		if (isImportingCsv || importableCsvRows.length === 0 || !canAddGuests || csvQuotaError) return;
 
 		isImportingCsv = true;
+		csvError = '';
 
 		try {
 			const createdGuests = await createGuests(importableCsvRows.map((row) => row.input));
 			toast.success(`${createdGuests.length} tamu berhasil diimpor.`);
 			csvDialog?.close();
-			await loadGuestPage(guestPage);
+			await Promise.all([loadGuestPage(guestPage), refreshGuestQuota()]);
 		} catch (error) {
-			toast.error(error instanceof GuestDataError ? error.message : 'Tamu dari CSV gagal diimpor.');
+			csvError = error instanceof GuestDataError ? error.message : 'Tamu dari CSV gagal diimpor.';
+			await refreshGuestQuota();
 		} finally {
 			isImportingCsv = false;
 		}
@@ -553,6 +586,10 @@
 		if (isSaving) {
 			return;
 		}
+		if (editingId === null && !canAddGuests) {
+			guestFormError = 'Kuota tamu tidak tersedia. Periksa kuota atau upgrade ke Pro.';
+			return;
+		}
 
 		const guestInput = { ...form, name: normalizeGuestName(form.name) };
 		guestFormError = '';
@@ -574,10 +611,11 @@
 			}
 
 			closeDialog();
-			await loadGuestPage(guestPage);
+			await Promise.all([loadGuestPage(guestPage), refreshGuestQuota()]);
 		} catch (error) {
 			guestFormError =
 				error instanceof GuestDataError ? error.message : 'Data tamu gagal disimpan.';
+			await refreshGuestQuota();
 		} finally {
 			isSaving = false;
 		}
@@ -598,7 +636,7 @@
 			toast.success('Tamu berhasil dihapus.');
 			deleteDialog?.close();
 			guestPendingDeletion = null;
-			await loadGuestPage(guestPage);
+			await Promise.all([loadGuestPage(guestPage), refreshGuestQuota()]);
 		} catch (error) {
 			toast.error(error instanceof GuestDataError ? error.message : 'Tamu gagal dihapus.');
 		} finally {
@@ -923,6 +961,11 @@
 							<strong class="font-semibold text-[#191919]">whatsapp</strong>. Maksimal 50 tamu per
 							impor.
 						</p>
+						{#if remainingGuestSlots !== null}
+							<p class="mt-2 text-sm text-[#5c554e]">
+								Kuota paket Free tersisa {remainingGuestSlots} tamu.
+							</p>
+						{/if}
 					</div>
 
 					<div class="space-y-5 p-5 sm:p-6">
@@ -986,6 +1029,9 @@
 								</div>
 							{/if}
 						</div>
+						{#if csvQuotaError}
+							<p role="alert" class="text-sm leading-6 text-red-700">{csvQuotaError}</p>
+						{/if}
 					</div>
 
 					<div class="flex justify-end gap-3 border-t border-[#191919] px-5 py-4 sm:px-6">
@@ -999,7 +1045,11 @@
 						</button>
 						<button
 							type="submit"
-							disabled={isReadingCsv || isImportingCsv || importableCsvRows.length === 0}
+							disabled={isReadingCsv ||
+								isImportingCsv ||
+								importableCsvRows.length === 0 ||
+								!canAddGuests ||
+								!!csvQuotaError}
 							aria-busy={isImportingCsv}
 							class="ws-button ws-button--primary cursor-pointer px-5 py-3 text-sm disabled:cursor-not-allowed disabled:opacity-50"
 						>
@@ -1180,6 +1230,29 @@
 				</form>
 			</dialog>
 
+			{#if guestQuota?.limit !== null && guestQuota !== null}
+				<div class="ws-inset flex flex-wrap items-center justify-between gap-3 bg-[#fffaf1] p-4">
+					<div>
+						<p class="text-sm font-bold text-[#191919]">
+							Paket Free · {guestQuota.total}/{guestQuota.limit} tamu
+						</p>
+						<p class="mt-1 text-sm text-[#5c554e]">
+							{remainingGuestSlots === 0
+								? 'Batas tamu tercapai. Upgrade ke Pro untuk menambah tamu.'
+								: `Tersisa ${remainingGuestSlots} tamu. Pro menyediakan tamu tanpa batas.`}
+						</p>
+					</div>
+					<a href="/user/upgrade" class="ws-button shrink-0 px-4 py-2 text-sm">Upgrade ke Pro</a>
+				</div>
+			{:else if guestQuota === null}
+				<div class="ws-inset flex flex-wrap items-center justify-between gap-3 p-4" role="status">
+					<p class="text-sm text-[#5c554e]">Kuota tamu belum dapat dimuat.</p>
+					<button type="button" class="ws-button px-4 py-2 text-sm" onclick={refreshGuestQuota}
+						>Coba lagi</button
+					>
+				</div>
+			{/if}
+
 			<div class="ws-panel">
 				<div class="border-b border-[#191919] p-5 sm:p-6">
 					<div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -1306,6 +1379,7 @@
 							<button
 								type="button"
 								onclick={openCsvDialog}
+								disabled={!canAddGuests}
 								title="Impor tamu dari CSV"
 								class="ws-button group inline-flex size-11 cursor-pointer items-center justify-center p-0 text-sm lg:h-auto lg:w-auto"
 							>
@@ -1337,6 +1411,7 @@
 							<button
 								type="button"
 								onclick={openCreateForm}
+								disabled={!canAddGuests}
 								title="Tambah tamu"
 								class="ws-button ws-button--icon ws-button--primary inline-flex size-11 cursor-pointer items-center justify-center text-sm transition lg:h-auto lg:w-auto lg:px-5 lg:py-3"
 							>

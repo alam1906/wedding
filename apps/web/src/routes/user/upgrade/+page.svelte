@@ -18,7 +18,7 @@
 	});
 	const featureLabels = ['Pilihan tema', 'Jumlah tamu', 'Watermark Wedez'];
 	const featureValues = [
-		['Tema terbatas', 'Tamu terbatas', 'Ditampilkan'],
+		['10 pilihan tema', 'Maksimal 30 tamu', 'Ditampilkan'],
 		['Semua tema premium', 'Tanpa batas', 'Tidak ditampilkan']
 	];
 

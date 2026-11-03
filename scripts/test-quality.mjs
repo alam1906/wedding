@@ -12,6 +12,8 @@ import PocketBase from '../apps/web/node_modules/pocketbase/dist/pocketbase.es.m
 import { WEDDING_THEME_KEYS as webThemes } from '../apps/web/src/lib/features/wedding-themes/model/wedding-theme.ts';
 import { WEDDING_THEME_KEYS as invitationThemes } from '../apps/invitation/src/lib/features/wedding-themes/model/wedding-theme.ts';
 import { calculateWeddingCompletion } from '../apps/web/src/lib/features/weddings/model/wedding-completion.ts';
+import { testGuestQuotas } from './lib/guest-quota-regressions.mjs';
+import { testThemeAccess } from './lib/theme-access-regressions.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const temp = await mkdtemp(path.join(tmpdir(), 'wedez-quality-'));
@@ -526,7 +528,10 @@ try {
 		}
 	);
 	let firstGuest;
-	await check('50-guest CSV batch succeeds and oversized batches are rejected', async () => {
+	await testThemeAccess({ pb, user, provision, check, denied, themes: webThemes });
+	await testGuestQuotas({ pb, user, provision, guest, check, denied });
+	await check('50-guest Pro CSV batch succeeds and oversized batches are rejected', async () => {
+		await pb.collection('weddings').update(wa, { plan_tier: 'pro' });
 		const batch = a.client.createBatch();
 		for (let i = 0; i < 50; i++) batch.collection('guests').create(guest(wa));
 		const saved = await batch.send();
@@ -699,6 +704,7 @@ try {
 		assert.equal(summary.id, id);
 		assert.deepEqual(Object.keys(summary).sort(), [
 			'completion',
+			'free_theme_keys',
 			'id',
 			'plan_tier',
 			'sections',

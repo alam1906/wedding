@@ -441,9 +441,6 @@
 					{@render flower('kusuma-flower-right')}
 					<p class="kusuma-footer-names">{couple}</p>
 					<p class="kusuma-footer-date">{eventDate.date}</p>
-					<a href="https://wedez.id" target="_blank" rel="noopener noreferrer"
-						>Dibuat dengan Wedez</a
-					>
 				</div>
 			</footer>
 		</div>

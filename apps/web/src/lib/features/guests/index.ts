@@ -1,6 +1,7 @@
 export {
 	GuestDataError,
 	getGuestPage,
+	getGuestQuota,
 	getExistingGuestNumbers,
 	GUEST_PAGE_SIZE,
 	createGuest,
@@ -9,7 +10,13 @@ export {
 	deleteGuest
 } from './api/guest.js';
 export { GuestCsvError, parseGuestCsv, type GuestCsvRow } from './model/guest-csv.js';
-export { GUEST_STATUSES, type Guest, type GuestInput, type GuestStatus } from './model/guest.js';
+export {
+	GUEST_STATUSES,
+	type Guest,
+	type GuestInput,
+	type GuestQuota,
+	type GuestStatus
+} from './model/guest.js';
 export {
 	sanitizeGuestWhatsappInput,
 	validateGuestForm,
